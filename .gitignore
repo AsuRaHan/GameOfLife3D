@@ -1,0 +1,69 @@
+# Игнорирование файлов Visual Studio
+*.VC.db
+*.opensdf
+*.sdf
+*.opensln
+*.suo
+*.ntvs*
+*.ncb
+*.cache
+*.VC.db
+*.VC.opendb
+*.VC.opendb.additionalData
+*.VC.opendb.additionalData.additionalData
+*.VC.opendb.additionalData.additionalData.additionalData
+*.VC.opendb.additionalData.additionalData.additionalData.additionalData
+*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData
+*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData
+*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData
+*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData
+*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData
+*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData
+*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData
+ipch/
+x64/
+Debug/
+Release/
+build/
+[Bb]in/
+[Oo]bj/
+
+# Файлы пользовательских настроек
+*.user
+*.userosscache
+*.sln.docstates
+
+# Файлы проекта и решения
+*.csproj.user
+*.vbproj.user
+*.vcxproj.filters
+
+# Файлы публикации
+publish/
+
+# Файлы тестирования
+*.TestSettings
+*.vsmdi
+
+# Файлы документации
+*.yml
+_help/
+
+# Файлы резервного копирования и временные файлы
+*~
+
+# Файлы ReSharper
+_ReSharper*
+
+# Файлы .vs
+.vs/
+
+# Файлы для игнорирования специфичных для вашего проекта
+# Например, если у вас есть файлы конфигурации или данные, которые не должны попадать в репозиторий
+# config.json
+# data/
+
+# Игнорирование файлов, связанных с системой контроля версий
+Thumbs.db
+ehthumbs.db
+Desktop.ini
