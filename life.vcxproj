@@ -148,6 +148,7 @@
     <ClCompile Include="system\OpenGLInitializer.cpp" />
     <ClCompile Include="windowing\GridPicker.cpp" />
     <ClCompile Include="windowing\MainWindow.cpp" />
+    <ClCompile Include="windowing\SettingsWindow.cpp" />
     <ClCompile Include="windowing\WindowController.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +168,7 @@
     <ClInclude Include="system\OpenGLInitializer.h" />
     <ClInclude Include="windowing\GridPicker.h" />
     <ClInclude Include="windowing\MainWindow.h" />
+    <ClInclude Include="windowing\SettingsWindow.h" />
     <ClInclude Include="windowing\WindowController.h" />
   </ItemGroup>
   <ItemGroup>

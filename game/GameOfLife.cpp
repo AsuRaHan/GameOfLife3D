@@ -1,8 +1,5 @@
 #include "GameOfLife.h"
 
-//#include <cstdlib> // Для rand() и srand()
-//#include <ctime>   // Для time()
-
 GameOfLife::GameOfLife(Grid& g) : grid(g) {
     //std::srand(static_cast<unsigned int>(std::time(nullptr))); // Инициализация генератора случайных чисел
 }

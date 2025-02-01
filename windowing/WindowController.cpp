@@ -118,6 +118,16 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
                 pGameController->initializeGrid(); // Очищение поля. убить всех
             }
             break;
+        //case 'L':
+        //    if (!pGameController->isSimulationRunning()) {
+        //        pGameController->resizeGrid(30,30);
+        //        pRenderer->RebuildGameField();
+        //    }
+        //    break;
+        case 'G':
+            pRenderer->setShowGrid(!pRenderer->getShowGrid() );
+            break;
+
         }
         break;
 

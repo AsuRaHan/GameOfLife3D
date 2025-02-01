@@ -1,15 +1,10 @@
-//#pragma once
-#include <Windows.h>
-#include <gl/GL.h>
-#include <gl/GLU.h>
-
 #pragma once
+
+#include "../system/GLFunctions.h"
 #include "Camera.h"
 #include "../game/GameController.h"
 #include <vector>
-#include <string>
-#include <fstream>
-#include <iostream>
+
 
 
 class Renderer {
@@ -32,11 +27,17 @@ public:
 
     int getWindowWidth() const { return width; }
     int getWindowHeight() const { return height; }
+    bool getShowGrid() { return showGrid; };
+    void setShowGrid(bool show) { showGrid = show; };
+
+    void RebuildGameField(); // метод для перестройки игрового поля
 
 private:
     int width, height;
     Camera camera;
     GameController* pGameController;
+
+    bool showGrid = true;
 
     void InitializeVBOs();
     GLuint gridVBO;
@@ -73,4 +74,6 @@ private:
 
     void InitializeDebugOverlay();
     void UpdateDebugOverlayPosition();
+
+   
 };

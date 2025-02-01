@@ -1,5 +1,5 @@
 #include "GameController.h"
-#include <random> // Для генерации случайных чисел
+
 
 
 GameController::GameController(int width, int height, float cellSize)
@@ -111,4 +111,108 @@ void GameController::toggleCellState(int x, int y) {
 
 bool GameController::getCellState(int x, int y) const {
     return grid.getCellState(x, y);
+}
+
+void GameController::saveGameState(const std::string& filename) {
+    std::ofstream file(filename);
+    if (file.is_open()) {
+        for (int y = 0; y < grid.getHeight(); ++y) {
+            for (int x = 0; x < grid.getWidth(); ++x) {
+                file << (grid.getCellState(x, y) ? "1" : "0");
+            }
+            file << '\n'; // Новая строка для следующего ряда
+        }
+        file.close();
+    }
+    else {
+        std::cerr << "Не удалось открыть файл для записи" << std::endl;
+    }
+}
+
+void GameController::loadGameState(const std::string& filename) {
+    std::ifstream file(filename);
+    if (file.is_open()) {
+        std::string line;
+        int y = 0;
+        while (std::getline(file, line) && y < grid.getHeight()) {
+            for (int x = 0; x < std::min(static_cast<int>(line.length()), grid.getWidth()); ++x) {
+                grid.setCellState(x, y, line[x] == '1');
+            }
+            ++y;
+        }
+        file.close();
+    }
+    else {
+        std::cerr << "Не удалось открыть файл для чтения" << std::endl;
+    }
+}
+
+void GameController::saveGameStateCSV(const std::string& filename) {
+    std::ofstream file(filename);
+    if (file.is_open()) {
+        for (int y = 0; y < grid.getHeight(); ++y) {
+            for (int x = 0; x < grid.getWidth(); ++x) {
+                const Cell& cell = grid.getCell(x, y);
+                file << (cell.getAlive() ? "1" : "0") << ","
+                    << cell.getType() << ","
+                    << cell.getColor().X() << ","
+                    << cell.getColor().Y() << ","
+                    << cell.getColor().Z();
+                if (x < grid.getWidth() - 1) file << ";"; // Разделитель между клетками в строке
+            }
+            file << '\n'; // Новая строка для следующего ряда
+        }
+        file.close();
+    }
+}
+
+void GameController::loadGameStateCSV(const std::string& filename) {
+    std::ifstream file(filename);
+    if (file.is_open()) {
+        std::string line, cellData;
+        int y = 0;
+        while (std::getline(file, line) && y < grid.getHeight()) {
+            std::istringstream iss(line);
+            for (int x = 0; x < grid.getWidth(); ++x) {
+                if (std::getline(iss, cellData, ';')) {
+                    std::istringstream cellStream(cellData);
+                    bool isAlive; int type; float r, g, b;
+                    char comma;
+                    if (cellStream >> isAlive >> comma >> type >> comma >> r >> comma >> g >> comma >> b) {
+                        Cell& cell = grid.getCell(x, y);
+                        cell.setAlive(isAlive);
+                        cell.setType(type);
+                        cell.setColor(Vector3d(r, g, b));
+                    }
+                }
+            }
+            ++y;
+        }
+        file.close();
+    }
+}
+
+void GameController::resizeGrid(int newWidth, int newHeight) {
+    if (newWidth <= 0 || newHeight <= 0) return; // Проверка на положительный размер
+
+    // Создаем новую сетку с новыми размерами
+    Grid newGrid(newWidth, newHeight);
+
+    // Копируем старые данные в новую сетку, где это возможно
+    for (int y = 0; y < std::min(grid.getHeight(), newHeight); ++y) {
+        for (int x = 0; x < std::min(grid.getWidth(), newWidth); ++x) {
+            newGrid.setCellState(x, y, grid.getCellState(x, y));
+        }
+    }
+
+    // Обновляем текущую сетку
+    grid = std::move(newGrid);
+
+    // Обновляем ссылку на сетку в GameOfLife
+    gameOfLife.updateGridReference(grid);
+
+    // Если симуляция работает, сбросим ее, чтобы избежать некорректной работы с новыми размерами
+    if (isRunning) {
+        stopSimulation();
+    }
 }

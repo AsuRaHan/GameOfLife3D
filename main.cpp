@@ -1,4 +1,5 @@
 ﻿#include "windowing/MainWindow.h"
+#include "windowing/SettingsWindow.h"
 #include "windowing/WindowController.h"
 #include "rendering/Renderer.h"
 #include "game/GameController.h"
@@ -15,6 +16,7 @@
 
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")
+#pragma comment(lib, "Comctl32.lib")
 
 
 
@@ -25,8 +27,8 @@ void ParseCommandLine(LPWSTR lpCmdLine, int& width, int& height) {
     std::wstring token;
 
     // Устанавливаем значения по умолчанию
-    width = 125;  // Значение по умолчанию для ширины
-    height = 100; // Значение по умолчанию для высоты
+    width = 200;  // Значение по умолчанию для ширины
+    height = 200; // Значение по умолчанию для высоты
 
     // Парсим командную строку
     while (iss >> token) {
@@ -86,6 +88,13 @@ int wWinMain(
         WindowController controller(&mainWindow, &renderer, &gameController);
         mainWindow.SetController(&controller);
 
+        // Создание окна настроек
+        //SettingsWindow settingsWindow(hInstance);
+        //if (!settingsWindow.Create(mainWindow.GetHwnd())) {
+        //    MessageBox(NULL, L"Failed to create settings window", L"Error", MB_OK | MB_ICONERROR);
+        //    return 1;
+        //}
+        //settingsWindow.Hide();
         MSG msg;
         while (GetMessage(&msg, NULL, 0, 0)) {
             TranslateMessage(&msg);
@@ -93,6 +102,11 @@ int wWinMain(
 
             //gameController.update();
             renderer.Draw();
+
+            // Здесь можно добавить логику для показа окна настроек
+            //if (msg.message == WM_KEYDOWN && msg.wParam == 'P') {
+            //    settingsWindow.Show();
+            //}
         }
     } else {
         MessageBox(NULL, L"Window creation failed", L"Error", MB_OK | MB_ICONERROR);

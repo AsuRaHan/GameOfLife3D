@@ -1,9 +1,5 @@
 #include "Renderer.h"
-#include <gl/GL.h>
-#include <gl/GLU.h>
-#include <iostream>
-
-#include "../system/GLFunctions.h"
+#include <algorithm> // Для std::min
 
 Renderer::Renderer(int width, int height)
     : width(width), height(height), camera(45.0f, static_cast<float>(width) / height, 0.1f, 1000.0f),
@@ -40,7 +36,7 @@ void Renderer::InitializeVBOs() {
     if (!pGameController) return;
     int gridWidth = pGameController->getGridWidth();
     int gridHeight = pGameController->getGridHeight();
-    float cellSize = pGameController->getCellSize(); // Получаем размер ячейки
+    float cellSize = pGameController->getCellSize();
 
     // Инициализация VBO для клеток
     glGenBuffers(1, &cellsVBO);
@@ -59,7 +55,7 @@ void Renderer::InitializeVBOs() {
     cellInstances.reserve(gridWidth * gridHeight);
     for (int y = 0; y < gridHeight; ++y) {
         for (int x = 0; x < gridWidth; ++x) {
-            Cell cell = pGameController->getGrid().getCell(x, y); // Получаем доступ к grid через GameController
+            Cell cell = pGameController->getGrid().getCell(x, y);
             cellInstances.push_back({
                 x * cellSize, y * cellSize,
                 pGameController->getCellState(x, y) ? 1.0f : 0.0f,
@@ -72,8 +68,6 @@ void Renderer::InitializeVBOs() {
     glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO);
     glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW);
 
-
-
     InitializeGridVBOs();
     InitializeDebugOverlay();
 }
@@ -82,58 +76,71 @@ void Renderer::InitializeGridVBOs() {
     if (!pGameController) return;
     int gridWidth = pGameController->getGridWidth();
     int gridHeight = pGameController->getGridHeight();
-    float cellSize = pGameController->getCellSize(); // Получаем размер ячейки
+    float cellSize = pGameController->getCellSize();
 
-    // Генерируем VBO для сетки
-    glGenBuffers(1, &gridVBO);
-    gridVertices.clear(); // Очищаем вектор перед заполнением
+    gridVertices.clear();
+    std::vector<float> majorGridVertices;
 
-    // Горизонтальные линии
+    // Создание обычной сетки
     for (int y = 0; y <= gridHeight; ++y) {
-        gridVertices.push_back(0.0f); // Начало линии по X
-        gridVertices.push_back(y * cellSize); // Y координата
-        gridVertices.push_back(0.0f); // Z координата
-
-        gridVertices.push_back((gridWidth)*cellSize); // Конец линии по X
-        gridVertices.push_back(y * cellSize); // Y координата
-        gridVertices.push_back(0.0f); // Z координата
+        for (int x = 0; x <= gridWidth; ++x) {
+            gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
+            gridVertices.push_back((x + 1) * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
+        }
+    }
+    for (int y = 0; y <= gridHeight; ++y) {
+        for (int x = 0; x <= gridWidth; ++x) {
+            gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
+            gridVertices.push_back(x * cellSize); gridVertices.push_back((y + 1) * cellSize); gridVertices.push_back(0.0f);
+        }
     }
 
-    // Вертикальные линии
-    for (int x = 0; x <= gridWidth; ++x) {
-        gridVertices.push_back(x * cellSize); // X координата
-        gridVertices.push_back(0.0f); // Начало линии по Y
-        gridVertices.push_back(0.0f); // Z координата
-
-        gridVertices.push_back(x * cellSize); // X координата
-        gridVertices.push_back((gridHeight)*cellSize); // Конец линии по Y
-        gridVertices.push_back(0.0f); // Z координата
+    // Создание "главных" линий
+    for (int y = 0; y <= gridHeight; y += 10) {
+        for (int x = 0; x <= gridWidth; x += 10) {
+            majorGridVertices.push_back(x * cellSize); majorGridVertices.push_back(y * cellSize); majorGridVertices.push_back(0.0f);
+            majorGridVertices.push_back((x == gridWidth ? x : x + 10) * cellSize); majorGridVertices.push_back(y * cellSize); majorGridVertices.push_back(0.0f);
+            majorGridVertices.push_back(x * cellSize); majorGridVertices.push_back(y * cellSize); majorGridVertices.push_back(0.0f);
+            majorGridVertices.push_back(x * cellSize); majorGridVertices.push_back((y == gridHeight ? y : y + 10) * cellSize); majorGridVertices.push_back(0.0f);
+        }
     }
 
-    // Генерируем VAO
+    // Создание VAO и VBO для обычной сетки
     glGenVertexArrays(1, &gridVAO);
-
-    // Связываем VAO
+    glGenBuffers(1, &gridVBO);
     glBindVertexArray(gridVAO);
-
-    // Связываем VBO и заполняем его данными
     glBindBuffer(GL_ARRAY_BUFFER, gridVBO);
     glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_STATIC_DRAW);
-
-    // Устанавливаем атрибуты вершин
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // Отвязываем VAO
+    // Создание VAO и VBO для "главных" линий
+    GLuint majorGridVAO, majorGridVBO;
+    glGenVertexArrays(1, &majorGridVAO);
+    glGenBuffers(1, &majorGridVBO);
+    glBindVertexArray(majorGridVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, majorGridVBO);
+    glBufferData(GL_ARRAY_BUFFER, majorGridVertices.size() * sizeof(float), majorGridVertices.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // Теперь вам нужно будет отрисовывать оба VAO в методе DrawGrid:
+    glBindVertexArray(gridVAO);
+    glDrawArrays(GL_LINES, 0, gridVertices.size() / 3);
+    glBindVertexArray(majorGridVAO);
+    glDrawArrays(GL_LINES, 0, majorGridVertices.size() / 3);
     glBindVertexArray(0);
 }
 
 void Renderer::Draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // Отрисовка сетки и клеток
-    DrawGrid();
+    if(showGrid)DrawGrid();
+
     DrawCells();
+
     DrawDebugOverlay();
+
     SwapBuffers(wglGetCurrentDC());
 }
 
@@ -327,23 +334,49 @@ void main()
     GLuint gridFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
     //std::string gridVertexShaderSource = LoadShaderSource("./glsl/grid_vertex_shader.glsl");
+//    const std::string gridVertexShaderSource = R"(
+//#version 330 core
+//layout(location = 0) in vec3 aPos;
+//uniform mat4 projection;
+//uniform mat4 view;
+//void main()
+//{
+//    gl_Position = projection * view * vec4(aPos, 1.0);
+//}
+//        )";
     const std::string gridVertexShaderSource = R"(
 #version 330 core
 layout(location = 0) in vec3 aPos;
 uniform mat4 projection;
 uniform mat4 view;
+out float isMajorLine; // Выходной параметр для фрагментного шейдера
 void main()
 {
     gl_Position = projection * view * vec4(aPos, 1.0);
+    // Пример: рассчитываем, является ли линия "главной"
+    isMajorLine = mod(aPos.x, 5.0) == 0.0 || mod(aPos.y, 5.0) == 0.0 ? 1.0 : 0.0;
 }
         )";
     //std::string gridFragmentShaderSource = LoadShaderSource("./glsl/grid_fragment_shader.glsl");
+//    const std::string gridFragmentShaderSource = R"(
+//#version 330 core
+//out vec4 FragColor;
+//void main()
+//{
+//    FragColor = vec4(0.3, 0.3, 0.4, 1.0); // Серый цвет для сетки
+//}
+//        )";
     const std::string gridFragmentShaderSource = R"(
 #version 330 core
+in float isMajorLine;
 out vec4 FragColor;
 void main()
 {
-    FragColor = vec4(0.3, 0.3, 0.4, 1.0); // Серый цвет для сетки
+    if(isMajorLine > 0.25) {
+        FragColor = vec4(0.6, 0.6, 0.7, 1.0); // Красный цвет для "главных" линий
+    } else {
+        FragColor = vec4(0.3, 0.3, 0.4, 1.0); // Серый цвет для обычных линий
+    }
 }
         )";
     const char* gridVertexSourcePtr = gridVertexShaderSource.c_str();
@@ -508,4 +541,15 @@ void Renderer::UpdateDebugOverlayPosition() {
     glEnableVertexAttribArray(0);
 
     glBindVertexArray(0);
+}
+
+void Renderer::RebuildGameField() {
+    if (!pGameController) return;
+
+    // Освобождаем старые буферы
+    glDeleteBuffers(1, &cellsVBO);
+    glDeleteBuffers(1, &cellInstanceVBO);
+    glDeleteBuffers(1, &gridVBO);
+
+    InitializeVBOs(); // Перестраиваем буферы
 }

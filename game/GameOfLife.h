@@ -13,4 +13,5 @@ public:
     GameOfLife(Grid& g);
     void nextGeneration();
     void previousGeneration();
+    void updateGridReference(Grid& newGrid) { grid = newGrid; } // метод для обновления ссылки
 };
