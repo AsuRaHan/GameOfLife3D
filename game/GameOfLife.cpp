@@ -37,21 +37,35 @@ int GameOfLife::countLiveNeighbors(int x, int y) const {
 }
 
 void GameOfLife::nextGeneration() {
-    saveCurrentState(); // Сохраняем текущее состояние перед переходом к следующему поколению
-    Grid newGrid(grid.getWidth(), grid.getHeight()); // Создаем новую сетку для следующего поколения
+    saveCurrentState();
+    Grid newGrid(grid.getWidth(), grid.getHeight());
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
             int neighbors = countLiveNeighbors(x, y);
             bool currentState = grid.getCellState(x, y);
+            Cell& oldCell = grid.getCell(x, y); // Ссылка на старую клетку для сохранения цвета
+            Cell newCell = oldCell; // Копируем старую клетку для сохранения её свойств
+
             if (currentState) {
-                newGrid.setCellState(x, y, neighbors == 2 || neighbors == 3); // Правило для живых клеток
+                // Живая клетка
+                newCell.setAlive(neighbors == 2 || neighbors == 3);
+                if (!newCell.getAlive()) {
+                    // Если клетка умирает, возможно, вы захотите изменить её цвет
+                    newCell.setColor(Vector3d(0.3f, 0.3f, 0.3f)); // Пример: темно-серый для умерших клеток
+                }
             }
             else {
-                newGrid.setCellState(x, y, neighbors == 3); // Правило для мертвых клеток
+                // Мертвая клетка
+                newCell.setAlive(neighbors == 3);
+                if (newCell.getAlive()) {
+                    // Если клетка рождается, установите новый цвет
+                    newCell.setColor(Vector3d(0.0f, 5.0f, 0.0f)); // Пример: красный для новорожденных
+                }
             }
+            newGrid.setCell(x, y, newCell); // Устанавливаем новую клетку, сохраняя или обновляя цвет
         }
     }
-    grid = newGrid; // Обновляем текущую сетку
+    grid = newGrid;
 }
 
 void GameOfLife::previousGeneration() {

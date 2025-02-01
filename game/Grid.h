@@ -14,4 +14,7 @@ public:
     bool getCellState(int x, int y) const;
     int getWidth() const;
     int getHeight() const;
+    Cell& getCell(int x, int y); // Ќовый метод дл€ получени€ клетки
+    const Cell& getCell(int x, int y) const; //  онстанта верси€ метода дл€ получени€ клетки
+    void setCell(int x, int y, const Cell& cell);
 };

@@ -1,12 +1,16 @@
 //#pragma once
-//#include <Windows.h>
-//#include <gl/GL.h>
+#include <Windows.h>
+#include <gl/GL.h>
+#include <gl/GLU.h>
 
 #pragma once
 #include "Camera.h"
 #include "../game/GameController.h"
-#include "DebugOverlay.h"
 #include <vector>
+#include <string>
+#include <fstream>
+#include <iostream>
+
 
 class Renderer {
 public:
@@ -18,7 +22,7 @@ public:
     Camera& GetCamera() { return camera; } // Удалить const
 
     void SetGameController(GameController* gameController);
-    void SetDebugOverlay(DebugOverlay* debugOverlay);
+
 
     void Draw();
 
@@ -33,15 +37,40 @@ private:
     int width, height;
     Camera camera;
     GameController* pGameController;
-    DebugOverlay* pDebugOverlay;
+
     void InitializeVBOs();
     GLuint gridVBO;
     GLuint cellsVBO;
     std::vector<GLfloat> gridVertices;
     std::vector<GLfloat> cellVertices;
 
+    struct CellInstance {
+        float x, y; // Позиция клетки
+        float state; // Состояние клетки (жив/мертв)
+        Vector3d color; // Цвет клетки
+        int type; // Тип клетки
+    };
+    GLuint cellInstanceVBO;
+    std::vector<CellInstance> cellInstances;
+    GLuint shaderProgram;
+    // для шейдеров сетки
+    GLuint gridShaderProgram;
+    GLuint gridVAO;
+
+    GLuint debugOverlayShaderProgram, debugOverlayVAO, debugOverlayVBO, debugOverlayTexture;
+
     void SetupOpenGL();
     void DrawGrid();
     void DrawCells();
     void DrawDebugOverlay();
+
+    void LoadShaders();
+    std::string LoadShaderSource(const std::string& filename);
+    void CheckShaderCompilation(GLuint shader, const std::string& name);
+    void CheckProgramLinking(GLuint program);
+
+    void InitializeGridVBOs();
+
+    void InitializeDebugOverlay();
+    void UpdateDebugOverlayPosition();
 };

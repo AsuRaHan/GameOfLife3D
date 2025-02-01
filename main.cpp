@@ -1,7 +1,6 @@
 ﻿#include "windowing/MainWindow.h"
 #include "windowing/WindowController.h"
 #include "rendering/Renderer.h"
-#include "rendering/DebugOverlay.h"
 #include "game/GameController.h"
 #include "system/OpenGLInitializer.h"
 
@@ -22,16 +21,16 @@ int wWinMain(
     _In_ int nShowCmd
 )
 {
-    //std::ofstream out("log.txt");
-    //std::streambuf* coutbuf = std::cout.rdbuf(); // сохраняем буфер cout
-    //std::cout.rdbuf(out.rdbuf()); // перенаправляем cout в файл
+    std::ofstream out("log.txt");
+    std::streambuf* coutbuf = std::cout.rdbuf(); // сохраняем буфер cout
+    std::cout.rdbuf(out.rdbuf()); // перенаправляем cout в файл
 
-    //auto now = std::chrono::system_clock::now();
-    //std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
-    //std::tm now_tm;
-    //localtime_s(&now_tm, &now_time_t);
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+    std::tm now_tm;
+    localtime_s(&now_tm, &now_time_t);
 
-    //std::cout << "LOG! " << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S") << std::endl;
+    std::cout << "LOG! " << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S") << std::endl;
 
     MainWindow mainWindow(hInstance);
 
@@ -45,18 +44,13 @@ int wWinMain(
             MessageBox(NULL, L"OpenGL Initialization Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
             return 1;
         }
-        GameController gameController(100, 100); // Создаем GameController
+        GameController gameController(150, 100); // Создаем GameController
         gameController.randomizeGrid(0.3f);
 
         Renderer renderer(width, height);
         renderer.SetGameController(&gameController);
         
-        renderer.GetCamera().SetPosition(25.0f, 25.0f, 65.0f); // Камера дальше по Z
-   
-        DebugOverlay debugOverlay;        
-        debugOverlay.onWindowResize(width, height); // Или какие у вас размеры окна по умолчанию
-        
-        renderer.SetDebugOverlay(&debugOverlay); // Устанавливаем DebugOverlay для Renderer
+        renderer.GetCamera().SetPosition(25.0f, 25.0f, 65.0f); // Камера дальше по Z       
 
         // Передаем один и тот же экземпляр gameController в WindowController
         WindowController controller(&mainWindow, &renderer, &gameController);
@@ -72,10 +66,10 @@ int wWinMain(
         }
     } else {
         MessageBox(NULL, L"Window creation failed", L"Error", MB_OK | MB_ICONERROR);
-        //std::cout.rdbuf(coutbuf); // восстанавливаем буфер cout
+        std::cout.rdbuf(coutbuf); // восстанавливаем буфер cout
         return 1;
     }
-    //std::cout.rdbuf(coutbuf); // восстанавливаем буфер cout
+    std::cout.rdbuf(coutbuf); // восстанавливаем буфер cout
     return 0;
 
 }

@@ -36,6 +36,10 @@ void GameController::randomizeGrid(float density) {
             else {
                 grid.setCellState(x, y, false);
             }
+            //float r = static_cast<float>(rand()) / RAND_MAX;
+            //float g = static_cast<float>(rand()) / RAND_MAX;
+            //float b = static_cast<float>(rand()) / RAND_MAX;
+            grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
         }
     }
 }

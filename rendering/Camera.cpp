@@ -1,7 +1,8 @@
 #include "Camera.h"
 #include <iostream>
 
-Camera::Camera(float fov, float aspectRatio, float nearPlane, float farPlane) {
+Camera::Camera(float fov, float aspectRatio, float nearPlane, float farPlane)
+    : fov(fov) { // Инициализируем FOV
     // Инициализация позиции, направления и вектора "вверх"
     position[0] = 0.0f;
     position[1] = 0.0f;
@@ -76,11 +77,25 @@ void Camera::Rotate(float yaw, float pitch) {
     float sinPitch = std::sin(pitch);
 
     // Обновляем направление камеры
-    direction[0] = cosYaw * cosPitch;
-    direction[1] = sinPitch;
-    direction[2] = sinYaw * cosPitch;
+    float newDirection[3];
+    newDirection[0] = direction[0] * cosYaw - direction[2] * sinYaw;
+    newDirection[2] = direction[0] * sinYaw + direction[2] * cosYaw;
 
-    NormalizeVector(direction);
+    // Исправляем ограничение на pitch, чтобы камера не перевернулась
+    float newPitch = direction[1] + pitch;
+    if (newPitch > 89.0f * 3.14159265358979323846f / 180.0f) newPitch = 89.0f * 3.14159265358979323846f / 180.0f;
+    if (newPitch < -89.0f * 3.14159265358979323846f / 180.0f) newPitch = -89.0f * 3.14159265358979323846f / 180.0f;
+
+    newDirection[1] = std::sin(newPitch);
+
+    NormalizeVector(newDirection);
+
+    // Обновляем вектор направления
+    direction[0] = newDirection[0];
+    direction[1] = newDirection[1];
+    direction[2] = newDirection[2];
+
+    // Обновляем вектор "вверх"
     UpdateViewMatrix();
 }
 

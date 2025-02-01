@@ -22,6 +22,8 @@ public:
 
     void LookAt(float targetX, float targetY, float targetZ, float upX, float upY, float upZ);
 
+    float GetFOV() const { return fov; }
+
     const float* GetViewMatrix() const { return viewMatrix; }
     const float* GetProjectionMatrix() const { return projectionMatrix; }
 
@@ -29,6 +31,7 @@ private:
     float position[3]; // Позиция камеры
     float direction[3]; // Направление камеры
     float up[3]; // Вектор "вверх"
+    float fov; // Угол обзора (FOV)
 
     float viewMatrix[16]; // Матрица вида
     float projectionMatrix[16]; // Матрица проекции

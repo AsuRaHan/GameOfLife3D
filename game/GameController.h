@@ -27,4 +27,5 @@ public:
     int getGridHeight() const { return grid.getHeight(); }
 
     bool getCellState(int x, int y) const;
+    const Grid& getGrid() const { return grid; }
 };
