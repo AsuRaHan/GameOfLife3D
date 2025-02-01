@@ -10,9 +10,38 @@
 #include <iomanip>
 #include <ctime>
 #include <fstream>
+#include <sstream>
+#include <string>
 
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")
+
+
+
+// Функция для парсинга командной строки
+void ParseCommandLine(LPWSTR lpCmdLine, int& width, int& height) {
+    std::wstring cmdLine(lpCmdLine);
+    std::wistringstream iss(cmdLine);
+    std::wstring token;
+
+    // Устанавливаем значения по умолчанию
+    width = 125;  // Значение по умолчанию для ширины
+    height = 100; // Значение по умолчанию для высоты
+
+    // Парсим командную строку
+    while (iss >> token) {
+        if (token == L"-width") {
+            if (iss >> token) {
+                width = std::stoi(token); // Преобразуем строку в целое число
+            }
+        }
+        else if (token == L"-height") {
+            if (iss >> token) {
+                height = std::stoi(token); // Преобразуем строку в целое число
+            }
+        }
+    }
+}
 
 int wWinMain(
     _In_ HINSTANCE hInstance,
@@ -32,8 +61,11 @@ int wWinMain(
 
     std::cout << "LOG! " << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S") << std::endl;
 
-    MainWindow mainWindow(hInstance);
+    // Переменные для ширины и высоты
+    int gridWidth, gridHeight;
+    ParseCommandLine(lpCmdLine, gridWidth, gridHeight); // Получаем значения из командной строки
 
+    MainWindow mainWindow(hInstance,800,600);
 
 
     if (mainWindow.Create()) {
@@ -44,13 +76,11 @@ int wWinMain(
             MessageBox(NULL, L"OpenGL Initialization Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
             return 1;
         }
-        GameController gameController(150, 100); // Создаем GameController
-        gameController.randomizeGrid(0.3f);
+        GameController gameController(gridWidth, gridHeight); // Создаем GameController
+        gameController.randomizeGrid(0.1f);
 
         Renderer renderer(width, height);
-        renderer.SetGameController(&gameController);
-        
-        renderer.GetCamera().SetPosition(25.0f, 25.0f, 65.0f); // Камера дальше по Z       
+        renderer.SetGameController(&gameController);  
 
         // Передаем один и тот же экземпляр gameController в WindowController
         WindowController controller(&mainWindow, &renderer, &gameController);

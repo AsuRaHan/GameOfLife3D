@@ -271,8 +271,37 @@ void Renderer::LoadShaders() {
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    std::string vertexShaderSource = LoadShaderSource("./glsl/cells_vertex_shader.glsl");
-    std::string fragmentShaderSource = LoadShaderSource("./glsl/cells_fragment_shader.glsl");
+    //std::string vertexShaderSource = LoadShaderSource("./glsl/cells_vertex_shader.glsl");
+    const std::string vertexShaderSource = R"(
+#version 330 core
+layout(location = 0) in vec2 aPos; 
+layout(location = 1) in vec2 aInstancePos;
+layout(location = 2) in float aInstanceState; 
+layout(location = 3) in vec3 aInstanceColor; 
+uniform mat4 projection;
+uniform mat4 view;
+uniform float cellSize; 
+flat out float vInstanceState;
+out vec3 vInstanceColor;
+void main()
+{
+    gl_Position = projection * view * vec4(aPos * cellSize + aInstancePos, 0.0, 1.0);
+    vInstanceState = aInstanceState;
+    vInstanceColor = aInstanceColor;
+}
+        )";
+    //std::string fragmentShaderSource = LoadShaderSource("./glsl/cells_fragment_shader.glsl");
+    const std::string fragmentShaderSource = R"(
+#version 330 core
+flat in float vInstanceState;
+in vec3 vInstanceColor;
+out vec4 FragColor;
+void main()
+{
+    vec3 color = vInstanceState > 0.5 ? vInstanceColor : vec3(0.1, 0.1, 0.1); // Использование переданного цвета для живых клеток
+    FragColor = vec4(color, 1.0);
+}
+        )";
 
     const char* vertexSourcePtr = vertexShaderSource.c_str();
     const char* fragmentSourcePtr = fragmentShaderSource.c_str();
@@ -293,13 +322,30 @@ void Renderer::LoadShaders() {
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-    //---------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------------------------------------//
     GLuint gridVertexShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint gridFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    std::string gridVertexShaderSource = LoadShaderSource("./glsl/grid_vertex_shader.glsl");
-    std::string gridFragmentShaderSource = LoadShaderSource("./glsl/grid_fragment_shader.glsl");
-
+    //std::string gridVertexShaderSource = LoadShaderSource("./glsl/grid_vertex_shader.glsl");
+    const std::string gridVertexShaderSource = R"(
+#version 330 core
+layout(location = 0) in vec3 aPos;
+uniform mat4 projection;
+uniform mat4 view;
+void main()
+{
+    gl_Position = projection * view * vec4(aPos, 1.0);
+}
+        )";
+    //std::string gridFragmentShaderSource = LoadShaderSource("./glsl/grid_fragment_shader.glsl");
+    const std::string gridFragmentShaderSource = R"(
+#version 330 core
+out vec4 FragColor;
+void main()
+{
+    FragColor = vec4(0.3, 0.3, 0.4, 1.0); // Серый цвет для сетки
+}
+        )";
     const char* gridVertexSourcePtr = gridVertexShaderSource.c_str();
     const char* gridFragmentSourcePtr = gridFragmentShaderSource.c_str();
 
@@ -324,7 +370,9 @@ void Renderer::LoadShaders() {
 std::string Renderer::LoadShaderSource(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        throw std::runtime_error("Failed to open shader file: " + filename);
+        //throw std::runtime_error("Failed to open shader file: " + filename);
+        std::cout << "Не удалось загрузить файл шейдерной программы: " << filename << std::endl;
+        exit(1);
     }
     return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 }
@@ -354,9 +402,25 @@ void Renderer::InitializeDebugOverlay() {
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    std::string vertexShaderSource = LoadShaderSource("./glsl/overlay_vertex_shader.glsl");
-    std::string fragmentShaderSource = LoadShaderSource("./glsl/overlay_fragment_shader.glsl");
-
+    //std::string vertexShaderSource = LoadShaderSource("./glsl/overlay_vertex_shader.glsl");
+    const std::string vertexShaderSource = R"(
+#version 330 core
+layout(location = 0) in vec2 aPos;
+void main()
+{
+    gl_Position = vec4(aPos, 0.0, 1.0);
+}
+        )";
+    //std::string fragmentShaderSource = LoadShaderSource("./glsl/overlay_fragment_shader.glsl");
+    const std::string fragmentShaderSource = R"(
+#version 330 core
+out vec4 FragColor;
+uniform vec4 overlayColor;
+void main()
+{
+    FragColor = overlayColor;
+}
+        )";
     const char* vertexSourcePtr = vertexShaderSource.c_str();
     const char* fragmentSourcePtr = fragmentShaderSource.c_str();
 

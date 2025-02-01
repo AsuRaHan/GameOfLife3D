@@ -9,15 +9,27 @@ WindowController::WindowController(MainWindow* window, Renderer* renderer, GameC
     gridPicker(renderer->GetCamera(), *gameController) {
 
     // Установка таймера для обновления симуляции
-    timerId = SetTimer(pWindow->GetHwnd(), 1, 100, NULL); // Интервал 100 мс
+    timerId = SetTimer(pWindow->GetHwnd(), 1, simulationSpeedMultiplier, NULL); // Интервал 100 мс
     if (!timerId) {
         MessageBox(NULL, L"Timer could not be set", L"Error", MB_OK | MB_ICONERROR);
     }
+    ResetCamera();
 }
 
 WindowController::~WindowController() {
     if (timerId) {
         KillTimer(pWindow->GetHwnd(), timerId);
+    }
+}
+
+// метод для обновления таймера
+void WindowController::UpdateTimer() {
+    if (timerId) {
+        KillTimer(pWindow->GetHwnd(), timerId); // Убиваем старый таймер
+    }
+    timerId = SetTimer(pWindow->GetHwnd(), 1, simulationSpeedMultiplier, NULL); // Устанавливаем новый таймер
+    if (!timerId) {
+        MessageBox(NULL, L"Timer could not be set", L"Error", MB_OK | MB_ICONERROR);
     }
 }
 
@@ -61,9 +73,24 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
                 pGameController->previousGeneration(); // Переход к предыдущему поколению
             }
             break;
-        case 'R': // Клавиша 'R' для случайного заполнения поля
+        case VK_ADD: // Клавиша '+' на нумпаде
+            simulationSpeedMultiplier -= 10; // Уменьшаем интервал на 10
+            if (simulationSpeedMultiplier < 10) {
+                simulationSpeedMultiplier = 10; // Устанавливаем минимум 10
+            }
+            UpdateTimer(); // Обновляем таймер
+            break;
+
+        case VK_SUBTRACT: // Клавиша '-' на нумпаде
+            simulationSpeedMultiplier += 10; // Увеличиваем интервал на 10
+            if (simulationSpeedMultiplier > 1000) {
+                simulationSpeedMultiplier = 1000; // Устанавливаем максимум 1000
+            }
+            UpdateTimer(); // Обновляем таймер
+            break;
+        case 'R': 
             if (!pGameController->isSimulationRunning()) {
-                pGameController->randomizeGrid(0.5f); // Случайное заполнение поля
+                pGameController->randomizeGrid(0.3f); // Случайное заполнение поля
             }
             break;
         case 'W':
@@ -80,6 +107,16 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
         case 'T':
             ResetCamera();
+            break;
+        case 'C':
+            if (!pGameController->isSimulationRunning()) {
+                pGameController->clearGrid(); // Очищение поля. убить всех
+            }
+            break;
+        case 'I':
+            if (!pGameController->isSimulationRunning()) {
+                pGameController->initializeGrid(); // Очищение поля. убить всех
+            }
             break;
         }
         break;

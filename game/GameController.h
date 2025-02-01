@@ -13,7 +13,9 @@ private:
 public:
     GameController(int width, int height, float cellSize = 0.5f);
     void initializeGrid();
+    void placeGlider(int startX, int startY);
     void randomizeGrid(float density);
+    void clearGrid();
     void update();
     void startSimulation();
     void stopSimulation();
