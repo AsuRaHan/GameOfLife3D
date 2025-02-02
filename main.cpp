@@ -103,7 +103,7 @@ int wWinMain(
             //gameController.update();
             renderer.Draw();
 
-            // Здесь можно добавить логику для показа окна настроек
+             //Здесь можно добавить логику для показа окна настроек
             //if (msg.message == WM_KEYDOWN && msg.wParam == 'P') {
             //    settingsWindow.Show();
             //}

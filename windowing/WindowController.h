@@ -28,7 +28,7 @@ private:
     int simulationSpeedMultiplier = 100; // Ќачальна€ скорость (100 мс)
     void UpdateTimer();
     void HandleMouseClick(int screenX, int screenY);
-
+    void PlacePattern(int screenX, int screenY); // метод дл€ размещени€ шаблона
     void RotateCamera(float yaw, float pitch);
     void MoveCamera(float dx, float dy);
     void ResetCamera();

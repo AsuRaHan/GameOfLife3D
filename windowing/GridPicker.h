@@ -5,14 +5,14 @@
 
 class GridPicker {
 public:
-    GridPicker(const Camera& camera, GameController& gameController);
+    //GridPicker(const Camera& camera, GameController& gameController);
+    GridPicker(const Camera& camera);
 
     void ScreenToWorld(float screenX, float screenY, float screenWidth, float screenHeight, float& worldX, float& worldY);
-    void HandleClick(int screenX, int screenY, int screenWidth, int screenHeight);
 
 private:
     const Camera& camera;
-    GameController& gameController;
+    //GameController& gameController;
 
     void MultiplyMatrixVector(const float* matrix, const float* vector, float* result) const;
     void InvertMatrix(const float* m, float* out) const;

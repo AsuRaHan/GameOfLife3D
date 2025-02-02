@@ -2,7 +2,7 @@
 #include <algorithm> // Äëÿ std::min
 
 Renderer::Renderer(int width, int height)
-    : width(width), height(height), camera(45.0f, static_cast<float>(width) / height, 0.1f, 1000.0f),
+    : width(width), height(height), camera(45.0f, static_cast<float>(width) / height, 0.1f, 100000.0f),
     pGameController(nullptr){
     SetupOpenGL();
     

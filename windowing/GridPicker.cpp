@@ -1,9 +1,10 @@
 #include "GridPicker.h"
 
 
-GridPicker::GridPicker(const Camera& camera, GameController& gameController)
-    : camera(camera), gameController(gameController) {
-}
+//GridPicker::GridPicker(const Camera& camera, GameController& gameController)
+//    : camera(camera), gameController(gameController) {
+//}
+GridPicker::GridPicker(const Camera& camera) : camera(camera) {}
 
 void GridPicker::MultiplyMatrixVector(const float* matrix, const float* vector, float* result) const {
     for (int i = 0; i < 4; ++i) {
@@ -88,22 +89,4 @@ void GridPicker::ScreenToWorld(float screenX, float screenY, float screenWidth, 
 
     worldX = camPos[0] + t * direction[0];
     worldY = camPos[1] + t * direction[1];
-}
-
-void GridPicker::HandleClick(int screenX, int screenY, int screenWidth, int screenHeight) {
-    float worldX, worldY;
-    ScreenToWorld(screenX, screenY, screenWidth, screenHeight, worldX, worldY);
-
-    int gridWidth = gameController.getGridWidth();
-    int gridHeight = gameController.getGridHeight();
-    float cellSize = gameController.getCellSize();
-
-    // ѕреобразуем мировые координаты в координаты сетки
-    int x = static_cast<int>(worldX / cellSize);
-    int y = static_cast<int>(worldY / cellSize);
-
-    // ѕровер€ем, что координаты внутри сетки
-    if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight) {
-        gameController.toggleCellState(x, y);
-    }
 }

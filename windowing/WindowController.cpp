@@ -6,7 +6,7 @@
 WindowController::WindowController(MainWindow* window, Renderer* renderer, GameController* gameController)
     : pWindow(window), pRenderer(renderer), pGameController(gameController),
     mouseCaptured(false), lastMouseX(0), lastMouseY(0), isMiddleButtonDown(false),
-    gridPicker(renderer->GetCamera(), *gameController) {
+    gridPicker(renderer->GetCamera()) {
 
     // Установка таймера для обновления симуляции
     timerId = SetTimer(pWindow->GetHwnd(), 1, simulationSpeedMultiplier, NULL); // Интервал 100 мс
@@ -52,7 +52,11 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         break;
 
     case WM_KEYDOWN:
+        if (wParam >= '1' && wParam <= '9') {
+            pGameController->setCurrentPattern(wParam - '0');
+        }
         switch (wParam) {
+            break;
         case VK_SPACE: // Пробел для запуска/остановки симуляции
             if (pGameController->isSimulationRunning()) {
                 pGameController->stopSimulation();
@@ -160,10 +164,7 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         //ShowCursor(TRUE);
         break;
     case WM_MBUTTONDOWN: // Нажатие средней кнопки мыши
-        SetCapture(pWindow->GetHwnd());
-        isMiddleButtonDown = true;
-        lastMouseX = LOWORD(lParam);
-        lastMouseY = HIWORD(lParam);
+        PlacePattern(LOWORD(lParam), HIWORD(lParam));
         break;
 
     case WM_MBUTTONUP: // Отпускание средней кнопки мыши
@@ -185,7 +186,8 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             lastMouseX = currentX;
             lastMouseY = currentY;
         }
-        //if (isMiddleButtonDown && pRenderer) {
+        //if (isMiddleButtonDown) {
+            
         //    int currentX = LOWORD(lParam);
         //    int currentY = HIWORD(lParam);
 
@@ -205,8 +207,18 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
 }
 
 void WindowController::HandleMouseClick(int screenX, int screenY) {
-    if (pGameController && pRenderer) {
-        gridPicker.HandleClick(screenX, screenY, pRenderer->getWindowWidth(), pRenderer->getWindowHeight());
+    float worldX, worldY;
+    gridPicker.ScreenToWorld(screenX, screenY, pRenderer->getWindowWidth(), pRenderer->getWindowHeight(), worldX, worldY);
+
+    int gridWidth = pGameController->getGridWidth();
+    int gridHeight = pGameController->getGridHeight();
+    float cellSize = pGameController->getCellSize();
+
+    int x = static_cast<int>(worldX / cellSize);
+    int y = static_cast<int>(worldY / cellSize);
+
+    if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight) {
+        pGameController->toggleCellState(x, y);
     }
 }
 
@@ -236,6 +248,24 @@ void WindowController::MoveCamera(float dx, float dy) {
 
         // Применяем движение
         camera.Move(moveX, 0.0f, moveZ);
+    }
+}
+
+void WindowController::PlacePattern(int screenX, int screenY) {
+    float worldX, worldY;
+    gridPicker.ScreenToWorld(screenX, screenY, pRenderer->getWindowWidth(), pRenderer->getWindowHeight(), worldX, worldY);
+
+    int gridWidth = pGameController->getGridWidth();
+    int gridHeight = pGameController->getGridHeight();
+    float cellSize = pGameController->getCellSize();
+
+    // Преобразуем мировые координаты в координаты сетки
+    int x = static_cast<int>(worldX / cellSize);
+    int y = static_cast<int>(worldY / cellSize);
+
+    // При размещении шаблона, убедитесь, что он не выходит за границы сетки
+    if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight) {
+        pGameController->PlacePattern(x, y);
     }
 }
 

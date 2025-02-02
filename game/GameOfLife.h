@@ -8,6 +8,7 @@ private:
     std::vector<Grid> history; // Хранение истории состояний
 
     int countLiveNeighbors(int x, int y) const;
+    int countLiveNeighborsWorld(int x, int y) const;
     void saveCurrentState();
 public:
     GameOfLife(Grid& g);

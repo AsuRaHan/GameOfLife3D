@@ -4,21 +4,10 @@
 
 GameController::GameController(int width, int height, float cellSize)
     : grid(width, height), gameOfLife(grid), cellSize(cellSize), isRunning(false) {
+    currentPattern = glider;
 }
 
 void GameController::initializeGrid() {
-    // Устанавливаем случайные живые клетки для демонстрации
-    //for (int y = 0; y < grid.getHeight(); ++y) {
-    //    for (int x = 0; x < grid.getWidth(); ++x) {
-    //        // Создаем простой узор для тестирования
-    //        if ((x == 40 && y == 30) ||  // Одиночная клетка
-    //            (x == 41 && y == 30) ||  // Соседняя клетка
-    //            (x == 42 && y == 30) ||  // Ещё одна соседняя клетка
-    //            (x == 41 && y == 31)) {  // Клетка снизу для формирования "блока"
-    //            grid.setCellState(x, y, true);
-    //        }
-    //    }
-    //}
 
     std::random_device rd;  // Только для инициализации генератора
     std::mt19937 gen(rd()); // Стандартный мерсенновский твистер
@@ -30,20 +19,40 @@ void GameController::initializeGrid() {
     for (int i = 0; i < numberOfGliders; ++i) {
         int startX = disX(gen);
         int startY = disY(gen);
-        placeGlider(startX, startY);
+        //placeGlider(startX, startY);
+        // Размещаем глайдер на сетке
+        placePattern(startX, startY, gosperGliderGun);
     }
 }
 
 void GameController::placeGlider(int startX, int startY) {
     // Убедитесь, что глайдер помещается в пределах сетки
-    if (startX + 3 < grid.getWidth() && startY + 3 < grid.getHeight()) {
-        grid.setCellState(startX, startY, true);   // 1
-        grid.setCellState(startX + 1, startY, true);   // 1
-        grid.setCellState(startX + 2, startY, true);   // 1
-        grid.setCellState(startX + 2, startY + 1, true); // 1
-        grid.setCellState(startX + 1, startY + 2, true);   // 1
+    if (startX + 2 < grid.getWidth() && startY + 2 < grid.getHeight()) {
+        grid.setCellState(startX + 1, startY, true);   // X
+        grid.setCellState(startX + 2, startY + 1, true); // X
+        grid.setCellState(startX, startY + 2, true);   // X
+        grid.setCellState(startX + 1, startY + 2, true); // X
+        grid.setCellState(startX + 2, startY + 2, true); // X
     }
 }
+
+void GameController::placePattern(int startX, int startY, const Pattern& pattern) {
+    int patternHeight = pattern.size();
+    int patternWidth = pattern[0].size();
+
+    // Проверяем, помещается ли фигура в пределах сетки
+    if (startX + patternWidth <= grid.getWidth() && startY + patternHeight <= grid.getHeight()) {
+        for (int y = patternHeight - 1; y >= 0; --y) { // Итерируемся снизу вверх
+            for (int x = 0; x < patternWidth; ++x) {
+                // Инвертируем x, чтобы перевернуть паттерн по горизонтали
+                grid.setCellState(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), pattern[y][x]);
+            }
+        }
+    }
+}
+
+
+
 
 void GameController::randomizeGrid(float density) {
     // Генератор случайных чисел
@@ -214,5 +223,28 @@ void GameController::resizeGrid(int newWidth, int newHeight) {
     // Если симуляция работает, сбросим ее, чтобы избежать некорректной работы с новыми размерами
     if (isRunning) {
         stopSimulation();
+    }
+}
+
+void GameController::setCurrentPattern(int patternNumber) {
+    switch (patternNumber) {
+    case 1: currentPattern = glider; break;
+    case 2: currentPattern = blinker; break;
+    case 3: currentPattern = toad; break;
+    case 4: currentPattern = beacon; break;
+    case 5: currentPattern = pentadecathlon; break;
+    case 6: currentPattern = gosperGliderGun; break;
+    case 7: currentPattern = gosperGliderGunReversed; break;
+    case 8: currentPattern = gosperGliderGunVertical; break;
+    default:
+        // Можно установить по умолчанию какой-то паттерн или оставить текущий без изменений
+        currentPattern = glider;
+        break;
+    }
+}
+
+void GameController::PlacePattern(int startX, int startY) {
+    if (!currentPattern.empty()) {
+        placePattern(startX, startY, currentPattern); // Используем уже существующий метод
     }
 }
