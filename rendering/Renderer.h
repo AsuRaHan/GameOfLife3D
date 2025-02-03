@@ -49,9 +49,7 @@ private:
 
     struct CellInstance {
         float x, y; // Позиция клетки
-        float state; // Состояние клетки (жив/мертв)
         Vector3d color; // Цвет клетки
-        int type; // Тип клетки
     };
     GLuint cellInstanceVBO;
     std::vector<CellInstance> cellInstances;

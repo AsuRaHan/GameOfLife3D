@@ -28,7 +28,7 @@ void ParseCommandLine(LPWSTR lpCmdLine, int& width, int& height) {
     std::wstring token;
 
     // Устанавливаем значения по умолчанию
-    width = 200;  // Значение по умолчанию для ширины
+    width = 300;  // Значение по умолчанию для ширины
     height = 200; // Значение по умолчанию для высоты
 
     // Парсим командную строку

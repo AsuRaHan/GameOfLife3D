@@ -47,7 +47,7 @@ int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
 }
 
 void GameOfLife::nextGeneration() {
-	saveCurrentState(); // Сохраняем текущее состояние
+    //saveCurrentState(); // Сохраняем текущее состояние
     int neighbors;
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
@@ -59,26 +59,30 @@ void GameOfLife::nextGeneration() {
             }
 
             bool currentState = grid.getCellState(x, y);
-            Cell& oldCell = grid.getCell(x, y); // Ссылка на старую клетку для сохранения цвета
-            Cell newCell = oldCell; // Копируем старую клетку для сохранения её свойств
+            Cell& oldCell = grid.getCell(x, y); // Ссылка на старую клетку
+            Cell newCell = oldCell; // Копируем старую клетку
 
             if (currentState) {
                 // Живая клетка
                 newCell.setAlive(neighbors == 2 || neighbors == 3);
                 if (!newCell.getAlive()) {
-                    // Если клетка умирает, возможно, вы захотите изменить её цвет
-                    newCell.setColor(Vector3d(0.35f, 0.35f, 0.35f)); // Пример: темно-серый для умерших клеток
+                    // Если клетка умирает, используем темно-серый цвет
+                    newCell.setColor(Vector3d(0.25f, 0.25f, 0.25f));
+                }
+                else {
+                    // Если клетка остается живой, делаем её зеленог цвета
+                    newCell.setColor(Vector3d(0.3f, 0.8f, 0.3f));
                 }
             }
             else {
                 // Мертвая клетка
                 newCell.setAlive(neighbors == 3);
                 if (newCell.getAlive()) {
-                    // Если клетка рождается, установите новый цвет
-                    newCell.setColor(Vector3d(0.0f, 0.7f, 0.0f)); // Пример:
+                    // Если клетка рождается, делаем её темно зеленого цвета
+                    newCell.setColor(Vector3d(0.0f, 0.5f, 0.0f)); // зеленый цвет
                 }
             }
-            nextGrid.setCell(x, y, newCell); // Устанавливаем новую клетку, сохраняя или обновляя цвет
+            nextGrid.setCell(x, y, newCell); // Устанавливаем новую клетку
         }
     }
     std::swap(grid, nextGrid); // Переключаем буферы

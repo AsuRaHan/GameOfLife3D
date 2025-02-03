@@ -2,7 +2,7 @@
 #include <algorithm> // Для std::min
 
 Renderer::Renderer(int width, int height)
-    : width(width), height(height), camera(45.0f, static_cast<float>(width) / height, 0.1f, 100000.0f),
+    : width(width), height(height), camera(45.0f, static_cast<float>(width) / height, 0.1f, 1000000000.0f),
     pGameController(nullptr){
     SetupOpenGL();
     OnWindowResize(width, height);
@@ -54,12 +54,38 @@ void Renderer::InitializeVBOs() {
     // Инициализация VBO для клеток
     GL_CHECK(glGenBuffers(1, &cellsVBO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
+    //float vertices[] = {
+    //    0.1f, 0.1f,
+    //    0.9f, 0.1f,
+    //    0.9f, 0.9f,
+    //    0.1f, 0.9f
+    //};
+    //float vertices[] = { // восьмиугольник
+    //0.1f, 0.1f, // Вершина 1
+    //0.5f, 0.0f, // Вершина 5 (середина верхней стороны)
+    //0.9f, 0.1f, // Вершина 2
+    //1.0f, 0.5f, // Вершина 6 (правый верхний угол)
+    //0.9f, 0.9f, // Вершина 3
+    //0.5f, 1.0f, // Вершина 7 (середина нижней стороны)
+    //0.1f, 0.9f, // Вершина 4
+    //0.0f, 0.5f  // Вершина 8 (левый нижний угол)
+    //};
+
+    float scale_factor = 0.2f;
+    float centerX = 0.5f;
+    float centerY = 0.5f;
+
     float vertices[] = {
-        0.1f, 0.1f,
-        0.9f, 0.1f,
-        0.9f, 0.9f,
-        0.1f, 0.9f
+        centerX + (0.1f - centerX) * (1 - scale_factor), centerY + (0.1f - centerY) * (1 - scale_factor), // Вершина 1
+        centerX + (0.5f - centerX) * (1 - scale_factor), centerY + (0.0f - centerY) * (1 - scale_factor), // Вершина 5
+        centerX + (0.9f - centerX) * (1 - scale_factor), centerY + (0.1f - centerY) * (1 - scale_factor), // Вершина 2
+        centerX + (1.0f - centerX) * (1 - scale_factor), centerY + (0.5f - centerY) * (1 - scale_factor), // Вершина 6
+        centerX + (0.9f - centerX) * (1 - scale_factor), centerY + (0.9f - centerY) * (1 - scale_factor), // Вершина 3
+        centerX + (0.5f - centerX) * (1 - scale_factor), centerY + (1.0f - centerY) * (1 - scale_factor), // Вершина 7
+        centerX + (0.1f - centerX) * (1 - scale_factor), centerY + (0.9f - centerY) * (1 - scale_factor), // Вершина 4
+        centerX + (0.0f - centerX) * (1 - scale_factor), centerY + (0.5f - centerY) * (1 - scale_factor)  // Вершина 8
     };
+
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
 
     // Инициализация VBO для данных инстанса
@@ -71,9 +97,7 @@ void Renderer::InitializeVBOs() {
             Cell cell = pGameController->getGrid().getCell(x, y);
             cellInstances.push_back({
                 x * cellSize, y * cellSize,
-                pGameController->getCellState(x, y) ? 1.0f : 0.0f,
-                cell.getColor(),
-                cell.getType()
+                cell.getColor()
                 });
         }
     }
@@ -176,42 +200,27 @@ void Renderer::DrawGrid() {
     GL_CHECK(glBindVertexArray(0));
 }
 
-
 void Renderer::DrawCells() {
     if (!pGameController) return;
 
-    bool needsUpdate = false;
-    // Проверяем, изменилось ли состояние клеток с последнего обновления
+    // Обновляем данные о клетках
     for (size_t i = 0; i < cellInstances.size(); ++i) {
         int x = i % pGameController->getGridWidth();
         int y = i / pGameController->getGridWidth();
-        // Получаем текущее состояние клетки
-        float newState = pGameController->getCellState(x, y) ? 1.0f : 0.0f;
-        if (newState != cellInstances[i].state) {
-            cellInstances[i].state = newState;
-            // Обновляем цвет клетки
-            Cell cell = pGameController->getGrid().getCell(x, y);
-            cellInstances[i].color = cell.getColor();
-            // Обновляем тип клетки
-            cellInstances[i].type = cell.getType();
-            needsUpdate = true;
-        }
+        Cell cell = pGameController->getGrid().getCell(x, y);
+        cellInstances[i].color = cell.getColor(); // Обновляем только цвет
     }
 
-    // Если состояние клеток изменилось, обновляем буфер инстансов
-    if (needsUpdate) {
-        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
-        void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-        if (ptr) {
-            memcpy(ptr, cellInstances.data(), cellInstances.size() * sizeof(CellInstance));
-            glUnmapBuffer(GL_ARRAY_BUFFER);
-        }
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
+    void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    if (ptr) {
+        memcpy(ptr, cellInstances.data(), cellInstances.size() * sizeof(CellInstance));
+        glUnmapBuffer(GL_ARRAY_BUFFER);
     }
 
-    // Используем шейдерную программу для отрисовки клеток
     GL_CHECK(glUseProgram(shaderProgram));
 
-    // Устанавливаем uniform переменные для матрицы проекции, вида и размера клетки
+    // Устанавливаем uniform переменные
     GLuint projectionLoc = glGetUniformLocation(shaderProgram, "projection");
     GLuint viewLoc = glGetUniformLocation(shaderProgram, "view");
     GLuint cellSizeLoc = glGetUniformLocation(shaderProgram, "cellSize");
@@ -231,29 +240,19 @@ void Renderer::DrawCells() {
     GL_CHECK(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)0));
     GL_CHECK(glVertexAttribDivisor(1, 1)); // Каждый инстанс имеет свою позицию
 
-    GL_CHECK(glEnableVertexAttribArray(2)); // Состояние клетки
-    GL_CHECK(glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)(offsetof(CellInstance, state))));
-    GL_CHECK(glVertexAttribDivisor(2, 1)); // Состояние для каждого инстанса
-
     GL_CHECK(glEnableVertexAttribArray(3)); // Цвет клетки
     GL_CHECK(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)(offsetof(CellInstance, color))));
     GL_CHECK(glVertexAttribDivisor(3, 1)); // Цвет для каждого инстанса
 
-    GL_CHECK(glEnableVertexAttribArray(4)); // Тип клетки
-    GL_CHECK(glVertexAttribPointer(4, 1, GL_INT, GL_FALSE, sizeof(CellInstance), (void*)(offsetof(CellInstance, type))));
-    GL_CHECK(glVertexAttribDivisor(4, 1)); // Тип для каждого инстанса
-
     // Отрисовка клеток с использованием инстансинга
-    GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, cellInstances.size()));
+    //GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, cellInstances.size()));
+    GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 8, cellInstances.size()));
 
     // Отключаем использование атрибутов после отрисовки
     GL_CHECK(glDisableVertexAttribArray(0));
     GL_CHECK(glDisableVertexAttribArray(1));
-    GL_CHECK(glDisableVertexAttribArray(2));
     GL_CHECK(glDisableVertexAttribArray(3));
-    GL_CHECK(glDisableVertexAttribArray(4));
 }
-
 
 void Renderer::DrawDebugOverlay() {
     if (!pGameController || !pGameController->isSimulationRunning()) return; // Добавляем проверку
@@ -304,33 +303,27 @@ void Renderer::LoadCellShaders() {
 #version 330 core
 layout(location = 0) in vec2 aPos; 
 layout(location = 1) in vec2 aInstancePos;
-layout(location = 2) in float aInstanceState; 
 layout(location = 3) in vec3 aInstanceColor; 
 uniform mat4 projection;
 uniform mat4 view;
 uniform float cellSize; 
-flat out float vInstanceState;
 out vec3 vInstanceColor;
 void main()
 {
     gl_Position = projection * view * vec4(aPos * cellSize + aInstancePos, 0.0, 1.0);
-    vInstanceState = aInstanceState;
     vInstanceColor = aInstanceColor;
 }
     )";
 
     const std::string fragmentShaderSource = R"(
 #version 330 core
-flat in float vInstanceState;
 in vec3 vInstanceColor;
 out vec4 FragColor;
 void main()
 {
-    vec3 color = vInstanceState > 0.5 ? vInstanceColor : vec3(0.1, 0.1, 0.1); // Использование переданного цвета для живых клеток
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(vInstanceColor, 1.0);
 }
     )";
-
     const char* vertexSourcePtr = vertexShaderSource.c_str();
     const char* fragmentSourcePtr = fragmentShaderSource.c_str();
 

@@ -67,6 +67,13 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
             for (int x = 0; x < patternWidth; ++x) {
                 // Инвертируем x, чтобы перевернуть паттерн по горизонтали
                 grid.setCellState(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), pattern[y][x]);
+                if (pattern[y][x]) {
+                    grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.3f, 0.7f, 0.4f));
+                }
+                else {
+                    grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.2f, 0.2f, 0.4f));
+                }
+                
             }
         }
     }
@@ -84,14 +91,16 @@ void GameController::randomizeGrid(float density) {
             // Если случайное число меньше density, клетка становится живой
             if (dis(gen) < density) {
                 grid.setCellState(x, y, true);
+                grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
             }
             else {
                 grid.setCellState(x, y, false);
+                grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
             }
             //float r = static_cast<float>(rand()) / RAND_MAX;
             //float g = static_cast<float>(rand()) / RAND_MAX;
             //float b = static_cast<float>(rand()) / RAND_MAX;
-            grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
+            //grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
         }
     }
 }
@@ -100,6 +109,7 @@ void GameController::clearGrid() {
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
             grid.setCellState(x, y, false); // Устанавливаем каждую клетку в мертвое состояние
+            grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
         }
     }
 }
@@ -140,6 +150,13 @@ bool GameController::isSimulationRunning() const {
 void GameController::toggleCellState(int x, int y) {
     bool currentState = grid.getCellState(x, y);
     grid.setCellState(x, y, !currentState);
+    if (!currentState) {
+        grid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f));
+    }
+    else {
+        grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
+    }
+    
 }
 
 bool GameController::getCellState(int x, int y) const {

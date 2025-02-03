@@ -79,8 +79,8 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
         case VK_ADD: // Клавиша '+' на нумпаде
             simulationSpeedMultiplier -= 0.025f; // Уменьшаем интервал на 10
-            if (simulationSpeedMultiplier < 0.025f) {
-                simulationSpeedMultiplier = 0.025f; // Устанавливаем минимум 10
+            if (simulationSpeedMultiplier < 0.01f) {
+                simulationSpeedMultiplier = 0.01f; // Устанавливаем минимум 10
             }
             if (pGameController->isSimulationRunning()) {
                 pGameController->setSimulationSpeed(simulationSpeedMultiplier);
@@ -90,8 +90,8 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
 
         case VK_SUBTRACT: // Клавиша '-' на нумпаде
             simulationSpeedMultiplier += 0.025f; // Увеличиваем интервал на 10
-            if (simulationSpeedMultiplier > 0.5f) {
-                simulationSpeedMultiplier = 0.5f; // Устанавливаем максимум 1500
+            if (simulationSpeedMultiplier > 0.25f) {
+                simulationSpeedMultiplier = 0.25f; // Устанавливаем максимум 1500
             }
             if (pGameController->isSimulationRunning()) {
                 pGameController->setSimulationSpeed(simulationSpeedMultiplier);
@@ -101,20 +101,20 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
 
         case 'R': 
             if (!pGameController->isSimulationRunning()) {
-                pGameController->randomizeGrid(0.3f); // Случайное заполнение поля
+                pGameController->randomizeGrid(0.1f); // Случайное заполнение поля
             }
             break;
         case 'W':
-            MoveCamera(0.0f, 1.0f); // Двигаем вперед
+            MoveCamera(0.0f, 5.0f); // Двигаем вперед
             break;
         case 'S':
-            MoveCamera(0.0f, -1.0f); // Двигаем назад
+            MoveCamera(0.0f, -5.0f); // Двигаем назад
             break;
         case 'A':
-            MoveCamera(-1.0f, 0.0f); // Двигаем влево
+            MoveCamera(-5.0f, 0.0f); // Двигаем влево
             break;
         case 'D':
-            MoveCamera(1.0f, 0.0f); // Двигаем вправо
+            MoveCamera(5.0f, 0.0f); // Двигаем вправо
             break;
         case 'T':
             ResetCamera();
