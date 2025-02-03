@@ -14,6 +14,8 @@
 #include <sstream>
 #include <string>
 
+#pragma comment(lib, "winmm.lib") // Явное указание на библиотеку
+
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")
 #pragma comment(lib, "Comctl32.lib")
@@ -32,12 +34,12 @@ void ParseCommandLine(LPWSTR lpCmdLine, int& width, int& height) {
 
     // Парсим командную строку
     while (iss >> token) {
-        if (token == L"-width") {
+        if (token == L"-gridWidth") {
             if (iss >> token) {
                 width = std::stoi(token); // Преобразуем строку в целое число
             }
         }
-        else if (token == L"-height") {
+        else if (token == L"-gridHeight") {
             if (iss >> token) {
                 height = std::stoi(token); // Преобразуем строку в целое число
             }
@@ -68,8 +70,8 @@ int wWinMain(
     ParseCommandLine(lpCmdLine, gridWidth, gridHeight); // Получаем значения из командной строки
 
     MainWindow mainWindow(hInstance,800,600);
-
-
+    
+    
     if (mainWindow.Create()) {
         int width = mainWindow.GetWidth();
         int height = mainWindow.GetHeight();
@@ -96,17 +98,24 @@ int wWinMain(
         //}
         //settingsWindow.Hide();
         MSG msg;
-        while (GetMessage(&msg, NULL, 0, 0)) {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+        bool MainLoop = true;
+        while (MainLoop) {
+            while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) { // PeekMessage(&msg, 0, 0, 0, PM_REMOVE) GetMessage(&msg, NULL, 0, 0)
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+                if (msg.message == WM_QUIT) {
+                    MainLoop = false; // Завершение приложения
+                }
+                //gameController.update();
+                
 
+                //Здесь можно добавить логику для показа окна настроек
+               //if (msg.message == WM_KEYDOWN && msg.wParam == 'P') {
+               //    settingsWindow.Show();
+               //}
+            }
             //gameController.update();
             renderer.Draw();
-
-             //Здесь можно добавить логику для показа окна настроек
-            //if (msg.message == WM_KEYDOWN && msg.wParam == 'P') {
-            //    settingsWindow.Show();
-            //}
         }
     } else {
         MessageBox(NULL, L"Window creation failed", L"Error", MB_OK | MB_ICONERROR);

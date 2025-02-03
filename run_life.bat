@@ -1,3 +1,3 @@
 @echo off
-start "" "life.exe" -width 500 -height 150
+start "" "life.exe" -gridWidth 200 -gridHeight 150
 exit

@@ -5,14 +5,27 @@ Renderer::Renderer(int width, int height)
     : width(width), height(height), camera(45.0f, static_cast<float>(width) / height, 0.1f, 100000.0f),
     pGameController(nullptr){
     SetupOpenGL();
-    
+    OnWindowResize(width, height);
+    // Добавление UI элементов
+    //Button* startButton = new Button(10.0f, 50.0f, 100.0f, 30.0f, "Start", Vector3d(0.0f, 1.0f, 0.0f)); // Зеленый цвет
+    //ui.addElement(startButton);
+
+    //Button* stopButton = new Button(120.0f, 50.0f, 100.0f, 30.0f, "Stop", Vector3d(1.0f, 0.0f, 0.0f)); // Красный цвет
+    //ui.addElement(stopButton);
+
+    //TextLabel* title = new TextLabel(width / 2 - 100.0f, height - 30.0f, "Game of Life 3D", Vector3d(1.0f, 1.0f, 0.0f)); // Желтый цвет
+    //ui.addElement(title);
 }
 
 Renderer::~Renderer() {
     glDeleteProgram(shaderProgram);
+    glDeleteProgram(gridShaderProgram);
+    glDeleteProgram(debugOverlayShaderProgram);
     glDeleteBuffers(1, &cellsVBO);
     glDeleteBuffers(1, &gridVBO);
     glDeleteBuffers(1, &cellInstanceVBO);
+    glDeleteVertexArrays(1, &gridVAO);
+    glDeleteVertexArrays(1, &debugOverlayVAO);
 }
 
 void Renderer::SetCamera(const Camera& camera) {
@@ -27,9 +40,9 @@ void Renderer::SetGameController(GameController* gameController) {
 }
 
 void Renderer::SetupOpenGL() {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Черный фон
-    glEnable(GL_DEPTH_TEST); // Включаем тест глубины
-    glViewport(0, 0, width, height);
+    GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 1.0f)); // Черный фон
+    GL_CHECK(glEnable(GL_DEPTH_TEST)); // Включаем тест глубины
+    GL_CHECK(glViewport(0, 0, width, height));
 }
 
 void Renderer::InitializeVBOs() {
@@ -39,18 +52,18 @@ void Renderer::InitializeVBOs() {
     float cellSize = pGameController->getCellSize();
 
     // Инициализация VBO для клеток
-    glGenBuffers(1, &cellsVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, cellsVBO);
+    GL_CHECK(glGenBuffers(1, &cellsVBO));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
     float vertices[] = {
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-        1.0f, 1.0f,
-        0.0f, 1.0f
+        0.1f, 0.1f,
+        0.9f, 0.1f,
+        0.9f, 0.9f,
+        0.1f, 0.9f
     };
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
 
     // Инициализация VBO для данных инстанса
-    glGenBuffers(1, &cellInstanceVBO);
+    GL_CHECK(glGenBuffers(1, &cellInstanceVBO));
     cellInstances.clear();
     cellInstances.reserve(gridWidth * gridHeight);
     for (int y = 0; y < gridHeight; ++y) {
@@ -65,8 +78,8 @@ void Renderer::InitializeVBOs() {
         }
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO);
-    glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW);
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
 
     InitializeGridVBOs();
     InitializeDebugOverlay();
@@ -81,15 +94,11 @@ void Renderer::InitializeGridVBOs() {
     gridVertices.clear();
     std::vector<float> majorGridVertices;
 
-    // Создание обычной сетки
+    // Создание сетки
     for (int y = 0; y <= gridHeight; ++y) {
         for (int x = 0; x <= gridWidth; ++x) {
             gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
             gridVertices.push_back((x + 1) * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
-        }
-    }
-    for (int y = 0; y <= gridHeight; ++y) {
-        for (int x = 0; x <= gridWidth; ++x) {
             gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
             gridVertices.push_back(x * cellSize); gridVertices.push_back((y + 1) * cellSize); gridVertices.push_back(0.0f);
         }
@@ -106,30 +115,30 @@ void Renderer::InitializeGridVBOs() {
     }
 
     // Создание VAO и VBO для обычной сетки
-    glGenVertexArrays(1, &gridVAO);
-    glGenBuffers(1, &gridVBO);
-    glBindVertexArray(gridVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, gridVBO);
-    glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    GL_CHECK(glGenVertexArrays(1, &gridVAO));
+    GL_CHECK(glGenBuffers(1, &gridVBO));
+    GL_CHECK(glBindVertexArray(gridVAO));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gridVBO));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_STATIC_DRAW));
+    GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+    GL_CHECK(glEnableVertexAttribArray(0));
 
     // Создание VAO и VBO для "главных" линий
     GLuint majorGridVAO, majorGridVBO;
-    glGenVertexArrays(1, &majorGridVAO);
-    glGenBuffers(1, &majorGridVBO);
-    glBindVertexArray(majorGridVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, majorGridVBO);
-    glBufferData(GL_ARRAY_BUFFER, majorGridVertices.size() * sizeof(float), majorGridVertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    GL_CHECK(glGenVertexArrays(1, &majorGridVAO));
+    GL_CHECK(glGenBuffers(1, &majorGridVBO));
+    GL_CHECK(glBindVertexArray(majorGridVAO));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, majorGridVBO));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, majorGridVertices.size() * sizeof(float), majorGridVertices.data(), GL_STATIC_DRAW));
+    GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+    GL_CHECK(glEnableVertexAttribArray(0));
 
     // Теперь вам нужно будет отрисовывать оба VAO в методе DrawGrid:
-    glBindVertexArray(gridVAO);
-    glDrawArrays(GL_LINES, 0, gridVertices.size() / 3);
-    glBindVertexArray(majorGridVAO);
-    glDrawArrays(GL_LINES, 0, majorGridVertices.size() / 3);
-    glBindVertexArray(0);
+    GL_CHECK(glBindVertexArray(gridVAO));
+    GL_CHECK(glDrawArrays(GL_LINES, 0, gridVertices.size() / 3));
+    GL_CHECK(glBindVertexArray(majorGridVAO));
+    GL_CHECK(glDrawArrays(GL_LINES, 0, majorGridVertices.size() / 3));
+    GL_CHECK(glBindVertexArray(0));
 }
 
 void Renderer::Draw() {
@@ -138,6 +147,8 @@ void Renderer::Draw() {
     if(showGrid)DrawGrid();
 
     DrawCells();
+
+    //ui.draw();
 
     DrawDebugOverlay();
 
@@ -189,8 +200,12 @@ void Renderer::DrawCells() {
 
     // Если состояние клеток изменилось, обновляем буфер инстансов
     if (needsUpdate) {
-        glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, cellInstances.size() * sizeof(CellInstance), cellInstances.data());
+        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
+        void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+        if (ptr) {
+            memcpy(ptr, cellInstances.data(), cellInstances.size() * sizeof(CellInstance));
+            glUnmapBuffer(GL_ARRAY_BUFFER);
+        }
     }
 
     // Используем шейдерную программу для отрисовки клеток
@@ -206,12 +221,12 @@ void Renderer::DrawCells() {
     GL_CHECK(glUniform1f(cellSizeLoc, pGameController->getCellSize()));
 
     // Настраиваем атрибуты для вершин квадрата клетки
-    glBindBuffer(GL_ARRAY_BUFFER, cellsVBO);
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
     GL_CHECK(glEnableVertexAttribArray(0)); // Вершины квадрата (позиция)
     GL_CHECK(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
 
     // Настраиваем атрибуты для инстансинга
-    glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO);
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
     GL_CHECK(glEnableVertexAttribArray(1)); // Позиция инстанса
     GL_CHECK(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)0));
     GL_CHECK(glVertexAttribDivisor(1, 1)); // Каждый инстанс имеет свою позицию
@@ -239,9 +254,10 @@ void Renderer::DrawCells() {
     GL_CHECK(glDisableVertexAttribArray(4));
 }
 
+
 void Renderer::DrawDebugOverlay() {
     if (!pGameController || !pGameController->isSimulationRunning()) return; // Добавляем проверку
-    glDisable(GL_DEPTH_TEST); // Отключаем тест глубины для оверлея
+    GL_CHECK(glDisable(GL_DEPTH_TEST)); // Отключаем тест глубины для оверлея
 
     GL_CHECK(glUseProgram(debugOverlayShaderProgram));
 
@@ -255,16 +271,17 @@ void Renderer::DrawDebugOverlay() {
     GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, 3)); // Рисуем треугольник
     GL_CHECK(glBindVertexArray(0));
 
-    glEnable(GL_DEPTH_TEST); // Включаем обратно тест глубины после отрисовки оверлея
+    GL_CHECK(glEnable(GL_DEPTH_TEST)); // Включаем обратно тест глубины после отрисовки оверлея
 }
 
 void Renderer::OnWindowResize(int newWidth, int newHeight) {
     width = newWidth;
     height = newHeight;
-    glViewport(0, 0, width, height);
+    GL_CHECK(glViewport(0, 0, width, height));
     // Обновляем проекцию камеры
     camera.SetProjection(45.0f, static_cast<float>(width) / height, 0.1f, 1000.0f);
     UpdateDebugOverlayPosition();
+    ui.OnWindowResize(width, height);
 }
 
 void Renderer::MoveCamera(float dx, float dy, float dz) {
@@ -275,10 +292,14 @@ void Renderer::MoveCamera(float dx, float dy, float dz) {
 }
 
 void Renderer::LoadShaders() {
+    LoadCellShaders();
+    LoadGridShaders();
+}
+
+void Renderer::LoadCellShaders() {
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    //std::string vertexShaderSource = LoadShaderSource("./glsl/cells_vertex_shader.glsl");
     const std::string vertexShaderSource = R"(
 #version 330 core
 layout(location = 0) in vec2 aPos; 
@@ -296,8 +317,8 @@ void main()
     vInstanceState = aInstanceState;
     vInstanceColor = aInstanceColor;
 }
-        )";
-    //std::string fragmentShaderSource = LoadShaderSource("./glsl/cells_fragment_shader.glsl");
+    )";
+
     const std::string fragmentShaderSource = R"(
 #version 330 core
 flat in float vInstanceState;
@@ -308,18 +329,18 @@ void main()
     vec3 color = vInstanceState > 0.5 ? vInstanceColor : vec3(0.1, 0.1, 0.1); // Использование переданного цвета для живых клеток
     FragColor = vec4(color, 1.0);
 }
-        )";
+    )";
 
     const char* vertexSourcePtr = vertexShaderSource.c_str();
     const char* fragmentSourcePtr = fragmentShaderSource.c_str();
 
     GL_CHECK(glShaderSource(vertexShader, 1, &vertexSourcePtr, NULL));
     GL_CHECK(glCompileShader(vertexShader));
-    CheckShaderCompilation(vertexShader, "Vertex Shader");
+    CheckShaderCompilation(vertexShader, "Cell Vertex Shader");
 
     GL_CHECK(glShaderSource(fragmentShader, 1, &fragmentSourcePtr, NULL));
     GL_CHECK(glCompileShader(fragmentShader));
-    CheckShaderCompilation(fragmentShader, "Fragment Shader");
+    CheckShaderCompilation(fragmentShader, "Cell Fragment Shader");
 
     shaderProgram = glCreateProgram();
     GL_CHECK(glAttachShader(shaderProgram, vertexShader));
@@ -329,21 +350,12 @@ void main()
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-//-----------------------------------------------------------------------------------------------------------------------------//
+}
+
+void Renderer::LoadGridShaders() {
     GLuint gridVertexShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint gridFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    //std::string gridVertexShaderSource = LoadShaderSource("./glsl/grid_vertex_shader.glsl");
-//    const std::string gridVertexShaderSource = R"(
-//#version 330 core
-//layout(location = 0) in vec3 aPos;
-//uniform mat4 projection;
-//uniform mat4 view;
-//void main()
-//{
-//    gl_Position = projection * view * vec4(aPos, 1.0);
-//}
-//        )";
     const std::string gridVertexShaderSource = R"(
 #version 330 core
 layout(location = 0) in vec3 aPos;
@@ -356,16 +368,8 @@ void main()
     // Пример: рассчитываем, является ли линия "главной"
     isMajorLine = mod(aPos.x, 5.0) == 0.0 || mod(aPos.y, 5.0) == 0.0 ? 1.0 : 0.0;
 }
-        )";
-    //std::string gridFragmentShaderSource = LoadShaderSource("./glsl/grid_fragment_shader.glsl");
-//    const std::string gridFragmentShaderSource = R"(
-//#version 330 core
-//out vec4 FragColor;
-//void main()
-//{
-//    FragColor = vec4(0.3, 0.3, 0.4, 1.0); // Серый цвет для сетки
-//}
-//        )";
+    )";
+
     const std::string gridFragmentShaderSource = R"(
 #version 330 core
 in float isMajorLine;
@@ -378,7 +382,8 @@ void main()
         FragColor = vec4(0.3, 0.3, 0.4, 1.0); // Серый цвет для обычных линий
     }
 }
-        )";
+    )";
+
     const char* gridVertexSourcePtr = gridVertexShaderSource.c_str();
     const char* gridFragmentSourcePtr = gridFragmentShaderSource.c_str();
 
@@ -399,6 +404,7 @@ void main()
     glDeleteShader(gridVertexShader);
     glDeleteShader(gridFragmentShader);
 }
+
 
 std::string Renderer::LoadShaderSource(const std::string& filename) {
     std::ifstream file(filename);

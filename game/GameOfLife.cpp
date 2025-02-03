@@ -1,37 +1,9 @@
 #include "GameOfLife.h"
 
-GameOfLife::GameOfLife(Grid& g) : grid(g) {
+GameOfLife::GameOfLife(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()) {
     //std::srand(static_cast<unsigned int>(std::time(nullptr))); // Инициализация генератора случайных чисел
 }
 
-//int count = 0;
-//for (int i = -1; i <= 1; ++i) {
-//    for (int j = -1; j <= 1; ++j) {
-//        if (i == 0 && j == 0) continue; // Пропускаем саму клетку
-//        int nx = x + i, ny = y + j;
-//        if (nx >= 0 && nx < grid.getWidth() && ny >= 0 && ny < grid.getHeight() && grid.getCellState(nx, ny)) {
-//            count++;
-//        }
-//    }
-//}
-//return count;
-//int GameOfLife::countLiveNeighbors(int x, int y) const {
-//    int count = 0;
-//    for (int i = -1; i <= 1; ++i) {
-//        for (int j = -1; j <= 1; ++j) {
-//            if (i == 0 && j == 0) continue; // Пропускаем саму клетку
-//
-//            // Используем модуль для тороидальной модели
-//            int nx = (x + i + grid.getWidth()) % grid.getWidth();
-//            int ny = (y + j + grid.getHeight()) % grid.getHeight();
-//
-//            if (grid.getCellState(nx, ny)) {
-//                count++;
-//            }
-//        }
-//    }
-//    return count;
-//}
 int GameOfLife::countLiveNeighbors(int x, int y) const {
     static const int offsets[8][2] = {
         {-1, -1}, {-1, 0}, {-1, 1},
@@ -50,6 +22,7 @@ int GameOfLife::countLiveNeighbors(int x, int y) const {
     }
     return count;
 }
+
 int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
     int count = 0;
 
@@ -74,11 +47,17 @@ int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
 }
 
 void GameOfLife::nextGeneration() {
-    saveCurrentState();
-    Grid newGrid(grid.getWidth(), grid.getHeight());
+	saveCurrentState(); // Сохраняем текущее состояние
+    int neighbors;
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
-            int neighbors = countLiveNeighborsWorld(x, y);
+            if (isToroidal) {
+                neighbors = countLiveNeighbors(x, y);
+            }
+            else {
+                neighbors = countLiveNeighborsWorld(x, y);
+            }
+
             bool currentState = grid.getCellState(x, y);
             Cell& oldCell = grid.getCell(x, y); // Ссылка на старую клетку для сохранения цвета
             Cell newCell = oldCell; // Копируем старую клетку для сохранения её свойств
@@ -99,10 +78,10 @@ void GameOfLife::nextGeneration() {
                     newCell.setColor(Vector3d(0.0f, 5.0f, 0.0f)); // Пример: красный для новорожденных
                 }
             }
-            newGrid.setCell(x, y, newCell); // Устанавливаем новую клетку, сохраняя или обновляя цвет
+            nextGrid.setCell(x, y, newCell); // Устанавливаем новую клетку, сохраняя или обновляя цвет
         }
     }
-    grid = newGrid;
+    std::swap(grid, nextGrid); // Переключаем буферы
 }
 
 void GameOfLife::previousGeneration() {

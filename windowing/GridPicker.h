@@ -1,11 +1,9 @@
 #pragma once
 #include "../game/GameController.h"
-#include "../rendering/Camera.h" // Предполагаем, что у вас есть доступ к этому файлу
-//class Camera;
+#include "../rendering/Camera.h"
 
 class GridPicker {
 public:
-    //GridPicker(const Camera& camera, GameController& gameController);
     GridPicker(const Camera& camera);
 
     void ScreenToWorld(float screenX, float screenY, float screenWidth, float screenHeight, float& worldX, float& worldY);

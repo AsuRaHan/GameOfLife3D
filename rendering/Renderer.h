@@ -3,6 +3,8 @@
 #include "../system/GLFunctions.h"
 #include "Camera.h"
 #include "../game/GameController.h"
+#include "UI.h"
+
 #include <vector>
 
 
@@ -13,7 +15,6 @@ public:
     ~Renderer();
 
     void SetCamera(const Camera& camera);
-    //const Camera& GetCamera() const { return camera; }
     Camera& GetCamera() { return camera; } // Удалить const
 
     void SetGameController(GameController* gameController);
@@ -36,6 +37,7 @@ private:
     int width, height;
     Camera camera;
     GameController* pGameController;
+    UI ui; // Добавляем экземпляр UI
 
     bool showGrid = true;
 
@@ -66,6 +68,8 @@ private:
     void DrawDebugOverlay();
 
     void LoadShaders();
+	void LoadCellShaders();
+    void LoadGridShaders();
     std::string LoadShaderSource(const std::string& filename);
     void CheckShaderCompilation(GLuint shader, const std::string& name);
     void CheckProgramLinking(GLuint program);

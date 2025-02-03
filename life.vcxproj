@@ -144,6 +144,7 @@
     <ClCompile Include="mathematics\Vector3d.cpp" />
     <ClCompile Include="rendering\Camera.cpp" />
     <ClCompile Include="rendering\Renderer.cpp" />
+    <ClCompile Include="rendering\UI.cpp" />
     <ClCompile Include="system\GLFunctions.cpp" />
     <ClCompile Include="system\OpenGLInitializer.cpp" />
     <ClCompile Include="windowing\GridPicker.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="mathematics\Vector3d.h" />
     <ClInclude Include="rendering\Camera.h" />
     <ClInclude Include="rendering\Renderer.h" />
+    <ClInclude Include="rendering\UI.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="system\GLFunctions.h" />
     <ClInclude Include="system\OpenGLInitializer.h" />

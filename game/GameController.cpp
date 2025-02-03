@@ -14,14 +14,35 @@ void GameController::initializeGrid() {
     std::uniform_int_distribution<> disGliders(3, 15); // √енераци€ количества глайдеров
     std::uniform_int_distribution<> disX(0, grid.getWidth() - 3); // √енераци€ X-координаты
     std::uniform_int_distribution<> disY(0, grid.getHeight() - 3); // √енераци€ Y-координаты
+    std::uniform_int_distribution<> disTipe(0, 3); // √енераци€ чисел от 0 до 3
+
     int numberOfGliders = disGliders(gen); // —лучайное количество глайдеров
 
     for (int i = 0; i < numberOfGliders; ++i) {
         int startX = disX(gen);
         int startY = disY(gen);
-        //placeGlider(startX, startY);
         // –азмещаем глайдер на сетке
-        placePattern(startX, startY, gosperGliderGun);
+
+        int randomCondition = disTipe(gen); // √енерируем случайное число
+
+        switch (randomCondition) {
+        case 0:
+            placePattern(startX, startY, gosperGliderGun);
+            break;
+        case 1:
+            placePattern(startX, startY, gosperGliderGunFlipped);
+            break;
+        case 2:
+            placePattern(startX, startY, gosperGliderGunVertical);
+            break;
+        case 3:
+            placePattern(startX, startY, gosperGliderGunVerticalFlipped);
+            break;
+        default:
+            // Ёто условие не должно срабатывать, так как мы ограничены диапазоном от 0 до 3
+            break;
+        }
+        
     }
 }
 
@@ -52,8 +73,6 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
 }
 
 
-
-
 void GameController::randomizeGrid(float density) {
     // √енератор случайных чисел
     std::random_device rd;  // “олько дл€ инициализации генератора
@@ -76,6 +95,7 @@ void GameController::randomizeGrid(float density) {
         }
     }
 }
+
 void GameController::clearGrid() {
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
@@ -234,8 +254,9 @@ void GameController::setCurrentPattern(int patternNumber) {
     case 4: currentPattern = beacon; break;
     case 5: currentPattern = pentadecathlon; break;
     case 6: currentPattern = gosperGliderGun; break;
-    case 7: currentPattern = gosperGliderGunReversed; break;
+    case 7: currentPattern = gosperGliderGunFlipped; break;
     case 8: currentPattern = gosperGliderGunVertical; break;
+    case 9: currentPattern = gosperGliderGunVerticalFlipped; break;
     default:
         // ћожно установить по умолчанию какой-то паттерн или оставить текущий без изменений
         currentPattern = glider;

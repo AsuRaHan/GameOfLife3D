@@ -78,17 +78,17 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             }
             break;
         case VK_ADD: // Клавиша '+' на нумпаде
-            simulationSpeedMultiplier -= 10; // Уменьшаем интервал на 10
-            if (simulationSpeedMultiplier < 10) {
-                simulationSpeedMultiplier = 10; // Устанавливаем минимум 10
+            simulationSpeedMultiplier -= 25; // Уменьшаем интервал на 10
+            if (simulationSpeedMultiplier < 25) {
+                simulationSpeedMultiplier = 25; // Устанавливаем минимум 10
             }
             UpdateTimer(); // Обновляем таймер
             break;
 
         case VK_SUBTRACT: // Клавиша '-' на нумпаде
-            simulationSpeedMultiplier += 10; // Увеличиваем интервал на 10
-            if (simulationSpeedMultiplier > 1000) {
-                simulationSpeedMultiplier = 1000; // Устанавливаем максимум 1000
+            simulationSpeedMultiplier += 25; // Увеличиваем интервал на 10
+            if (simulationSpeedMultiplier > 1500) {
+                simulationSpeedMultiplier = 1500; // Устанавливаем максимум 1000
             }
             UpdateTimer(); // Обновляем таймер
             break;
@@ -115,6 +115,11 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         case 'C':
             if (!pGameController->isSimulationRunning()) {
                 pGameController->clearGrid(); // Очищение поля. убить всех
+            }
+            break;
+        case 'Y':
+            if (!pGameController->isSimulationRunning()) {
+                pGameController->setWoldToroidal(!pGameController->getWoldToroidal()); // Очищение поля. убить всех
             }
             break;
         case 'I':
