@@ -13,34 +13,62 @@ int GameOfLife::countLiveNeighbors(int x, int y) const {
 
     int count = 0;
     for (const auto& offset : offsets) {
-        int nx = (x + offset[0] + grid.getWidth()) % grid.getWidth();
-        int ny = (y + offset[1] + grid.getHeight()) % grid.getHeight();
+        int nx = x + offset[0];
+        int ny = y + offset[1];
 
-        if (grid.getCellState(nx, ny)) {
-            count++;
+        // ѕровер€ем, наход€тс€ ли координаты в пределах границ сетки
+        if (nx >= 0 && nx < grid.getWidth() && ny >= 0 && ny < grid.getHeight()) {
+            if (grid.getCellState(nx, ny)) {
+                count++;
+            }
         }
     }
     return count;
 }
 
+//int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
+//    int count = 0;
+//    // ѕровер€ем все 8 соседей
+//    for (int i = -1; i <= 1; ++i) {
+//        for (int j = -1; j <= 1; ++j) {
+//            // ѕропускаем саму клетку
+//            if (i == 0 && j == 0) continue;
+//
+//            int nx = x + i;
+//            int ny = y + j;
+//
+//            // ѕровер€ем, наход€тс€ ли координаты в пределах границ сетки
+//            if (nx >= 0 && nx < grid.getWidth() && ny >= 0 && ny < grid.getHeight()) {
+//                if (grid.getCellState(nx, ny)) {
+//                    count++;
+//                }
+//            }
+//        }
+//    }
+//    return count;
+//}
+
 int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
+    static const int offsets[8][2] = {
+        {-1, -1}, {-1, 0}, {-1, 1},
+        {0, -1},           {0, 1},
+        {1, -1}, {1, 0}, {1, 1}
+    };
+
     int count = 0;
+    const int w = grid.getWidth();
+    const int h = grid.getHeight();
 
-    // ѕровер€ем все 8 соседей
-    for (int i = -1; i <= 1; ++i) {
-        for (int j = -1; j <= 1; ++j) {
-            // ѕропускаем саму клетку
-            if (i == 0 && j == 0) continue;
+    for (const auto& offset : offsets) {
+        int nx = x + offset[0];
+        int ny = y + offset[1];
 
-            int nx = x + i;
-            int ny = y + j;
+        //  орректировка координат дл€ тороидальной сетки без использовани€ wrap
+        nx = (nx < 0) ? w - 1 : (nx >= w ? 0 : nx);
+        ny = (ny < 0) ? h - 1 : (ny >= h ? 0 : ny);
 
-            // ѕровер€ем, наход€тс€ ли координаты в пределах границ сетки
-            if (nx >= 0 && nx < grid.getWidth() && ny >= 0 && ny < grid.getHeight()) {
-                if (grid.getCellState(nx, ny)) {
-                    count++;
-                }
-            }
+        if (grid.getCellState(nx, ny)) {
+            count++;
         }
     }
     return count;
