@@ -53,6 +53,7 @@ int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
 }
 void GameOfLife::nextGeneration() {
     // Используем GPU для вычислений нового поколения
+    // Используем GPU для вычислений нового поколения
     std::vector<int> currentState, nextState;
     currentState.resize(grid.getWidth() * grid.getHeight());
     nextState.resize(grid.getWidth() * grid.getHeight());
@@ -78,11 +79,18 @@ void GameOfLife::nextGeneration() {
         for (int x = 0; x < grid.getWidth(); ++x) {
             bool newState = nextState[y * grid.getWidth() + x] != 0;
             Cell& cell = grid.getCell(x, y);
+            bool currentState = cell.getAlive();
             cell.setAlive(newState);
 
             if (newState) {
-                // Если клетка жива, делаем её зеленого цвета
-                cell.setColor(Vector3d(0.3f, 0.8f, 0.3f));
+                if (!currentState) {
+                    // Если клетка рождается, делаем её темно-зеленого цвета
+                    cell.setColor(Vector3d(0.0f, 0.5f, 0.0f));
+                }
+                else {
+                    // Если клетка остается живой, делаем её зеленого цвета
+                    cell.setColor(Vector3d(0.3f, 0.8f, 0.3f));
+                }
             }
             else {
                 // Если клетка мертва, делаем её темно-серого цвета
@@ -90,9 +98,6 @@ void GameOfLife::nextGeneration() {
             }
         }
     }
-
-    // Не требуется swap, так как мы обновляем grid напрямую
-    //std::swap(grid, nextGrid); // Убираем, так как обновление происходит in-place
 }
 
 void GameOfLife::nextGenerationCPU() {

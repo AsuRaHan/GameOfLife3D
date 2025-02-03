@@ -1,7 +1,7 @@
 #include "GPUAutomaton.h"
 
 GPUAutomaton::GPUAutomaton(int width, int height)
-    : gridWidth(width), gridHeight(height), gridSize(width* height), bufferIndex(0) {
+    : gridWidth(width), gridHeight(height), bufferIndex(0) {
     CreateComputeShader();
     SetupBuffers();
 }
@@ -71,50 +71,33 @@ void GPUAutomaton::SetupBuffers() {
     glGenBuffers(2, cellsBuffer);
     for (int i = 0; i < 2; ++i) {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[i]);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int) * gridSize, nullptr, GL_DYNAMIC_COPY);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int) * gridWidth * gridHeight, nullptr, GL_DYNAMIC_COPY);
     }
 }
 
-void GPUAutomaton::DispatchCompute() {
-    glUseProgram(computeProgram);
-    glUniform2i(glGetUniformLocation(computeProgram, "gridSize"), gridWidth, gridHeight);
-
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[bufferIndex]); // Используем текущий буфер
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[(bufferIndex + 1) % 2]); // Следующий буфер для обновления
-
-    glDispatchCompute(gridWidth, gridHeight, 1);
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-    // Переключаем буферы для следующего цикла
-    bufferIndex = (bufferIndex + 1) % 2;
-}
-
 void GPUAutomaton::Update() {
-    // Смена буферов для двойной буферизации
-    int currentBuffer = bufferIndex;
-    bufferIndex = (bufferIndex + 1) % 2;
-
     glUseProgram(computeProgram);
     glUniform2i(glGetUniformLocation(computeProgram, "gridSize"), gridWidth, gridHeight);
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[currentBuffer]);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[bufferIndex]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[bufferIndex]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[(bufferIndex + 1) % 2]);
 
     glDispatchCompute(gridWidth, gridHeight, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+    bufferIndex = (bufferIndex + 1) % 2;
 }
 
 void GPUAutomaton::GetGridState(std::vector<int>& outState) {
-    outState.resize(gridSize);
+    outState.resize(gridWidth * gridHeight);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[bufferIndex]);
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(int) * gridSize, outState.data());
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(int) * gridWidth * gridHeight, outState.data());
 }
 
 void GPUAutomaton::SetGridState(const std::vector<int>& inState) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[bufferIndex]);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(int) * gridSize, inState.data());
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(int) * gridWidth * gridHeight, inState.data());
 }
-
 
 void GPUAutomaton::CheckShaderCompilation(GLuint shader, const std::string& name) {
     GLint success;
