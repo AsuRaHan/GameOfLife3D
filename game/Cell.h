@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../mathematics/Vector3d.h" // Ваш заголовочный файл для Vector3d
+#include "../mathematics/Vector3d.h"
 
 class Cell {
 private:

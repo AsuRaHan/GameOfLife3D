@@ -6,6 +6,7 @@ class GameOfLife {
 private:
     Grid& grid; // Ссылка на сетку, чтобы избежать копирования
     std::vector<Grid> history; // Хранение истории состояний
+    bool isToroidal = true;
 
     int countLiveNeighbors(int x, int y) const;
     int countLiveNeighborsWorld(int x, int y) const;
@@ -15,4 +16,6 @@ public:
     void nextGeneration();
     void previousGeneration();
     void updateGridReference(Grid& newGrid) { grid = newGrid; } // метод для обновления ссылки
+    void setWoldToroidal(bool wt) { isToroidal = wt; };
+    bool getWoldToroidal() { return isToroidal; };
 };

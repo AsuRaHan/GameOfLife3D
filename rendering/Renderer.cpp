@@ -5,7 +5,16 @@ Renderer::Renderer(int width, int height)
     : width(width), height(height), camera(45.0f, static_cast<float>(width) / height, 0.1f, 100000.0f),
     pGameController(nullptr){
     SetupOpenGL();
-    
+    OnWindowResize(width, height);
+    // Добавление UI элементов
+    //Button* startButton = new Button(10.0f, 50.0f, 100.0f, 30.0f, "Start", Vector3d(0.0f, 1.0f, 0.0f)); // Зеленый цвет
+    //ui.addElement(startButton);
+
+    //Button* stopButton = new Button(120.0f, 50.0f, 100.0f, 30.0f, "Stop", Vector3d(1.0f, 0.0f, 0.0f)); // Красный цвет
+    //ui.addElement(stopButton);
+
+    //TextLabel* title = new TextLabel(width / 2 - 100.0f, height - 30.0f, "Game of Life 3D", Vector3d(1.0f, 1.0f, 0.0f)); // Желтый цвет
+    //ui.addElement(title);
 }
 
 Renderer::~Renderer() {
@@ -13,6 +22,7 @@ Renderer::~Renderer() {
     glDeleteBuffers(1, &cellsVBO);
     glDeleteBuffers(1, &gridVBO);
     glDeleteBuffers(1, &cellInstanceVBO);
+
 }
 
 void Renderer::SetCamera(const Camera& camera) {
@@ -138,6 +148,8 @@ void Renderer::Draw() {
     if(showGrid)DrawGrid();
 
     DrawCells();
+
+    //ui.draw();
 
     DrawDebugOverlay();
 
@@ -265,6 +277,7 @@ void Renderer::OnWindowResize(int newWidth, int newHeight) {
     // Обновляем проекцию камеры
     camera.SetProjection(45.0f, static_cast<float>(width) / height, 0.1f, 1000.0f);
     UpdateDebugOverlayPosition();
+    ui.OnWindowResize(width, height);
 }
 
 void Renderer::MoveCamera(float dx, float dy, float dz) {
@@ -333,17 +346,6 @@ void main()
     GLuint gridVertexShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint gridFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-    //std::string gridVertexShaderSource = LoadShaderSource("./glsl/grid_vertex_shader.glsl");
-//    const std::string gridVertexShaderSource = R"(
-//#version 330 core
-//layout(location = 0) in vec3 aPos;
-//uniform mat4 projection;
-//uniform mat4 view;
-//void main()
-//{
-//    gl_Position = projection * view * vec4(aPos, 1.0);
-//}
-//        )";
     const std::string gridVertexShaderSource = R"(
 #version 330 core
 layout(location = 0) in vec3 aPos;
@@ -357,15 +359,6 @@ void main()
     isMajorLine = mod(aPos.x, 5.0) == 0.0 || mod(aPos.y, 5.0) == 0.0 ? 1.0 : 0.0;
 }
         )";
-    //std::string gridFragmentShaderSource = LoadShaderSource("./glsl/grid_fragment_shader.glsl");
-//    const std::string gridFragmentShaderSource = R"(
-//#version 330 core
-//out vec4 FragColor;
-//void main()
-//{
-//    FragColor = vec4(0.3, 0.3, 0.4, 1.0); // Серый цвет для сетки
-//}
-//        )";
     const std::string gridFragmentShaderSource = R"(
 #version 330 core
 in float isMajorLine;

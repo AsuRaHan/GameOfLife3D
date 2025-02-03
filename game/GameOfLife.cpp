@@ -76,9 +76,17 @@ int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
 void GameOfLife::nextGeneration() {
     saveCurrentState();
     Grid newGrid(grid.getWidth(), grid.getHeight());
+    int neighbors;
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
-            int neighbors = countLiveNeighborsWorld(x, y);
+            if (isToroidal) {
+                neighbors = countLiveNeighbors(x, y);
+            }
+            else {
+                neighbors = countLiveNeighborsWorld(x, y);
+            }
+            
+
             bool currentState = grid.getCellState(x, y);
             Cell& oldCell = grid.getCell(x, y); // Ссылка на старую клетку для сохранения цвета
             Cell newCell = oldCell; // Копируем старую клетку для сохранения её свойств

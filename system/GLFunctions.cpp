@@ -27,16 +27,17 @@ PFNGLGETPROGRAMIVPROC glGetProgramiv = nullptr;
 PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog = nullptr;
 
 PFNGLUSEPROGRAMPROC glUseProgram = nullptr;
-
 PFNGETUNIFORMLOCATIONPROC glGetUniformLocation = nullptr;
 PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv = nullptr;
-
 PFNGLBINDVERTEXARRAYPROC glBindVertexArray = nullptr;
 PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = nullptr;
-
 PFNUNIFORM1FPROC glUniform1f = nullptr;
 PFNUNIFORM4FVPROC glUniform4fv = nullptr;
+PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays = nullptr;
 
+PFNGLUNIFORM3FPROC glUniform3f = nullptr;
+PFNGLUNIFORM4FPROC glUniform4f = nullptr;
+PFNGLUNIFORM2FPROC glUniform2f = nullptr;
 
 void LoadOpenGLFunctions() {
     // Загрузка функций для работы с буферами
@@ -88,47 +89,50 @@ void LoadOpenGLFunctions() {
     CHECK_LOAD_FUNCTION(glGetProgramInfoLog);
     glUseProgram = (PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram");
     CHECK_LOAD_FUNCTION(glUseProgram);
-
     glGetUniformLocation = (PFNGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation");
     CHECK_LOAD_FUNCTION(glGetUniformLocation);
     glUniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)wglGetProcAddress("glUniformMatrix4fv");
     CHECK_LOAD_FUNCTION(glUniformMatrix4fv);
-
     glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)wglGetProcAddress("glBindVertexArray");
     CHECK_LOAD_FUNCTION(glBindVertexArray);
     glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)wglGetProcAddress("glGenVertexArrays");
     CHECK_LOAD_FUNCTION(glGenVertexArrays);
-
     glUniform1f = (PFNUNIFORM1FPROC)wglGetProcAddress("glUniform1f");
     CHECK_LOAD_FUNCTION(glUniform1f);
-
     glUniform4fv = (PFNUNIFORM4FVPROC)wglGetProcAddress("glUniform4fv");
     CHECK_LOAD_FUNCTION(glUniform4fv);
+    glDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)wglGetProcAddress("glDeleteVertexArrays");
+    CHECK_LOAD_FUNCTION(glDeleteVertexArrays);
 
-    // Проверка на успешную загрузку всех функций
-    //bool allLoaded = glGenBuffers && glBindBuffer && glBufferData && glDeleteBuffers && glBufferSubData &&
-    //    glEnableVertexAttribArray && glVertexAttribPointer && glVertexAttribDivisor &&
-    //    glDrawArraysInstanced && glDisableVertexAttribArray &&
-    //    glCreateShader && glShaderSource && glCompileShader && glCreateProgram &&
-    //    glAttachShader && glLinkProgram && glDeleteProgram && glDeleteShader &&
-    //    glGetShaderiv && glGetShaderInfoLog && glGetProgramiv && glGetProgramInfoLog &&
-    //    glUseProgram && glGetUniformLocation && glUniformMatrix4fv;
-
-    //if (!allLoaded) {
-    //        MessageBox(NULL, L"Не удалось загрузить указатели на некоторые функции OpenGL.", L"Ошибка", MB_OK | MB_ICONERROR);
-    //    exit(1);
-    //}
+    glUniform3f = (PFNGLUNIFORM3FPROC)wglGetProcAddress("glUniform3f");
+    CHECK_LOAD_FUNCTION(glUniform3f);
+    glUniform4f = (PFNGLUNIFORM4FPROC)wglGetProcAddress("glUniform4f");
+    CHECK_LOAD_FUNCTION(glUniform4f);
+    glUniform2f = (PFNGLUNIFORM2FPROC)wglGetProcAddress("glUniform2f");
+    CHECK_LOAD_FUNCTION(glUniform2f);
 }
 
 void CheckOpenGLError(const char* stmt, const char* fname, int line)
 {
+    static int errorCount = 0; // Статическая переменная для отслеживания количества ошибок
     GLenum err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        WCHAR errorMsg[256];
-        swprintf_s(errorMsg, L"OpenGL error %08X, at %S:%d - for %S", err, fname, line, stmt);
+        errorCount++; // Увеличиваем счетчик ошибок
+        PlaySound(TEXT("SystemExclamation"), NULL, SND_ALIAS | SND_ASYNC);
+        Sleep(1000); // Задержка 1 секунда
+        std::cout << "OpenGL error " << std::hex << err
+            << ", at " << fname << ":" << line
+            << " - for " << stmt << std::endl;
+        // Проверяем, достигли ли мы 10 ошибок
+        if (errorCount >= 10)
+        {
+            std::cout << "Достигнуто максимальное количество ошибок. Завершение программы." << std::endl;
+            WCHAR errorMsg[256];
+            swprintf_s(errorMsg, L"OpenGL error %08X, at %S:%d - for %S", err, fname, line, stmt);
+            MessageBoxW(NULL, errorMsg, L"OpenGL Error", MB_OK | MB_ICONERROR);
 
-        MessageBoxW(NULL, errorMsg, L"OpenGL Error", MB_OK | MB_ICONERROR);
-        // Можно добавить дополнительную обработку ошибок или выход из программы
+            exit(EXIT_FAILURE); // Завершаем программу
+        }
     }
 }

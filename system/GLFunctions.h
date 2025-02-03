@@ -85,16 +85,17 @@ typedef void (APIENTRY* PFNGLGETSHADERINFOLOGPROC)(GLuint shader, GLsizei bufSiz
 typedef void (APIENTRY* PFNGLGETPROGRAMIVPROC)(GLuint program, GLenum pname, GLint* params);
 typedef void (APIENTRY* PFNGLGETPROGRAMINFOLOGPROC)(GLuint program, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
 typedef void (APIENTRY* PFNGLUSEPROGRAMPROC)(GLuint program);
-
 typedef GLint(APIENTRY* PFNGETUNIFORMLOCATIONPROC)(GLuint program, const GLchar* name);
 typedef void (APIENTRY* PFNGLUNIFORMMATRIX4FVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
-
 typedef void (APIENTRY* PFNGLBINDVERTEXARRAYPROC)(GLuint array);
 typedef void (APIENTRY* PFNGLGENVERTEXARRAYSPROC)(GLsizei n, GLuint* arrays);
-
 typedef void (APIENTRY* PFNUNIFORM1FPROC)(GLint location, GLfloat v0);
-
 typedef void (APIENTRY* PFNUNIFORM4FVPROC)(GLint location, GLsizei count, const GLfloat* value);
+typedef void (APIENTRY* PFNGLDELETEVERTEXARRAYSPROC)(GLsizei n, const GLuint* arrays);
+
+typedef void (APIENTRY* PFNGLUNIFORM3FPROC)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
+typedef void (APIENTRY* PFNGLUNIFORM4FPROC)(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
+typedef void (APIENTRY* PFNGLUNIFORM2FPROC)(GLint location, GLfloat v0, GLfloat v1);
 
 // Объявление указателей на функции
 extern PFNGLGENBUFFERSPROC glGenBuffers;
@@ -122,16 +123,17 @@ extern PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
 extern PFNGLGETPROGRAMIVPROC glGetProgramiv;
 extern PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
 extern PFNGLUSEPROGRAMPROC glUseProgram;
-
 extern PFNGETUNIFORMLOCATIONPROC glGetUniformLocation;
 extern PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
-
 extern PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
 extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
-
 extern PFNUNIFORM1FPROC glUniform1f;
-
 extern PFNUNIFORM4FVPROC glUniform4fv;
+extern PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
+
+extern PFNGLUNIFORM3FPROC glUniform3f;
+extern PFNGLUNIFORM4FPROC glUniform4f;
+extern PFNGLUNIFORM2FPROC glUniform2f;
 
 // Функции для работы с OpenGL
 void LoadOpenGLFunctions();

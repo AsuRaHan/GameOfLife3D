@@ -41,7 +41,6 @@ bool MainWindow::Create() {
         NULL, NULL, hInstance, this // Передаем this как lpParam
     );
         
-
     if (!hWnd) {
         MessageBox(NULL, L"Window Creation Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
         return false;
