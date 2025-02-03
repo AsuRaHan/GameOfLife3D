@@ -138,6 +138,7 @@
     <ClCompile Include="game\Cell.cpp" />
     <ClCompile Include="game\GameController.cpp" />
     <ClCompile Include="game\GameOfLife.cpp" />
+    <ClCompile Include="game\GPUAutomaton.cpp" />
     <ClCompile Include="game\Grid.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathematics\Matrix4x4.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="game\Cell.h" />
     <ClInclude Include="game\GameController.h" />
     <ClInclude Include="game\GameOfLife.h" />
+    <ClInclude Include="game\GPUAutomaton.h" />
     <ClInclude Include="game\Grid.h" />
     <ClInclude Include="mathematics\Matrix4x4.h" />
     <ClInclude Include="mathematics\Vector3d.h" />

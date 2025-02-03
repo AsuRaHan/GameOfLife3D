@@ -1,6 +1,6 @@
 #include "GameOfLife.h"
 
-GameOfLife::GameOfLife(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()) {
+GameOfLife::GameOfLife(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()),gpuAutomaton(g.getWidth(), g.getHeight()), isToroidal(true) {
     //std::srand(static_cast<unsigned int>(std::time(nullptr))); // Инициализация генератора случайных чисел
 }
 
@@ -25,28 +25,6 @@ int GameOfLife::countLiveNeighbors(int x, int y) const {
     }
     return count;
 }
-
-//int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
-//    int count = 0;
-//    // Проверяем все 8 соседей
-//    for (int i = -1; i <= 1; ++i) {
-//        for (int j = -1; j <= 1; ++j) {
-//            // Пропускаем саму клетку
-//            if (i == 0 && j == 0) continue;
-//
-//            int nx = x + i;
-//            int ny = y + j;
-//
-//            // Проверяем, находятся ли координаты в пределах границ сетки
-//            if (nx >= 0 && nx < grid.getWidth() && ny >= 0 && ny < grid.getHeight()) {
-//                if (grid.getCellState(nx, ny)) {
-//                    count++;
-//                }
-//            }
-//        }
-//    }
-//    return count;
-//}
 
 int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
     static const int offsets[8][2] = {
@@ -73,8 +51,51 @@ int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
     }
     return count;
 }
-
 void GameOfLife::nextGeneration() {
+    // Используем GPU для вычислений нового поколения
+    std::vector<int> currentState, nextState;
+    currentState.resize(grid.getWidth() * grid.getHeight());
+    nextState.resize(grid.getWidth() * grid.getHeight());
+
+    // Преобразование состояния сетки в вектор для передачи на GPU
+    for (int y = 0; y < grid.getHeight(); ++y) {
+        for (int x = 0; x < grid.getWidth(); ++x) {
+            currentState[y * grid.getWidth() + x] = grid.getCellState(x, y) ? 1 : 0;
+        }
+    }
+
+    // Устанавливаем текущее состояние для GPU
+    gpuAutomaton.SetGridState(currentState);
+
+    // Выполняем обновление на GPU
+    gpuAutomaton.Update();
+
+    // Получаем новое состояние с GPU
+    gpuAutomaton.GetGridState(nextState);
+
+    // Обновляем сетку на основе состояния, полученного с GPU
+    for (int y = 0; y < grid.getHeight(); ++y) {
+        for (int x = 0; x < grid.getWidth(); ++x) {
+            bool newState = nextState[y * grid.getWidth() + x] != 0;
+            Cell& cell = grid.getCell(x, y);
+            cell.setAlive(newState);
+
+            if (newState) {
+                // Если клетка жива, делаем её зеленого цвета
+                cell.setColor(Vector3d(0.3f, 0.8f, 0.3f));
+            }
+            else {
+                // Если клетка мертва, делаем её темно-серого цвета
+                cell.setColor(Vector3d(0.25f, 0.25f, 0.25f));
+            }
+        }
+    }
+
+    // Не требуется swap, так как мы обновляем grid напрямую
+    //std::swap(grid, nextGrid); // Убираем, так как обновление происходит in-place
+}
+
+void GameOfLife::nextGenerationCPU() {
     //saveCurrentState(); // Сохраняем текущее состояние
     int neighbors;
     for (int y = 0; y < grid.getHeight(); ++y) {

@@ -40,7 +40,7 @@ Vector3d Vector3d::normalize() const {
 
 // Вывод вектора
 void Vector3d::print() const {
-    std::cout << "Vector3d(" << x << ", " << y << ", " << z << ")\n";
+    //std::cout << "Vector3d(" << x << ", " << y << ", " << z << ")\n";
 }
 
 // Доступ к компонентам
