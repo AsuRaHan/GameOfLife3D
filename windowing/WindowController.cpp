@@ -8,30 +8,30 @@ WindowController::WindowController(MainWindow* window, Renderer* renderer, GameC
     mouseCaptured(false), lastMouseX(0), lastMouseY(0), isMiddleButtonDown(false),
     gridPicker(renderer->GetCamera()) {
 
-    // Установка таймера для обновления симуляции
-    timerId = SetTimer(pWindow->GetHwnd(), 1, simulationSpeedMultiplier, NULL); // Интервал 100 мс
-    if (!timerId) {
-        MessageBox(NULL, L"Timer could not be set", L"Error", MB_OK | MB_ICONERROR);
-    }
+    //// Установка таймера для обновления симуляции
+    //timerId = SetTimer(pWindow->GetHwnd(), 1, simulationSpeedMultiplier, NULL); // Интервал 100 мс
+    //if (!timerId) {
+    //    MessageBox(NULL, L"Timer could not be set", L"Error", MB_OK | MB_ICONERROR);
+    //}
     ResetCamera();
 }
 
 WindowController::~WindowController() {
-    if (timerId) {
-        KillTimer(pWindow->GetHwnd(), timerId);
-    }
+    //if (timerId) {
+    //    KillTimer(pWindow->GetHwnd(), timerId);
+    //}
 }
 
 // метод для обновления таймера
-void WindowController::UpdateTimer() {
-    if (timerId) {
-        KillTimer(pWindow->GetHwnd(), timerId); // Убиваем старый таймер
-    }
-    timerId = SetTimer(pWindow->GetHwnd(), 1, simulationSpeedMultiplier, NULL); // Устанавливаем новый таймер
-    if (!timerId) {
-        MessageBox(NULL, L"Timer could not be set", L"Error", MB_OK | MB_ICONERROR);
-    }
-}
+//void WindowController::UpdateTimer() {
+//    if (timerId) {
+//        KillTimer(pWindow->GetHwnd(), timerId); // Убиваем старый таймер
+//    }
+//    timerId = SetTimer(pWindow->GetHwnd(), 1, simulationSpeedMultiplier, NULL); // Устанавливаем новый таймер
+//    if (!timerId) {
+//        MessageBox(NULL, L"Timer could not be set", L"Error", MB_OK | MB_ICONERROR);
+//    }
+//}
 
 void WindowController::Resize(int width, int height) {
     if (pRenderer) {
@@ -41,11 +41,11 @@ void WindowController::Resize(int width, int height) {
 
 void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
-    case WM_TIMER:
-        if (wParam == timerId) {
-            pGameController->update(); // Обновляем симуляцию
-        }
-        break;
+    //case WM_TIMER:
+    //    if (wParam == timerId) {
+    //        pGameController->update(); // Обновляем симуляцию
+    //    }
+    //    break;
 
     case WM_SIZE:
         Resize(LOWORD(lParam), HIWORD(lParam)); // Обработка изменения размеров окна
@@ -78,20 +78,27 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             }
             break;
         case VK_ADD: // Клавиша '+' на нумпаде
-            simulationSpeedMultiplier -= 25; // Уменьшаем интервал на 10
-            if (simulationSpeedMultiplier < 25) {
-                simulationSpeedMultiplier = 25; // Устанавливаем минимум 10
+            simulationSpeedMultiplier -= 0.025f; // Уменьшаем интервал на 10
+            if (simulationSpeedMultiplier < 0.025f) {
+                simulationSpeedMultiplier = 0.025f; // Устанавливаем минимум 10
             }
-            UpdateTimer(); // Обновляем таймер
+            if (pGameController->isSimulationRunning()) {
+                pGameController->setSimulationSpeed(simulationSpeedMultiplier);
+            }
+            //UpdateTimer(); // Обновляем таймер
             break;
 
         case VK_SUBTRACT: // Клавиша '-' на нумпаде
-            simulationSpeedMultiplier += 25; // Увеличиваем интервал на 10
-            if (simulationSpeedMultiplier > 1500) {
-                simulationSpeedMultiplier = 1500; // Устанавливаем максимум 1000
+            simulationSpeedMultiplier += 0.025f; // Увеличиваем интервал на 10
+            if (simulationSpeedMultiplier > 0.5f) {
+                simulationSpeedMultiplier = 0.5f; // Устанавливаем максимум 1500
             }
-            UpdateTimer(); // Обновляем таймер
+            if (pGameController->isSimulationRunning()) {
+                pGameController->setSimulationSpeed(simulationSpeedMultiplier);
+            }
+            //UpdateTimer(); // Обновляем таймер
             break;
+
         case 'R': 
             if (!pGameController->isSimulationRunning()) {
                 pGameController->randomizeGrid(0.3f); // Случайное заполнение поля

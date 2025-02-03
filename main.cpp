@@ -1,4 +1,4 @@
-п»ї#include "windowing/MainWindow.h"
+#include "windowing/MainWindow.h"
 #include "windowing/SettingsWindow.h"
 #include "windowing/WindowController.h"
 #include "rendering/Renderer.h"
@@ -14,34 +14,33 @@
 #include <sstream>
 #include <string>
 
-#pragma comment(lib, "winmm.lib") // РЇРІРЅРѕРµ СѓРєР°Р·Р°РЅРёРµ РЅР° Р±РёР±Р»РёРѕС‚РµРєСѓ
-
+#pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")
 #pragma comment(lib, "Comctl32.lib")
 
 
 
-// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РїР°СЂСЃРёРЅРіР° РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё
+// Функция для парсинга командной строки
 void ParseCommandLine(LPWSTR lpCmdLine, int& width, int& height) {
     std::wstring cmdLine(lpCmdLine);
     std::wistringstream iss(cmdLine);
     std::wstring token;
 
-    // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р·РЅР°С‡РµРЅРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
-    width = 200;  // Р—РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ С€РёСЂРёРЅС‹
-    height = 200; // Р—РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ РІС‹СЃРѕС‚С‹
+    // Устанавливаем значения по умолчанию
+    width = 200;  // Значение по умолчанию для ширины
+    height = 200; // Значение по умолчанию для высоты
 
-    // РџР°СЂСЃРёРј РєРѕРјР°РЅРґРЅСѓСЋ СЃС‚СЂРѕРєСѓ
+    // Парсим командную строку
     while (iss >> token) {
         if (token == L"-gridWidth") {
             if (iss >> token) {
-                width = std::stoi(token); // РџСЂРµРѕР±СЂР°Р·СѓРµРј СЃС‚СЂРѕРєСѓ РІ С†РµР»РѕРµ С‡РёСЃР»Рѕ
+                width = std::stoi(token); // Преобразуем строку в целое число
             }
         }
         else if (token == L"-gridHeight") {
             if (iss >> token) {
-                height = std::stoi(token); // РџСЂРµРѕР±СЂР°Р·СѓРµРј СЃС‚СЂРѕРєСѓ РІ С†РµР»РѕРµ С‡РёСЃР»Рѕ
+                height = std::stoi(token); // Преобразуем строку в целое число
             }
         }
     }
@@ -55,8 +54,8 @@ int wWinMain(
 )
 {
     std::ofstream out("log.txt");
-    std::streambuf* coutbuf = std::cout.rdbuf(); // СЃРѕС…СЂР°РЅСЏРµРј Р±СѓС„РµСЂ cout
-    std::cout.rdbuf(out.rdbuf()); // РїРµСЂРµРЅР°РїСЂР°РІР»СЏРµРј cout РІ С„Р°Р№Р»
+    std::streambuf* coutbuf = std::cout.rdbuf(); // сохраняем буфер cout
+    std::cout.rdbuf(out.rdbuf()); // перенаправляем cout в файл
 
     auto now = std::chrono::system_clock::now();
     std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
@@ -65,13 +64,13 @@ int wWinMain(
 
     std::cout << "LOG! " << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S") << std::endl;
 
-    // РџРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ С€РёСЂРёРЅС‹ Рё РІС‹СЃРѕС‚С‹
+    // Переменные для ширины и высоты
     int gridWidth, gridHeight;
-    ParseCommandLine(lpCmdLine, gridWidth, gridHeight); // РџРѕР»СѓС‡Р°РµРј Р·РЅР°С‡РµРЅРёСЏ РёР· РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё
+    ParseCommandLine(lpCmdLine, gridWidth, gridHeight); // Получаем значения из командной строки
 
-    MainWindow mainWindow(hInstance,800,600);
-    
-    
+    MainWindow mainWindow(hInstance, 800, 600);
+
+
     if (mainWindow.Create()) {
         int width = mainWindow.GetWidth();
         int height = mainWindow.GetHeight();
@@ -80,17 +79,17 @@ int wWinMain(
             MessageBox(NULL, L"OpenGL Initialization Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
             return 1;
         }
-        GameController gameController(gridWidth, gridHeight); // РЎРѕР·РґР°РµРј GameController
+        GameController gameController(gridWidth, gridHeight); // Создаем GameController
         gameController.randomizeGrid(0.1f);
 
         Renderer renderer(width, height);
-        renderer.SetGameController(&gameController);  
+        renderer.SetGameController(&gameController);
 
-        // РџРµСЂРµРґР°РµРј РѕРґРёРЅ Рё С‚РѕС‚ Р¶Рµ СЌРєР·РµРјРїР»СЏСЂ gameController РІ WindowController
+        // Передаем один и тот же экземпляр gameController в WindowController
         WindowController controller(&mainWindow, &renderer, &gameController);
         mainWindow.SetController(&controller);
 
-        // РЎРѕР·РґР°РЅРёРµ РѕРєРЅР° РЅР°СЃС‚СЂРѕРµРє
+        // Создание окна настроек
         //SettingsWindow settingsWindow(hInstance);
         //if (!settingsWindow.Create(mainWindow.GetHwnd())) {
         //    MessageBox(NULL, L"Failed to create settings window", L"Error", MB_OK | MB_ICONERROR);
@@ -99,30 +98,36 @@ int wWinMain(
         //settingsWindow.Hide();
         MSG msg;
         bool MainLoop = true;
+        // Объявите переменные где-то вне цикла (например, в начале функции или как член класса)
+        std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();
         while (MainLoop) {
             while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) { // PeekMessage(&msg, 0, 0, 0, PM_REMOVE) GetMessage(&msg, NULL, 0, 0)
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
                 if (msg.message == WM_QUIT) {
-                    MainLoop = false; // Р—Р°РІРµСЂС€РµРЅРёРµ РїСЂРёР»РѕР¶РµРЅРёСЏ
+                    MainLoop = false; // Завершение приложения
                 }
-                //gameController.update();
-                
-
-                //Р—РґРµСЃСЊ РјРѕР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ Р»РѕРіРёРєСѓ РґР»СЏ РїРѕРєР°Р·Р° РѕРєРЅР° РЅР°СЃС‚СЂРѕРµРє
-               //if (msg.message == WM_KEYDOWN && msg.wParam == 'P') {
-               //    settingsWindow.Show();
-               //}
+                //Здесь можно добавить логику для показа окна настроек
+                //if (msg.message == WM_KEYDOWN && msg.wParam == 'P') {
+                //    settingsWindow.Show();
+                //}
             }
-            //gameController.update();
+            // Вычисление времени для обновления
+            std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<float> deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(currentTime - lastTime);
+            lastTime = currentTime;
+
+            // Здесь вызываем update с deltaTime
+            gameController.update(deltaTime.count()); // .count() возвращает значение в секундах как float
             renderer.Draw();
         }
-    } else {
+    }
+    else {
         MessageBox(NULL, L"Window creation failed", L"Error", MB_OK | MB_ICONERROR);
-        std::cout.rdbuf(coutbuf); // РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р±СѓС„РµСЂ cout
+        std::cout.rdbuf(coutbuf); // восстанавливаем буфер cout
         return 1;
     }
-    std::cout.rdbuf(coutbuf); // РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р±СѓС„РµСЂ cout
+    std::cout.rdbuf(coutbuf); // восстанавливаем буфер cout
     return 0;
 
 }

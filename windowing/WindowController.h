@@ -24,9 +24,9 @@ private:
     int lastMouseX, lastMouseY; // Последние координаты мыши
     bool isMiddleButtonDown; // Флаг для отслеживания нажатия средней кнопки мыши
 
-    UINT_PTR timerId; // Идентификатор таймера
-    int simulationSpeedMultiplier = 100; // Начальная скорость (100 мс)
-    void UpdateTimer();
+    //UINT_PTR timerId; // Идентификатор таймера
+    float simulationSpeedMultiplier = 0.01f; // Начальная скорость (100 мс)
+    //void UpdateTimer();
     void HandleMouseClick(int screenX, int screenY);
     void PlacePattern(int screenX, int screenY); // метод для размещения шаблона
     void RotateCamera(float yaw, float pitch);

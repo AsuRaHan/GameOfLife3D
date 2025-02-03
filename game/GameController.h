@@ -16,7 +16,9 @@ private:
     GameOfLife gameOfLife;
     float cellSize; // Размер каждой клетки в пикселях
     bool isRunning; // Флаг, показывает, запущена ли симуляция
-    
+    float simulationSpeed = 0.01f; // Значение 1.0f может соответствовать одной секунде реального времени
+    float frameTimeAccumulator = 0.0f;
+
     // Определим тип фигуры как двумерный массив
     using Pattern = std::vector<std::vector<bool>>;
     // Определяем шаблоны фигур
@@ -167,7 +169,7 @@ public:
     void placePattern(int startX, int startY, const Pattern& pattern);
     void randomizeGrid(float density);
     void clearGrid();
-    void update();
+    void update(float deltaTime);
     void startSimulation();
     void stopSimulation();
     void stepSimulation();
@@ -194,4 +196,5 @@ public:
     void PlacePattern(int startX, int startY);
     void setWoldToroidal(bool wt) { gameOfLife.setWoldToroidal( wt); };
     bool getWoldToroidal() { return gameOfLife.getWoldToroidal(); };
+    void setSimulationSpeed(float speed);
 };

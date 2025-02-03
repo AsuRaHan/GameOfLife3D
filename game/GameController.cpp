@@ -104,9 +104,13 @@ void GameController::clearGrid() {
     }
 }
 
-void GameController::update() {
+void GameController::update(float deltaTime) {
     if (isRunning) {
-        gameOfLife.nextGeneration();
+        frameTimeAccumulator += deltaTime;
+        if (frameTimeAccumulator >= simulationSpeed) {
+            gameOfLife.nextGeneration();
+            frameTimeAccumulator -= simulationSpeed;
+        }
     }
 }
 
@@ -268,4 +272,9 @@ void GameController::PlacePattern(int startX, int startY) {
     if (!currentPattern.empty()) {
         placePattern(startX, startY, currentPattern); // »спользуем уже существующий метод
     }
+}
+
+void GameController::setSimulationSpeed(float speed) {
+    // speed - это количество секунд реального времени между обновлени€ми. ћеньше значение - быстрее симул€ци€.
+    simulationSpeed = speed;
 }

@@ -67,7 +67,7 @@ void GameOfLife::nextGeneration() {
                 newCell.setAlive(neighbors == 2 || neighbors == 3);
                 if (!newCell.getAlive()) {
                     // Если клетка умирает, возможно, вы захотите изменить её цвет
-                    newCell.setColor(Vector3d(0.3f, 0.3f, 0.3f)); // Пример: темно-серый для умерших клеток
+                    newCell.setColor(Vector3d(0.35f, 0.35f, 0.35f)); // Пример: темно-серый для умерших клеток
                 }
             }
             else {
@@ -75,7 +75,7 @@ void GameOfLife::nextGeneration() {
                 newCell.setAlive(neighbors == 3);
                 if (newCell.getAlive()) {
                     // Если клетка рождается, установите новый цвет
-                    newCell.setColor(Vector3d(0.0f, 5.0f, 0.0f)); // Пример: красный для новорожденных
+                    newCell.setColor(Vector3d(0.0f, 0.7f, 0.0f)); // Пример:
                 }
             }
             nextGrid.setCell(x, y, newCell); // Устанавливаем новую клетку, сохраняя или обновляя цвет
