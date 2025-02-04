@@ -5,7 +5,7 @@
 #pragma once
 #include "GameOfLife.h"
 #include "Grid.h"
-#include <random> // Для генерации случайных чисел
+#include <random> // Р”Р»СЏ РіРµРЅРµСЂР°С†РёРё СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -18,36 +18,36 @@ class GameController {
 private:
     Grid grid;
     GameOfLife gameOfLife;
-    float cellSize; // Размер каждой клетки в пикселях
-    bool isRunning; // Флаг, показывает, запущена ли симуляция
-    float simulationSpeed = 0.01f; // Значение 1.0f может соответствовать одной секунде реального времени
+    float cellSize; // Р Р°Р·РјРµСЂ РєР°Р¶РґРѕР№ РєР»РµС‚РєРё РІ РїРёРєСЃРµР»СЏС…
+    bool isRunning; // Р¤Р»Р°Рі, РїРѕРєР°Р·С‹РІР°РµС‚, Р·Р°РїСѓС‰РµРЅР° Р»Рё СЃРёРјСѓР»СЏС†РёСЏ
+    float simulationSpeed = 0.01f; // Р—РЅР°С‡РµРЅРёРµ 1.0f РјРѕР¶РµС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ РѕРґРЅРѕР№ СЃРµРєСѓРЅРґРµ СЂРµР°Р»СЊРЅРѕРіРѕ РІСЂРµРјРµРЅРё
     float frameTimeAccumulator = 0.0f;
 
-    // Определим тип фигуры как двумерный массив
+    // РћРїСЂРµРґРµР»РёРј С‚РёРї С„РёРіСѓСЂС‹ РєР°Рє РґРІСѓРјРµСЂРЅС‹Р№ РјР°СЃСЃРёРІ
     using Pattern = std::vector<std::vector<bool>>;
-    // Определяем шаблоны фигур
+    // РћРїСЂРµРґРµР»СЏРµРј С€Р°Р±Р»РѕРЅС‹ С„РёРіСѓСЂ
     Pattern glider = {
         { 0, 1, 0 },
         { 0, 0, 1 },
         { 1, 1, 1 }
     };
-    // Мигалка (Blinker) - Период 2
+    // РњРёРіР°Р»РєР° (Blinker) - РџРµСЂРёРѕРґ 2
     Pattern blinker = {
     {1, 1, 1}
     };
-    // Живок (Toad) - Период 2:
+    // Р–РёРІРѕРє (Toad) - РџРµСЂРёРѕРґ 2:
     Pattern toad = {
     {0, 1, 1, 1},
     {1, 1, 1, 0}
     };
-    // Баржа (Beacon) - Период 2:
+    // Р‘Р°СЂР¶Р° (Beacon) - РџРµСЂРёРѕРґ 2:
     Pattern beacon = {
     {1, 1, 0, 0},
     {1, 1, 0, 0},
     {0, 0, 1, 1},
     {0, 0, 1, 1}
     };
-    // Маятник (Pentadecathlon) - Период 15:
+    // РњР°СЏС‚РЅРёРє (Pentadecathlon) - РџРµСЂРёРѕРґ 15:
     Pattern pentadecathlon = {
     {1},
     {1},
@@ -63,7 +63,7 @@ private:
     {1},
     {1}
     };
-    // Gosper Glider Gun - Период 30:
+    // Gosper Glider Gun - РџРµСЂРёРѕРґ 30:
     Pattern gosperGliderGun = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -163,7 +163,7 @@ private:
     {0, 0, 0, 1, 1, 0, 0, 0, 0},
     {0, 0, 0, 1, 1, 0, 0, 0, 0}
     };
-    Pattern currentPattern; // Добавляем поле для хранения текущего паттерна
+    Pattern currentPattern; // Р”РѕР±Р°РІР»СЏРµРј РїРѕР»Рµ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С‚РµРєСѓС‰РµРіРѕ РїР°С‚С‚РµСЂРЅР°
 
 public:
     
@@ -193,7 +193,7 @@ public:
     //void saveGameStateCSV(const std::string& filename);
     //void loadGameStateCSV(const std::string& filename);
 
-    // метод для изменения размера сетки
+    // РјРµС‚РѕРґ РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ СЂР°Р·РјРµСЂР° СЃРµС‚РєРё
     void resizeGrid(int newWidth, int newHeight);
 
     void setCurrentPattern(int patternNumber);

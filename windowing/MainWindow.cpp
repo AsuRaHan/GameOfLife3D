@@ -48,6 +48,11 @@ bool MainWindow::Create() {
 
     ShowWindow(hWnd, SW_SHOW);
     UpdateWindow(hWnd);
+    //OpenGLInitializer glInit(hWnd);
+    //if (!glInit.Initialize()) {
+    //    MessageBox(NULL, L"OpenGL Initialization Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
+    //    return 1;
+    //}
     return true;
 }
 

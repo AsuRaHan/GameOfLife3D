@@ -5,8 +5,12 @@
 #include "../system/GLFunctions.h"
 #include "Camera.h"
 #include "../game/GameController.h"
-
+#include "GUI/UIManager.h"
+#include "GUI/Button.h"
+#include "GUI/Label.h"
 #include <vector>
+#include <memory>
+
 
 class Renderer {
 public:
@@ -31,6 +35,9 @@ public:
     void setShowGrid(bool show) { showGrid = show; };
 
     void RebuildGameField(); // метод для перестройки игрового поля
+
+    void initializeUI();
+    void OnMouseClick(int x, int y);
 
 private:
     int width, height;
@@ -74,6 +81,6 @@ private:
     void InitializeDebugOverlay();
     void UpdateDebugOverlayPosition();
 
-   
+    std::shared_ptr<UIManager> uiManager;
 };
 #endif // RENDERER_H_

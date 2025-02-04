@@ -2,7 +2,6 @@
 #ifndef WINDOWCONTROLLER_H_
 #define WINDOWCONTROLLER_H_
 
-#pragma once
 #include "../rendering/Renderer.h"
 #include "../game/GameController.h" 
 #include "GridPicker.h"

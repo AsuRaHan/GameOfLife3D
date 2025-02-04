@@ -148,6 +148,11 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         break;
 
     case WM_LBUTTONDOWN: // Левый клик мыши
+        if (pRenderer) {
+            int xPos = LOWORD(lParam);
+            int yPos = HIWORD(lParam);
+            pRenderer->OnMouseClick(xPos, yPos);
+        }
         HandleMouseClick(LOWORD(lParam), HIWORD(lParam));
         break;
 

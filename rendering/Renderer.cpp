@@ -28,6 +28,7 @@ void Renderer::SetGameController(GameController* gameController) {
 
     LoadShaders();
     InitializeVBOs();
+    initializeUI();
 }
 
 void Renderer::SetupOpenGL() {
@@ -153,6 +154,13 @@ void Renderer::Draw() {
     DrawCells();
 
     DrawDebugOverlay();
+
+    // Отрисовка GUI поверх всего остального
+    if (uiManager) {
+        glDisable(GL_DEPTH_TEST);  // GUI всегда поверх
+        uiManager->draw();
+        glEnable(GL_DEPTH_TEST);
+    }
 
     SwapBuffers(wglGetCurrentDC());
 }
@@ -443,4 +451,49 @@ void Renderer::RebuildGameField() {
     glDeleteBuffers(1, &gridVBO);
 
     InitializeVBOs(); // Перестраиваем буферы
+}
+
+void Renderer::initializeUI() {
+    uiManager = std::make_shared<UIManager>();
+
+    // Создаем кнопки управления
+    auto startButton = std::make_unique<Button>(-0.8f, 0.8f, 0.2f, 0.1f, "Start", Vector3d(0.2f, 0.7f, 0.2f));
+    startButton->setOnClick([this]() { 
+        if (pGameController->isSimulationRunning()) {
+            pGameController->stopSimulation();
+        }
+        else {
+            pGameController->startSimulation();
+        }
+    });
+
+    auto clearButton = std::make_unique<Button>(-0.5f, 0.8f, 0.2f, 0.1f, "Clear", Vector3d(0.7f, 0.2f, 0.2f));
+    clearButton->setOnClick([this]() { 
+        if (pGameController) pGameController->clearGrid();
+    });
+
+    auto stepButton = std::make_unique<Button>(-0.2f, 0.8f, 0.2f, 0.1f, "Step", Vector3d(0.2f, 0.2f, 0.7f));
+    stepButton->setOnClick([this]() { 
+        if (pGameController) pGameController->stepSimulation();
+    });
+
+    // Создаем метки для отображения информации
+    auto generationLabel = std::make_unique<Label>(0.7f, 0.8f, "Generation: 0", Vector3d(1.0f, 1.0f, 1.0f));
+    auto speedLabel = std::make_unique<Label>(0.7f, 0.7f, "Speed: 1x", Vector3d(1.0f, 1.0f, 1.0f));
+
+    // Добавляем элементы в UI менеджер
+    uiManager->addElement(std::move(startButton));
+    uiManager->addElement(std::move(clearButton));
+    uiManager->addElement(std::move(stepButton));
+    uiManager->addElement(std::move(generationLabel));
+    uiManager->addElement(std::move(speedLabel));
+}
+
+// Обработка кликов мыши
+void Renderer::OnMouseClick(int x, int y) {
+    if (uiManager) {
+        float normalizedX, normalizedY;
+        UIElement::screenToNormalized(x, y, width, height, normalizedX, normalizedY);
+        uiManager->handleClick(normalizedX, normalizedY);
+    }
 }
