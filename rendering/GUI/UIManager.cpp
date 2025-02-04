@@ -1,38 +1,82 @@
 #include "UIManager.h"
-#include "UIShaders.h"
 #include "Button.h"
 
 UIManager::UIManager() {
-    // Компиляция шейдеров
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    const char* vertexShaderSource = uiVertexShader.c_str();
-    GL_CHECK(glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr));
-    GL_CHECK(glCompileShader(vertexShader));
+    loadShaders();
+    prepareVAO();
+}
 
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    const char* fragmentShaderSource = uiFragmentShader.c_str();
-    GL_CHECK(glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr));
-    GL_CHECK(glCompileShader(fragmentShader));
+void UIManager::prepareVAO() {
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+}
 
-    uiShaderProgram = glCreateProgram();
-    GL_CHECK(glAttachShader(uiShaderProgram, vertexShader));
-    GL_CHECK(glAttachShader(uiShaderProgram, fragmentShader));
-    GL_CHECK(glLinkProgram(uiShaderProgram));
+void UIManager::loadShaders() {
+    // Загружаем шейдеры
+    shaderManager.loadVertexShader("uiVertexShader", R"(
+        #version 330 core
+        layout(location = 0) in vec3 aPos;
+        void main()
+        {
+            gl_Position = vec4(aPos, 1.0);
+        }
+    )");
 
-    GL_CHECK(glDeleteShader(vertexShader));
-    GL_CHECK(glDeleteShader(fragmentShader));
+    shaderManager.loadFragmentShader("uiFragmentShader", R"(
+        #version 330 core
+        out vec4 FragColor;
+        uniform vec3 elementColor;
+        void main()
+        {
+            FragColor = vec4(elementColor, 1.0);
+        }
+    )");
+
+    // Линкуем программу
+    shaderManager.linkProgram("uiShaderProgram", "uiVertexShader", "uiFragmentShader");
+    shaderProgram = shaderManager.getProgram("uiShaderProgram"); // Присваиваем shaderProgram ID программы
 }
 
 void UIManager::addElement(std::unique_ptr<UIElement> element) {
     elements.push_back(std::move(element));
 }
 
+//void UIManager::draw() {
+//    glDisable(GL_DEPTH_TEST);
+//    GL_CHECK(glUseProgram(shaderProgram));
+//    GL_CHECK(glBindVertexArray(vao));
+//
+//    for (const auto& element : elements) {
+//        element->draw(shaderProgram, vao, vbo);
+//    }
+//
+//    GL_CHECK(glBindVertexArray(0));
+//    glEnable(GL_DEPTH_TEST);
+//}
 void UIManager::draw() {
-    GL_CHECK(glDisable(GL_DEPTH_TEST));
+    glDisable(GL_DEPTH_TEST);
+    GL_CHECK(glUseProgram(shaderProgram));
+    GL_CHECK(glBindVertexArray(vao));
+
+    std::cout << "Drawing " << elements.size() << " elements." << std::endl;
     for (const auto& element : elements) {
-        element->draw(uiShaderProgram);
+        std::cout << "Drawing element at " << element->getX() << ", " << element->getY() << std::endl;
+        element->draw(shaderProgram, vao, vbo);
     }
-    GL_CHECK(glEnable(GL_DEPTH_TEST));
+
+    GL_CHECK(glBindVertexArray(0));
+    glEnable(GL_DEPTH_TEST);
+}
+void UIManager::setElementColor(const Vector3d& color) {
+    GLint colorLoc = glGetUniformLocation(shaderProgram, "elementColor");
+    if (colorLoc != -1) {
+        GL_CHECK(glUniform3f(colorLoc, color.X(), color.Y(), color.Z()));
+    }
 }
 
 void UIManager::handleClick(float mouseX, float mouseY) {
@@ -48,6 +92,8 @@ void UIManager::updateLayout(int windowWidth, int windowHeight) {
     float baseScale = (windowWidth < windowHeight) ? static_cast<float>(windowWidth) / 1000.0f : static_cast<float>(windowHeight) / 1000.0f;
 
     for (auto& element : elements) {
+        element->OnWindowResize(windowWidth, windowHeight);
+
         float normalizedX = element->getX();
         float normalizedY = element->getY();
         float normalizedWidth = element->getWidth();
@@ -80,7 +126,7 @@ void UIManager::updateLayout(int windowWidth, int windowHeight) {
         if (scaledY < -1.0f) scaledY = -1.0f;
 
         //element->setPosition(scaledX, scaledY);
-        element->setSize(scaledWidth, scaledHeight);
+        //element->setSize(scaledWidth, scaledHeight);
     }
 }
 

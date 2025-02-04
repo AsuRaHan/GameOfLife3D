@@ -16,12 +16,18 @@ private:
     Vector3d hoverColor;
 
 public:
-    Button(float x, float y, float width, float height, 
-           const std::string& text, const Vector3d& color);
-    virtual ~Button() = default;
-    void draw(GLuint shaderProgram) override;
+    //Button(float x, float y, float width, float height, 
+    //       const std::string& text, const Vector3d& color);
+    //virtual ~Button() = default;
+    //void draw(GLuint shaderProgram) override;
     bool handleClick(float mouseX, float mouseY) override;
     void setOnClick(std::function<void()> callback) { onClick = callback; }
     void handleMouseMove(float x, float y);
+
+    Button(float x, float y, float width, float height,
+        const std::string& text, const Vector3d& color);
+    virtual void draw(GLuint shaderProgram, GLuint vao, GLuint vbo) override;
+    bool isClicked(int mouseX, int mouseY) const;
+    //void OnWindowResize(int newWidth, int newHeight);
 }; 
 #endif // BUTTON_H_

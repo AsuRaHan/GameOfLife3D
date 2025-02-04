@@ -175,7 +175,6 @@
     <ClInclude Include="rendering\GUI\Label.h" />
     <ClInclude Include="rendering\gui\UIElement.h" />
     <ClInclude Include="rendering\gui\UIManager.h" />
-    <ClInclude Include="rendering\GUI\UIShaders.h" />
     <ClInclude Include="rendering\Renderer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="system\GLFunctions.h" />

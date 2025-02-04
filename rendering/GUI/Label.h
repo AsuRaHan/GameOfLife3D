@@ -6,9 +6,11 @@
 #include "../../mathematics/Vector3d.h"
 
 class Label : public UIElement {
+
 public:
     Label(float x, float y, const std::string& text, const Vector3d& color);
-    void draw(GLuint shaderProgram) override;
+    void draw(GLuint shaderProgram, GLuint vao, GLuint vbo) override;
     bool handleClick(float mouseX, float mouseY) override;
-}; 
+};
+
 #endif // LABEL_H_

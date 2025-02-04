@@ -82,6 +82,5 @@ private:
     void InitializeDebugOverlay();
     void UpdateDebugOverlayPosition();
 
-    std::shared_ptr<UIManager> uiManager;
 };
 #endif // RENDERER_H_
