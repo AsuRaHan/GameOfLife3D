@@ -72,7 +72,7 @@ private:
     void LoadShaders();
 	void LoadCellShaders();
     void LoadGridShaders();
-    std::string LoadShaderSource(const std::string& filename);
+    
 
     void InitializeGridVBOs();
 

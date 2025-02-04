@@ -358,17 +358,6 @@ void main()
 
 }
 
-
-std::string Renderer::LoadShaderSource(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        //throw std::runtime_error("Failed to open shader file: " + filename);
-        std::cout << "Не удалось загрузить файл шейдерной программы: " << filename << std::endl;
-        exit(1);
-    }
-    return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-}
-
 void Renderer::InitializeDebugOverlay() {
     //std::string vertexShaderSource = LoadShaderSource("./glsl/overlay_vertex_shader.glsl");
     const std::string vertexShaderSource = R"(

@@ -81,3 +81,12 @@ void ShaderManager::checkProgramLinking(GLuint program) {
         std::cerr << "Ошибка линковки программы: " << infoLog << std::endl;
     }
 }
+std::string ShaderManager::LoadShaderSource(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        //throw std::runtime_error("Failed to open shader file: " + filename);
+        std::cout << "Не удалось загрузить файл шейдерной программы: " << filename << std::endl;
+        exit(1);
+    }
+    return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+}
