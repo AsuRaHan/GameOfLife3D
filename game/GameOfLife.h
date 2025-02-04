@@ -3,6 +3,7 @@
 #include "GPUAutomaton.h"
 #include "Grid.h"
 #include <vector>
+#include <future>  
 
 class GameOfLife {
 public:
@@ -15,13 +16,13 @@ public:
     int countLiveNeighborsWorld(int x, int y) const;
 	void setWoldToroidal(bool wt);
     bool getWoldToroidal() const { return isToroidal; };
-    void updateGridReference(Grid& newGrid) { grid = newGrid; } // метод для обновления ссылки
+    void updateGridReference(Grid& newGrid) { grid = newGrid; } // РјРµС‚РѕРґ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ СЃСЃС‹Р»РєРё
 private:
     Grid& grid;
-    Grid nextGrid; // Добавляем nextGrid для двойного буфера
+    Grid nextGrid; // Р”РѕР±Р°РІР»СЏРµРј nextGrid РґР»СЏ РґРІРѕР№РЅРѕРіРѕ Р±СѓС„РµСЂР°
     std::vector<Grid> history;
     bool isToroidal;
-    GPUAutomaton gpuAutomaton; // член класса для вычислений на GPU
+    GPUAutomaton gpuAutomaton; // С‡Р»РµРЅ РєР»Р°СЃСЃР° РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёР№ РЅР° GPU
 };
 
 #endif // GAMEOFLIFE_H

@@ -1,7 +1,7 @@
+#pragma once
+
 #ifndef GRID_H_
 #define GRID_H_
-
-#pragma once
 
 #include <vector>
 #include "Cell.h"
@@ -17,8 +17,8 @@ public:
     bool getCellState(int x, int y) const;
     int getWidth() const;
     int getHeight() const;
-    Cell& getCell(int x, int y); // метод для получения клетки
-    const Cell& getCell(int x, int y) const; // Константа версия метода для получения клетки
+    Cell& getCell(int x, int y); // РјРµС‚РѕРґ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РєР»РµС‚РєРё
+    const Cell& getCell(int x, int y) const; // РљРѕРЅСЃС‚Р°РЅС‚Р° РІРµСЂСЃРёСЏ РјРµС‚РѕРґР° РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РєР»РµС‚РєРё
     void setCell(int x, int y, const Cell& cell);
 };
 #endif // GRID_H_

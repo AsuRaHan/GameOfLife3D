@@ -9,7 +9,7 @@
 
 #ifndef GLFUNC_H
 #define GLFUNC_H
-// Определение идентификаторов, если они не определены
+// РћРїСЂРµРґРµР»РµРЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ, РµСЃР»Рё РѕРЅРё РЅРµ РѕРїСЂРµРґРµР»РµРЅС‹
 #ifndef GL_ARRAY_BUFFER
 #define GL_ARRAY_BUFFER 0x8892
 #endif
@@ -30,13 +30,12 @@
 #define GL_ARRAY_BUFFER_BINDING 0x8894
 #endif
 
-// Определение для инстансинга, если они не определены
+// РћРїСЂРµРґРµР»РµРЅРёРµ РґР»СЏ РёРЅСЃС‚Р°РЅСЃРёРЅРіР°, РµСЃР»Рё РѕРЅРё РЅРµ РѕРїСЂРµРґРµР»РµРЅС‹
 #ifndef GL_DRAW_INDIRECT_BUFFER
 #define GL_DRAW_INDIRECT_BUFFER 0x8F3F
 #endif
 
-
-// Определения для шейдеров, если они не определены
+// РћРїСЂРµРґРµР»РµРЅРёСЏ РґР»СЏ С€РµР№РґРµСЂРѕРІ, РµСЃР»Рё РѕРЅРё РЅРµ РѕРїСЂРµРґРµР»РµРЅС‹
 #ifndef GL_VERTEX_SHADER
 #define GL_VERTEX_SHADER 0x8B31
 #endif
@@ -85,17 +84,17 @@
 typedef char GLchar;
 #endif
 
-// Определение если он не определен
+// РћРїСЂРµРґРµР»РµРЅРёРµ РµСЃР»Рё РѕРЅ РЅРµ РѕРїСЂРµРґРµР»РµРЅ
 typedef ptrdiff_t GLsizeiptr;
 typedef ptrdiff_t GLintptr;
 
-// Определение типов для указателей на функции
+// РћРїСЂРµРґРµР»РµРЅРёРµ С‚РёРїРѕРІ РґР»СЏ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° С„СѓРЅРєС†РёРё
 typedef void (APIENTRY* PFNGLGENBUFFERSPROC)(GLsizei n, GLuint* buffers);
 typedef void (APIENTRY* PFNGLBINDBUFFERPROC)(GLenum target, GLuint buffer);
 typedef void (APIENTRY* PFNGLBUFFERDATAPROC)(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
 typedef void (APIENTRY* PFNGLDELETEBUFFERSPROC)(GLsizei n, const GLuint* buffers);
 typedef void (APIENTRY* PFNGLBUFFERSUBDATAPROC)(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data);
-// Declare function pointers for instancing
+
 typedef void (APIENTRY* PFNGLENABLEVERTEXATTRIBARRAYPROC)(GLuint index);
 typedef void (APIENTRY* PFNGLVERTEXATTRIBPOINTERPROC)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer);
 typedef void (APIENTRY* PFNGLVERTEXATTRIBDIVISORPROC)(GLuint index, GLuint divisor);
@@ -129,7 +128,7 @@ typedef void (APIENTRY* PFNGLUNIFORM2FPROC)(GLint location, GLfloat v0, GLfloat 
 
 typedef void* (APIENTRY* PFNGLMAPBUFFERPROC)(GLenum target, GLenum access);
 typedef GLboolean(APIENTRY* PFNGLUNMAPBUFFERPROC)(GLenum target);
-// -------------------------------------------------------------------
+
 typedef void (APIENTRY* PFNGLUNIFORM2IPROC)(GLint location, GLint v0, GLint v1);
 typedef void (APIENTRY* PFNGLBINDBUFFERBASEPROC)(GLenum target, GLuint index, GLuint buffer);
 typedef void (APIENTRY* PFNGLDISPATCHCOMPUTEPROC)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
@@ -139,7 +138,7 @@ typedef void (APIENTRY* PFNGLGETBUFFERSUBDATAPROC)(GLenum target, GLintptr offse
 typedef void (APIENTRY* PFNGLUNIFORM1IPROC)(GLint location, GLint v0);
 
 
-// Объявление указателей на функции
+// РћР±СЉСЏРІР»РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° С„СѓРЅРєС†РёРё
 extern PFNGLGENBUFFERSPROC glGenBuffers;
 extern PFNGLBINDBUFFERPROC glBindBuffer;
 extern PFNGLBUFFERDATAPROC glBufferData;
@@ -179,7 +178,6 @@ extern PFNGLUNIFORM2FPROC glUniform2f;
 
 extern PFNGLMAPBUFFERPROC glMapBuffer;
 extern PFNGLUNMAPBUFFERPROC glUnmapBuffer;
-//-----------------------------------------------------------------------------------------
 
 extern PFNGLUNIFORM2IPROC glUniform2i;
 extern PFNGLBINDBUFFERBASEPROC glBindBufferBase;
@@ -190,7 +188,7 @@ extern PFNGLGETBUFFERSUBDATAPROC glGetBufferSubData;
 extern PFNGLUNIFORM1IPROC glUniform1i;
 
 
-// Функции для работы с OpenGL
+// Р¤СѓРЅРєС†РёРё РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ OpenGL
 void LoadOpenGLFunctions();
 void CheckOpenGLError(const char* stmt, const char* fname, int line);
 
@@ -204,6 +202,6 @@ void CheckOpenGLError(const char* stmt, const char* fname, int line);
 #endif
 
 #define CHECK_LOAD_FUNCTION(func) \
-    std::cout << ((func) ? "Успешно загружена функция " #func : "Не удалось загрузить функцию " #func) << std::endl;
+    std::cout << ((func) ? "РЈСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅР° С„СѓРЅРєС†РёСЏ " #func : "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ С„СѓРЅРєС†РёСЋ " #func) << std::endl;
 
 #endif //GLFUNC_H

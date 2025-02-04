@@ -1,20 +1,11 @@
 #include "Renderer.h"
-#include <algorithm> // Для std::min
+#include <algorithm> // Р”Р»СЏ std::min
 
 Renderer::Renderer(int width, int height)
     : width(width), height(height), camera(45.0f, static_cast<float>(width) / height, 0.1f, 1000000000.0f),
     pGameController(nullptr){
     SetupOpenGL();
     OnWindowResize(width, height);
-    // Добавление UI элементов
-    Button* startButton = new Button(10.0f, 50.0f, 100.0f, 30.0f, "Start", Vector3d(0.0f, 1.0f, 0.0f)); // Зеленый цвет
-    ui.addElement(startButton);
-
-    Button* stopButton = new Button(120.0f, 50.0f, 100.0f, 30.0f, "Stop", Vector3d(1.0f, 0.0f, 0.0f)); // Красный цвет
-    ui.addElement(stopButton);
-
-    //TextLabel* title = new TextLabel(width / 2 - 100.0f, height - 30.0f, "Game of Life 3D", Vector3d(1.0f, 1.0f, 0.0f)); // Желтый цвет
-    //ui.addElement(title);
 }
 
 Renderer::~Renderer() {
@@ -40,8 +31,8 @@ void Renderer::SetGameController(GameController* gameController) {
 }
 
 void Renderer::SetupOpenGL() {
-    GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 1.0f)); // Черный фон
-    GL_CHECK(glEnable(GL_DEPTH_TEST)); // Включаем тест глубины
+    GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 1.0f)); // Р§РµСЂРЅС‹Р№ С„РѕРЅ
+    GL_CHECK(glEnable(GL_DEPTH_TEST)); // Р’РєР»СЋС‡Р°РµРј С‚РµСЃС‚ РіР»СѓР±РёРЅС‹
     GL_CHECK(glViewport(0, 0, width, height));
 }
 
@@ -51,7 +42,7 @@ void Renderer::InitializeVBOs() {
     int gridHeight = pGameController->getGridHeight();
     float cellSize = pGameController->getCellSize();
 
-    // Инициализация VBO для клеток
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ VBO РґР»СЏ РєР»РµС‚РѕРє
     GL_CHECK(glGenBuffers(1, &cellsVBO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
     //float vertices[] = {
@@ -65,19 +56,19 @@ void Renderer::InitializeVBOs() {
     float centerY = 0.5f;
 
     float vertices[] = {
-        centerX + (0.1f - centerX) * (1 - scale_factor), centerY + (0.1f - centerY) * (1 - scale_factor), // Вершина 1
-        centerX + (0.5f - centerX) * (1 - scale_factor), centerY + (0.0f - centerY) * (1 - scale_factor), // Вершина 5
-        centerX + (0.9f - centerX) * (1 - scale_factor), centerY + (0.1f - centerY) * (1 - scale_factor), // Вершина 2
-        centerX + (1.0f - centerX) * (1 - scale_factor), centerY + (0.5f - centerY) * (1 - scale_factor), // Вершина 6
-        centerX + (0.9f - centerX) * (1 - scale_factor), centerY + (0.9f - centerY) * (1 - scale_factor), // Вершина 3
-        centerX + (0.5f - centerX) * (1 - scale_factor), centerY + (1.0f - centerY) * (1 - scale_factor), // Вершина 7
-        centerX + (0.1f - centerX) * (1 - scale_factor), centerY + (0.9f - centerY) * (1 - scale_factor), // Вершина 4
-        centerX + (0.0f - centerX) * (1 - scale_factor), centerY + (0.5f - centerY) * (1 - scale_factor)  // Вершина 8
+        centerX + (0.1f - centerX) * (1 - scale_factor), centerY + (0.1f - centerY) * (1 - scale_factor), // Р’РµСЂС€РёРЅР° 1
+        centerX + (0.5f - centerX) * (1 - scale_factor), centerY + (0.0f - centerY) * (1 - scale_factor), // Р’РµСЂС€РёРЅР° 5
+        centerX + (0.9f - centerX) * (1 - scale_factor), centerY + (0.1f - centerY) * (1 - scale_factor), // Р’РµСЂС€РёРЅР° 2
+        centerX + (1.0f - centerX) * (1 - scale_factor), centerY + (0.5f - centerY) * (1 - scale_factor), // Р’РµСЂС€РёРЅР° 6
+        centerX + (0.9f - centerX) * (1 - scale_factor), centerY + (0.9f - centerY) * (1 - scale_factor), // Р’РµСЂС€РёРЅР° 3
+        centerX + (0.5f - centerX) * (1 - scale_factor), centerY + (1.0f - centerY) * (1 - scale_factor), // Р’РµСЂС€РёРЅР° 7
+        centerX + (0.1f - centerX) * (1 - scale_factor), centerY + (0.9f - centerY) * (1 - scale_factor), // Р’РµСЂС€РёРЅР° 4
+        centerX + (0.0f - centerX) * (1 - scale_factor), centerY + (0.5f - centerY) * (1 - scale_factor)  // Р’РµСЂС€РёРЅР° 8
     };
 
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
 
-    // Инициализация VBO для данных инстанса
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ VBO РґР»СЏ РґР°РЅРЅС‹С… РёРЅСЃС‚Р°РЅСЃР°
     GL_CHECK(glGenBuffers(1, &cellInstanceVBO));
     cellInstances.clear();
     cellInstances.reserve(gridWidth * gridHeight);
@@ -107,7 +98,7 @@ void Renderer::InitializeGridVBOs() {
     gridVertices.clear();
     std::vector<float> majorGridVertices;
 
-    // Создание сетки
+    // РЎРѕР·РґР°РЅРёРµ СЃРµС‚РєРё
     for (int y = 0; y <= gridHeight; ++y) {
         for (int x = 0; x <= gridWidth; ++x) {
             gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
@@ -117,7 +108,7 @@ void Renderer::InitializeGridVBOs() {
         }
     }
 
-    // Создание "главных" линий
+    // РЎРѕР·РґР°РЅРёРµ "РіР»Р°РІРЅС‹С…" Р»РёРЅРёР№
     for (int y = 0; y <= gridHeight; y += 10) {
         for (int x = 0; x <= gridWidth; x += 10) {
             majorGridVertices.push_back(x * cellSize); majorGridVertices.push_back(y * cellSize); majorGridVertices.push_back(0.0f);
@@ -127,7 +118,7 @@ void Renderer::InitializeGridVBOs() {
         }
     }
 
-    // Создание VAO и VBO для обычной сетки
+    // РЎРѕР·РґР°РЅРёРµ VAO Рё VBO РґР»СЏ РѕР±С‹С‡РЅРѕР№ СЃРµС‚РєРё
     GL_CHECK(glGenVertexArrays(1, &gridVAO));
     GL_CHECK(glGenBuffers(1, &gridVBO));
     GL_CHECK(glBindVertexArray(gridVAO));
@@ -136,7 +127,7 @@ void Renderer::InitializeGridVBOs() {
     GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
     GL_CHECK(glEnableVertexAttribArray(0));
 
-    // Создание VAO и VBO для "главных" линий
+    // РЎРѕР·РґР°РЅРёРµ VAO Рё VBO РґР»СЏ "РіР»Р°РІРЅС‹С…" Р»РёРЅРёР№
     GLuint majorGridVAO, majorGridVBO;
     GL_CHECK(glGenVertexArrays(1, &majorGridVAO));
     GL_CHECK(glGenBuffers(1, &majorGridVBO));
@@ -146,7 +137,7 @@ void Renderer::InitializeGridVBOs() {
     GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
     GL_CHECK(glEnableVertexAttribArray(0));
 
-    // Теперь вам нужно будет отрисовывать оба VAO в методе DrawGrid:
+    // РўРµРїРµСЂСЊ РІР°Рј РЅСѓР¶РЅРѕ Р±СѓРґРµС‚ РѕС‚СЂРёСЃРѕРІС‹РІР°С‚СЊ РѕР±Р° VAO РІ РјРµС‚РѕРґРµ DrawGrid:
     GL_CHECK(glBindVertexArray(gridVAO));
     GL_CHECK(glDrawArrays(GL_LINES, 0, gridVertices.size() / 3));
     GL_CHECK(glBindVertexArray(majorGridVAO));
@@ -156,12 +147,10 @@ void Renderer::InitializeGridVBOs() {
 
 void Renderer::Draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // Отрисовка сетки и клеток
+    // РћС‚СЂРёСЃРѕРІРєР° СЃРµС‚РєРё Рё РєР»РµС‚РѕРє
     if(showGrid)DrawGrid();
 
     DrawCells();
-
-    ui.draw();
 
     DrawDebugOverlay();
 
@@ -169,35 +158,35 @@ void Renderer::Draw() {
 }
 
 void Renderer::DrawGrid() {
-    // Используем шейдерную программу для сетки
+    // РСЃРїРѕР»СЊР·СѓРµРј С€РµР№РґРµСЂРЅСѓСЋ РїСЂРѕРіСЂР°РјРјСѓ РґР»СЏ СЃРµС‚РєРё
     GL_CHECK(glUseProgram(gridShaderProgram));
 
-    // Передаем матрицы проекции и вида в шейдеры
+    // РџРµСЂРµРґР°РµРј РјР°С‚СЂРёС†С‹ РїСЂРѕРµРєС†РёРё Рё РІРёРґР° РІ С€РµР№РґРµСЂС‹
     GLuint projectionLoc = glGetUniformLocation(gridShaderProgram, "projection");
     GLuint viewLoc = glGetUniformLocation(gridShaderProgram, "view");
 
     GL_CHECK(glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, camera.GetProjectionMatrix()));
     GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
 
-    // Связываем VAO сетки
+    // РЎРІСЏР·С‹РІР°РµРј VAO СЃРµС‚РєРё
     GL_CHECK(glBindVertexArray(gridVAO));
 
-    // Рисуем линии сетки
-    GL_CHECK(glDrawArrays(GL_LINES, 0, gridVertices.size() / 3)); // Предполагаем, что gridVertices содержит координаты вершин для линий сетки
+    // Р РёСЃСѓРµРј Р»РёРЅРёРё СЃРµС‚РєРё
+    GL_CHECK(glDrawArrays(GL_LINES, 0, gridVertices.size() / 3)); // РџСЂРµРґРїРѕР»Р°РіР°РµРј, С‡С‚Рѕ gridVertices СЃРѕРґРµСЂР¶РёС‚ РєРѕРѕСЂРґРёРЅР°С‚С‹ РІРµСЂС€РёРЅ РґР»СЏ Р»РёРЅРёР№ СЃРµС‚РєРё
 
-    // Отвязываем VAO
+    // РћС‚РІСЏР·С‹РІР°РµРј VAO
     GL_CHECK(glBindVertexArray(0));
 }
 
 void Renderer::DrawCells() {
     if (!pGameController) return;
 
-    // Обновляем данные о клетках
+    // РћР±РЅРѕРІР»СЏРµРј РґР°РЅРЅС‹Рµ Рѕ РєР»РµС‚РєР°С…
     for (size_t i = 0; i < cellInstances.size(); ++i) {
         int x = i % pGameController->getGridWidth();
         int y = i / pGameController->getGridWidth();
         Cell cell = pGameController->getGrid().getCell(x, y);
-        cellInstances[i].color = cell.getColor(); // Обновляем только цвет
+        cellInstances[i].color = cell.getColor(); // РћР±РЅРѕРІР»СЏРµРј С‚РѕР»СЊРєРѕ С†РІРµС‚
     }
 
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
@@ -209,7 +198,7 @@ void Renderer::DrawCells() {
 
     GL_CHECK(glUseProgram(shaderProgram));
 
-    // Устанавливаем uniform переменные
+    // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј uniform РїРµСЂРµРјРµРЅРЅС‹Рµ
     GLuint projectionLoc = glGetUniformLocation(shaderProgram, "projection");
     GLuint viewLoc = glGetUniformLocation(shaderProgram, "view");
     GLuint cellSizeLoc = glGetUniformLocation(shaderProgram, "cellSize");
@@ -218,62 +207,61 @@ void Renderer::DrawCells() {
     GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
     GL_CHECK(glUniform1f(cellSizeLoc, pGameController->getCellSize()));
 
-    // Настраиваем атрибуты для вершин квадрата клетки
+    // РќР°СЃС‚СЂР°РёРІР°РµРј Р°С‚СЂРёР±СѓС‚С‹ РґР»СЏ РІРµСЂС€РёРЅ РєРІР°РґСЂР°С‚Р° РєР»РµС‚РєРё
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
-    GL_CHECK(glEnableVertexAttribArray(0)); // Вершины квадрата (позиция)
+    GL_CHECK(glEnableVertexAttribArray(0)); // Р’РµСЂС€РёРЅС‹ РєРІР°РґСЂР°С‚Р° (РїРѕР·РёС†РёСЏ)
     GL_CHECK(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
 
-    // Настраиваем атрибуты для инстансинга
+    // РќР°СЃС‚СЂР°РёРІР°РµРј Р°С‚СЂРёР±СѓС‚С‹ РґР»СЏ РёРЅСЃС‚Р°РЅСЃРёРЅРіР°
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
-    GL_CHECK(glEnableVertexAttribArray(1)); // Позиция инстанса
+    GL_CHECK(glEnableVertexAttribArray(1)); // РџРѕР·РёС†РёСЏ РёРЅСЃС‚Р°РЅСЃР°
     GL_CHECK(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)0));
-    GL_CHECK(glVertexAttribDivisor(1, 1)); // Каждый инстанс имеет свою позицию
+    GL_CHECK(glVertexAttribDivisor(1, 1)); // РљР°Р¶РґС‹Р№ РёРЅСЃС‚Р°РЅСЃ РёРјРµРµС‚ СЃРІРѕСЋ РїРѕР·РёС†РёСЋ
 
-    GL_CHECK(glEnableVertexAttribArray(3)); // Цвет клетки
+    GL_CHECK(glEnableVertexAttribArray(3)); // Р¦РІРµС‚ РєР»РµС‚РєРё
     GL_CHECK(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)(offsetof(CellInstance, color))));
-    GL_CHECK(glVertexAttribDivisor(3, 1)); // Цвет для каждого инстанса
+    GL_CHECK(glVertexAttribDivisor(3, 1)); // Р¦РІРµС‚ РґР»СЏ РєР°Р¶РґРѕРіРѕ РёРЅСЃС‚Р°РЅСЃР°
 
-    // Отрисовка клеток с использованием инстансинга
+    // РћС‚СЂРёСЃРѕРІРєР° РєР»РµС‚РѕРє СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј РёРЅСЃС‚Р°РЅСЃРёРЅРіР°
     //GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, cellInstances.size()));
     GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 8, cellInstances.size()));
 
-    // Отключаем использование атрибутов после отрисовки
+    // РћС‚РєР»СЋС‡Р°РµРј РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ Р°С‚СЂРёР±СѓС‚РѕРІ РїРѕСЃР»Рµ РѕС‚СЂРёСЃРѕРІРєРё
     GL_CHECK(glDisableVertexAttribArray(0));
     GL_CHECK(glDisableVertexAttribArray(1));
     GL_CHECK(glDisableVertexAttribArray(3));
 }
 
 void Renderer::DrawDebugOverlay() {
-    if (!pGameController || !pGameController->isSimulationRunning()) return; // Добавляем проверку
-    GL_CHECK(glDisable(GL_DEPTH_TEST)); // Отключаем тест глубины для оверлея
+    if (!pGameController || !pGameController->isSimulationRunning()) return; // Р”РѕР±Р°РІР»СЏРµРј РїСЂРѕРІРµСЂРєСѓ
+    GL_CHECK(glDisable(GL_DEPTH_TEST)); // РћС‚РєР»СЋС‡Р°РµРј С‚РµСЃС‚ РіР»СѓР±РёРЅС‹ РґР»СЏ РѕРІРµСЂР»РµСЏ
 
     GL_CHECK(glUseProgram(debugOverlayShaderProgram));
 
-    // Устанавливаем цвет треугольника
-    // Например, красный цвет
+    // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С†РІРµС‚ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°
+    // РќР°РїСЂРёРјРµСЂ, РєСЂР°СЃРЅС‹Р№ С†РІРµС‚
     GLfloat redColor[] = { 1.0f, 0.0f, 0.0f, 1.0f };
     GLuint overlayColorLocation = glGetUniformLocation(debugOverlayShaderProgram, "overlayColor");
     GL_CHECK(glUniform4fv(overlayColorLocation, 1, redColor));
 
     GL_CHECK(glBindVertexArray(debugOverlayVAO));
-    GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, 3)); // Рисуем треугольник
+    GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, 3)); // Р РёСЃСѓРµРј С‚СЂРµСѓРіРѕР»СЊРЅРёРє
     GL_CHECK(glBindVertexArray(0));
 
-    GL_CHECK(glEnable(GL_DEPTH_TEST)); // Включаем обратно тест глубины после отрисовки оверлея
+    GL_CHECK(glEnable(GL_DEPTH_TEST)); // Р’РєР»СЋС‡Р°РµРј РѕР±СЂР°С‚РЅРѕ С‚РµСЃС‚ РіР»СѓР±РёРЅС‹ РїРѕСЃР»Рµ РѕС‚СЂРёСЃРѕРІРєРё РѕРІРµСЂР»РµСЏ
 }
 
 void Renderer::OnWindowResize(int newWidth, int newHeight) {
     width = newWidth;
     height = newHeight;
     GL_CHECK(glViewport(0, 0, width, height));
-    // Обновляем проекцию камеры
+    // РћР±РЅРѕРІР»СЏРµРј РїСЂРѕРµРєС†РёСЋ РєР°РјРµСЂС‹
     camera.SetProjection(45.0f, static_cast<float>(width) / height, 0.1f, 1000.0f);
     UpdateDebugOverlayPosition();
-    ui.OnWindowResize(width, height);
 }
 
 void Renderer::MoveCamera(float dx, float dy, float dz) {
-    // Обновляем позицию камеры
+    // РћР±РЅРѕРІР»СЏРµРј РїРѕР·РёС†РёСЋ РєР°РјРµСЂС‹
     float currentX, currentY, currentZ;
     camera.GetPosition(currentX, currentY, currentZ);
     camera.SetPosition(currentX + dx, currentY + dy, currentZ + dz);
@@ -329,11 +317,11 @@ void Renderer::LoadGridShaders() {
 layout(location = 0) in vec3 aPos;
 uniform mat4 projection;
 uniform mat4 view;
-out float isMajorLine; // Выходной параметр для фрагментного шейдера
+out float isMajorLine; // Р’С‹С…РѕРґРЅРѕР№ РїР°СЂР°РјРµС‚СЂ РґР»СЏ С„СЂР°РіРјРµРЅС‚РЅРѕРіРѕ С€РµР№РґРµСЂР°
 void main()
 {
     gl_Position = projection * view * vec4(aPos, 1.0);
-    // Пример: рассчитываем, является ли линия "главной"
+    // РџСЂРёРјРµСЂ: СЂР°СЃСЃС‡РёС‚С‹РІР°РµРј, СЏРІР»СЏРµС‚СЃСЏ Р»Рё Р»РёРЅРёСЏ "РіР»Р°РІРЅРѕР№"
     isMajorLine = mod(aPos.x, 5.0) == 0.0 || mod(aPos.y, 5.0) == 0.0 ? 1.0 : 0.0;
 }
     )";
@@ -345,9 +333,9 @@ out vec4 FragColor;
 void main()
 {
     if(isMajorLine > 0.25) {
-        FragColor = vec4(0.6, 0.6, 0.7, 1.0); // Красный цвет для "главных" линий
+        FragColor = vec4(0.6, 0.6, 0.7, 1.0); // РљСЂР°СЃРЅС‹Р№ С†РІРµС‚ РґР»СЏ "РіР»Р°РІРЅС‹С…" Р»РёРЅРёР№
     } else {
-        FragColor = vec4(0.3, 0.3, 0.4, 1.0); // Серый цвет для обычных линий
+        FragColor = vec4(0.3, 0.3, 0.4, 1.0); // РЎРµСЂС‹Р№ С†РІРµС‚ РґР»СЏ РѕР±С‹С‡РЅС‹С… Р»РёРЅРёР№
     }
 }
     )";
@@ -383,16 +371,16 @@ void main()
     shaderManager.linkProgram("debugOverlayShaderProgram", "debugOverlayVertexShader", "debugOverlayFragmentShader");
     debugOverlayShaderProgram = shaderManager.getProgram("debugOverlayShaderProgram");
 
-    // Инициализация VAO и VBO для маленького треугольника в правом нижнем углу
-    float xOffset = 0.95f; // Смещение по X для правого нижнего угла
-    float yOffset = -0.95f; // Смещение по Y для правого нижнего угла
-    float size = 0.05f; // Размер треугольника в NDC
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ VAO Рё VBO РґР»СЏ РјР°Р»РµРЅСЊРєРѕРіРѕ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР° РІ РїСЂР°РІРѕРј РЅРёР¶РЅРµРј СѓРіР»Сѓ
+    float xOffset = 0.95f; // РЎРјРµС‰РµРЅРёРµ РїРѕ X РґР»СЏ РїСЂР°РІРѕРіРѕ РЅРёР¶РЅРµРіРѕ СѓРіР»Р°
+    float yOffset = -0.95f; // РЎРјРµС‰РµРЅРёРµ РїРѕ Y РґР»СЏ РїСЂР°РІРѕРіРѕ РЅРёР¶РЅРµРіРѕ СѓРіР»Р°
+    float size = 0.05f; // Р Р°Р·РјРµСЂ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР° РІ NDC
 
-    // Координаты вершин для треугольника, направленного острой стороной вправо
+    // РљРѕРѕСЂРґРёРЅР°С‚С‹ РІРµСЂС€РёРЅ РґР»СЏ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°, РЅР°РїСЂР°РІР»РµРЅРЅРѕРіРѕ РѕСЃС‚СЂРѕР№ СЃС‚РѕСЂРѕРЅРѕР№ РІРїСЂР°РІРѕ
     float vertices[] = {
-        xOffset - size, yOffset,       // Левая вершина
-        xOffset, yOffset + size,       // Верхняя вершина
-        xOffset, yOffset               // Правая вершина
+        xOffset - size, yOffset,       // Р›РµРІР°СЏ РІРµСЂС€РёРЅР°
+        xOffset, yOffset + size,       // Р’РµСЂС…РЅСЏСЏ РІРµСЂС€РёРЅР°
+        xOffset, yOffset               // РџСЂР°РІР°СЏ РІРµСЂС€РёРЅР°
     };
 
     glGenVertexArrays(1, &debugOverlayVAO);
@@ -403,7 +391,7 @@ void main()
     glBindBuffer(GL_ARRAY_BUFFER, debugOverlayVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // Позиция
+    // РџРѕР·РёС†РёСЏ
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
@@ -413,24 +401,24 @@ void main()
 }
 
 void Renderer::UpdateDebugOverlayPosition() {
-    // Удаляем старый VBO, если он существует
+    // РЈРґР°Р»СЏРµРј СЃС‚Р°СЂС‹Р№ VBO, РµСЃР»Рё РѕРЅ СЃСѓС‰РµСЃС‚РІСѓРµС‚
     if (debugOverlayVBO != 0) {
         glDeleteBuffers(1, &debugOverlayVBO);
     }
 
-    // Размер треугольника в пикселях
-    const int triangleSizeInPixels = 20; // Например, 20 пикселей
+    // Р Р°Р·РјРµСЂ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР° РІ РїРёРєСЃРµР»СЏС…
+    const int triangleSizeInPixels = 20; // РќР°РїСЂРёРјРµСЂ, 20 РїРёРєСЃРµР»РµР№
 
-    // Вычисляем смещение и размер в нормализованных координатах
-    float xOffset = (2.0f * (width - triangleSizeInPixels) / width) - 1.0f; // Правый край - размер треугольника
-    float yOffset = (2.0f * (triangleSizeInPixels) / height) - 1.0f; // Нижний край + размер треугольника
-    float sizeX = (2.0f * triangleSizeInPixels / width); // Размер по X в нормализованных координатах
-    float sizeY = (2.0f * triangleSizeInPixels / height); // Размер по Y в нормализованных координатах
+    // Р’С‹С‡РёСЃР»СЏРµРј СЃРјРµС‰РµРЅРёРµ Рё СЂР°Р·РјРµСЂ РІ РЅРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅС‹С… РєРѕРѕСЂРґРёРЅР°С‚Р°С…
+    float xOffset = (2.0f * (width - triangleSizeInPixels) / width) - 1.0f; // РџСЂР°РІС‹Р№ РєСЂР°Р№ - СЂР°Р·РјРµСЂ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°
+    float yOffset = (2.0f * (triangleSizeInPixels) / height) - 1.0f; // РќРёР¶РЅРёР№ РєСЂР°Р№ + СЂР°Р·РјРµСЂ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°
+    float sizeX = (2.0f * triangleSizeInPixels / width); // Р Р°Р·РјРµСЂ РїРѕ X РІ РЅРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅС‹С… РєРѕРѕСЂРґРёРЅР°С‚Р°С…
+    float sizeY = (2.0f * triangleSizeInPixels / height); // Р Р°Р·РјРµСЂ РїРѕ Y РІ РЅРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅС‹С… РєРѕРѕСЂРґРёРЅР°С‚Р°С…
 
     float vertices[] = {
-        xOffset, yOffset + sizeY, // Верхняя вершина
-        xOffset - sizeX, yOffset, // Левая нижняя вершина
-        xOffset, yOffset          // Правая нижняя вершина
+        xOffset, yOffset + sizeY, // Р’РµСЂС…РЅСЏСЏ РІРµСЂС€РёРЅР°
+        xOffset - sizeX, yOffset, // Р›РµРІР°СЏ РЅРёР¶РЅСЏСЏ РІРµСЂС€РёРЅР°
+        xOffset, yOffset          // РџСЂР°РІР°СЏ РЅРёР¶РЅСЏСЏ РІРµСЂС€РёРЅР°
     };
 
     glBindVertexArray(debugOverlayVAO);
@@ -439,7 +427,7 @@ void Renderer::UpdateDebugOverlayPosition() {
     glBindBuffer(GL_ARRAY_BUFFER, debugOverlayVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // Позиция
+    // РџРѕР·РёС†РёСЏ
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
@@ -449,10 +437,10 @@ void Renderer::UpdateDebugOverlayPosition() {
 void Renderer::RebuildGameField() {
     if (!pGameController) return;
 
-    // Освобождаем старые буферы
+    // РћСЃРІРѕР±РѕР¶РґР°РµРј СЃС‚Р°СЂС‹Рµ Р±СѓС„РµСЂС‹
     glDeleteBuffers(1, &cellsVBO);
     glDeleteBuffers(1, &cellInstanceVBO);
     glDeleteBuffers(1, &gridVBO);
 
-    InitializeVBOs(); // Перестраиваем буферы
+    InitializeVBOs(); // РџРµСЂРµСЃС‚СЂР°РёРІР°РµРј Р±СѓС„РµСЂС‹
 }

@@ -1,6 +1,6 @@
 #include "Matrix4x4.h"
 
-// Конструктор (единичная матрица)
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ (РµРґРёРЅРёС‡РЅР°СЏ РјР°С‚СЂРёС†Р°)
 Matrix4x4::Matrix4x4() {
     elements = { 1.0f, 0.0f, 0.0f, 0.0f,
                  0.0f, 1.0f, 0.0f, 0.0f,
@@ -8,13 +8,13 @@ Matrix4x4::Matrix4x4() {
                  0.0f, 0.0f, 0.0f, 1.0f };
 }
 
-// Конструктор с элементами
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ СЃ СЌР»РµРјРµРЅС‚Р°РјРё
 Matrix4x4::Matrix4x4(const std::array<float, 16>& elements) : elements(elements) {}
 
-// Конструктор копирования
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
 Matrix4x4::Matrix4x4(const Matrix4x4& other) : elements(other.elements) {}
 
-// Оператор присваивания
+// РћРїРµСЂР°С‚РѕСЂ РїСЂРёСЃРІР°РёРІР°РЅРёСЏ
 Matrix4x4& Matrix4x4::operator=(const Matrix4x4& other) {
     if (this != &other) {
         elements = other.elements;
@@ -22,7 +22,7 @@ Matrix4x4& Matrix4x4::operator=(const Matrix4x4& other) {
     return *this;
 }
 
-// Операция сложения матриц
+// РћРїРµСЂР°С†РёСЏ СЃР»РѕР¶РµРЅРёСЏ РјР°С‚СЂРёС†
 Matrix4x4 Matrix4x4::operator+(const Matrix4x4& other) const {
     Matrix4x4 result;
     for (int i = 0; i < 16; ++i) {
@@ -31,7 +31,7 @@ Matrix4x4 Matrix4x4::operator+(const Matrix4x4& other) const {
     return result;
 }
 
-// Операция вычитания матриц
+// РћРїРµСЂР°С†РёСЏ РІС‹С‡РёС‚Р°РЅРёСЏ РјР°С‚СЂРёС†
 Matrix4x4 Matrix4x4::operator-(const Matrix4x4& other) const {
     Matrix4x4 result;
     for (int i = 0; i < 16; ++i) {
@@ -40,7 +40,7 @@ Matrix4x4 Matrix4x4::operator-(const Matrix4x4& other) const {
     return result;
 }
 
-// Операция умножения матриц
+// РћРїРµСЂР°С†РёСЏ СѓРјРЅРѕР¶РµРЅРёСЏ РјР°С‚СЂРёС†
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4& other) const {
     Matrix4x4 result;
     for (int i = 0; i < 4; ++i) {
@@ -55,7 +55,7 @@ Matrix4x4 Matrix4x4::operator*(const Matrix4x4& other) const {
     return result;
 }
 
-// Транспонирование матрицы
+// РўСЂР°РЅСЃРїРѕРЅРёСЂРѕРІР°РЅРёРµ РјР°С‚СЂРёС†С‹
 Matrix4x4 Matrix4x4::transpose() const {
     Matrix4x4 result;
     for (int i = 0; i < 4; ++i) {
@@ -79,7 +79,7 @@ Matrix4x4 Matrix4x4::inverse() const {
         }
     }
 
-    // Делим адъюнкт матрицы на определитель
+    // Р”РµР»РёРј Р°РґСЉСЋРЅРєС‚ РјР°С‚СЂРёС†С‹ РЅР° РѕРїСЂРµРґРµР»РёС‚РµР»СЊ
     for (int i = 0; i < 16; ++i) {
         adjugate.elements[i] /= det;
     }
@@ -107,14 +107,14 @@ float Matrix4x4::minor(int row, int col) const {
         }
     }
 
-    // Определитель 3x3
+    // РћРїСЂРµРґРµР»РёС‚РµР»СЊ 3x3
     return submatrix[0] * (submatrix[4] * submatrix[8] - submatrix[5] * submatrix[7]) -
         submatrix[1] * (submatrix[3] * submatrix[8] - submatrix[5] * submatrix[6]) +
         submatrix[2] * (submatrix[3] * submatrix[7] - submatrix[4] * submatrix[6]);
 }
 
 
-// Вывод матрицы
+// Р’С‹РІРѕРґ РјР°С‚СЂРёС†С‹
 void Matrix4x4::print() const {
     for (int i = 0; i < 4; ++i) {
         std::cout << "| ";
@@ -125,7 +125,7 @@ void Matrix4x4::print() const {
     }
 }
 
-// Получение указателя на данные
+// РџРѕР»СѓС‡РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»СЏ РЅР° РґР°РЅРЅС‹Рµ
 const float* Matrix4x4::data() const {
     return elements.data();
 }

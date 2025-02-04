@@ -9,9 +9,9 @@ bool MainWindow::Create() {
     WNDCLASSEX wc = { 0 };
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_HREDRAW | CS_VREDRAW;
-    wc.lpfnWndProc = WndProc; // Используем статический метод
+    wc.lpfnWndProc = WndProc; // РСЃРїРѕР»СЊР·СѓРµРј СЃС‚Р°С‚РёС‡РµСЃРєРёР№ РјРµС‚РѕРґ
     wc.cbClsExtra = 0;
-    wc.cbWndExtra = sizeof(MainWindow*); // Добавляем пространство для указателя на MainWindow
+    wc.cbWndExtra = sizeof(MainWindow*); // Р”РѕР±Р°РІР»СЏРµРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РґР»СЏ СѓРєР°Р·Р°С‚РµР»СЏ РЅР° MainWindow
     wc.hInstance = hInstance;
     wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1)); //LoadIcon(NULL, IDI_APPLICATION);
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -25,20 +25,20 @@ bool MainWindow::Create() {
         return false;
     }
 
-    // Создаем RECT для размеров окна
+    // РЎРѕР·РґР°РµРј RECT РґР»СЏ СЂР°Р·РјРµСЂРѕРІ РѕРєРЅР°
     RECT windowRect = { 0, 0, windowWidth, windowHeight };
 
-    // Корректируем размеры с учетом рамки, заголовка и меню
+    // РљРѕСЂСЂРµРєС‚РёСЂСѓРµРј СЂР°Р·РјРµСЂС‹ СЃ СѓС‡РµС‚РѕРј СЂР°РјРєРё, Р·Р°РіРѕР»РѕРІРєР° Рё РјРµРЅСЋ
     AdjustWindowRectEx(&windowRect, WS_OVERLAPPEDWINDOW | WS_VISIBLE, TRUE, 0);
 
-    // Создание окна с учетом скорректированных размеров
+    // РЎРѕР·РґР°РЅРёРµ РѕРєРЅР° СЃ СѓС‡РµС‚РѕРј СЃРєРѕСЂСЂРµРєС‚РёСЂРѕРІР°РЅРЅС‹С… СЂР°Р·РјРµСЂРѕРІ
     hWnd = CreateWindowEx(
         0,
         L"GameOfLife3DWindowClass",
         L"Game of life 3D",
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
-        NULL, NULL, hInstance, this // Передаем this как lpParam
+        NULL, NULL, hInstance, this // РџРµСЂРµРґР°РµРј this РєР°Рє lpParam
     );
         
     if (!hWnd) {
@@ -57,7 +57,7 @@ void MainWindow::SetController(WindowController* controller) {
 
 LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     if (message == WM_NCCREATE) {
-        // Извлекаем указатель на MainWindow из lParam при создании окна
+        // РР·РІР»РµРєР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° MainWindow РёР· lParam РїСЂРё СЃРѕР·РґР°РЅРёРё РѕРєРЅР°
         CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
         MainWindow* pThis = static_cast<MainWindow*>(pCreate->lpCreateParams);
         SetWindowLongPtr(hWnd, 0, reinterpret_cast<LONG_PTR>(pThis));
@@ -71,7 +71,7 @@ LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
     }
 
     switch (message) {
-    case WM_SIZE: // Добавляем обработку изменения размера
+    case WM_SIZE: // Р”РѕР±Р°РІР»СЏРµРј РѕР±СЂР°Р±РѕС‚РєСѓ РёР·РјРµРЅРµРЅРёСЏ СЂР°Р·РјРµСЂР°
     {
         pThis->windowWidth = LOWORD(lParam);
         pThis->windowHeight = HIWORD(lParam);

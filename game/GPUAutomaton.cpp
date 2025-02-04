@@ -52,9 +52,9 @@ void GPUAutomaton::CreateComputeShader() {
         int currentState = current[pos.y * gridSize.x + pos.x];
         int neighbors = countLiveNeighbors(pos);
         int nextState = 0;
-        if (currentState == 1) { // Живая клетка
+        if (currentState == 1) { // Р–РёРІР°СЏ РєР»РµС‚РєР°
             if (neighbors == 2 || neighbors == 3) nextState = 1;
-        } else { // Мертвая клетка
+        } else { // РњРµСЂС‚РІР°СЏ РєР»РµС‚РєР°
             if (neighbors == 3) nextState = 1;
         }
         next[pos.y * gridSize.x + pos.x] = nextState;
@@ -77,7 +77,7 @@ void GPUAutomaton::SetupBuffers() {
 void GPUAutomaton::Update() {
     glUseProgram(computeProgram);
     glUniform2i(glGetUniformLocation(computeProgram, "gridSize"), gridWidth, gridHeight);
-    glUniform1i(glGetUniformLocation(computeProgram, "isToroidal"), isToroidal); // Передача isToroidal
+    glUniform1i(glGetUniformLocation(computeProgram, "isToroidal"), isToroidal); // РџРµСЂРµРґР°С‡Р° isToroidal
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[bufferIndex]);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[(bufferIndex + 1) % 2]);
@@ -103,23 +103,3 @@ void GPUAutomaton::SetGridState(const std::vector<int>& inState) {
 void GPUAutomaton::SetToroidal(bool toroidal) {
     isToroidal = toroidal;
 }
-
-//void GPUAutomaton::CheckShaderCompilation(GLuint shader, const std::string& name) {
-//    GLint success;
-//    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-//    if (!success) {
-//        char infoLog[512];
-//        glGetShaderInfoLog(shader, 512, NULL, infoLog);
-//        std::cout << "ERROR::SHADER::" << name << "::COMPILATION_FAILED\n" << infoLog << std::endl;
-//    }
-//}
-//
-//void GPUAutomaton::CheckProgramLinking(GLuint program) {
-//    GLint success;
-//    glGetProgramiv(program, GL_LINK_STATUS, &success);
-//    if (!success) {
-//        char infoLog[512];
-//        glGetProgramInfoLog(program, 512, NULL, infoLog);
-//        std::cout << "ERROR::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-//    }
-//}

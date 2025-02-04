@@ -6,7 +6,6 @@
 #include "../system/GLFunctions.h"
 #include "Camera.h"
 #include "../game/GameController.h"
-#include "UI.h"
 
 #include <vector>
 
@@ -18,7 +17,7 @@ public:
     ~Renderer();
 
     void SetCamera(const Camera& camera);
-    Camera& GetCamera() { return camera; } // Удалить const
+    Camera& GetCamera() { return camera; } // РЈРґР°Р»РёС‚СЊ const
 
     void SetGameController(GameController* gameController);
 
@@ -34,16 +33,15 @@ public:
     bool getShowGrid() { return showGrid; };
     void setShowGrid(bool show) { showGrid = show; };
 
-    void RebuildGameField(); // метод для перестройки игрового поля
+    void RebuildGameField(); // РјРµС‚РѕРґ РґР»СЏ РїРµСЂРµСЃС‚СЂРѕР№РєРё РёРіСЂРѕРІРѕРіРѕ РїРѕР»СЏ
 
 private:
     int width, height;
     Camera camera;
     GameController* pGameController;
-    UI ui; // Добавляем экземпляр UI
 
     bool showGrid = true;
-    ShaderManager shaderManager; // Добавляем ShaderManager
+    ShaderManager shaderManager; // Р”РѕР±Р°РІР»СЏРµРј ShaderManager
 
     void InitializeVBOs();
     GLuint gridVBO;
@@ -52,13 +50,13 @@ private:
     std::vector<GLfloat> cellVertices;
 
     struct CellInstance {
-        float x, y; // Позиция клетки
-        Vector3d color; // Цвет клетки
+        float x, y; // РџРѕР·РёС†РёСЏ РєР»РµС‚РєРё
+        Vector3d color; // Р¦РІРµС‚ РєР»РµС‚РєРё
     };
     GLuint cellInstanceVBO;
     std::vector<CellInstance> cellInstances;
     GLuint shaderProgram;
-    // для шейдеров сетки
+    // РґР»СЏ С€РµР№РґРµСЂРѕРІ СЃРµС‚РєРё
     GLuint gridShaderProgram;
     GLuint gridVAO;
 

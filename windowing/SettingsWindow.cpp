@@ -31,7 +31,7 @@ bool SettingsWindow::Create(HWND hParentWnd) {
     hWnd = CreateWindowEx(
         0,
         L"SettingsWindowClass",
-        L"Настройки игры",
+        L"РќР°СЃС‚СЂРѕР№РєРё РёРіСЂС‹",
         WS_OVERLAPPEDWINDOW | WS_VISIBLE,
         CW_USEDEFAULT, CW_USEDEFAULT, 450, 400,
         hParentWnd,
@@ -49,50 +49,50 @@ bool SettingsWindow::Create(HWND hParentWnd) {
 
     int yPos = 10;
 
-    // Ширина сетки
-    CreateLabel(hWnd, 10, yPos, 100, 20, L"Ширина:");
+    // РЁРёСЂРёРЅР° СЃРµС‚РєРё
+    CreateLabel(hWnd, 10, yPos, 100, 20, L"РЁРёСЂРёРЅР°:");
     HWND editWidth = CreateEdit(hWnd, 120, yPos, 150, 20, 1);
     //SetWindowText(editWidth, L"100");
     yPos += 30;
 
-    // Высота сетки
-    CreateLabel(hWnd, 10, yPos, 100, 20, L"Высота:");
+    // Р’С‹СЃРѕС‚Р° СЃРµС‚РєРё
+    CreateLabel(hWnd, 10, yPos, 100, 20, L"Р’С‹СЃРѕС‚Р°:");
     HWND editHeight = CreateEdit(hWnd, 120, yPos, 150, 20, 2);
     //SetWindowText(editHeight, L"100");
     yPos += 30;
 
-    // Кнопка для задания размера сетки
-    CreateButton(hWnd, 10, yPos, 150, 25, 9, L"Задать");
+    // РљРЅРѕРїРєР° РґР»СЏ Р·Р°РґР°РЅРёСЏ СЂР°Р·РјРµСЂР° СЃРµС‚РєРё
+    CreateButton(hWnd, 10, yPos, 150, 25, 9, L"Р—Р°РґР°С‚СЊ");
     yPos += 35;
 
-    // Скорость симуляции
-    CreateLabel(hWnd, 10, yPos, 100, 20, L"Скорость:");
+    // РЎРєРѕСЂРѕСЃС‚СЊ СЃРёРјСѓР»СЏС†РёРё
+    CreateLabel(hWnd, 10, yPos, 100, 20, L"РЎРєРѕСЂРѕСЃС‚СЊ:");
     CreateSlider(hWnd, 120, yPos + 5, 200, 20, 3, 1, 1000);
     yPos += 40;
 
-    // Правила игры
-    CreateLabel(hWnd, 10, yPos, 100, 20, L"Правила:");
+    // РџСЂР°РІРёР»Р° РёРіСЂС‹
+    CreateLabel(hWnd, 10, yPos, 100, 20, L"РџСЂР°РІРёР»Р°:");
     CreateEdit(hWnd, 120, yPos + 5, 310, 20, 4);
     yPos += 40;
 
-    // Цвет живых клеток
-    CreateLabel(hWnd, 10, yPos, 150, 20, L"Цвет живых клеток:");
-    CreateButton(hWnd, 170, yPos, 150, 20, 5, L"Выбрать");
+    // Р¦РІРµС‚ Р¶РёРІС‹С… РєР»РµС‚РѕРє
+    CreateLabel(hWnd, 10, yPos, 150, 20, L"Р¦РІРµС‚ Р¶РёРІС‹С… РєР»РµС‚РѕРє:");
+    CreateButton(hWnd, 170, yPos, 150, 20, 5, L"Р’С‹Р±СЂР°С‚СЊ");
     yPos += 30;
 
-    // Цвет мертвых клеток
-    CreateLabel(hWnd, 10, yPos, 150, 20, L"Цвет мертвых клеток:");
-    CreateButton(hWnd, 170, yPos, 150, 20, 6, L"Выбрать");
+    // Р¦РІРµС‚ РјРµСЂС‚РІС‹С… РєР»РµС‚РѕРє
+    CreateLabel(hWnd, 10, yPos, 150, 20, L"Р¦РІРµС‚ РјРµСЂС‚РІС‹С… РєР»РµС‚РѕРє:");
+    CreateButton(hWnd, 170, yPos, 150, 20, 6, L"Р’С‹Р±СЂР°С‚СЊ");
     yPos += 40;
 
-    // Загрузка и сохранение
-    CreateButton(hWnd, 10, yPos, 155, 25, 7, L"Загрузить");
-    CreateButton(hWnd, 185, yPos, 155, 25, 8, L"Сохранить");
+    // Р—Р°РіСЂСѓР·РєР° Рё СЃРѕС…СЂР°РЅРµРЅРёРµ
+    CreateButton(hWnd, 10, yPos, 155, 25, 7, L"Р—Р°РіСЂСѓР·РёС‚СЊ");
+    CreateButton(hWnd, 185, yPos, 155, 25, 8, L"РЎРѕС…СЂР°РЅРёС‚СЊ");
     yPos += 35;
 
-    // Загрузка и сохранение как CSV
-    CreateButton(hWnd, 10, yPos, 155, 25, 10, L"Загрузить как CSV");
-    CreateButton(hWnd, 185, yPos, 155, 25, 11, L"Сохранить как CSV");
+    // Р—Р°РіСЂСѓР·РєР° Рё СЃРѕС…СЂР°РЅРµРЅРёРµ РєР°Рє CSV
+    CreateButton(hWnd, 10, yPos, 155, 25, 10, L"Р—Р°РіСЂСѓР·РёС‚СЊ РєР°Рє CSV");
+    CreateButton(hWnd, 185, yPos, 155, 25, 11, L"РЎРѕС…СЂР°РЅРёС‚СЊ РєР°Рє CSV");
 
     return true;
 }
@@ -120,53 +120,53 @@ HWND SettingsWindow::CreateEdit(HWND hParent, int x, int y, int width, int heigh
 void SettingsWindow::CreateSlider(HWND hParent, int x, int y, int width, int height, int id, int min, int max) {
     HWND slider = CreateWindowEx(0, TRACKBAR_CLASS, NULL, WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_HORZ, x, y, width, height, hParent, (HMENU)id, hInstance, NULL);
     SendMessage(slider, TBM_SETRANGE, TRUE, MAKELONG(min, max));
-    SendMessage(slider, TBM_SETPOS, TRUE, 1000); // Устанавливаем начальное значение
+    SendMessage(slider, TBM_SETPOS, TRUE, 1000); // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅР°С‡Р°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
 }
 
 LRESULT CALLBACK SettingsWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
     case WM_COMMAND:
         switch (LOWORD(wParam)) {
-        case 1: // Ширина сетки
-            MessageBox(hWnd, L"Изменение ширины сетки", L"Info", MB_OK);
+        case 1: // РЁРёСЂРёРЅР° СЃРµС‚РєРё
+            MessageBox(hWnd, L"РР·РјРµРЅРµРЅРёРµ С€РёСЂРёРЅС‹ СЃРµС‚РєРё", L"Info", MB_OK);
             break;
-        case 2: // Высота сетки
-            MessageBox(hWnd, L"Изменение высоты сетки", L"Info", MB_OK);
+        case 2: // Р’С‹СЃРѕС‚Р° СЃРµС‚РєРё
+            MessageBox(hWnd, L"РР·РјРµРЅРµРЅРёРµ РІС‹СЃРѕС‚С‹ СЃРµС‚РєРё", L"Info", MB_OK);
             break;
-        case 5: // Цвет живых клеток
-            MessageBox(hWnd, L"Выбор цвета живых клеток", L"Info", MB_OK);
+        case 5: // Р¦РІРµС‚ Р¶РёРІС‹С… РєР»РµС‚РѕРє
+            MessageBox(hWnd, L"Р’С‹Р±РѕСЂ С†РІРµС‚Р° Р¶РёРІС‹С… РєР»РµС‚РѕРє", L"Info", MB_OK);
             break;
-        case 6: // Цвет мертвых клеток
-            MessageBox(hWnd, L"Выбор цвета мертвых клеток", L"Info", MB_OK);
+        case 6: // Р¦РІРµС‚ РјРµСЂС‚РІС‹С… РєР»РµС‚РѕРє
+            MessageBox(hWnd, L"Р’С‹Р±РѕСЂ С†РІРµС‚Р° РјРµСЂС‚РІС‹С… РєР»РµС‚РѕРє", L"Info", MB_OK);
             break;
-        case 7: // Загрузка
-            MessageBox(hWnd, L"Загрузка сетки", L"Info", MB_OK);
+        case 7: // Р—Р°РіСЂСѓР·РєР°
+            MessageBox(hWnd, L"Р—Р°РіСЂСѓР·РєР° СЃРµС‚РєРё", L"Info", MB_OK);
             break;
-        case 8: // Сохранение
-            MessageBox(hWnd, L"Сохранение сетки", L"Info", MB_OK);
+        case 8: // РЎРѕС…СЂР°РЅРµРЅРёРµ
+            MessageBox(hWnd, L"РЎРѕС…СЂР°РЅРµРЅРёРµ СЃРµС‚РєРё", L"Info", MB_OK);
             break;
-        case 9: // Задать размер сетки
-            MessageBox(hWnd, L"Задать размер сетки", L"Info", MB_OK);
+        case 9: // Р—Р°РґР°С‚СЊ СЂР°Р·РјРµСЂ СЃРµС‚РєРё
+            MessageBox(hWnd, L"Р—Р°РґР°С‚СЊ СЂР°Р·РјРµСЂ СЃРµС‚РєРё", L"Info", MB_OK);
             break;
-        case 10: // Загрузить как CSV
-            MessageBox(hWnd, L"Загрузка как CSV", L"Info", MB_OK);
+        case 10: // Р—Р°РіСЂСѓР·РёС‚СЊ РєР°Рє CSV
+            MessageBox(hWnd, L"Р—Р°РіСЂСѓР·РєР° РєР°Рє CSV", L"Info", MB_OK);
             break;
-        case 11: // Сохранить как CSV
-            MessageBox(hWnd, L"Сохранение как CSV", L"Info", MB_OK);
+        case 11: // РЎРѕС…СЂР°РЅРёС‚СЊ РєР°Рє CSV
+            MessageBox(hWnd, L"РЎРѕС…СЂР°РЅРµРЅРёРµ РєР°Рє CSV", L"Info", MB_OK);
             break;
         }
         break;
 
     case WM_HSCROLL:
     {
-        int pos = LOWORD(wParam); // Получаем текущую позицию
-        if ((HWND)lParam == GetDlgItem(hWnd, 3)) { // Проверяем, что сообщение от нашего слайдера
+        int pos = LOWORD(wParam); // РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ
+        if ((HWND)lParam == GetDlgItem(hWnd, 3)) { // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ СЃРѕРѕР±С‰РµРЅРёРµ РѕС‚ РЅР°С€РµРіРѕ СЃР»Р°Р№РґРµСЂР°
             switch (HIWORD(wParam)) {
             case TB_THUMBTRACK:
-                MessageBox(hWnd, L"Слайдер изменен", L"Info", MB_OK);
+                MessageBox(hWnd, L"РЎР»Р°Р№РґРµСЂ РёР·РјРµРЅРµРЅ", L"Info", MB_OK);
                 break;
             case TB_ENDTRACK:
-                MessageBox(hWnd, L"Слайдер отпущен", L"Info", MB_OK);
+                MessageBox(hWnd, L"РЎР»Р°Р№РґРµСЂ РѕС‚РїСѓС‰РµРЅ", L"Info", MB_OK);
                 break;
             }
         }

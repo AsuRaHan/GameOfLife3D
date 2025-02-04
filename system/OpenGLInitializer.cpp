@@ -50,16 +50,16 @@ bool OpenGLInitializer::SetupPixelFormat(HDC hdc) {
     if (pixelFormat == 0) {
         DWORD error = GetLastError();
         wchar_t errorMessage[256];
-        swprintf_s(errorMessage, sizeof(errorMessage) / sizeof(wchar_t), L"Не удалось выбрать pixel format. Код ошибки: %lu", error);
-        MessageBox(NULL, errorMessage, L"Ошибка", MB_OK | MB_ICONERROR);
+        swprintf_s(errorMessage, sizeof(errorMessage) / sizeof(wchar_t), L"РќРµ СѓРґР°Р»РѕСЃСЊ РІС‹Р±СЂР°С‚СЊ pixel format. РљРѕРґ РѕС€РёР±РєРё: %lu", error);
+        MessageBox(NULL, errorMessage, L"РћС€РёР±РєР°", MB_OK | MB_ICONERROR);
         return false;
     }
 
     if (!SetPixelFormat(hdc, pixelFormat, &pfd)) {
         DWORD error = GetLastError();
         wchar_t errorMessage[256];
-        swprintf_s(errorMessage, sizeof(errorMessage) / sizeof(wchar_t), L"Не удалось установить pixel format. Код ошибки: %lu", error);
-        MessageBox(NULL, errorMessage, L"Ошибка", MB_OK | MB_ICONERROR);
+        swprintf_s(errorMessage, sizeof(errorMessage) / sizeof(wchar_t), L"РќРµ СѓРґР°Р»РѕСЃСЊ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ pixel format. РљРѕРґ РѕС€РёР±РєРё: %lu", error);
+        MessageBox(NULL, errorMessage, L"РћС€РёР±РєР°", MB_OK | MB_ICONERROR);
         return false;
     }
 
