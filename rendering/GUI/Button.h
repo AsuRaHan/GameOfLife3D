@@ -12,7 +12,8 @@
 class Button : public UIElement {
 private:
     std::function<void()> onClick;
-    bool isHovered;
+    bool isHovered = false;
+    Vector3d hoverColor;
 
 public:
     Button(float x, float y, float width, float height, 
@@ -21,5 +22,6 @@ public:
     void draw(GLuint shaderProgram) override;
     bool handleClick(float mouseX, float mouseY) override;
     void setOnClick(std::function<void()> callback) { onClick = callback; }
+    void handleMouseMove(float x, float y);
 }; 
 #endif // BUTTON_H_

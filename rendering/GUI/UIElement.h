@@ -12,6 +12,21 @@ public:
     virtual void draw(GLuint shaderProgram) = 0;
     virtual bool handleClick(float mouseX, float mouseY) = 0;
 
+    float getX() const { return x; }
+    float getY() const { return y; }
+    float getWidth() const { return width; }
+    float getHeight() const { return height; }
+    
+    void setPosition(float newX, float newY) {
+        x = newX;
+        y = newY;
+    }
+    
+    void setSize(float newWidth, float newHeight) {
+        width = newWidth;
+        height = newHeight;
+    }
+
 protected:
     float x, y, width, height;
     bool isVisible;

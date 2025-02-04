@@ -180,19 +180,22 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         isMiddleButtonDown = false;
         break;
     case WM_MOUSEMOVE:
-        if (mouseCaptured && pRenderer) {
+
+        if (pRenderer) {
+
             int currentX = LOWORD(lParam);
             int currentY = HIWORD(lParam);
+            pRenderer->OnMouseMove(currentX, currentY);
+            if (mouseCaptured) {
+                float dx = static_cast<float>(currentX - lastMouseX) * 0.1f; // Чувствительность для перемещения
+                float dy = static_cast<float>(currentY - lastMouseY) * 0.1f;
+                // Перемещаем камеру
+                Camera& camera = const_cast<Camera&>(pRenderer->GetCamera());
+                camera.Move(dx, dy, 0.0f); // Обратите внимание на знак для Y
+                lastMouseX = currentX;
+                lastMouseY = currentY;
+            }
 
-            float dx = static_cast<float>(currentX - lastMouseX) * 0.1f; // Чувствительность для перемещения
-            float dy = static_cast<float>(currentY - lastMouseY) * 0.1f;
-
-            // Перемещаем камеру
-            Camera& camera = const_cast<Camera&>(pRenderer->GetCamera());
-            camera.Move(dx, dy, 0.0f); // Обратите внимание на знак для Y
-
-            lastMouseX = currentX;
-            lastMouseY = currentY;
         }
         break;
 

@@ -266,6 +266,9 @@ void Renderer::OnWindowResize(int newWidth, int newHeight) {
     // Обновляем проекцию камеры
     camera.SetProjection(45.0f, static_cast<float>(width) / height, 0.1f, 1000.0f);
     UpdateDebugOverlayPosition();
+    if (uiManager) {
+        uiManager->updateLayout(newWidth, newHeight);
+    }
 }
 
 void Renderer::MoveCamera(float dx, float dy, float dz) {
@@ -495,5 +498,13 @@ void Renderer::OnMouseClick(int x, int y) {
         float normalizedX, normalizedY;
         UIElement::screenToNormalized(x, y, width, height, normalizedX, normalizedY);
         uiManager->handleClick(normalizedX, normalizedY);
+    }
+}
+
+void Renderer::OnMouseMove(int x, int y) {
+    if (uiManager) {
+        float normalizedX, normalizedY;
+        UIElement::screenToNormalized(x, y, width, height, normalizedX, normalizedY);
+        uiManager->handleMouseMove(normalizedX, normalizedY);
     }
 }

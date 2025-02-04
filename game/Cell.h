@@ -2,8 +2,6 @@
 #ifndef CELL_H_
 #define CELL_H_
 
-#pragma once
-
 #include "../mathematics/Vector3d.h"
 
 class Cell {

@@ -38,6 +38,7 @@ public:
 
     void initializeUI();
     void OnMouseClick(int x, int y);
+    void OnMouseMove(int x, int y);
 
 private:
     int width, height;

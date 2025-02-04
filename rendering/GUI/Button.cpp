@@ -15,10 +15,13 @@ void Button::draw(GLuint shaderProgram) {
     GL_CHECK(glUniform2f(posLoc, x, y));
     GL_CHECK(glUniform2f(scaleLoc, width, height));
     
+    // Используем hoverColor если кнопка под курсором
+    Vector3d currentColor = isHovered ? hoverColor : color;
+    
     // Установка цвета и состояния наведения
     GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
     GLint hoverLoc = glGetUniformLocation(shaderProgram, "uHovered");
-    GL_CHECK(glUniform3f(colorLoc, color.X(), color.Y(), color.Z()));
+    GL_CHECK(glUniform3f(colorLoc, currentColor.X(), currentColor.Y(), currentColor.Z()));
     GL_CHECK(glUniform1f(hoverLoc, isHovered ? 1.0f : 0.0f));
     
     // Отрисовка
@@ -35,4 +38,25 @@ bool Button::handleClick(float mouseX, float mouseY) {
         onClick();
     }
     return wasClicked;
+}
+
+void Button::handleMouseMove(float mouseX, float mouseY) {
+    bool wasHovered = isHovered;
+    isHovered = (mouseX >= x && mouseX <= x + width &&
+                 mouseY >= y && mouseY <= y + height);
+                 
+    // Изменяем цвет при наведении
+    if (isHovered && !wasHovered) {
+        // Осветляем цвет при наведении
+        hoverColor = Vector3d(
+            (color.X() * 1.2f > 1.0f) ? 1.0f : color.X() * 1.2f,
+            (color.Y() * 1.2f > 1.0f) ? 1.0f : color.Y() * 1.2f,
+            (color.Z() * 1.2f > 1.0f) ? 1.0f : color.Z() * 1.2f
+        );
+        //hoverColor = Vector3d(
+        //    0.7f,
+        //    1.0f,
+        //    0.7f
+        //);
+    }
 } 

@@ -19,5 +19,6 @@ public:
     void draw();
     void handleClick(float mouseX, float mouseY);
     void updateLayout(int windowWidth, int windowHeight);
+    void handleMouseMove(float x, float y);
 }; 
 #endif // UIMANAGER_H_
