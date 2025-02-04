@@ -1,3 +1,4 @@
+#pragma once
 #ifndef MAINWINDOW_H_
 #define MAINWINDOW_H_
 

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef OPENGLINITIALIZER_H_
 #define OPENGLINITIALIZER_H_
 
@@ -20,5 +21,8 @@ public:
 
 private:
     bool SetupPixelFormat(HDC hdc);
+    bool checkForDepthIssues();
+    float testFarPlane(float start, float end, float step);
+    void printSystemInfo();
 };
 #endif // OPENGLINITIALIZER_H_

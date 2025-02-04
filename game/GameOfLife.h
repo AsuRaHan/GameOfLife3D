@@ -1,5 +1,7 @@
+#pragma once
 #ifndef GAMEOFLIFE_H
 #define GAMEOFLIFE_H
+
 #include "GPUAutomaton.h"
 #include "Grid.h"
 #include <vector>

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef SETTINGSWINDOW_H_
 #define SETTINGSWINDOW_H_
 

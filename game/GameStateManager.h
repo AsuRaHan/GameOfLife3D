@@ -1,3 +1,4 @@
+#pragma once
 #ifndef GAMESTATEMANAGER_H_
 #define GAMESTATEMANAGER_H_
 

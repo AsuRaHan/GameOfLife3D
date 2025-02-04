@@ -1,3 +1,4 @@
+#pragma once
 #ifndef SHADERMANAGER_H_
 #define SHADERMANAGER_H_
 

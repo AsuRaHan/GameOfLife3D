@@ -1,3 +1,4 @@
+#pragma once
 #ifndef MATRIX4X4_H
 #define MATRIX4X4_H
 

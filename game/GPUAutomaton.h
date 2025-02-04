@@ -1,3 +1,4 @@
+#pragma once
 #ifndef GPU_AUTOMATON_H
 #define GPU_AUTOMATON_H
 

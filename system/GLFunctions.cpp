@@ -49,7 +49,7 @@ PFNGLMEMORYBARRIERPROC glMemoryBarrier = nullptr;
 PFNGLGETBUFFERSUBDATAPROC glGetBufferSubData = nullptr;
 
 PFNGLUNIFORM1IPROC glUniform1i = nullptr;
-
+PFNGLGETSTRINGIPROC glGetStringi = nullptr;
 
 void LoadOpenGLFunctions() {
         // Загрузка функций для работы с буферами
@@ -142,6 +142,9 @@ void LoadOpenGLFunctions() {
 
     glUniform1i = (PFNGLUNIFORM1IPROC)wglGetProcAddress("glUniform1i");
     CHECK_LOAD_FUNCTION(glUniform1i);
+
+    glGetStringi = (PFNGLGETSTRINGIPROC)wglGetProcAddress("glGetStringi");
+    CHECK_LOAD_FUNCTION(glGetStringi);
 
 }
 

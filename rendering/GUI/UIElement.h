@@ -1,4 +1,7 @@
 #pragma once
+#ifndef UIELEMENT_H_
+#define UIELEMENT_H_
+
 #include <string>
 #include "../../mathematics/Vector3d.h"
 #include "../../system/GLFunctions.h"
@@ -24,3 +27,4 @@ public:
     static void screenToNormalized(int screenX, int screenY, int windowWidth, int windowHeight,
                                  float& normalizedX, float& normalizedY);
 }; 
+#endif // UIELEMENT_H_

@@ -1,4 +1,7 @@
 #pragma once
+#ifndef UIMANAGER_H_
+#define UIMANAGER_H_
+
 #include <vector>
 #include <memory>  // для std::unique_ptr
 #include "UIElement.h"  // Добавьте эту строку
@@ -17,3 +20,4 @@ public:
     void handleClick(float mouseX, float mouseY);
     void updateLayout(int windowWidth, int windowHeight);
 }; 
+#endif // UIMANAGER_H_

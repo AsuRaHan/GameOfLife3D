@@ -1,3 +1,4 @@
+#pragma once
 #ifndef GRIDPICKER_H_
 #define GRIDPICKER_H_
 

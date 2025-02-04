@@ -1,15 +1,12 @@
+#pragma once
 #ifndef RENDERER_H_
 #define RENDERER_H_
-
-#pragma once
 
 #include "../system/GLFunctions.h"
 #include "Camera.h"
 #include "../game/GameController.h"
 
 #include <vector>
-
-
 
 class Renderer {
 public:

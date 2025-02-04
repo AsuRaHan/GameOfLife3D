@@ -1,4 +1,7 @@
 #pragma once
+#ifndef LABEL_H_
+#define LABEL_H_
+
 #include "UIElement.h"
 #include "../../mathematics/Vector3d.h"
 
@@ -8,3 +11,4 @@ public:
     void draw(GLuint shaderProgram) override;
     bool handleClick(float mouseX, float mouseY) override;
 }; 
+#endif // LABEL_H_

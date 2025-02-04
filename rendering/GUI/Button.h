@@ -1,4 +1,8 @@
 #pragma once
+#ifndef BUTTON_H_
+#define BUTTON_H_
+
+
 #include "../../system/GLFunctions.h"
 #include "UIElement.h"
 #include <functional>
@@ -18,3 +22,4 @@ public:
     bool handleClick(float mouseX, float mouseY) override;
     void setOnClick(std::function<void()> callback) { onClick = callback; }
 }; 
+#endif // BUTTON_H_

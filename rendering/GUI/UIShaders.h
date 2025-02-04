@@ -1,3 +1,7 @@
+#pragma once
+#ifndef UISHADERS_H_
+#define UISHADERS_H_
+
 const std::string uiVertexShader = R"(
 #version 330 core
 layout(location = 0) in vec2 aPos;
@@ -24,3 +28,4 @@ void main() {
     FragColor = vec4(color, 1.0);
 }
 )"; 
+#endif // UISHADERS_H_

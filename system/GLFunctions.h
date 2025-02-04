@@ -1,4 +1,7 @@
 #pragma once
+#ifndef GLFUNC_H
+#define GLFUNC_H
+
 #include <windows.h>
 #include <gl/GL.h>
 #include <GL/glu.h>
@@ -6,78 +9,66 @@
 #include <iostream>
 #include <cstdio> // For swprintf and swprintf_s
 
-
-#ifndef GLFUNC_H
-#define GLFUNC_H
 // Определение идентификаторов, если они не определены
 #ifndef GL_ARRAY_BUFFER
 #define GL_ARRAY_BUFFER 0x8892
 #endif
-
 #ifndef GL_STATIC_DRAW
 #define GL_STATIC_DRAW 0x88E4
 #endif
-
 #ifndef GL_DYNAMIC_DRAW
 #define GL_DYNAMIC_DRAW 0x88E8
 #endif
-
 #ifndef GL_STREAM_DRAW
 #define GL_STREAM_DRAW 0x88E0
 #endif
-
 #ifndef GL_ARRAY_BUFFER_BINDING
 #define GL_ARRAY_BUFFER_BINDING 0x8894
 #endif
-
 // Определение для инстансинга, если они не определены
 #ifndef GL_DRAW_INDIRECT_BUFFER
 #define GL_DRAW_INDIRECT_BUFFER 0x8F3F
 #endif
-
 // Определения для шейдеров, если они не определены
 #ifndef GL_VERTEX_SHADER
 #define GL_VERTEX_SHADER 0x8B31
 #endif
-
 #ifndef GL_FRAGMENT_SHADER
 #define GL_FRAGMENT_SHADER 0x8B30
 #endif
-
 #ifndef GL_COMPILE_STATUS
 #define GL_COMPILE_STATUS 0x8B81
 #endif
-
 #ifndef GL_LINK_STATUS
 #define GL_LINK_STATUS 0x8B82
 #endif
-
 #ifndef GL_WRITE_ONLY
 #define GL_WRITE_ONLY 0x88B9
 #endif
-
 #ifndef GL_READ_ONLY
 #define	GL_READ_ONLY 0x88B8
 #endif
-
 #ifndef GL_READ_WRITE
 #define	GL_READ_WRITE 0x88BA
 #endif
-
 #ifndef GL_COMPUTE_SHADER
 #define GL_COMPUTE_SHADER 0x91B9
 #endif
-
 #ifndef GL_SHADER_STORAGE_BUFFER
 #define GL_SHADER_STORAGE_BUFFER 0x90D2
 #endif
-
 #ifndef GL_DYNAMIC_COPY
 #define GL_DYNAMIC_COPY 0x88EA
 #endif
-
 #ifndef GL_SHADER_STORAGE_BARRIER_BIT
 #define GL_SHADER_STORAGE_BARRIER_BIT 0x00002000
+#endif
+
+#ifndef GL_SHADING_LANGUAGE_VERSION
+#define GL_SHADING_LANGUAGE_VERSION 0x8B8C
+#endif
+#ifndef GL_NUM_EXTENSIONS
+#define GL_NUM_EXTENSIONS 0x821D
 #endif
 
 #ifndef GLchar
@@ -136,6 +127,7 @@ typedef void (APIENTRY* PFNGLMEMORYBARRIERPROC)(GLbitfield barriers);
 typedef void (APIENTRY* PFNGLGETBUFFERSUBDATAPROC)(GLenum target, GLintptr offset, GLsizeiptr size, void* data);
 
 typedef void (APIENTRY* PFNGLUNIFORM1IPROC)(GLint location, GLint v0);
+typedef const GLubyte* (APIENTRY* PFNGLGETSTRINGIPROC)(GLenum name, GLuint index);
 
 
 // Объявление указателей на функции
@@ -187,6 +179,8 @@ extern PFNGLGETBUFFERSUBDATAPROC glGetBufferSubData;
 
 extern PFNGLUNIFORM1IPROC glUniform1i;
 
+extern PFNGLGETSTRINGIPROC glGetStringi;
+
 
 // Функции для работы с OpenGL
 void LoadOpenGLFunctions();
@@ -202,6 +196,6 @@ void CheckOpenGLError(const char* stmt, const char* fname, int line);
 #endif
 
 #define CHECK_LOAD_FUNCTION(func) \
-    std::cout << ((func) ? "Успешно загружена функция " #func : "Не удалось загрузить функцию " #func) << std::endl;
+    std::cout << ((func) ? "            Успешно загружена функция " #func : "   Не удалось загрузить функцию " #func) << std::endl;
 
 #endif //GLFUNC_H

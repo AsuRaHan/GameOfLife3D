@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WINDOWCONTROLLER_H_
 #define WINDOWCONTROLLER_H_
 

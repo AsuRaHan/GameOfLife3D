@@ -1,3 +1,4 @@
+#pragma once
 #ifndef CELL_H_
 #define CELL_H_
 

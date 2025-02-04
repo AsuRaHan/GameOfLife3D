@@ -1,5 +1,4 @@
 #pragma once
-
 #ifndef GRID_H_
 #define GRID_H_
 
