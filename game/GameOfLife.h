@@ -13,8 +13,8 @@ public:
     void saveCurrentState();
     int countLiveNeighbors(int x, int y) const;
     int countLiveNeighborsWorld(int x, int y) const;
-    void setWoldToroidal(bool wt) { isToroidal = wt; }
-    bool getWoldToroidal() const { return isToroidal; }
+	void setWoldToroidal(bool wt);
+    bool getWoldToroidal() const { return isToroidal; };
     void updateGridReference(Grid& newGrid) { grid = newGrid; } // метод для обновления ссылки
 private:
     Grid& grid;

@@ -7,31 +7,13 @@ WindowController::WindowController(MainWindow* window, Renderer* renderer, GameC
     : pWindow(window), pRenderer(renderer), pGameController(gameController),
     mouseCaptured(false), lastMouseX(0), lastMouseY(0), isMiddleButtonDown(false),
     gridPicker(renderer->GetCamera()) {
-
-    //// Установка таймера для обновления симуляции
-    //timerId = SetTimer(pWindow->GetHwnd(), 1, simulationSpeedMultiplier, NULL); // Интервал 100 мс
-    //if (!timerId) {
-    //    MessageBox(NULL, L"Timer could not be set", L"Error", MB_OK | MB_ICONERROR);
-    //}
     ResetCamera();
 }
 
 WindowController::~WindowController() {
-    //if (timerId) {
-    //    KillTimer(pWindow->GetHwnd(), timerId);
-    //}
+
 }
 
-// метод для обновления таймера
-//void WindowController::UpdateTimer() {
-//    if (timerId) {
-//        KillTimer(pWindow->GetHwnd(), timerId); // Убиваем старый таймер
-//    }
-//    timerId = SetTimer(pWindow->GetHwnd(), 1, simulationSpeedMultiplier, NULL); // Устанавливаем новый таймер
-//    if (!timerId) {
-//        MessageBox(NULL, L"Timer could not be set", L"Error", MB_OK | MB_ICONERROR);
-//    }
-//}
 
 void WindowController::Resize(int width, int height) {
     if (pRenderer) {
@@ -41,11 +23,6 @@ void WindowController::Resize(int width, int height) {
 
 void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
-    //case WM_TIMER:
-    //    if (wParam == timerId) {
-    //        pGameController->update(); // Обновляем симуляцию
-    //    }
-    //    break;
 
     case WM_SIZE:
         Resize(LOWORD(lParam), HIWORD(lParam)); // Обработка изменения размеров окна
@@ -78,28 +55,38 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             }
             break;
         case VK_ADD: // Клавиша '+' на нумпаде
-            simulationSpeedMultiplier -= 0.025f; // Уменьшаем интервал на 10
+        case VK_OEM_PLUS: // Клавиша '+' на основной клавиатуре
+            if (GetKeyState(VK_CONTROL) & 0x8000) {
+                simulationSpeedMultiplier -= 0.25f; // Уменьшаем интервал на 250 мс
+            }
+            else {
+                simulationSpeedMultiplier -= 0.025f; // Уменьшаем интервал на 25 мс
+            }
             if (simulationSpeedMultiplier < 0.01f) {
-                simulationSpeedMultiplier = 0.01f; // Устанавливаем минимум 10
+                simulationSpeedMultiplier = 0.01f; // Устанавливаем минимум 10 мс
             }
             if (pGameController->isSimulationRunning()) {
                 pGameController->setSimulationSpeed(simulationSpeedMultiplier);
             }
-            //UpdateTimer(); // Обновляем таймер
             break;
 
         case VK_SUBTRACT: // Клавиша '-' на нумпаде
-            simulationSpeedMultiplier += 0.025f; // Увеличиваем интервал на 10
+        case VK_OEM_MINUS: // Клавиша '-' на основной клавиатуре
+            if (GetKeyState(VK_CONTROL) & 0x8000) {
+                simulationSpeedMultiplier += 0.25f; // Увеличиваем интервал на 250 мс
+            }
+            else {
+                simulationSpeedMultiplier += 0.025f; // Увеличиваем интервал на 25 мс
+            }
             if (simulationSpeedMultiplier > 0.25f) {
-                simulationSpeedMultiplier = 0.25f; // Устанавливаем максимум 1500
+                simulationSpeedMultiplier = 0.25f; // Устанавливаем максимум 250 мс
             }
             if (pGameController->isSimulationRunning()) {
                 pGameController->setSimulationSpeed(simulationSpeedMultiplier);
             }
-            //UpdateTimer(); // Обновляем таймер
             break;
 
-        case 'R': 
+        case 'R':
             if (!pGameController->isSimulationRunning()) {
                 pGameController->randomizeGrid(0.1f); // Случайное заполнение поля
             }
@@ -134,14 +121,14 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
                 pGameController->initializeGrid(); // Очищение поля. убить всех
             }
             break;
-        //case 'L':
-        //    if (!pGameController->isSimulationRunning()) {
-        //        pGameController->resizeGrid(30,30);
-        //        pRenderer->RebuildGameField();
-        //    }
-        //    break;
+        case 'L':
+            if (!pGameController->isSimulationRunning()) {
+                pGameController->resizeGrid(30, 30);
+                pRenderer->RebuildGameField();
+            }
+            break;
         case 'G':
-            pRenderer->setShowGrid(!pRenderer->getShowGrid() );
+            pRenderer->setShowGrid(!pRenderer->getShowGrid());
             break;
 
         }
@@ -151,6 +138,10 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         if (pRenderer) {
             short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
             float moveZ = zDelta > 0 ? -1.1f : 1.1f;
+            // Проверка состояния клавиши Ctrl
+            if (GetKeyState(VK_CONTROL) & 0x8000) {
+                moveZ *= 10.0f; // Увеличиваем скорость зума в 10 раз
+            }
             Camera& camera = const_cast<Camera&>(pRenderer->GetCamera());
             camera.Move(0.0f, 0.0f, moveZ);
         }
@@ -198,19 +189,6 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             lastMouseX = currentX;
             lastMouseY = currentY;
         }
-        //if (isMiddleButtonDown) {
-            
-        //    int currentX = LOWORD(lParam);
-        //    int currentY = HIWORD(lParam);
-
-        //    float dx = static_cast<float>(currentX - lastMouseX) * 0.005f; // Чувствительность для поворота по YAW
-        //    float dy = static_cast<float>(currentY - lastMouseY) * 0.005f; // Чувствительность для поворота по PITCH
-
-        //    RotateCamera(dx, dy);
-
-        //    lastMouseX = currentX;
-        //    lastMouseY = currentY;
-        //}
         break;
 
     default:

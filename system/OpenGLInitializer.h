@@ -1,3 +1,6 @@
+#ifndef OPENGLINITIALIZER_H_
+#define OPENGLINITIALIZER_H_
+
 #pragma once
 #include <Windows.h>
 #include <gl\GL.h>
@@ -18,3 +21,4 @@ public:
 private:
     bool SetupPixelFormat(HDC hdc);
 };
+#endif // OPENGLINITIALIZER_H_

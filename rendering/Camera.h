@@ -1,3 +1,6 @@
+#ifndef CAMERA_H_
+#define CAMERA_H_
+
 #pragma once
 #include <cmath>
 
@@ -38,3 +41,4 @@ private:
 
     void NormalizeVector(float* vector); // Нормализация вектора
 };
+#endif // CAMERA_H_

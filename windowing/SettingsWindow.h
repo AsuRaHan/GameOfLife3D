@@ -1,3 +1,6 @@
+#ifndef SETTINGSWINDOW_H_
+#define SETTINGSWINDOW_H_
+
 #pragma once
 #include <Windows.h>
 #include <CommCtrl.h>
@@ -21,3 +24,4 @@ public:
     void Show();
     void Hide();
 };
+#endif // SETTINGSWINDOW_H_

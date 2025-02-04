@@ -7,11 +7,11 @@ Renderer::Renderer(int width, int height)
     SetupOpenGL();
     OnWindowResize(width, height);
     // Добавление UI элементов
-    //Button* startButton = new Button(10.0f, 50.0f, 100.0f, 30.0f, "Start", Vector3d(0.0f, 1.0f, 0.0f)); // Зеленый цвет
-    //ui.addElement(startButton);
+    Button* startButton = new Button(10.0f, 50.0f, 100.0f, 30.0f, "Start", Vector3d(0.0f, 1.0f, 0.0f)); // Зеленый цвет
+    ui.addElement(startButton);
 
-    //Button* stopButton = new Button(120.0f, 50.0f, 100.0f, 30.0f, "Stop", Vector3d(1.0f, 0.0f, 0.0f)); // Красный цвет
-    //ui.addElement(stopButton);
+    Button* stopButton = new Button(120.0f, 50.0f, 100.0f, 30.0f, "Stop", Vector3d(1.0f, 0.0f, 0.0f)); // Красный цвет
+    ui.addElement(stopButton);
 
     //TextLabel* title = new TextLabel(width / 2 - 100.0f, height - 30.0f, "Game of Life 3D", Vector3d(1.0f, 1.0f, 0.0f)); // Желтый цвет
     //ui.addElement(title);
@@ -60,17 +60,6 @@ void Renderer::InitializeVBOs() {
     //    0.9f, 0.9f,
     //    0.1f, 0.9f
     //};
-    //float vertices[] = { // восьмиугольник
-    //0.1f, 0.1f, // Вершина 1
-    //0.5f, 0.0f, // Вершина 5 (середина верхней стороны)
-    //0.9f, 0.1f, // Вершина 2
-    //1.0f, 0.5f, // Вершина 6 (правый верхний угол)
-    //0.9f, 0.9f, // Вершина 3
-    //0.5f, 1.0f, // Вершина 7 (середина нижней стороны)
-    //0.1f, 0.9f, // Вершина 4
-    //0.0f, 0.5f  // Вершина 8 (левый нижний угол)
-    //};
-
     float scale_factor = 0.2f;
     float centerX = 0.5f;
     float centerY = 0.5f;
@@ -172,7 +161,7 @@ void Renderer::Draw() {
 
     DrawCells();
 
-    //ui.draw();
+    ui.draw();
 
     DrawDebugOverlay();
 
@@ -324,25 +313,11 @@ void main()
     FragColor = vec4(vInstanceColor, 1.0);
 }
     )";
-    const char* vertexSourcePtr = vertexShaderSource.c_str();
-    const char* fragmentSourcePtr = fragmentShaderSource.c_str();
+    shaderManager.loadVertexShader("cellVertexShader", vertexShaderSource.c_str());
+    shaderManager.loadFragmentShader("cellFragmentShader", fragmentShaderSource.c_str());
+    shaderManager.linkProgram("cellShaderProgram", "cellVertexShader", "cellFragmentShader");
+    shaderProgram = shaderManager.getProgram("cellShaderProgram");
 
-    GL_CHECK(glShaderSource(vertexShader, 1, &vertexSourcePtr, NULL));
-    GL_CHECK(glCompileShader(vertexShader));
-    CheckShaderCompilation(vertexShader, "Cell Vertex Shader");
-
-    GL_CHECK(glShaderSource(fragmentShader, 1, &fragmentSourcePtr, NULL));
-    GL_CHECK(glCompileShader(fragmentShader));
-    CheckShaderCompilation(fragmentShader, "Cell Fragment Shader");
-
-    shaderProgram = glCreateProgram();
-    GL_CHECK(glAttachShader(shaderProgram, vertexShader));
-    GL_CHECK(glAttachShader(shaderProgram, fragmentShader));
-    GL_CHECK(glLinkProgram(shaderProgram));
-    CheckProgramLinking(shaderProgram);
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
 }
 
 void Renderer::LoadGridShaders() {
@@ -376,26 +351,11 @@ void main()
     }
 }
     )";
+    shaderManager.loadVertexShader("gridVertexShader", gridVertexShaderSource.c_str());
+    shaderManager.loadFragmentShader("gridFragmentShader", gridFragmentShaderSource.c_str());
+    shaderManager.linkProgram("gridShaderProgram", "gridVertexShader", "gridFragmentShader");
+    gridShaderProgram = shaderManager.getProgram("gridShaderProgram");
 
-    const char* gridVertexSourcePtr = gridVertexShaderSource.c_str();
-    const char* gridFragmentSourcePtr = gridFragmentShaderSource.c_str();
-
-    GL_CHECK(glShaderSource(gridVertexShader, 1, &gridVertexSourcePtr, NULL));
-    GL_CHECK(glCompileShader(gridVertexShader));
-    CheckShaderCompilation(gridVertexShader, "Grid Vertex Shader");
-
-    GL_CHECK(glShaderSource(gridFragmentShader, 1, &gridFragmentSourcePtr, NULL));
-    GL_CHECK(glCompileShader(gridFragmentShader));
-    CheckShaderCompilation(gridFragmentShader, "Grid Fragment Shader");
-
-    gridShaderProgram = glCreateProgram();
-    GL_CHECK(glAttachShader(gridShaderProgram, gridVertexShader));
-    GL_CHECK(glAttachShader(gridShaderProgram, gridFragmentShader));
-    GL_CHECK(glLinkProgram(gridShaderProgram));
-    CheckProgramLinking(gridShaderProgram);
-
-    glDeleteShader(gridVertexShader);
-    glDeleteShader(gridFragmentShader);
 }
 
 
@@ -409,31 +369,7 @@ std::string Renderer::LoadShaderSource(const std::string& filename) {
     return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 }
 
-void Renderer::CheckShaderCompilation(GLuint shader, const std::string& name) {
-    GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        char infoLog[512];
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::" << name << "::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-}
-
-void Renderer::CheckProgramLinking(GLuint program) {
-    GLint success;
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-    if (!success) {
-        char infoLog[512];
-        glGetProgramInfoLog(program, 512, NULL, infoLog);
-        std::cout << "ERROR::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-    }
-}
-
 void Renderer::InitializeDebugOverlay() {
-    // Загрузка и компиляция шейдеров
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
     //std::string vertexShaderSource = LoadShaderSource("./glsl/overlay_vertex_shader.glsl");
     const std::string vertexShaderSource = R"(
 #version 330 core
@@ -453,31 +389,10 @@ void main()
     FragColor = overlayColor;
 }
         )";
-    const char* vertexSourcePtr = vertexShaderSource.c_str();
-    const char* fragmentSourcePtr = fragmentShaderSource.c_str();
-
-    GL_CHECK(glShaderSource(vertexShader, 1, &vertexSourcePtr, NULL));
-    GL_CHECK(glCompileShader(vertexShader));
-    CheckShaderCompilation(vertexShader, "Debug Overlay Vertex Shader");
-
-    GL_CHECK(glShaderSource(fragmentShader, 1, &fragmentSourcePtr, NULL));
-    GL_CHECK(glCompileShader(fragmentShader));
-    CheckShaderCompilation(fragmentShader, "Debug Overlay Fragment Shader");
-
-    debugOverlayShaderProgram = glCreateProgram();
-    GL_CHECK(glAttachShader(debugOverlayShaderProgram, vertexShader));
-    GL_CHECK(glAttachShader(debugOverlayShaderProgram, fragmentShader));
-    GL_CHECK(glLinkProgram(debugOverlayShaderProgram));
-    CheckProgramLinking(debugOverlayShaderProgram);
-
-    // После создания и линковки шейдерной программы
-    GLuint overlayColorLocation = glGetUniformLocation(debugOverlayShaderProgram, "overlayColor");
-    if (overlayColorLocation == -1) {
-        std::cout << "Не удалось найти uniform переменную 'overlayColor' в шейдере" << std::endl;
-    }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    shaderManager.loadVertexShader("debugOverlayVertexShader", vertexShaderSource.c_str());
+    shaderManager.loadFragmentShader("debugOverlayFragmentShader", fragmentShaderSource.c_str());
+    shaderManager.linkProgram("debugOverlayShaderProgram", "debugOverlayVertexShader", "debugOverlayFragmentShader");
+    debugOverlayShaderProgram = shaderManager.getProgram("debugOverlayShaderProgram");
 
     // Инициализация VAO и VBO для маленького треугольника в правом нижнем углу
     float xOffset = 0.95f; // Смещение по X для правого нижнего угла

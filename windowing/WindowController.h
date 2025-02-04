@@ -1,5 +1,7 @@
+#ifndef WINDOWCONTROLLER_H_
+#define WINDOWCONTROLLER_H_
+
 #pragma once
-#include <Windows.h>
 #include "../rendering/Renderer.h"
 #include "../game/GameController.h" 
 #include "GridPicker.h"
@@ -34,3 +36,4 @@ private:
     void ResetCamera();
 
 };
+#endif // WINDOWCONTROLLER_H_

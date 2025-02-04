@@ -1,4 +1,5 @@
 #include "Vector3d.h"
+#include <stdexcept> // Для std::runtime_error
 
 // Конструкторы
 Vector3d::Vector3d() : x(0.0f), y(0.0f), z(0.0f) {}
@@ -19,10 +20,10 @@ Vector3d Vector3d::operator*(float scalar) const {
 }
 
 Vector3d Vector3d::operator/(float scalar) const {
-    if (scalar != 0) {
-        return Vector3d(x / scalar, y / scalar, z / scalar);
+    if (scalar == 0) {
+        throw std::runtime_error("Division by zero in Vector3d::operator/");
     }
-    return Vector3d(); // Возвращаем нулевой вектор, если делим на 0
+    return Vector3d(x / scalar, y / scalar, z / scalar);
 }
 
 // Методы
@@ -40,7 +41,7 @@ Vector3d Vector3d::normalize() const {
 
 // Вывод вектора
 void Vector3d::print() const {
-    //std::cout << "Vector3d(" << x << ", " << y << ", " << z << ")\n";
+    std::cout << "Vector3d(" << x << ", " << y << ", " << z << ")\n";
 }
 
 // Доступ к компонентам

@@ -1,3 +1,6 @@
+#ifndef RENDERER_H_
+#define RENDERER_H_
+
 #pragma once
 
 #include "../system/GLFunctions.h"
@@ -40,6 +43,7 @@ private:
     UI ui; // Добавляем экземпляр UI
 
     bool showGrid = true;
+    ShaderManager shaderManager; // Добавляем ShaderManager
 
     void InitializeVBOs();
     GLuint gridVBO;
@@ -69,8 +73,6 @@ private:
 	void LoadCellShaders();
     void LoadGridShaders();
     std::string LoadShaderSource(const std::string& filename);
-    void CheckShaderCompilation(GLuint shader, const std::string& name);
-    void CheckProgramLinking(GLuint program);
 
     void InitializeGridVBOs();
 
@@ -79,3 +81,4 @@ private:
 
    
 };
+#endif // RENDERER_H_

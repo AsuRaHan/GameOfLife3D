@@ -1,3 +1,6 @@
+#ifndef CELL_H_
+#define CELL_H_
+
 #pragma once
 
 #include "../mathematics/Vector3d.h"
@@ -19,3 +22,4 @@ public:
     }
     Vector3d getColor() const { return color; }
 };
+#endif // CELL_H_

@@ -1,3 +1,6 @@
+#ifndef MAINWINDOW_H_
+#define MAINWINDOW_H_
+
 #pragma once
 #include <Windows.h>
 #include "../resource.h"
@@ -22,3 +25,4 @@ public:
 private:
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 };
+#endif // MAINWINDOW_H_

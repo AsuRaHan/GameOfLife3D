@@ -1,3 +1,6 @@
+#ifndef GRID_H_
+#define GRID_H_
+
 #pragma once
 
 #include <vector>
@@ -18,3 +21,4 @@ public:
     const Cell& getCell(int x, int y) const; //  онстанта верси€ метода дл€ получени€ клетки
     void setCell(int x, int y, const Cell& cell);
 };
+#endif // GRID_H_

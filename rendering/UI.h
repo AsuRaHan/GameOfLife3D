@@ -1,3 +1,6 @@
+#ifndef UI_H_
+#define UI_H_
+
 #pragma once
 
 #include <vector>
@@ -48,8 +51,8 @@ public:
     void draw();
     void update();
     void OnWindowResize(int newWidth, int newHeight);
-    static int width;
-    static int height;
+    static int windowWidth;
+    static int windowHeight;
     static UI& getInstance();
     void setElementColor(const Vector3d& color);
 
@@ -65,3 +68,4 @@ private:
     friend class Button;
     friend class TextLabel;
 };
+#endif // UI_H_

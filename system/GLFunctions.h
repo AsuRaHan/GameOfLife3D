@@ -130,28 +130,13 @@ typedef void (APIENTRY* PFNGLUNIFORM2FPROC)(GLint location, GLfloat v0, GLfloat 
 typedef void* (APIENTRY* PFNGLMAPBUFFERPROC)(GLenum target, GLenum access);
 typedef GLboolean(APIENTRY* PFNGLUNMAPBUFFERPROC)(GLenum target);
 // -------------------------------------------------------------------
-// Добавьте объявления функций
-//typedef GLuint(APIENTRY* PFNGLCREATESHADERPROC)(GLenum type);
-//typedef void (APIENTRY* PFNGLSHADERSOURCEPROC)(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
-//typedef void (APIENTRY* PFNGLCOMPILESHADERPROC)(GLuint shader);
-//typedef GLuint(APIENTRY* PFNGLCREATEPROGRAMPROC)();
-//typedef void (APIENTRY* PFNGLATTACHSHADERPROC)(GLuint program, GLuint shader);
-//typedef void (APIENTRY* PFNGLLINKPROGRAMPROC)(GLuint program);
-//typedef void (APIENTRY* PFNGLDELETEPROGRAMPROC)(GLuint program);
-//typedef void (APIENTRY* PFNGLDELETESHADERPROC)(GLuint shader);
-//typedef void (APIENTRY* PFNGLGETSHADERIVPROC)(GLuint shader, GLenum pname, GLint* params);
-//typedef void (APIENTRY* PFNGLGETSHADERINFOLOGPROC)(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
-//typedef void (APIENTRY* PFNGLGETPROGRAMIVPROC)(GLuint program, GLenum pname, GLint* params);
-//typedef void (APIENTRY* PFNGLGETPROGRAMINFOLOGPROC)(GLuint program, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
-//typedef void (APIENTRY* PFNGLUSEPROGRAMPROC)(GLuint program);
-//typedef GLint(APIENTRY* PFNGETUNIFORMLOCATIONPROC)(GLuint program, const GLchar* name);
-
 typedef void (APIENTRY* PFNGLUNIFORM2IPROC)(GLint location, GLint v0, GLint v1);
 typedef void (APIENTRY* PFNGLBINDBUFFERBASEPROC)(GLenum target, GLuint index, GLuint buffer);
 typedef void (APIENTRY* PFNGLDISPATCHCOMPUTEPROC)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
 typedef void (APIENTRY* PFNGLMEMORYBARRIERPROC)(GLbitfield barriers);
 typedef void (APIENTRY* PFNGLGETBUFFERSUBDATAPROC)(GLenum target, GLintptr offset, GLsizeiptr size, void* data);
 
+typedef void (APIENTRY* PFNGLUNIFORM1IPROC)(GLint location, GLint v0);
 
 
 // Объявление указателей на функции
@@ -195,27 +180,14 @@ extern PFNGLUNIFORM2FPROC glUniform2f;
 extern PFNGLMAPBUFFERPROC glMapBuffer;
 extern PFNGLUNMAPBUFFERPROC glUnmapBuffer;
 //-----------------------------------------------------------------------------------------
-// Добавьте внешние объявления функций
-//extern PFNGLCREATESHADERPROC glCreateShader;
-//extern PFNGLSHADERSOURCEPROC glShaderSource;
-//extern PFNGLCOMPILESHADERPROC glCompileShader;
-//extern PFNGLCREATEPROGRAMPROC glCreateProgram;
-//extern PFNGLATTACHSHADERPROC glAttachShader;
-//extern PFNGLLINKPROGRAMPROC glLinkProgram;
-//extern PFNGLDELETEPROGRAMPROC glDeleteProgram;
-//extern PFNGLDELETESHADERPROC glDeleteShader;
-//extern PFNGLGETSHADERIVPROC glGetShaderiv;
-//extern PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
-//extern PFNGLGETPROGRAMIVPROC glGetProgramiv;
-//extern PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
-//extern PFNGLUSEPROGRAMPROC glUseProgram;
-//extern PFNGETUNIFORMLOCATIONPROC glGetUniformLocation;
 
 extern PFNGLUNIFORM2IPROC glUniform2i;
 extern PFNGLBINDBUFFERBASEPROC glBindBufferBase;
 extern PFNGLDISPATCHCOMPUTEPROC glDispatchCompute;
 extern PFNGLMEMORYBARRIERPROC glMemoryBarrier;
 extern PFNGLGETBUFFERSUBDATAPROC glGetBufferSubData;
+
+extern PFNGLUNIFORM1IPROC glUniform1i;
 
 
 // Функции для работы с OpenGL

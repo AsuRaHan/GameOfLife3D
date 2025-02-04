@@ -1,7 +1,8 @@
+#include <windows.h>
 #include "UI.h"
 
-int UI::width = 0;
-int UI::height = 0;
+int UI::windowWidth = 0;
+int UI::windowHeight = 0;
 GLuint UI::vao = 0;
 GLuint UI::vbo = 0;
 
@@ -18,7 +19,7 @@ void Button::draw() {
     // Устанавливаем размеры окна
     GLint windowSizeLocation = glGetUniformLocation(UI::getInstance().shaderProgram, "windowSize");
     if (windowSizeLocation != -1) {
-        GL_CHECK(glUniform2f(windowSizeLocation, static_cast<float>(UI::width), static_cast<float>(UI::height)));
+        GL_CHECK(glUniform2f(windowSizeLocation, static_cast<float>(UI::windowWidth), static_cast<float>(UI::windowHeight)));
     }
 
     GL_CHECK(glBindVertexArray(UI::vao));
@@ -26,10 +27,10 @@ void Button::draw() {
 
     // Рисуем кнопку как прямоугольник
     float buttonVertices[] = {
-        -1.0f + 2.0f * x / UI::width, -1.0f + 2.0f * y / UI::height, 0.0f,
-        -1.0f + 2.0f * (x + width) / UI::width, -1.0f + 2.0f * y / UI::height, 0.0f,
-        -1.0f + 2.0f * (x + width) / UI::width, -1.0f + 2.0f * (y + height) / UI::height, 0.0f,
-        -1.0f + 2.0f * x / UI::width, -1.0f + 2.0f * (y + height) / UI::height, 0.0f
+        -1.0f + 2.0f * x / UI::windowWidth, -1.0f + 2.0f * y / UI::windowHeight, 0.0f,
+        -1.0f + 2.0f * (x + width) / UI::windowWidth, -1.0f + 2.0f * y / UI::windowHeight, 0.0f,
+        -1.0f + 2.0f * (x + width) / UI::windowWidth, -1.0f + 2.0f * (y + height) / UI::windowHeight, 0.0f,
+        -1.0f + 2.0f * x / UI::windowWidth, -1.0f + 2.0f * (y + height) / UI::windowHeight, 0.0f
     };
 
     // Устанавливаем цвет кнопки
@@ -45,12 +46,41 @@ void Button::draw() {
     // Рисуем кнопку
     GL_CHECK(glDrawArrays(GL_TRIANGLE_FAN, 0, 4));
 
-    // Рисуем бордюр как четыре линии
-    float borderWidth = 2.0f / UI::width;  // Толщина бордюра в NDC
-    float borderHeight = 2.0f / UI::height;
+    // Получаем координаты мыши
+    POINT mousePos;
+    GetCursorPos(&mousePos);
+
+    // Получаем положение окна
+    HWND hwnd = GetActiveWindow();
+    RECT windowRect;
+    GetWindowRect(hwnd, &windowRect);
+
+    // Преобразуем координаты мыши в координаты окна
+    mousePos.x -= windowRect.left;
+    mousePos.y -= windowRect.top;
+
+    // Проверяем, находится ли мышь над кнопкой
+    bool isMouseOver = (mousePos.x >= x && mousePos.x <= x + width && mousePos.y >= y && mousePos.y <= y + height);
+
+    // Проверяем, нажата ли левая кнопка мыши
+    bool isMousePressed = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;
+    if (isMousePressed) {
+        // Если кнопка нажата, проверяем, была ли нажата на кнопке
+        if (isMouseOver) {
+            // Если да, выводим сообщение
+            MessageBox(hwnd, L"Button clicked!", L"Button", MB_OK);
+        }
+    }
 
     // Устанавливаем цвет бордюра
-    Vector3d borderColor(1.0f, 1.0f, 1.0f); // Белый цвет бордюра
+    Vector3d borderColor;
+    if (isMouseOver) {
+        borderColor = isMousePressed ? Vector3d(0.0f, 1.0f, 0.0f) : Vector3d(1.0f, 0.0f, 0.0f); // Зеленый при нажатии, красный при наведении
+    }
+    else {
+        borderColor = Vector3d(1.0f, 1.0f, 1.0f); // Белый в противном случае
+    }
+
     GLint borderColorLocation = glGetUniformLocation(UI::getInstance().shaderProgram, "elementColor");
     if (borderColorLocation != -1) {
         GL_CHECK(glUniform3f(borderColorLocation, borderColor.X(), borderColor.Y(), borderColor.Z()));
@@ -59,17 +89,17 @@ void Button::draw() {
     // Координаты для линий бордюра
     float borderVertices[] = {
         // Верхняя линия
-        -1.0f + 2.0f * x / UI::width, -1.0f + 2.0f * y / UI::height, 0.0f,
-        -1.0f + 2.0f * (x + width) / UI::width, -1.0f + 2.0f * y / UI::height, 0.0f,
+        -1.0f + 2.0f * x / UI::windowWidth, -1.0f + 2.0f * y / UI::windowHeight, 0.0f,
+        -1.0f + 2.0f * (x + width) / UI::windowWidth, -1.0f + 2.0f * y / UI::windowHeight, 0.0f,
         // Правая линия
-        -1.0f + 2.0f * (x + width) / UI::width, -1.0f + 2.0f * y / UI::height, 0.0f,
-        -1.0f + 2.0f * (x + width) / UI::width, -1.0f + 2.0f * (y + height) / UI::height, 0.0f,
+        -1.0f + 2.0f * (x + width) / UI::windowWidth, -1.0f + 2.0f * y / UI::windowHeight, 0.0f,
+        -1.0f + 2.0f * (x + width) / UI::windowWidth, -1.0f + 2.0f * (y + height) / UI::windowHeight, 0.0f,
         // Нижняя линия
-        -1.0f + 2.0f * (x + width) / UI::width, -1.0f + 2.0f * (y + height) / UI::height, 0.0f,
-        -1.0f + 2.0f * x / UI::width, -1.0f + 2.0f * (y + height) / UI::height, 0.0f,
+        -1.0f + 2.0f * (x + width) / UI::windowWidth, -1.0f + 2.0f * (y + height) / UI::windowHeight, 0.0f,
+        -1.0f + 2.0f * x / UI::windowWidth, -1.0f + 2.0f * (y + height) / UI::windowHeight, 0.0f,
         // Левая линия
-        -1.0f + 2.0f * x / UI::width, -1.0f + 2.0f * (y + height) / UI::height, 0.0f,
-        -1.0f + 2.0f * x / UI::width, -1.0f + 2.0f * y / UI::height, 0.0f
+        -1.0f + 2.0f * x / UI::windowWidth, -1.0f + 2.0f * (y + height) / UI::windowHeight, 0.0f,
+        -1.0f + 2.0f * x / UI::windowWidth, -1.0f + 2.0f * y / UI::windowHeight, 0.0f
     };
 
     // Обновляем буфер вершин для линий бордюра
@@ -82,6 +112,7 @@ void Button::draw() {
 
     GL_CHECK(glBindVertexArray(0));
 }
+
 
 
 void Button::update() {
@@ -105,10 +136,10 @@ TextLabel::TextLabel(float x, float y, const std::string& text, const Vector3d& 
 
 void TextLabel::draw() {
     float vertices[] = {
-        -1.0f + 2.0f * x / UI::width, -1.0f + 2.0f * y / UI::height, 0.0f,
-        -1.0f + 2.0f * (x + 50) / UI::width, -1.0f + 2.0f * y / UI::height, 0.0f,
-        -1.0f + 2.0f * (x + 50) / UI::width, -1.0f + 2.0f * (y + 20) / UI::height, 0.0f,
-        -1.0f + 2.0f * x / UI::width, -1.0f + 2.0f * (y + 20) / UI::height, 0.0f
+        -1.0f + 2.0f * x / UI::windowWidth, -1.0f + 2.0f * y / UI::windowHeight, 0.0f,
+        -1.0f + 2.0f * (x + 50) / UI::windowWidth, -1.0f + 2.0f * y / UI::windowHeight, 0.0f,
+        -1.0f + 2.0f * (x + 50) / UI::windowWidth, -1.0f + 2.0f * (y + 20) / UI::windowHeight, 0.0f,
+        -1.0f + 2.0f * x / UI::windowWidth, -1.0f + 2.0f * (y + 20) / UI::windowHeight, 0.0f
     };
 
     GL_CHECK(glBindVertexArray(UI::vao));
@@ -158,16 +189,6 @@ void UI::draw() {
 
     GL_CHECK(glUseProgram(shaderProgram));
     GL_CHECK(glBindVertexArray(vao));
-
-    //// Простой треугольник для отладки
-    //float triangleVertices[] = {
-    //    -0.5f, -0.5f, 0.0f,
-    //     0.5f, -0.5f, 0.0f,
-    //     0.0f,  0.5f, 0.0f
-    //};
-    //GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-    //GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices), triangleVertices, GL_STATIC_DRAW));
-    //GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, 3));
 
     // Затем ваши UI элементы
     for (auto element : elements) {
@@ -261,8 +282,8 @@ void UI::prepareVAO() {
 }
 
 void UI::OnWindowResize(int newWidth, int newHeight) {
-    width = newWidth;
-    height = newHeight;
+    windowWidth = newWidth;
+    windowHeight = newHeight;
 
     for (auto element : elements) {
         //element->OnWindowResize(newWidth, newHeight);

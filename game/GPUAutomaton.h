@@ -2,6 +2,7 @@
 #define GPU_AUTOMATON_H
 
 #include "../system/GLFunctions.h"
+#include "../system/ShaderManager.h"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -14,17 +15,18 @@ public:
     void Update();
     void GetGridState(std::vector<int>& outState);
     void SetGridState(const std::vector<int>& inState);
+    void SetToroidal(bool toroidal);
 
 private:
     void CreateComputeShader();
     void SetupBuffers();
-    void CheckShaderCompilation(GLuint shader, const std::string& name);
-    void CheckProgramLinking(GLuint program);
 
+    ShaderManager shaderManager;
     GLuint computeProgram;
     GLuint cellsBuffer[2];
     GLint bufferIndex;
     int gridWidth, gridHeight;
+    bool isToroidal;
 };
 
 #endif // GPU_AUTOMATON_H

@@ -51,8 +51,12 @@ int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
     }
     return count;
 }
+void GameOfLife::setWoldToroidal(bool wt) {
+    isToroidal = wt;
+    gpuAutomaton.SetToroidal(wt); // Установка isToroidal в GPUAutomaton
+}
+
 void GameOfLife::nextGeneration() {
-    // Используем GPU для вычислений нового поколения
     // Используем GPU для вычислений нового поколения
     std::vector<int> currentState, nextState;
     currentState.resize(grid.getWidth() * grid.getHeight());
@@ -92,13 +96,14 @@ void GameOfLife::nextGeneration() {
                     cell.setColor(Vector3d(0.3f, 0.8f, 0.3f));
                 }
             }
-            else {
-                // Если клетка мертва, делаем её темно-серого цвета
+            else if (currentState) {
+                // Если клетка умирает, делаем её темно-серого цвета
                 cell.setColor(Vector3d(0.25f, 0.25f, 0.25f));
             }
         }
     }
 }
+
 
 void GameOfLife::nextGenerationCPU() {
     //saveCurrentState(); // Сохраняем текущее состояние
