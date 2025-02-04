@@ -23,7 +23,10 @@ void WindowController::Resize(int width, int height) {
 
 void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
-
+    case WM_PAINT:
+        if (pRenderer)pRenderer->Draw();
+        //ValidateRect(pWindow->GetHwnd(), NULL);
+        break;
     case WM_SIZE:
         Resize(LOWORD(lParam), HIWORD(lParam)); // Обработка изменения размеров окна
         break;

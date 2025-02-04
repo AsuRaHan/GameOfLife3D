@@ -34,8 +34,8 @@ UIElement::UIElement(float x, float y, float width, float height,
 }
 
 bool UIElement::handleClick(float mouseX, float mouseY) {
-    return mouseX >= x - width/2 && mouseX <= x + width/2 &&
-           mouseY >= y - height/2 && mouseY <= y + height/2;
+    return mouseX >= x - width / 2 && mouseX <= x + width / 2 &&
+        mouseY >= y - height / 2 && mouseY <= y + height / 2;
 }
 
 void UIElement::screenToNormalized(int screenX, int screenY, int windowWidth, int windowHeight,

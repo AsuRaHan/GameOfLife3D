@@ -1,10 +1,10 @@
 #include "Renderer.h"
-#include <algorithm> // Для std::min
 
 Renderer::Renderer(int width, int height)
     : width(width), height(height), camera(45.0f, static_cast<float>(width) / height, 0.1f, 999009000000.0f),
     pGameController(nullptr){
     SetupOpenGL();
+    initializeUI();
     OnWindowResize(width, height);
 }
 
@@ -28,7 +28,7 @@ void Renderer::SetGameController(GameController* gameController) {
 
     LoadShaders();
     InitializeVBOs();
-    initializeUI();
+    
 }
 
 void Renderer::SetupOpenGL() {
@@ -264,7 +264,7 @@ void Renderer::OnWindowResize(int newWidth, int newHeight) {
     height = newHeight;
     GL_CHECK(glViewport(0, 0, width, height));
     // Обновляем проекцию камеры
-    camera.SetProjection(45.0f, static_cast<float>(width) / height, 0.1f, 1000.0f);
+    camera.SetProjection(45.0f, static_cast<float>(width) / height, 0.1f, 100000000.0f);
     UpdateDebugOverlayPosition();
     if (uiManager) {
         uiManager->updateLayout(newWidth, newHeight);

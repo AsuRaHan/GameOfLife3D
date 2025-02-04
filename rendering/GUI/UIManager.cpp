@@ -45,43 +45,41 @@ void UIManager::handleClick(float mouseX, float mouseY) {
 
 void UIManager::updateLayout(int windowWidth, int windowHeight) {
     float aspectRatio = static_cast<float>(windowWidth) / windowHeight;
-    float baseScale = (windowWidth < windowHeight) ? (windowWidth / 1000.0f) : (windowHeight / 1000.0f); // Базовый масштаб
+    float baseScale = (windowWidth < windowHeight) ? static_cast<float>(windowWidth) / 1000.0f : static_cast<float>(windowHeight) / 1000.0f;
 
     for (auto& element : elements) {
-        // Получаем текущие нормализованные координаты
         float normalizedX = element->getX();
         float normalizedY = element->getY();
         float normalizedWidth = element->getWidth();
         float normalizedHeight = element->getHeight();
 
-        // Масштабируем размеры с учетом размера окна
-        float scaledWidth = normalizedWidth * baseScale;
-        float scaledHeight = normalizedHeight * baseScale;
+        float scaleX = baseScale;
+        float scaleY = baseScale;
 
-        // Корректируем позиции с учетом aspect ratio
-        float scaledX = normalizedX;
-        float scaledY = normalizedY;
-
-        // Если окно шире стандартного соотношения (16:9)
-        if (aspectRatio > 16.0f / 9.0f) {
-            // Корректируем по горизонтали
-            scaledX = normalizedX * (aspectRatio / (16.0f / 9.0f));
-            scaledWidth *= (aspectRatio / (16.0f / 9.0f));
+        if (aspectRatio > 1.0f) { // Широкоформатный экран
+            scaleY /= aspectRatio;
         }
-        // Если окно выше стандартного соотношения
-        else if (aspectRatio < 16.0f / 9.0f) {
-            // Корректируем по вертикали
-            scaledY = normalizedY * ((9.0f / 16.0f) / aspectRatio);
-            scaledHeight *= ((9.0f / 16.0f) / aspectRatio);
+        else {
+            scaleX *= aspectRatio;
         }
 
-        // Применяем минимальные размеры
-        float minSize = 0.05f; // Минимальный размер элемента
-        scaledWidth = (scaledWidth < minSize) ? minSize : scaledWidth;
-        scaledHeight = (scaledHeight < minSize) ? minSize : scaledHeight;
+        float scaledWidth = normalizedWidth * scaleX;
+        float scaledHeight = normalizedHeight * scaleY;
 
-        // Обновляем позиции и размеры элементов
-        element->setPosition(scaledX, scaledY);
+        // Нормализация координат
+        float aspectScaleX = windowWidth < 800 ? static_cast<float>(windowWidth) / 800.0f : 1.0f;
+        float aspectScaleY = windowHeight < 600 ? static_cast<float>(windowHeight) / 600.0f : 1.0f;
+
+        float scaledX = (normalizedX * 2.0f - 1.0f) * aspectScaleX;
+        float scaledY = (normalizedY * 2.0f - 1.0f) * aspectScaleY;
+
+        // Ограничение масштабирования, чтобы элементы не уходили за пределы экрана
+        if (scaledX > 1.0f) scaledX = 1.0f;
+        if (scaledX < -1.0f) scaledX = -1.0f;
+        if (scaledY > 1.0f) scaledY = 1.0f;
+        if (scaledY < -1.0f) scaledY = -1.0f;
+
+        //element->setPosition(scaledX, scaledY);
         element->setSize(scaledWidth, scaledHeight);
     }
 }
