@@ -9,17 +9,6 @@
 *.cache
 *.VC.db
 *.VC.opendb
-*.VC.opendb.additionalData
-*.VC.opendb.additionalData.additionalData
-*.VC.opendb.additionalData.additionalData.additionalData
-*.VC.opendb.additionalData.additionalData.additionalData.additionalData
-*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData
-*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData
-*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData
-*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData
-*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData
-*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData
-*.VC.opendb.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData.additionalData
 ipch/
 x64/
 Debug/
