@@ -86,12 +86,12 @@ void UIController::DrawUI() {
     // --------------------------------- конец главного меню игры -----------------------------
     
     // Вторая панель с дополнительными компонентами
-    ImGui::Begin("Additional Controls", NULL, ImGuiWindowFlags_NoResize);
-    ImGui::SetWindowPos(ImVec2(5, 250), ImGuiCond_Once);
-    ImGui::SetWindowSize(ImVec2(150, 150), ImGuiCond_Once);
-    // Текстовое поле
-    static char textBuffer[128] = "Enter text here";
-    ImGui::InputText("Text Input", textBuffer, IM_ARRAYSIZE(textBuffer));
+    //ImGui::Begin("Additional Controls", NULL, ImGuiWindowFlags_NoResize);
+    //ImGui::SetWindowPos(ImVec2(5, 250), ImGuiCond_Once);
+    //ImGui::SetWindowSize(ImVec2(150, 150), ImGuiCond_Once);
+    //// Текстовое поле
+    //static char textBuffer[128] = "Enter text here";
+    //ImGui::InputText("Text Input", textBuffer, IM_ARRAYSIZE(textBuffer));
 
     //// Слайдер
     //static float floatValue = 0.5f;
