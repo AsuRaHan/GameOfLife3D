@@ -16,19 +16,19 @@ OpenGLInitializer::~OpenGLInitializer() {
 }
 
 bool OpenGLInitializer::Initialize() {
-    std::cout << "РќР°С‡РёРЅР°СЋ РёРЅРёС†РёР°Р»РёР·Р°С†РёСЋ OpenGL" << std::endl;
+    std::cout << "Начинаю инициализацию OpenGL" << std::endl;
     if (!SetupPixelFormat(hDC)) return false;
-    std::cout << "          SetupPixelFormat СѓСЃРїРµС€РЅРѕ" << std::endl;
+    std::cout << "          SetupPixelFormat успешно" << std::endl;
     hRC = wglCreateContext(hDC);
     if (!hRC) return false;
-    std::cout << "          wglCreateContext СѓСЃРїРµС€РЅРѕ" << std::endl;
+    std::cout << "          wglCreateContext успешно" << std::endl;
     if (!wglMakeCurrent(hDC, hRC)) return false;
-    std::cout << "          wglMakeCurrent СѓСЃРїРµС€РЅРѕ" << std::endl;
-    std::cout << "РќР°С‡РёРЅР°СЋ СЂСѓС‡РЅСѓСЋ Р·Р°РіСЂСѓР·РєСѓ OpenGL С„СѓРЅРєС†РёР№" << std::endl;
+    std::cout << "          wglMakeCurrent успешно" << std::endl;
+    std::cout << "Начинаю ручную загрузку OpenGL функций" << std::endl;
     LoadOpenGLFunctions();
-    printSystemInfo();
+    //printSystemInfo();
     //float maxFarPlane = testFarPlane(10.0f, 1000000000000.0f, 1000000000.0f);
-    //std::cout << "РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ farPlane Р±РµР· РїСЂРѕР±Р»РµРј: " << maxFarPlane << std::endl;
+    //std::cout << "Максимальное значение farPlane без проблем: " << maxFarPlane << std::endl;
     return true;
 }
 
@@ -56,16 +56,16 @@ bool OpenGLInitializer::SetupPixelFormat(HDC hdc) {
     if (pixelFormat == 0) {
         DWORD error = GetLastError();
         wchar_t errorMessage[256];
-        swprintf_s(errorMessage, sizeof(errorMessage) / sizeof(wchar_t), L"РќРµ СѓРґР°Р»РѕСЃСЊ РІС‹Р±СЂР°С‚СЊ pixel format. РљРѕРґ РѕС€РёР±РєРё: %lu", error);
-        MessageBox(NULL, errorMessage, L"РћС€РёР±РєР°", MB_OK | MB_ICONERROR);
+        swprintf_s(errorMessage, sizeof(errorMessage) / sizeof(wchar_t), L"Не удалось выбрать pixel format. Код ошибки: %lu", error);
+        MessageBox(NULL, errorMessage, L"Ошибка", MB_OK | MB_ICONERROR);
         return false;
     }
 
     if (!SetPixelFormat(hdc, pixelFormat, &pfd)) {
         DWORD error = GetLastError();
         wchar_t errorMessage[256];
-        swprintf_s(errorMessage, sizeof(errorMessage) / sizeof(wchar_t), L"РќРµ СѓРґР°Р»РѕСЃСЊ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ pixel format. РљРѕРґ РѕС€РёР±РєРё: %lu", error);
-        MessageBox(NULL, errorMessage, L"РћС€РёР±РєР°", MB_OK | MB_ICONERROR);
+        swprintf_s(errorMessage, sizeof(errorMessage) / sizeof(wchar_t), L"Не удалось установить pixel format. Код ошибки: %lu", error);
+        MessageBox(NULL, errorMessage, L"Ошибка", MB_OK | MB_ICONERROR);
         return false;
     }
 
@@ -78,69 +78,69 @@ float OpenGLInitializer::testFarPlane(float start, float end, float step) {
     bool hasIssues = false;
 
     while (farPlane <= end) {
-        // РЈСЃС‚Р°РЅРѕРІРёС‚Рµ farPlane
+        // Установите farPlane
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         gluPerspective(45.0f, 1.0f, 0.1f, farPlane); // fov, aspect, near, far
 
-        // Р—РґРµСЃСЊ РІС‹ РґРѕР»Р¶РЅС‹ РІС‹РїРѕР»РЅРёС‚СЊ СЂРµРЅРґРµСЂРёРЅРі СЃС†РµРЅС‹ Рё РїСЂРѕРІРµСЂРёС‚СЊ РЅР° РЅР°Р»РёС‡РёРµ Р°СЂС‚РµС„Р°РєС‚РѕРІ
-        // РќР°РїСЂРёРјРµСЂ, РІС‹ РјРѕР¶РµС‚Рµ РѕС‚СЂРёСЃРѕРІР°С‚СЊ РѕР±СЉРµРєС‚С‹ Рё РїСЂРѕРІРµСЂРёС‚СЊ РёС… РІРёРґРёРјРѕСЃС‚СЊ
+        // Здесь вы должны выполнить рендеринг сцены и проверить на наличие артефактов
+        // Например, вы можете отрисовать объекты и проверить их видимость
 
-        // Р”Р»СЏ СѓРїСЂРѕС‰РµРЅРёСЏ, РїСЂРµРґРїРѕР»РѕР¶РёРј, С‡С‚Рѕ Сѓ РІР°СЃ РµСЃС‚СЊ С„СѓРЅРєС†РёСЏ, РєРѕС‚РѕСЂР°СЏ РїСЂРѕРІРµСЂСЏРµС‚ РЅР°Р»РёС‡РёРµ РїСЂРѕР±Р»РµРј
-        hasIssues = checkForDepthIssues(); // Р­С‚Р° С„СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЂРµР°Р»РёР·РѕРІР°РЅР° РІР°РјРё
+        // Для упрощения, предположим, что у вас есть функция, которая проверяет наличие проблем
+        hasIssues = checkForDepthIssues(); // Эта функция должна быть реализована вами
 
         if (hasIssues) {
-            break; // Р•СЃР»Рё РµСЃС‚СЊ РїСЂРѕР±Р»РµРјС‹, РІС‹С…РѕРґРёРј РёР· С†РёРєР»Р°
+            break; // Если есть проблемы, выходим из цикла
         }
 
-        farPlane += step; // РЈРІРµР»РёС‡РёРІР°РµРј farPlane
+        farPlane += step; // Увеличиваем farPlane
     }
 
-    return farPlane - step; // Р’РѕР·РІСЂР°С‰Р°РµРј РїРѕСЃР»РµРґРЅРµРµ Р·РЅР°С‡РµРЅРёРµ Р±РµР· РїСЂРѕР±Р»РµРј
+    return farPlane - step; // Возвращаем последнее значение без проблем
 }
 
 bool OpenGLInitializer::checkForDepthIssues() {
-    // РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂ РѕРєРЅР°
-    int width = 800; // Р—Р°РјРµРЅРёС‚Рµ РЅР° С„Р°РєС‚РёС‡РµСЃРєСѓСЋ С€РёСЂРёРЅСѓ РІР°С€РµРіРѕ РѕРєРЅР°
-    int height = 600; // Р—Р°РјРµРЅРёС‚Рµ РЅР° С„Р°РєС‚РёС‡РµСЃРєСѓСЋ РІС‹СЃРѕС‚Сѓ РІР°С€РµРіРѕ РѕРєРЅР°
+    // Получаем размер окна
+    int width = 800; // Замените на фактическую ширину вашего окна
+    int height = 600; // Замените на фактическую высоту вашего окна
 
-    // РЎРѕР·РґР°РµРј Р±СѓС„РµСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ Р·РЅР°С‡РµРЅРёР№ РіР»СѓР±РёРЅС‹
+    // Создаем буфер для хранения значений глубины
     GLfloat* depthBuffer = new GLfloat[width * height];
 
-    // Р§РёС‚Р°РµРј Р·РЅР°С‡РµРЅРёСЏ РіР»СѓР±РёРЅС‹ РёР· Р±СѓС„РµСЂР°
+    // Читаем значения глубины из буфера
     glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, depthBuffer);
 
-    // РџСЂРёРјРµСЂ РїСЂРѕСЃС‚РѕР№ РїСЂРѕРІРµСЂРєРё: РµСЃР»Рё Р·РЅР°С‡РµРЅРёРµ РіР»СѓР±РёРЅС‹ РІ С†РµРЅС‚СЂРµ СЌРєСЂР°РЅР° СЃР»РёС€РєРѕРј Р±Р»РёР·РєРѕ Рє 1.0 (С‡С‚Рѕ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ farPlane)
-    // Р­С‚Рѕ РјРѕР¶РµС‚ СѓРєР°Р·С‹РІР°С‚СЊ РЅР° РїСЂРѕР±Р»РµРјС‹ СЃ РіР»СѓР±РёРЅРѕР№
+    // Пример простой проверки: если значение глубины в центре экрана слишком близко к 1.0 (что соответствует farPlane)
+    // Это может указывать на проблемы с глубиной
     GLfloat centerDepth = depthBuffer[(height / 2) * width + (width / 2)];
 
     delete[] depthBuffer;
 
-    // Р•СЃР»Рё Р·РЅР°С‡РµРЅРёРµ РіР»СѓР±РёРЅС‹ СЃР»РёС€РєРѕРј Р±Р»РёР·РєРѕ Рє farPlane, СЌС‚Рѕ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСЂРѕР±Р»РµРјРѕР№
+    // Если значение глубины слишком близко к farPlane, это может быть проблемой
     if (centerDepth > 0.9f) {
-        return true; // РџСЂРѕР±Р»РµРјР° СЃ РіР»СѓР±РёРЅРѕР№
+        return true; // Проблема с глубиной
     }
 
-    return false; // РџСЂРѕР±Р»РµРј РЅРµС‚
+    return false; // Проблем нет
 }
 
 void OpenGLInitializer::printSystemInfo() {
-    // РџРѕР»СѓС‡Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІРёРґРµРѕРєР°СЂС‚Рµ
-    const GLubyte* renderer = glGetString(GL_RENDERER); // РќР°Р·РІР°РЅРёРµ РІРёРґРµРѕРєР°СЂС‚С‹
-    const GLubyte* vendor = glGetString(GL_VENDOR);     // РџСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ РІРёРґРµРѕРєР°СЂС‚С‹
-    const GLubyte* version = glGetString(GL_VERSION);   // Р’РµСЂСЃРёСЏ OpenGL
-    const GLubyte* shadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION); // Р’РµСЂСЃРёСЏ С€РµР№РґРµСЂРЅРѕРіРѕ СЏР·С‹РєР°
+    // Получаем информацию о видеокарте
+    const GLubyte* renderer = glGetString(GL_RENDERER); // Название видеокарты
+    const GLubyte* vendor = glGetString(GL_VENDOR);     // Производитель видеокарты
+    const GLubyte* version = glGetString(GL_VERSION);   // Версия OpenGL
+    const GLubyte* shadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION); // Версия шейдерного языка
 
-    // Р’С‹РІРѕРґРёРј РёРЅС„РѕСЂРјР°С†РёСЋ
-    std::cout << "Р’РёРґРµРѕРєР°СЂС‚Р°:               " << renderer << std::endl;
-    std::cout << "РџСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ:            " << vendor << std::endl;
-    std::cout << "Р’РµСЂСЃРёСЏ OpenGL:            " << version << std::endl;
-    std::cout << "Р’РµСЂСЃРёСЏ С€РµР№РґРµСЂРЅРѕРіРѕ СЏР·С‹РєР°:  " << shadingLanguageVersion << std::endl;
+    // Выводим информацию
+    std::cout << "Видеокарта:               " << renderer << std::endl;
+    std::cout << "Производитель:            " << vendor << std::endl;
+    std::cout << "Версия OpenGL:            " << version << std::endl;
+    std::cout << "Версия шейдерного языка:  " << shadingLanguageVersion << std::endl;
 
-    // РџРѕР»СѓС‡Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїРѕРґРґРµСЂР¶РёРІР°РµРјС‹С… СЂР°СЃС€РёСЂРµРЅРёСЏС…
+    // Получаем информацию о поддерживаемых расширениях
     GLint numExtensions;
     glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
-    std::cout << "РџРѕРґРґРµСЂР¶РёРІР°РµРјС‹Рµ СЂР°СЃС€РёСЂРµРЅРёСЏ: " << std::endl;
+    std::cout << "Поддерживаемые расширения: " << std::endl;
     for (GLint i = 0; i < numExtensions; ++i) {
         std::cout << "      " << glGetStringi(GL_EXTENSIONS, i) << std::endl;
     }

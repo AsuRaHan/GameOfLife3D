@@ -7,30 +7,30 @@
 
 class Vector3d {
 public:
-    // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂС‹
+    // Конструкторы
     Vector3d();
     Vector3d(float x, float y, float z);
 
-    // РћРїРµСЂР°С†РёРё СЃ РІРµРєС‚РѕСЂР°РјРё
+    // Операции с векторами
     Vector3d operator+(const Vector3d& other) const;
     Vector3d operator-(const Vector3d& other) const;
     Vector3d operator*(float scalar) const;
     Vector3d operator/(float scalar) const;
 
-    // РњРµС‚РѕРґС‹
+    // Методы
     float length() const;
     Vector3d normalize() const;
 
-    // Р’С‹РІРѕРґ РІРµРєС‚РѕСЂР°
+    // Вывод вектора
     void print() const;
 
-    // Р”РѕСЃС‚СѓРї Рє РєРѕРјРїРѕРЅРµРЅС‚Р°Рј
+    // Доступ к компонентам
     float X() const;
     float Y() const;
     float Z() const;
 
 private:
-    float x, y, z; // РљРѕРјРїРѕРЅРµРЅС‚С‹ РІРµРєС‚РѕСЂР°
+    float x, y, z; // Компоненты вектора
 };
 
 #endif // VECTOR3D_H

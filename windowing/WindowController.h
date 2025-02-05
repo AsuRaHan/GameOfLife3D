@@ -22,15 +22,15 @@ private:
     GameController* pGameController;
     GridPicker gridPicker;
 
-    bool mouseCaptured; // Р¤Р»Р°Рі РґР»СЏ РѕС‚СЃР»РµР¶РёРІР°РЅРёСЏ Р·Р°С…РІР°С‚Р° РјС‹С€Рё
-    int lastMouseX, lastMouseY; // РџРѕСЃР»РµРґРЅРёРµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РјС‹С€Рё
-    bool isMiddleButtonDown; // Р¤Р»Р°Рі РґР»СЏ РѕС‚СЃР»РµР¶РёРІР°РЅРёСЏ РЅР°Р¶Р°С‚РёСЏ СЃСЂРµРґРЅРµР№ РєРЅРѕРїРєРё РјС‹С€Рё
+    bool mouseCaptured; // Флаг для отслеживания захвата мыши
+    int lastMouseX, lastMouseY; // Последние координаты мыши
+    bool isMiddleButtonDown; // Флаг для отслеживания нажатия средней кнопки мыши
 
-    //UINT_PTR timerId; // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚Р°Р№РјРµСЂР°
-    float simulationSpeedMultiplier = 0.01f; // РќР°С‡Р°Р»СЊРЅР°СЏ СЃРєРѕСЂРѕСЃС‚СЊ (100 РјСЃ)
+    //UINT_PTR timerId; // Идентификатор таймера
+    float simulationSpeedMultiplier = 0.01f; // Начальная скорость (100 мс)
     //void UpdateTimer();
     void HandleMouseClick(int screenX, int screenY);
-    void PlacePattern(int screenX, int screenY); // РјРµС‚РѕРґ РґР»СЏ СЂР°Р·РјРµС‰РµРЅРёСЏ С€Р°Р±Р»РѕРЅР°
+    void PlacePattern(int screenX, int screenY); // метод для размещения шаблона
     void RotateCamera(float yaw, float pitch);
     void MoveCamera(float dx, float dy);
     void ResetCamera();

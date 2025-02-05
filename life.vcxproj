@@ -161,15 +161,13 @@
     <ClCompile Include="mathematics\Vector3d.cpp" />
     <ClCompile Include="rendering\Camera.cpp" />
     <ClCompile Include="rendering\Renderer.cpp" />
+    <ClCompile Include="rendering\UIController.cpp" />
     <ClCompile Include="system\GLFunctions.cpp" />
     <ClCompile Include="system\OpenGLInitializer.cpp" />
     <ClCompile Include="system\ShaderManager.cpp" />
     <ClCompile Include="windowing\GridPicker.cpp" />
     <ClCompile Include="windowing\MainWindow.cpp" />
     <ClCompile Include="windowing\WindowController.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="main.ico" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\imgui\backends\imgui_impl_opengl3.h" />
@@ -186,6 +184,7 @@
     <ClInclude Include="mathematics\Vector3d.h" />
     <ClInclude Include="rendering\Camera.h" />
     <ClInclude Include="rendering\Renderer.h" />
+    <ClInclude Include="rendering\UIController.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="system\GLFunctions.h" />
     <ClInclude Include="system\OpenGLInitializer.h" />

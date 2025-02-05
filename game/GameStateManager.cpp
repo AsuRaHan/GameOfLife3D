@@ -6,14 +6,14 @@
 bool GameStateManager::saveGameState(const Grid& grid, const std::string& filename) {
     std::ofstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё: " << filename << std::endl;
+        std::cerr << "Не удалось открыть файл для записи: " << filename << std::endl;
         return false;
     }
 
-    // РЎРЅР°С‡Р°Р»Р° Р·Р°РїРёСЃС‹РІР°РµРј СЂР°Р·РјРµСЂС‹
+    // Сначала записываем размеры
     file << grid.getWidth() << " " << grid.getHeight() << "\n";
 
-    // Р—Р°РїРёСЃС‹РІР°РµРј СЃРѕСЃС‚РѕСЏРЅРёСЏ РєР»РµС‚РѕРє
+    // Записываем состояния клеток
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
             file << (grid.getCellState(x, y) ? "1" : "0");
@@ -27,11 +27,11 @@ bool GameStateManager::saveGameState(const Grid& grid, const std::string& filena
 bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ С‡С‚РµРЅРёСЏ: " << filename << std::endl;
+        std::cerr << "Не удалось открыть файл для чтения: " << filename << std::endl;
         return false;
     }
 
-    // Р§РёС‚Р°РµРј СЂР°Р·РјРµСЂС‹
+    // Читаем размеры
     int width, height;
     file >> width >> height;
 
@@ -40,9 +40,9 @@ bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
     }
 
     std::string line;
-    std::getline(file, line); // РџСЂРѕРїСѓСЃРєР°РµРј РѕСЃС‚Р°С‚РѕРє СЃС‚СЂРѕРєРё СЃ СЂР°Р·РјРµСЂР°РјРё
+    std::getline(file, line); // Пропускаем остаток строки с размерами
 
-    // Р§РёС‚Р°РµРј СЃРѕСЃС‚РѕСЏРЅРёСЏ РєР»РµС‚РѕРє
+    // Читаем состояния клеток
     int y = 0;
     while (std::getline(file, line) && y < height) {
         for (int x = 0; x < std::min(width, (int)line.length()); ++x) {
@@ -57,15 +57,15 @@ bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
 bool GameStateManager::saveGameStateCSV(const Grid& grid, const std::string& filename) {
     std::ofstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё: " << filename << std::endl;
+        std::cerr << "Не удалось открыть файл для записи: " << filename << std::endl;
         return false;
     }
 
-    // Р—Р°РїРёСЃС‹РІР°РµРј Р·Р°РіРѕР»РѕРІРѕРє
+    // Записываем заголовок
     file << "Width:" << grid.getWidth() << ",Height:" << grid.getHeight() << "\n";
     file << "x,y,alive,type,colorR,colorG,colorB\n";
 
-    // Р—Р°РїРёСЃС‹РІР°РµРј РґР°РЅРЅС‹Рµ РєР»РµС‚РѕРє
+    // Записываем данные клеток
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
             const Cell& cell = grid.getCell(x, y);
@@ -84,11 +84,11 @@ bool GameStateManager::saveGameStateCSV(const Grid& grid, const std::string& fil
 
 bool GameStateManager::validateDimensions(const Grid& grid, int width, int height) {
     if (width <= 0 || height <= 0) {
-        std::cerr << "РќРµРєРѕСЂСЂРµРєС‚РЅС‹Рµ СЂР°Р·РјРµСЂС‹ РІ С„Р°Р№Р»Рµ" << std::endl;
+        std::cerr << "Некорректные размеры в файле" << std::endl;
         return false;
     }
     if (width != grid.getWidth() || height != grid.getHeight()) {
-        std::cerr << "Р Р°Р·РјРµСЂС‹ СЃРµС‚РєРё РІ С„Р°Р№Р»Рµ РЅРµ СЃРѕРІРїР°РґР°СЋС‚ СЃ С‚РµРєСѓС‰РёРјРё СЂР°Р·РјРµСЂР°РјРё" << std::endl;
+        std::cerr << "Размеры сетки в файле не совпадают с текущими размерами" << std::endl;
         return false;
     }
     return true;

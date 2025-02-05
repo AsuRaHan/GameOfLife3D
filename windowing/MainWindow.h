@@ -2,24 +2,24 @@
 #ifndef MAINWINDOW_H_
 #define MAINWINDOW_H_
 
-#pragma once
 #include <Windows.h>
 #include "../resource.h"
 #include "WindowController.h"
+//#include "system/OpenGLInitializer.h"
 
 class MainWindow {
 private:
     HWND hWnd;
     HINSTANCE hInstance;
     WindowController* pController;
-    int windowWidth; // РїРѕР»Рµ РґР»СЏ С€РёСЂРёРЅС‹
-    int windowHeight; // РїРѕР»Рµ РґР»СЏ РІС‹СЃРѕС‚С‹
+    int windowWidth; // поле для ширины
+    int windowHeight; // поле для высоты
 public:
     MainWindow(HINSTANCE hInstance, int width = 1000, int height = 1000);
     bool Create();
     void SetController(WindowController* controller);
     HWND GetHwnd() const;
-    // Р“РµС‚С‚РµСЂС‹ РґР»СЏ СЂР°Р·РјРµСЂРѕРІ РѕРєРЅР°
+    // Геттеры для размеров окна
     int GetWidth() const { return windowWidth; }
     int GetHeight() const { return windowHeight; }
 

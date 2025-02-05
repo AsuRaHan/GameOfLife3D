@@ -7,16 +7,16 @@
 
 class GameStateManager {
 public:
-    // Р‘Р°Р·РѕРІРѕРµ СЃРѕС…СЂР°РЅРµРЅРёРµ/Р·Р°РіСЂСѓР·РєР° (С‚РѕР»СЊРєРѕ СЃРѕСЃС‚РѕСЏРЅРёСЏ РєР»РµС‚РѕРє)
+    // Базовое сохранение/загрузка (только состояния клеток)
     static bool saveGameState(const Grid& grid, const std::string& filename);
     static bool loadGameState(Grid& grid, const std::string& filename);
 
-    // Р Р°СЃС€РёСЂРµРЅРЅРѕРµ СЃРѕС…СЂР°РЅРµРЅРёРµ/Р·Р°РіСЂСѓР·РєР° (СЃ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹РјРё РїР°СЂР°РјРµС‚СЂР°РјРё)
+    // Расширенное сохранение/загрузка (с дополнительными параметрами)
     static bool saveGameStateCSV(const Grid& grid, const std::string& filename);
     static bool loadGameStateCSV(Grid& grid, const std::string& filename);
 
 private:
-    // Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ РјРµС‚РѕРґС‹
+    // Вспомогательные методы
     static bool validateFile(const std::string& filename);
     static bool validateDimensions(const Grid& grid, int width, int height);
 };

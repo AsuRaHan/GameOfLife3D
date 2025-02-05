@@ -13,17 +13,17 @@ public:
     void SetPosition(float x, float y, float z);
     void GetPosition(float& x, float& y, float& z) const;
 
-    void SetDirection(float dx, float dy, float dz); // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅР°РїСЂР°РІР»РµРЅРёРµ РєР°РјРµСЂС‹
-    void GetDirection(float& dx, float& dy, float& dz) const; // РџРѕР»СѓС‡Р°РµРј РЅР°РїСЂР°РІР»РµРЅРёРµ РєР°РјРµСЂС‹
+    void SetDirection(float dx, float dy, float dz); // Устанавливаем направление камеры
+    void GetDirection(float& dx, float& dy, float& dz) const; // Получаем направление камеры
 
-    void SetUpVector(float ux, float uy, float uz); // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РІРµРєС‚РѕСЂ "РІРІРµСЂС…"
-    void GetUpVector(float& ux, float& uy, float& uz) const; // РџРѕР»СѓС‡Р°РµРј РІРµРєС‚РѕСЂ "РІРІРµСЂС…"
+    void SetUpVector(float ux, float uy, float uz); // Устанавливаем вектор "вверх"
+    void GetUpVector(float& ux, float& uy, float& uz) const; // Получаем вектор "вверх"
 
-    void Move(float dx, float dy, float dz); // РџРµСЂРµРјРµС‰РµРЅРёРµ РєР°РјРµСЂС‹
-    void Rotate(float yaw, float pitch); // Р’СЂР°С‰РµРЅРёРµ РєР°РјРµСЂС‹ (СЂС‹СЃРєР°РЅРёРµ Рё С‚Р°РЅРіР°Р¶)
+    void Move(float dx, float dy, float dz); // Перемещение камеры
+    void Rotate(float yaw, float pitch); // Вращение камеры (рыскание и тангаж)
 
-    void UpdateViewMatrix(); // РћР±РЅРѕРІР»СЏРµРј РјР°С‚СЂРёС†Сѓ РІРёРґР°
-    void SetProjection(float fov, float aspectRatio, float nearPlane, float farPlane); // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїСЂРѕРµРєС†РёСЋ
+    void UpdateViewMatrix(); // Обновляем матрицу вида
+    void SetProjection(float fov, float aspectRatio, float nearPlane, float farPlane); // Устанавливаем проекцию
 
     void LookAt(float targetX, float targetY, float targetZ, 
                 float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f);
@@ -40,11 +40,11 @@ private:
     std::array<float, 3> position;
     std::array<float, 3> direction;
     std::array<float, 3> up;
-    float fov; // РЈРіРѕР» РѕР±Р·РѕСЂР° (FOV)
+    float fov; // Угол обзора (FOV)
 
     std::array<float, 16> viewMatrix;
     std::array<float, 16> projectionMatrix;
 
-    void NormalizeVector(std::array<float, 3>& vector); // РР·РјРµРЅРµРЅРѕ СЃ float* РЅР° std::array
+    void NormalizeVector(std::array<float, 3>& vector); // Изменено с float* на std::array
 };
 #endif // CAMERA_H_

@@ -9,21 +9,21 @@ GameController::GameController(int width, int height, float cellSize)
 
 void GameController::initializeGrid() {
 
-    std::random_device rd;  // РўРѕР»СЊРєРѕ РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РіРµРЅРµСЂР°С‚РѕСЂР°
-    std::mt19937 gen(rd()); // РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РјРµСЂСЃРµРЅРЅРѕРІСЃРєРёР№ С‚РІРёСЃС‚РµСЂ
-    std::uniform_int_distribution<> disGliders(3, 15); // Р“РµРЅРµСЂР°С†РёСЏ РєРѕР»РёС‡РµСЃС‚РІР° РіР»Р°Р№РґРµСЂРѕРІ
-    std::uniform_int_distribution<> disX(0, grid.getWidth() - 3); // Р“РµРЅРµСЂР°С†РёСЏ X-РєРѕРѕСЂРґРёРЅР°С‚С‹
-    std::uniform_int_distribution<> disY(0, grid.getHeight() - 3); // Р“РµРЅРµСЂР°С†РёСЏ Y-РєРѕРѕСЂРґРёРЅР°С‚С‹
-    std::uniform_int_distribution<> disTipe(0, 3); // Р“РµРЅРµСЂР°С†РёСЏ С‡РёСЃРµР» РѕС‚ 0 РґРѕ 3
+    std::random_device rd;  // Только для инициализации генератора
+    std::mt19937 gen(rd()); // Стандартный мерсенновский твистер
+    std::uniform_int_distribution<> disGliders(3, 15); // Генерация количества глайдеров
+    std::uniform_int_distribution<> disX(0, grid.getWidth() - 3); // Генерация X-координаты
+    std::uniform_int_distribution<> disY(0, grid.getHeight() - 3); // Генерация Y-координаты
+    std::uniform_int_distribution<> disTipe(0, 3); // Генерация чисел от 0 до 3
 
-    int numberOfGliders = disGliders(gen); // РЎР»СѓС‡Р°Р№РЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РіР»Р°Р№РґРµСЂРѕРІ
+    int numberOfGliders = disGliders(gen); // Случайное количество глайдеров
 
-    for (int i = 0; i < numberOfGliders; ++i) {
+    for (auto i = 0; i < numberOfGliders; ++i) {
         int startX = disX(gen);
         int startY = disY(gen);
-        // Р Р°Р·РјРµС‰Р°РµРј РіР»Р°Р№РґРµСЂ РЅР° СЃРµС‚РєРµ
+        // Размещаем глайдер на сетке
 
-        int randomCondition = disTipe(gen); // Р“РµРЅРµСЂРёСЂСѓРµРј СЃР»СѓС‡Р°Р№РЅРѕРµ С‡РёСЃР»Рѕ
+        int randomCondition = disTipe(gen); // Генерируем случайное число
 
         switch (randomCondition) {
         case 0:
@@ -39,21 +39,10 @@ void GameController::initializeGrid() {
             placePattern(startX, startY, gosperGliderGunVerticalFlipped);
             break;
         default:
-            // Р­С‚Рѕ СѓСЃР»РѕРІРёРµ РЅРµ РґРѕР»Р¶РЅРѕ СЃСЂР°Р±Р°С‚С‹РІР°С‚СЊ, С‚Р°Рє РєР°Рє РјС‹ РѕРіСЂР°РЅРёС‡РµРЅС‹ РґРёР°РїР°Р·РѕРЅРѕРј РѕС‚ 0 РґРѕ 3
+            // Это условие не должно срабатывать, так как мы ограничены диапазоном от 0 до 3
             break;
         }
         
-    }
-}
-
-void GameController::placeGlider(int startX, int startY) {
-    // РЈР±РµРґРёС‚РµСЃСЊ, С‡С‚Рѕ РіР»Р°Р№РґРµСЂ РїРѕРјРµС‰Р°РµС‚СЃСЏ РІ РїСЂРµРґРµР»Р°С… СЃРµС‚РєРё
-    if (startX + 2 < grid.getWidth() && startY + 2 < grid.getHeight()) {
-        grid.setCellState(startX + 1, startY, true);   // X
-        grid.setCellState(startX + 2, startY + 1, true); // X
-        grid.setCellState(startX, startY + 2, true);   // X
-        grid.setCellState(startX + 1, startY + 2, true); // X
-        grid.setCellState(startX + 2, startY + 2, true); // X
     }
 }
 
@@ -61,11 +50,11 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
     int patternHeight = pattern.size();
     int patternWidth = pattern[0].size();
 
-    // РџСЂРѕРІРµСЂСЏРµРј, РїРѕРјРµС‰Р°РµС‚СЃСЏ Р»Рё С„РёРіСѓСЂР° РІ РїСЂРµРґРµР»Р°С… СЃРµС‚РєРё
+    // Проверяем, помещается ли фигура в пределах сетки
     if (startX + patternWidth <= grid.getWidth() && startY + patternHeight <= grid.getHeight()) {
-        for (int y = patternHeight - 1; y >= 0; --y) { // РС‚РµСЂРёСЂСѓРµРјСЃСЏ СЃРЅРёР·Сѓ РІРІРµСЂС…
-            for (int x = 0; x < patternWidth; ++x) {
-                // РРЅРІРµСЂС‚РёСЂСѓРµРј x, С‡С‚РѕР±С‹ РїРµСЂРµРІРµСЂРЅСѓС‚СЊ РїР°С‚С‚РµСЂРЅ РїРѕ РіРѕСЂРёР·РѕРЅС‚Р°Р»Рё
+        for (auto y = patternHeight - 1; y >= 0; --y) { // Итерируемся снизу вверх
+            for (auto x = 0; x < patternWidth; ++x) {
+                // Инвертируем x, чтобы перевернуть паттерн по горизонтали
                 grid.setCellState(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), pattern[y][x]);
                 if (pattern[y][x]) {
                     grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.3f, 0.7f, 0.4f));
@@ -81,14 +70,14 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
 
 
 void GameController::randomizeGrid(float density) {
-    // Р“РµРЅРµСЂР°С‚РѕСЂ СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»
-    std::random_device rd;  // РўРѕР»СЊРєРѕ РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РіРµРЅРµСЂР°С‚РѕСЂР°
-    std::mt19937 gen(rd()); // РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РјРµСЂСЃРµРЅРЅРѕРІСЃРєРёР№ С‚РІРёСЃС‚РµСЂ
-    std::uniform_real_distribution<> dis(0.0, 1.0); // Р Р°РІРЅРѕРјРµСЂРЅРѕРµ СЂР°СЃРїСЂРµРґРµР»РµРЅРёРµ
+    // Генератор случайных чисел
+    std::random_device rd;  // Только для инициализации генератора
+    std::mt19937 gen(rd()); // Стандартный мерсенновский твистер
+    std::uniform_real_distribution<> dis(0.0, 1.0); // Равномерное распределение
 
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
-            // Р•СЃР»Рё СЃР»СѓС‡Р°Р№РЅРѕРµ С‡РёСЃР»Рѕ РјРµРЅСЊС€Рµ density, РєР»РµС‚РєР° СЃС‚Р°РЅРѕРІРёС‚СЃСЏ Р¶РёРІРѕР№
+            // Если случайное число меньше density, клетка становится живой
             if (dis(gen) < density) {
                 grid.setCellState(x, y, true);
                 grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
@@ -108,7 +97,7 @@ void GameController::randomizeGrid(float density) {
 void GameController::clearGrid() {
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
-            grid.setCellState(x, y, false); // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РєР°Р¶РґСѓСЋ РєР»РµС‚РєСѓ РІ РјРµСЂС‚РІРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
+            grid.setCellState(x, y, false); // Устанавливаем каждую клетку в мертвое состояние
             grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
         }
     }
@@ -163,107 +152,28 @@ bool GameController::getCellState(int x, int y) const {
     return grid.getCellState(x, y);
 }
 
-//void GameController::saveGameState(const std::string& filename) {
-//    std::ofstream file(filename);
-//    if (file.is_open()) {
-//        for (int y = 0; y < grid.getHeight(); ++y) {
-//            for (int x = 0; x < grid.getWidth(); ++x) {
-//                file << (grid.getCellState(x, y) ? "1" : "0");
-//            }
-//            file << '\n'; // РќРѕРІР°СЏ СЃС‚СЂРѕРєР° РґР»СЏ СЃР»РµРґСѓСЋС‰РµРіРѕ СЂСЏРґР°
-//        }
-//        file.close();
-//    }
-//    else {
-//        std::cerr << "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё" << std::endl;
-//    }
-//}
-
-//void GameController::loadGameState(const std::string& filename) {
-//    std::ifstream file(filename);
-//    if (file.is_open()) {
-//        std::string line;
-//        int y = 0;
-//        while (std::getline(file, line) && y < grid.getHeight()) {
-//            for (int x = 0; x < std::min(static_cast<int>(line.length()), grid.getWidth()); ++x) {
-//                grid.setCellState(x, y, line[x] == '1');
-//            }
-//            ++y;
-//        }
-//        file.close();
-//    }
-//    else {
-//        std::cerr << "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ С‡С‚РµРЅРёСЏ" << std::endl;
-//    }
-//}
-
-//void GameController::saveGameStateCSV(const std::string& filename) {
-//    std::ofstream file(filename);
-//    if (file.is_open()) {
-//        for (int y = 0; y < grid.getHeight(); ++y) {
-//            for (int x = 0; x < grid.getWidth(); ++x) {
-//                const Cell& cell = grid.getCell(x, y);
-//                file << (cell.getAlive() ? "1" : "0") << ","
-//                    << cell.getType() << ","
-//                    << cell.getColor().X() << ","
-//                    << cell.getColor().Y() << ","
-//                    << cell.getColor().Z();
-//                if (x < grid.getWidth() - 1) file << ";"; // Р Р°Р·РґРµР»РёС‚РµР»СЊ РјРµР¶РґСѓ РєР»РµС‚РєР°РјРё РІ СЃС‚СЂРѕРєРµ
-//            }
-//            file << '\n'; // РќРѕРІР°СЏ СЃС‚СЂРѕРєР° РґР»СЏ СЃР»РµРґСѓСЋС‰РµРіРѕ СЂСЏРґР°
-//        }
-//        file.close();
-//    }
-//}
-
-//void GameController::loadGameStateCSV(const std::string& filename) {
-//    std::ifstream file(filename);
-//    if (file.is_open()) {
-//        std::string line, cellData;
-//        int y = 0;
-//        while (std::getline(file, line) && y < grid.getHeight()) {
-//            std::istringstream iss(line);
-//            for (int x = 0; x < grid.getWidth(); ++x) {
-//                if (std::getline(iss, cellData, ';')) {
-//                    std::istringstream cellStream(cellData);
-//                    bool isAlive; int type; float r, g, b;
-//                    char comma;
-//                    if (cellStream >> isAlive >> comma >> type >> comma >> r >> comma >> g >> comma >> b) {
-//                        Cell& cell = grid.getCell(x, y);
-//                        cell.setAlive(isAlive);
-//                        cell.setType(type);
-//                        cell.setColor(Vector3d(r, g, b));
-//                    }
-//                }
-//            }
-//            ++y;
-//        }
-//        file.close();
-//    }
-//}
-
 void GameController::resizeGrid(int newWidth, int newHeight) {
-    if (newWidth <= 0 || newHeight <= 0) return; // РџСЂРѕРІРµСЂРєР° РЅР° РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ
+    if (newWidth <= 0 || newHeight <= 0) return; // Проверка на положительный размер
 
-    // РЎРѕР·РґР°РµРј РЅРѕРІСѓСЋ СЃРµС‚РєСѓ СЃ РЅРѕРІС‹РјРё СЂР°Р·РјРµСЂР°РјРё
+    // Создаем новую сетку с новыми размерами
     Grid newGrid(newWidth, newHeight);
 
-    // РљРѕРїРёСЂСѓРµРј СЃС‚Р°СЂС‹Рµ РґР°РЅРЅС‹Рµ РІ РЅРѕРІСѓСЋ СЃРµС‚РєСѓ, РіРґРµ СЌС‚Рѕ РІРѕР·РјРѕР¶РЅРѕ
+    // Копируем старые данные в новую сетку, где это возможно
     for (int y = 0; y < grid.getHeight(); ++y) {
-        if (y >= newHeight) break; // Р’С‹С…РѕРґРёРј РёР· С†РёРєР»Р°, РµСЃР»Рё РїСЂРµРІС‹С€Р°РµРј РЅРѕРІСѓСЋ РІС‹СЃРѕС‚Сѓ
+        if (y >= newHeight) break; // Выходим из цикла, если превышаем новую высоту
         for (int x = 0; x < grid.getWidth(); ++x) {
-            if (x >= newWidth) break; // Р’С‹С…РѕРґРёРј РёР· С†РёРєР»Р°, РµСЃР»Рё РїСЂРµРІС‹С€Р°РµРј РЅРѕРІСѓСЋ С€РёСЂРёРЅСѓ
+            if (x >= newWidth) break; // Выходим из цикла, если превышаем новую ширину
             newGrid.setCellState(x, y, grid.getCellState(x, y));
         }
     }
 
-    // РћР±РЅРѕРІР»СЏРµРј С‚РµРєСѓС‰СѓСЋ СЃРµС‚РєСѓ
+    // Обновляем текущую сетку
     grid = std::move(newGrid);
 
-    // РћР±РЅРѕРІР»СЏРµРј СЃСЃС‹Р»РєСѓ РЅР° СЃРµС‚РєСѓ РІ GameOfLife
+    // Обновляем ссылку на сетку в GameOfLife
     gameOfLife.updateGridReference(grid);
 
-    // Р•СЃР»Рё СЃРёРјСѓР»СЏС†РёСЏ СЂР°Р±РѕС‚Р°РµС‚, СЃР±СЂРѕСЃРёРј РµРµ, С‡С‚РѕР±С‹ РёР·Р±РµР¶Р°С‚СЊ РЅРµРєРѕСЂСЂРµРєС‚РЅРѕР№ СЂР°Р±РѕС‚С‹ СЃ РЅРѕРІС‹РјРё СЂР°Р·РјРµСЂР°РјРё
+    // Если симуляция работает, сбросим ее, чтобы избежать некорректной работы с новыми размерами
     if (isRunning) {
         stopSimulation();
     }
@@ -281,7 +191,7 @@ void GameController::setCurrentPattern(int patternNumber) {
     case 8: currentPattern = gosperGliderGunVertical; break;
     case 9: currentPattern = gosperGliderGunVerticalFlipped; break;
     default:
-        // РњРѕР¶РЅРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РєР°РєРѕР№-С‚Рѕ РїР°С‚С‚РµСЂРЅ РёР»Рё РѕСЃС‚Р°РІРёС‚СЊ С‚РµРєСѓС‰РёР№ Р±РµР· РёР·РјРµРЅРµРЅРёР№
+        // Можно установить по умолчанию какой-то паттерн или оставить текущий без изменений
         currentPattern = glider;
         break;
     }
@@ -289,11 +199,11 @@ void GameController::setCurrentPattern(int patternNumber) {
 
 void GameController::PlacePattern(int startX, int startY) {
     if (!currentPattern.empty()) {
-        placePattern(startX, startY, currentPattern); // РСЃРїРѕР»СЊР·СѓРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ РјРµС‚РѕРґ
+        placePattern(startX, startY, currentPattern); // Используем уже существующий метод
     }
 }
 
 void GameController::setSimulationSpeed(float speed) {
-    // speed - СЌС‚Рѕ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРµРєСѓРЅРґ СЂРµР°Р»СЊРЅРѕРіРѕ РІСЂРµРјРµРЅРё РјРµР¶РґСѓ РѕР±РЅРѕРІР»РµРЅРёСЏРјРё. РњРµРЅСЊС€Рµ Р·РЅР°С‡РµРЅРёРµ - Р±С‹СЃС‚СЂРµРµ СЃРёРјСѓР»СЏС†РёСЏ.
+    // speed - это количество секунд реального времени между обновлениями. Меньше значение - быстрее симуляция.
     simulationSpeed = speed;
 }

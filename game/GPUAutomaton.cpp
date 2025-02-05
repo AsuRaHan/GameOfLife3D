@@ -52,9 +52,9 @@ void GPUAutomaton::CreateComputeShader() {
         int currentState = current[pos.y * gridSize.x + pos.x];
         int neighbors = countLiveNeighbors(pos);
         int nextState = 0;
-        if (currentState == 1) { // Р–РёРІР°СЏ РєР»РµС‚РєР°
+        if (currentState == 1) { // Живая клетка
             if (neighbors == 2 || neighbors == 3) nextState = 1;
-        } else { // РњРµСЂС‚РІР°СЏ РєР»РµС‚РєР°
+        } else { // Мертвая клетка
             if (neighbors == 3) nextState = 1;
         }
         next[pos.y * gridSize.x + pos.x] = nextState;
@@ -77,7 +77,7 @@ void GPUAutomaton::SetupBuffers() {
 void GPUAutomaton::Update() {
     glUseProgram(computeProgram);
     glUniform2i(glGetUniformLocation(computeProgram, "gridSize"), gridWidth, gridHeight);
-    glUniform1i(glGetUniformLocation(computeProgram, "isToroidal"), isToroidal); // РџРµСЂРµРґР°С‡Р° isToroidal
+    glUniform1i(glGetUniformLocation(computeProgram, "isToroidal"), isToroidal); // Передача isToroidal
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[bufferIndex]);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[(bufferIndex + 1) % 2]);

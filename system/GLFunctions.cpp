@@ -1,6 +1,6 @@
 #include "GLFunctions.h"
 
-// РћР±СЉСЏРІР»РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° С„СѓРЅРєС†РёРё
+// Объявление указателей на функции
 PFNGLGENBUFFERSPROC glGenBuffers = nullptr;
 PFNGLBINDBUFFERPROC glBindBuffer = nullptr;
 PFNGLBUFFERDATAPROC glBufferData = nullptr;
@@ -52,7 +52,7 @@ PFNGLUNIFORM1IPROC glUniform1i = nullptr;
 PFNGLGETSTRINGIPROC glGetStringi = nullptr;
 
 void LoadOpenGLFunctions() {
-        // Р—Р°РіСЂСѓР·РєР° С„СѓРЅРєС†РёР№ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ Р±СѓС„РµСЂР°РјРё
+        // Загрузка функций для работы с буферами
     glGenBuffers = (PFNGLGENBUFFERSPROC)wglGetProcAddress("glGenBuffers");
     CHECK_LOAD_FUNCTION(glGenBuffers);
     glBindBuffer = (PFNGLBINDBUFFERPROC)wglGetProcAddress("glBindBuffer");
@@ -63,7 +63,7 @@ void LoadOpenGLFunctions() {
     CHECK_LOAD_FUNCTION(glDeleteBuffers);
     glBufferSubData = (PFNGLBUFFERSUBDATAPROC)wglGetProcAddress("glBufferSubData");
     CHECK_LOAD_FUNCTION(glBufferSubData);
-    // Р—Р°РіСЂСѓР·РєР° С„СѓРЅРєС†РёР№ РґР»СЏ РёРЅСЃС‚Р°РЅСЃРёРЅРіР°
+    // Загрузка функций для инстансинга
     glEnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)wglGetProcAddress("glEnableVertexAttribArray");
     CHECK_LOAD_FUNCTION(glEnableVertexAttribArray);
     glVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)wglGetProcAddress("glVertexAttribPointer");
@@ -74,7 +74,7 @@ void LoadOpenGLFunctions() {
     CHECK_LOAD_FUNCTION(glDrawArraysInstanced);
     glDisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)wglGetProcAddress("glDisableVertexAttribArray");
     CHECK_LOAD_FUNCTION(glDisableVertexAttribArray);
-    // Р—Р°РіСЂСѓР·РєР° С„СѓРЅРєС†РёР№ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С€РµР№РґРµСЂР°РјРё
+    // Загрузка функций для работы с шейдерами
     glCreateShader = (PFNGLCREATESHADERPROC)wglGetProcAddress("glCreateShader");
     CHECK_LOAD_FUNCTION(glCreateShader);
     glShaderSource = (PFNGLSHADERSOURCEPROC)wglGetProcAddress("glShaderSource");
@@ -150,25 +150,25 @@ void LoadOpenGLFunctions() {
 
 void CheckOpenGLError(const char* stmt, const char* fname, int line)
 {
-    static int errorCount = 0; // РЎС‚Р°С‚РёС‡РµСЃРєР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ РѕС‚СЃР»РµР¶РёРІР°РЅРёСЏ РєРѕР»РёС‡РµСЃС‚РІР° РѕС€РёР±РѕРє
-    GLenum err = glGetError();
+    static int errorCount = 0; // Статическая переменная для отслеживания количества ошибок
+    auto err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        errorCount++; // РЈРІРµР»РёС‡РёРІР°РµРј СЃС‡РµС‚С‡РёРє РѕС€РёР±РѕРє
+        errorCount++; // Увеличиваем счетчик ошибок
         //PlaySound(TEXT("SystemExclamation"), NULL, SND_ALIAS | SND_ASYNC);
-        //Sleep(1000); // Р—Р°РґРµСЂР¶РєР° 1 СЃРµРєСѓРЅРґР°
+        //Sleep(1000); // Задержка 1 секунда
         std::cout << "OpenGL error " << std::hex << err
             << ", at " << fname << ":" << line
             << " - for " << stmt << std::endl;
-        // РџСЂРѕРІРµСЂСЏРµРј, РґРѕСЃС‚РёРіР»Рё Р»Рё РјС‹ 10 РѕС€РёР±РѕРє
+        // Проверяем, достигли ли мы 10 ошибок
         if (errorCount >= 50)
         {
-            std::cout << "Р”РѕСЃС‚РёРіРЅСѓС‚Рѕ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РѕС€РёР±РѕРє. Р—Р°РІРµСЂС€РµРЅРёРµ РїСЂРѕРіСЂР°РјРјС‹." << std::endl;
+            std::cout << "Достигнуто максимальное количество ошибок. Завершение программы." << std::endl;
             WCHAR errorMsg[256];
             swprintf_s(errorMsg, L"OpenGL error %08X, at %S:%d - for %S", err, fname, line, stmt);
             MessageBoxW(NULL, errorMsg, L"OpenGL Error", MB_OK | MB_ICONERROR);
 
-            exit(EXIT_FAILURE); // Р—Р°РІРµСЂС€Р°РµРј РїСЂРѕРіСЂР°РјРјСѓ
+            exit(EXIT_FAILURE); // Завершаем программу
         }
     }
 }

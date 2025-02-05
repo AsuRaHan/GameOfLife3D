@@ -1,6 +1,9 @@
 #include "Grid.h"
 
 Grid::Grid(int w, int h) : width(w), height(h) {
+    //for (auto y = 0; y < height; ++y) {
+    //    cells[y].resize(width);
+    //}
     cells.resize(height, std::vector<Cell>(width));
 }
 
@@ -14,7 +17,7 @@ bool Grid::getCellState(int x, int y) const {
     if (x >= 0 && x < width && y >= 0 && y < height) {
         return cells[y][x].getAlive();
     }
-    return false; // Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÐ¼ false Ð´Ð»Ñ Ð½ÐµÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ñ… ÐºÐ¾Ð¾Ñ€Ð´Ð¸Ð½Ð°Ñ‚
+    return false; // Âîçâðàùàåì false äëÿ íåñóùåñòâóþùèõ êîîðäèíàò
 }
 
 int Grid::getWidth() const {
@@ -29,14 +32,14 @@ Cell& Grid::getCell(int x, int y) {
     if (x >= 0 && x < width && y >= 0 && y < height) {
         return cells[y][x];
     }
-    throw std::out_of_range("Grid::getCell: ÐºÐ¾Ð¾Ñ€Ð´Ð¸Ð½Ð°Ñ‚Ñ‹ Ð·Ð° Ð¿Ñ€ÐµÐ´ÐµÐ»Ð°Ð¼Ð¸ ÑÐµÑ‚ÐºÐ¸");
+    throw std::out_of_range("Grid::getCell: êîîðäèíàòû çà ïðåäåëàìè ñåòêè");
 }
 
 const Cell& Grid::getCell(int x, int y) const {
     if (x >= 0 && x < width && y >= 0 && y < height) {
         return cells[y][x];
     }
-    throw std::out_of_range("Grid::getCell: ÐºÐ¾Ð¾Ñ€Ð´Ð¸Ð½Ð°Ñ‚Ñ‹ Ð·Ð° Ð¿Ñ€ÐµÐ´ÐµÐ»Ð°Ð¼Ð¸ ÑÐµÑ‚ÐºÐ¸");
+    throw std::out_of_range("Grid::getCell: êîîðäèíàòû çà ïðåäåëàìè ñåòêè");
 }
 
 void Grid::setCell(int x, int y, const Cell& cell) {

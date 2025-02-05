@@ -18,13 +18,13 @@ public:
     int countLiveNeighborsWorld(int x, int y) const;
 	void setWoldToroidal(bool wt);
     bool getWoldToroidal() const { return isToroidal; };
-    void updateGridReference(Grid& newGrid) { grid = newGrid; } // РјРµС‚РѕРґ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ СЃСЃС‹Р»РєРё
+    void updateGridReference(Grid& newGrid) { grid = newGrid; } // метод для обновления ссылки
 private:
     Grid& grid;
-    Grid nextGrid; // Р”РѕР±Р°РІР»СЏРµРј nextGrid РґР»СЏ РґРІРѕР№РЅРѕРіРѕ Р±СѓС„РµСЂР°
+    Grid nextGrid; // Добавляем nextGrid для двойного буфера
     std::vector<Grid> history;
     bool isToroidal;
-    GPUAutomaton gpuAutomaton; // С‡Р»РµРЅ РєР»Р°СЃСЃР° РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёР№ РЅР° GPU
+    GPUAutomaton gpuAutomaton; // член класса для вычислений на GPU
 };
 
 #endif // GAMEOFLIFE_H

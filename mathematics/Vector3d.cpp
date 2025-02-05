@@ -1,12 +1,12 @@
 #include "Vector3d.h"
-#include <stdexcept> // Р”Р»СЏ std::runtime_error
+#include <stdexcept> // Для std::runtime_error
 
-// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂС‹
+// Конструкторы
 Vector3d::Vector3d() : x(0.0f), y(0.0f), z(0.0f) {}
 
 Vector3d::Vector3d(float x, float y, float z) : x(x), y(y), z(z) {}
 
-// РћРїРµСЂР°С†РёРё СЃ РІРµРєС‚РѕСЂР°РјРё
+// Операции с векторами
 Vector3d Vector3d::operator+(const Vector3d& other) const {
     return Vector3d(x + other.x, y + other.y, z + other.z);
 }
@@ -26,25 +26,26 @@ Vector3d Vector3d::operator/(float scalar) const {
     return Vector3d(x / scalar, y / scalar, z / scalar);
 }
 
-// РњРµС‚РѕРґС‹
+// Методы
 float Vector3d::length() const {
-    return std::sqrt(x * x + y * y + z * z);
+    auto lenSquared = x * x + y * y + z * z;
+    return std::sqrt(lenSquared);
 }
 
 Vector3d Vector3d::normalize() const {
     float len = length();
     if (len > 0) {
-        return *this / len; // Р”РµР»РёРј РЅР° РґР»РёРЅСѓ РґР»СЏ РЅРѕСЂРјР°Р»РёР·Р°С†РёРё
+        return *this / len; // Делим на длину для нормализации
     }
-    return *this; // Р’РѕР·РІСЂР°С‰Р°РµРј РЅСѓР»РµРІРѕР№ РІРµРєС‚РѕСЂ, РµСЃР»Рё РґР»РёРЅР° СЂР°РІРЅР° 0
+    return *this; // Возвращаем нулевой вектор, если длина равна 0
 }
 
-// Р’С‹РІРѕРґ РІРµРєС‚РѕСЂР°
+// Вывод вектора
 void Vector3d::print() const {
     std::cout << "Vector3d(" << x << ", " << y << ", " << z << ")\n";
 }
 
-// Р”РѕСЃС‚СѓРї Рє РєРѕРјРїРѕРЅРµРЅС‚Р°Рј
+// Доступ к компонентам
 float Vector3d::X() const { return x; }
 float Vector3d::Y() const { return y; }
 float Vector3d::Z() const { return z; }

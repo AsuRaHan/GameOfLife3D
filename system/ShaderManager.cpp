@@ -68,7 +68,7 @@ void ShaderManager::checkShaderCompilation(GLuint shader, const std::string& nam
     if (!success) {
         char infoLog[512];
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cerr << "ÐžÑˆÐ¸Ð±ÐºÐ° ÐºÐ¾Ð¼Ð¿Ð¸Ð»ÑÑ†Ð¸Ð¸ " << name << ": " << infoLog << std::endl;
+        std::cerr << "Îøèáêà êîìïèëÿöèè " << name << ": " << infoLog << std::endl;
     }
 }
 
@@ -78,14 +78,14 @@ void ShaderManager::checkProgramLinking(GLuint program) {
     if (!success) {
         char infoLog[512];
         glGetProgramInfoLog(program, 512, NULL, infoLog);
-        std::cerr << "ÐžÑˆÐ¸Ð±ÐºÐ° Ð»Ð¸Ð½ÐºÐ¾Ð²ÐºÐ¸ Ð¿Ñ€Ð¾Ð³Ñ€Ð°Ð¼Ð¼Ñ‹: " << infoLog << std::endl;
+        std::cerr << "Îøèáêà ëèíêîâêè ïðîãðàììû: " << infoLog << std::endl;
     }
 }
 std::string ShaderManager::LoadShaderSource(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         //throw std::runtime_error("Failed to open shader file: " + filename);
-        std::cout << "ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð·Ð°Ð³Ñ€ÑƒÐ·Ð¸Ñ‚ÑŒ Ñ„Ð°Ð¹Ð» ÑˆÐµÐ¹Ð´ÐµÑ€Ð½Ð¾Ð¹ Ð¿Ñ€Ð¾Ð³Ñ€Ð°Ð¼Ð¼Ñ‹: " << filename << std::endl;
+        std::cout << "Íå óäàëîñü çàãðóçèòü ôàéë øåéäåðíîé ïðîãðàììû: " << filename << std::endl;
         exit(1);
     }
     return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());

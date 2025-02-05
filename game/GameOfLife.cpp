@@ -1,11 +1,11 @@
 #include "GameOfLife.h"
 
 GameOfLife::GameOfLife(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()),gpuAutomaton(g.getWidth(), g.getHeight()), isToroidal(true) {
-    //std::srand(static_cast<unsigned int>(std::time(nullptr))); // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РіРµРЅРµСЂР°С‚РѕСЂР° СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»
+    //std::srand(static_cast<unsigned int>(std::time(nullptr))); // Инициализация генератора случайных чисел
 }
 
 int GameOfLife::countLiveNeighbors(int x, int y) const {
-    static const int offsets[8][2] = {
+    constexpr int offsets[8][2] = {
         {-1, -1}, {-1, 0}, {-1, 1},
         {0, -1},           {0, 1},
         {1, -1}, {1, 0}, {1, 1}
@@ -16,7 +16,7 @@ int GameOfLife::countLiveNeighbors(int x, int y) const {
         int nx = x + offset[0];
         int ny = y + offset[1];
 
-        // РџСЂРѕРІРµСЂСЏРµРј, РЅР°С…РѕРґСЏС‚СЃСЏ Р»Рё РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ РїСЂРµРґРµР»Р°С… РіСЂР°РЅРёС† СЃРµС‚РєРё
+        // Проверяем, находятся ли координаты в пределах границ сетки
         if (nx >= 0 && nx < grid.getWidth() && ny >= 0 && ny < grid.getHeight()) {
             if (grid.getCellState(nx, ny)) {
                 count++;
@@ -27,7 +27,7 @@ int GameOfLife::countLiveNeighbors(int x, int y) const {
 }
 
 int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
-    static const int offsets[8][2] = {
+    constexpr int offsets[8][2] = {
         {-1, -1}, {-1, 0}, {-1, 1},
         {0, -1},           {0, 1},
         {1, -1}, {1, 0}, {1, 1}
@@ -41,7 +41,7 @@ int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
         int nx = x + offset[0];
         int ny = y + offset[1];
 
-        // РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РєРѕРѕСЂРґРёРЅР°С‚ РґР»СЏ С‚РѕСЂРѕРёРґР°Р»СЊРЅРѕР№ СЃРµС‚РєРё Р±РµР· РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ wrap
+        // Корректировка координат для тороидальной сетки без использования wrap
         nx = (nx < 0) ? w - 1 : (nx >= w ? 0 : nx);
         ny = (ny < 0) ? h - 1 : (ny >= h ? 0 : ny);
 
@@ -53,14 +53,14 @@ int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
 }
 void GameOfLife::setWoldToroidal(bool wt) {
     isToroidal = wt;
-    gpuAutomaton.SetToroidal(wt); // РЈСЃС‚Р°РЅРѕРІРєР° isToroidal РІ GPUAutomaton
+    gpuAutomaton.SetToroidal(wt); // Установка isToroidal в GPUAutomaton
 }
 
 void GameOfLife::nextGeneration() {
     static std::vector<int> currentState(grid.getWidth() * grid.getHeight());
     static std::vector<int> nextState(grid.getWidth() * grid.getHeight());
     
-    // РђСЃРёРЅС…СЂРѕРЅРЅР°СЏ Р·Р°РіСЂСѓР·РєР° РґР°РЅРЅС‹С… РЅР° GPU
+    // Асинхронная загрузка данных на GPU
     auto future = std::async(std::launch::async, [&]() {
         for (int y = 0; y < grid.getHeight(); ++y) {
             for (int x = 0; x < grid.getWidth(); ++x) {
@@ -69,20 +69,20 @@ void GameOfLife::nextGeneration() {
         }
     });
     
-    // Р”СЂСѓРіРёРµ РѕРїРµСЂР°С†РёРё РїРѕРєР° РґР°РЅРЅС‹Рµ Р·Р°РіСЂСѓР¶Р°СЋС‚СЃСЏ
+    // Другие операции пока данные загружаются
     
-    future.wait(); // Р–РґРµРј Р·Р°РІРµСЂС€РµРЅРёСЏ Р·Р°РіСЂСѓР·РєРё
+    future.wait(); // Ждем завершения загрузки
     gpuAutomaton.SetGridState(currentState);
 
-    // Р’С‹РїРѕР»РЅСЏРµРј РѕР±РЅРѕРІР»РµРЅРёРµ РЅР° GPU
+    // Выполняем обновление на GPU
     gpuAutomaton.Update();
 
-    // РџРѕР»СѓС‡Р°РµРј РЅРѕРІРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ СЃ GPU
+    // Получаем новое состояние с GPU
     gpuAutomaton.GetGridState(nextState);
 
-    // РћР±РЅРѕРІР»СЏРµРј СЃРµС‚РєСѓ РЅР° РѕСЃРЅРѕРІРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ, РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ СЃ GPU
-    for (int y = 0; y < grid.getHeight(); ++y) {
-        for (int x = 0; x < grid.getWidth(); ++x) {
+    // Обновляем сетку на основе состояния, полученного с GPU
+    for (auto y = 0; y < grid.getHeight(); ++y) {
+        for (auto x = 0; x < grid.getWidth(); ++x) {
             bool newState = nextState[y * grid.getWidth() + x] != 0;
             Cell& cell = grid.getCell(x, y);
             bool currentState = cell.getAlive();
@@ -90,16 +90,16 @@ void GameOfLife::nextGeneration() {
 
             if (newState) {
                 if (!currentState) {
-                    // Р•СЃР»Рё РєР»РµС‚РєР° СЂРѕР¶РґР°РµС‚СЃСЏ, РґРµР»Р°РµРј РµС‘ С‚РµРјРЅРѕ-Р·РµР»РµРЅРѕРіРѕ С†РІРµС‚Р°
+                    // Если клетка рождается, делаем её темно-зеленого цвета
                     cell.setColor(Vector3d(0.0f, 0.5f, 0.0f));
                 }
                 else {
-                    // Р•СЃР»Рё РєР»РµС‚РєР° РѕСЃС‚Р°РµС‚СЃСЏ Р¶РёРІРѕР№, РґРµР»Р°РµРј РµС‘ Р·РµР»РµРЅРѕРіРѕ С†РІРµС‚Р°
+                    // Если клетка остается живой, делаем её зеленого цвета
                     cell.setColor(Vector3d(0.3f, 0.8f, 0.3f));
                 }
             }
             else if (currentState) {
-                // Р•СЃР»Рё РєР»РµС‚РєР° СѓРјРёСЂР°РµС‚, РґРµР»Р°РµРј РµС‘ С‚РµРјРЅРѕ-СЃРµСЂРѕРіРѕ С†РІРµС‚Р°
+                // Если клетка умирает, делаем её темно-серого цвета
                 cell.setColor(Vector3d(0.25f, 0.25f, 0.25f));
             }
         }
@@ -108,7 +108,7 @@ void GameOfLife::nextGeneration() {
 
 
 void GameOfLife::nextGenerationCPU() {
-    //saveCurrentState(); // РЎРѕС…СЂР°РЅСЏРµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
+    //saveCurrentState(); // Сохраняем текущее состояние
     int neighbors;
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
@@ -120,49 +120,49 @@ void GameOfLife::nextGenerationCPU() {
             }
 
             bool currentState = grid.getCellState(x, y);
-            Cell& oldCell = grid.getCell(x, y); // РЎСЃС‹Р»РєР° РЅР° СЃС‚Р°СЂСѓСЋ РєР»РµС‚РєСѓ
-            Cell newCell = oldCell; // РљРѕРїРёСЂСѓРµРј СЃС‚Р°СЂСѓСЋ РєР»РµС‚РєСѓ
+            Cell& oldCell = grid.getCell(x, y); // Ссылка на старую клетку
+            Cell newCell = oldCell; // Копируем старую клетку
 
             if (currentState) {
-                // Р–РёРІР°СЏ РєР»РµС‚РєР°
+                // Живая клетка
                 newCell.setAlive(neighbors == 2 || neighbors == 3);
                 if (!newCell.getAlive()) {
-                    // Р•СЃР»Рё РєР»РµС‚РєР° СѓРјРёСЂР°РµС‚, РёСЃРїРѕР»СЊР·СѓРµРј С‚РµРјРЅРѕ-СЃРµСЂС‹Р№ С†РІРµС‚
+                    // Если клетка умирает, используем темно-серый цвет
                     newCell.setColor(Vector3d(0.25f, 0.25f, 0.25f));
                 }
                 else {
-                    // Р•СЃР»Рё РєР»РµС‚РєР° РѕСЃС‚Р°РµС‚СЃСЏ Р¶РёРІРѕР№, РґРµР»Р°РµРј РµС‘ Р·РµР»РµРЅРѕРі С†РІРµС‚Р°
+                    // Если клетка остается живой, делаем её зеленог цвета
                     newCell.setColor(Vector3d(0.3f, 0.8f, 0.3f));
                 }
             }
             else {
-                // РњРµСЂС‚РІР°СЏ РєР»РµС‚РєР°
+                // Мертвая клетка
                 newCell.setAlive(neighbors == 3);
                 if (newCell.getAlive()) {
-                    // Р•СЃР»Рё РєР»РµС‚РєР° СЂРѕР¶РґР°РµС‚СЃСЏ, РґРµР»Р°РµРј РµС‘ С‚РµРјРЅРѕ Р·РµР»РµРЅРѕРіРѕ С†РІРµС‚Р°
-                    newCell.setColor(Vector3d(0.0f, 0.5f, 0.0f)); // Р·РµР»РµРЅС‹Р№ С†РІРµС‚
+                    // Если клетка рождается, делаем её темно зеленого цвета
+                    newCell.setColor(Vector3d(0.0f, 0.5f, 0.0f)); // зеленый цвет
                 }
             }
-            nextGrid.setCell(x, y, newCell); // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅРѕРІСѓСЋ РєР»РµС‚РєСѓ
+            nextGrid.setCell(x, y, newCell); // Устанавливаем новую клетку
         }
     }
-    std::swap(grid, nextGrid); // РџРµСЂРµРєР»СЋС‡Р°РµРј Р±СѓС„РµСЂС‹
+    std::swap(grid, nextGrid); // Переключаем буферы
 }
 
 void GameOfLife::previousGeneration() {
     if (!history.empty()) {
-        grid = history.back(); // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїСЂРµРґС‹РґСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
-        history.pop_back(); // РЈРґР°Р»СЏРµРј РїРѕСЃР»РµРґРЅРµРµ СЃРѕС…СЂР°РЅРµРЅРЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РёР· РёСЃС‚РѕСЂРёРё
+        grid = history.back(); // Восстанавливаем предыдущее состояние
+        history.pop_back(); // Удаляем последнее сохраненное состояние из истории
     }
     else {
-        // РћР±СЂР°Р±РѕС‚РєР° СЃР»СѓС‡Р°СЏ, РєРѕРіРґР° РЅРµС‚ РїСЂРµРґС‹РґСѓС‰РёС… СЃРѕСЃС‚РѕСЏРЅРёР№
-        //std::cout << "РќРµС‚ РїСЂРµРґС‹РґСѓС‰РµРіРѕ РїРѕРєРѕР»РµРЅРёСЏ РґР»СЏ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ." << std::endl;
+        // Обработка случая, когда нет предыдущих состояний
+        //std::cout << "Нет предыдущего поколения для восстановления." << std::endl;
     }
 }
 
 void GameOfLife::saveCurrentState() {
     if (history.size() >= 100) {
-        history.erase(history.begin()); // РЈРґР°Р»СЏРµРј СЃР°РјРѕРµ СЃС‚Р°СЂРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
+        history.erase(history.begin()); // Удаляем самое старое состояние
     }
-    history.push_back(grid); // РЎРѕС…СЂР°РЅСЏРµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
+    history.push_back(grid); // Сохраняем текущее состояние
 }

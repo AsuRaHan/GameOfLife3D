@@ -4,8 +4,8 @@
 // Включаемый файл, созданный в Microsoft Visual C++.
 // Используется life.rc
 //
-#define IDI_ICON1                       101
-
+#define IDI_ICON1                       101 // иконка приложения 
+#define IDR_FONT_CUSTOM					102 // шрифт для ImGui
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

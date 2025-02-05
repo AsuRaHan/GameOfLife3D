@@ -4,10 +4,8 @@
 
 #include "../system/GLFunctions.h"
 #include "Camera.h"
+#include "UIController.h" // Добавляем заголовочный файл UIController
 #include "../game/GameController.h"
-#include "GUI/UIManager.h"
-#include "GUI/Button.h"
-#include "GUI/Label.h"
 #include <vector>
 #include <memory>
 
@@ -21,7 +19,7 @@ public:
     ~Renderer();
 
     void SetCamera(const Camera& camera);
-    Camera& GetCamera() { return camera; } // РЈРґР°Р»РёС‚СЊ const
+    Camera& GetCamera() { return camera; } // Удалить const
 
     void SetGameController(GameController* gameController);
 
@@ -37,19 +35,18 @@ public:
     bool getShowGrid() { return showGrid; };
     void setShowGrid(bool show) { showGrid = show; };
 
-    void RebuildGameField(); // РјРµС‚РѕРґ РґР»СЏ РїРµСЂРµСЃС‚СЂРѕР№РєРё РёРіСЂРѕРІРѕРіРѕ РїРѕР»СЏ
+    void RebuildGameField(); // метод для перестройки игрового поля
 
     void initializeUI();
-    void OnMouseClick(int x, int y);
-    void OnMouseMove(int x, int y);
 
 private:
     int width, height;
     Camera camera;
     GameController* pGameController;
+    UIController uiController;
 
     bool showGrid = true;
-    ShaderManager shaderManager; // Р”РѕР±Р°РІР»СЏРµРј ShaderManager
+    ShaderManager shaderManager; // Добавляем ShaderManager
 
     void InitializeVBOs();
     GLuint gridVBO;
@@ -58,32 +55,28 @@ private:
     std::vector<GLfloat> cellVertices;
 
     struct CellInstance {
-        float x, y; // РџРѕР·РёС†РёСЏ РєР»РµС‚РєРё
-        Vector3d color; // Р¦РІРµС‚ РєР»РµС‚РєРё
+        float x, y; // Позиция клетки
+        Vector3d color; // Цвет клетки
     };
     GLuint cellInstanceVBO;
     std::vector<CellInstance> cellInstances;
     GLuint shaderProgram;
-    // РґР»СЏ С€РµР№РґРµСЂРѕРІ СЃРµС‚РєРё
+    // для шейдеров сетки
     GLuint gridShaderProgram;
     GLuint gridVAO;
 
     GLuint debugOverlayShaderProgram, debugOverlayVAO, debugOverlayVBO, debugOverlayTexture;
 
     void SetupOpenGL();
+
     void DrawGrid();
     void DrawCells();
-    void DrawDebugOverlay();
 
     void LoadShaders();
 	void LoadCellShaders();
     void LoadGridShaders();
     
-
     void InitializeGridVBOs();
-
-    void InitializeDebugOverlay();
-    void UpdateDebugOverlayPosition();
 
 };
 #endif // RENDERER_H_
