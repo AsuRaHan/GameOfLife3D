@@ -42,15 +42,34 @@
    - Visual Studio с инструментами для разработки на C++
    - Библиотеки и заголовочные файлы OpenGL
 
-2. **Сборка**:
-   - Откройте проект в Visual Studio.
-   - Настройте для разработки на Windows с поддержкой OpenGL.
-   - Соберите решение.
+2. **Установка**:
+	- git clone --recursive https://github.com/AsuRaHan/GameOfLife3D.git
+	- cd GameOfLife3D`
+	- git submodule update --init --recursive`
 
-3. **Запуск**:
+3. **Обновление репозитория и подмодулей:**
+	- Перейдите в вашу директорию проекта
+	- `git pull origin <ваша_ветка>`
+	- `git submodule update --recursive --remote`
+	
+```bash
+cd external/imgui  # или путь к вашему подмодулю
+git fetch origin
+git checkout origin/master  # или любая другая ветка, если выбрана не master
+cd ..  # вернуться в корень вашего проекта
+git add external/imgui
+git commit -m "Update ImGui to latest version"
+```
+
+4. **Сборка**:
+	- Откройте проект в Visual Studio.
+	- Настройте для разработки на Windows с поддержкой OpenGL.
+	- Соберите решение.
+
+5. **Запуск**:
    - Запустите собранное приложение.
    - Так же можно передать параметры в комендной строке что бы указать размер игрового поля, по умолчанию 200x200 `life.exe -gridWidth 200 -gridHeight 150` смотрите пример в [run_life.bat](run_life.bat)
-
+	
 ## Возможности
 
 - **Управление симуляцией**:
