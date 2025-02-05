@@ -69,5 +69,8 @@ ehthumbs.db
 Desktop.ini
 c_cpp_properties.json
 log.txt
+bldml.cpp
 bldml.exe
+bldml.obj
 output.txt
+external/
