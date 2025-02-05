@@ -49,8 +49,8 @@
 
 3. **Обновление репозитория и подмодулей:**
 	- Перейдите в вашу директорию проекта
-	- `git pull origin <ваша_ветка>`
-	- `git submodule update --recursive --remote`
+	- git pull origin <ваша_ветка>
+	- git submodule update --recursive --remote
 	
 ```bash
 cd external/imgui  # или путь к вашему подмодулю
