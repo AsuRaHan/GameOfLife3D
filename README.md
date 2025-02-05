@@ -43,17 +43,8 @@
 
 3. **Обновление репозитория и подмодулей:**
 	- Перейдите в вашу директорию проекта
-	- git pull origin <ваша_ветка>
+	- git pull origin main
 	- git submodule update --recursive --remote
-	
-```bash
-cd external/imgui  # или путь к вашему подмодулю
-git fetch origin
-git checkout origin/master  # или любая другая ветка, если выбрана не master
-cd ..  # вернуться в корень вашего проекта
-git add external/imgui
-git commit -m "Update ImGui to latest version"
-```
 
 4. **Сборка**:
 	- Откройте проект в Visual Studio.
@@ -72,20 +63,18 @@ git commit -m "Update ImGui to latest version"
   - Возврат к предыдущим поколениям
 
 - **Управление камерой в 3D**:
-  - Панорамирование, масштабирование и вращение вида сетки
+  - Панорамирование, масштабирование
 
 - **Управление сеткой**:
   - Инициализация сетки случайными клетками
   - Изменение состояния отдельных клеток мышкой
-
-- **Отладочный интерфейс**: 
-  - Визуальные подсказки о состоянии симуляции (запущена/остановлена)
 
 ## Используемые технологии
 
 - **C++** для основной логики и механики игры
 - **OpenGL** для визуализации
 - **Windows API** для управления окнами и обработки событий
+- **ImGuiI** для пользовательского интерфейса
 
 ## Структура проекта
 
@@ -94,6 +83,8 @@ git commit -m "Update ImGui to latest version"
   - `Grid.h`, `Grid.cpp` - Управление сеткой
   - `GameOfLife.h`, `GameOfLife.cpp` - Правила и логика игры
   - `GameController.h`, `GameController.cpp` - Управление состоянием игры
+  - `GPUAutomaton.h`, `GPUAutomaton.cpp` - Клеточный автомат использующий для ресчета GPU
+  - `GameStateManager.h`, `GameStateManager.cpp` - Управление загрузкой и сохранением мира
 
 - **./rendering**: Код, связанный с рендерингом
   - `Camera.h`, `Camera.cpp` - Управление камерой для 3D вида
