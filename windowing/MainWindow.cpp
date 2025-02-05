@@ -60,6 +60,8 @@ void MainWindow::SetController(WindowController* controller) {
     pController = controller;
 }
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     if (message == WM_NCCREATE) {
         // Извлекаем указатель на MainWindow из lParam при создании окна
@@ -74,6 +76,9 @@ LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
             pThis->pController->HandleEvent(message, wParam, lParam);
         }
     }
+
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+        return true;
 
     switch (message) {
     case WM_SIZE: // Добавляем обработку изменения размера

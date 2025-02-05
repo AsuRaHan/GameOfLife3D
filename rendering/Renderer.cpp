@@ -153,10 +153,50 @@ void Renderer::Draw() {
 
     DrawCells();
 
-    DrawDebugOverlay();
+    // Начало нового кадра ImGui
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
 
-    // Отрисовка GUI поверх всего остального
+    // Отрисовка UI с кнопками
+    ImGui::Begin("Game of Life Control");
 
+    // Кнопка для запуска симуляции
+    if (ImGui::Button("Start Simulation")) {
+        pGameController->startSimulation();
+    }
+
+    // Кнопка для остановки симуляции
+    if (ImGui::Button("Stop Simulation")) {
+        pGameController->stopSimulation();
+    }
+
+    // Кнопка для одного шага симуляции
+    if (ImGui::Button("Step Simulation")) {
+        pGameController->stepSimulation();
+    }
+
+    // Кнопка для отката на предыдущее поколение
+    if (ImGui::Button("Previous Generation")) {
+        pGameController->previousGeneration();
+    }
+
+    // Кнопка для очистки сетки
+    if (ImGui::Button("Clear Grid")) {
+        pGameController->clearGrid();
+    }
+
+    // Кнопка для случайного заполнения сетки
+    if (ImGui::Button("Randomize Grid")) {
+        pGameController->randomizeGrid(0.1f); // 10% вероятность для живой клетки
+    }
+
+    // Здесь можно добавить другие кнопки или элементы управления
+
+    ImGui::End();
+    // Завершение кадра ImGui и отрисовка
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     SwapBuffers(wglGetCurrentDC());
 }

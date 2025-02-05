@@ -6,7 +6,6 @@
 #include <Windows.h>
 #include "../resource.h"
 #include "WindowController.h"
-//#include "../system/OpenGLInitializer.h"
 
 class MainWindow {
 private:
