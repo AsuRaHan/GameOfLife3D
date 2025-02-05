@@ -101,7 +101,7 @@ void UIController::DrawUI() {
     //if (ImGui::Checkbox("Show Grid", &showGrid)) {
     //    ToggleGridVisibility();
     //}
-    ImGui::End();
+    //ImGui::End();
 
 
     ImGui::Render();
