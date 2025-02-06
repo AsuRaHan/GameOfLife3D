@@ -50,7 +50,7 @@ void Renderer::InitializeVBOs() {
     GL_CHECK(glGenBuffers(1, &cellsVBO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
 
-    float scale_factor = 0.2f;
+    float scale_factor = 0.1f;
     float centerX = 0.5f;
     float centerY = 0.5f;
 
@@ -124,14 +124,14 @@ void Renderer::InitializeGridVBOs() {
             gridVertices.push_back(x * cellSize); gridVertices.push_back((y + 1) * cellSize); gridVertices.push_back(0.0f);
         }
     }
-
+    int LS = 100;
     // Создание "главных" линий
-    for (int y = 0; y <= gridHeight; y += 10) {
-        for (int x = 0; x <= gridWidth; x += 10) {
+    for (int y = 0; y <= gridHeight; y += LS) {
+        for (int x = 0; x <= gridWidth; x += LS) {
             majorGridVertices.push_back(x * cellSize); majorGridVertices.push_back(y * cellSize); majorGridVertices.push_back(0.0f);
-            majorGridVertices.push_back((x == gridWidth ? x : x + 10) * cellSize); majorGridVertices.push_back(y * cellSize); majorGridVertices.push_back(0.0f);
+            majorGridVertices.push_back((x == gridWidth ? x : x + LS) * cellSize); majorGridVertices.push_back(y * cellSize); majorGridVertices.push_back(0.0f);
             majorGridVertices.push_back(x * cellSize); majorGridVertices.push_back(y * cellSize); majorGridVertices.push_back(0.0f);
-            majorGridVertices.push_back(x * cellSize); majorGridVertices.push_back((y == gridHeight ? y : y + 10) * cellSize); majorGridVertices.push_back(0.0f);
+            majorGridVertices.push_back(x * cellSize); majorGridVertices.push_back((y == gridHeight ? y : y + LS) * cellSize); majorGridVertices.push_back(0.0f);
         }
     }
 
@@ -334,9 +334,9 @@ out vec4 FragColor;
 void main()
 {
     if(isMajorLine > 0.25) {
-        FragColor = vec4(0.6, 0.6, 0.7, 1.0); // Красный цвет для "главных" линий
+        FragColor = vec4(0.5, 0.5, 0.6, 1.0); // Красный цвет для "главных" линий
     } else {
-        FragColor = vec4(0.3, 0.3, 0.4, 1.0); // Серый цвет для обычных линий
+        FragColor = vec4(0.2, 0.2, 0.3, 1.0); // Серый цвет для обычных линий
     }
 }
     )";
