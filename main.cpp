@@ -108,7 +108,11 @@ int wWinMain(
 {
     std::ofstream out("log.txt");
     std::streambuf* coutbuf = std::cout.rdbuf(); // сохраняем буфер cout
+    std::streambuf* cerrbuf = std::cerr.rdbuf(); // сохраняем буфер cerr
+    std::streambuf* clogbuf = std::clog.rdbuf(); // сохраняем буфер clog
     std::cout.rdbuf(out.rdbuf()); // перенаправляем cout в файл
+    std::cerr.rdbuf(out.rdbuf()); // перенаправляем cerr в тот же файл
+    std::clog.rdbuf(out.rdbuf()); // перенаправляем clog в файл
 
     auto now = std::chrono::system_clock::now();
     std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
@@ -154,8 +158,8 @@ int wWinMain(
         io.IniFilename = NULL; // Отключаем сохранение в ini файл
         loadFontFromRes(io);
         // Setup Dear ImGui style
-        ImGui::StyleColorsDark();
-        //ImGui::StyleColorsClassic();
+        //ImGui::StyleColorsDark();
+        ImGui::StyleColorsClassic();
 
         // Setup Platform/Renderer backends
         ImGui_ImplWin32_InitForOpenGL(mainWindow.GetHwnd());
@@ -190,13 +194,19 @@ int wWinMain(
     }
     else {
         MessageBox(NULL, L"Window creation failed", L"Error", MB_OK | MB_ICONERROR);
-        std::cout.rdbuf(coutbuf); // восстанавливаем буфер cout
+        // Восстанавливаем буферы
+        std::cout.rdbuf(coutbuf);
+        std::cerr.rdbuf(cerrbuf);
+        std::clog.rdbuf(clogbuf);
         return 1;
     }
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-    std::cout.rdbuf(coutbuf); // восстанавливаем буфер cout
+    // Восстанавливаем буферы
+    std::cout.rdbuf(coutbuf);
+    std::cerr.rdbuf(cerrbuf);
+    std::clog.rdbuf(clogbuf);
     return 0;
 
 }

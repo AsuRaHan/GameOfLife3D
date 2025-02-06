@@ -11,20 +11,27 @@ class GameOfLife {
 public:
     GameOfLife(Grid& g);
     void nextGeneration();
-    void nextGenerationCPU();
     void previousGeneration();
-    void saveCurrentState();
-    int countLiveNeighbors(int x, int y) const;
-    int countLiveNeighborsWorld(int x, int y) const;
+
 	void setWoldToroidal(bool wt);
     bool getWoldToroidal() const { return isToroidal; };
+
     void updateGridReference(Grid& newGrid) { grid = newGrid; } // метод для обновления ссылки
 private:
     Grid& grid;
     Grid nextGrid; // Добавляем nextGrid для двойного буфера
+    GPUAutomaton gpuAutomaton; // член класса для вычислений на GPU
+
     std::vector<Grid> history;
     bool isToroidal;
-    GPUAutomaton gpuAutomaton; // член класса для вычислений на GPU
+    bool isGpuSimulated;
+    
+    void nextGenerationGPU();
+    void nextGenerationCPU();
+    
+    void saveCurrentState();
+    int countLiveNeighbors(int x, int y) const;
+    int countLiveNeighborsWorldToroidal(int x, int y) const;
 };
 
 #endif // GAMEOFLIFE_H

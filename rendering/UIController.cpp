@@ -53,10 +53,10 @@ void UIController::DrawUI() {
     if (ImGui::Button("Случайные клетки", ImVec2(buttonWidth, 0))) {
         gameController->randomizeGrid(0.1f);
     }
-    //// Выпадающий список (ComboBox)
+    // Выпадающий список (ComboBox)
     static int selectedPattern = 0;
     const char* patterns[] = { "Glider", "Blinker", "Toad", "Beacon", "Pentadecathlon","gosperGliderGun","gosperGliderGunFlipped","gosperGliderGunVertical","gosperGliderGunVerticalFlipped"};
-    if (ImGui::Combo("Pattern", &selectedPattern, patterns, IM_ARRAYSIZE(patterns))) {
+    if (ImGui::Combo("Фигура", &selectedPattern, patterns, IM_ARRAYSIZE(patterns))) {
         // Здесь вы можете обработать выбор паттерна, например:
         gameController->setCurrentPattern(selectedPattern + 1); // +1 если нумерация начинается с 1
     }

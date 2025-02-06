@@ -3,6 +3,7 @@
 GameController::GameController(int width, int height, float cellSize)
     : grid(width, height), gameOfLife(grid), cellSize(cellSize), isRunning(false) {
     currentPattern = glider;
+    std::srand(static_cast<unsigned int>(std::time(nullptr))); // Инициализация генератора случайных чисел
 }
 
 void GameController::initializeGrid() {
@@ -55,10 +56,10 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
                 // Инвертируем x, чтобы перевернуть паттерн по горизонтали
                 grid.setCellState(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), pattern[y][x]);
                 if (pattern[y][x]) {
-                    grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.3f, 0.7f, 0.4f));
+                    grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.5f, 0.9f, 0.5f));
                 }
                 else {
-                    grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.2f, 0.2f, 0.4f));
+                    grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.1f, 0.1f, 0.1f));
                 }
                 
             }

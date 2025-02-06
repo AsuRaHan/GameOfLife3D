@@ -1,7 +1,9 @@
 #include "GameOfLife.h"
 
-GameOfLife::GameOfLife(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()),gpuAutomaton(g.getWidth(), g.getHeight()), isToroidal(true) {
-    std::srand(static_cast<unsigned int>(std::time(nullptr))); // Инициализация генератора случайных чисел
+GameOfLife::GameOfLife(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()),
+gpuAutomaton(g.getWidth(), g.getHeight()), isToroidal(true), isGpuSimulated(true)
+{
+    gpuAutomaton.SetToroidal(isToroidal); // Установка isToroidal
 }
 
 int GameOfLife::countLiveNeighbors(int x, int y) const {
@@ -26,7 +28,7 @@ int GameOfLife::countLiveNeighbors(int x, int y) const {
     return count;
 }
 
-int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
+int GameOfLife::countLiveNeighborsWorldToroidal(int x, int y) const {
     constexpr int offsets[8][2] = {
         {-1, -1}, {-1, 0}, {-1, 1},
         {0, -1},           {0, 1},
@@ -51,20 +53,32 @@ int GameOfLife::countLiveNeighborsWorld(int x, int y) const {
     }
     return count;
 }
+
 void GameOfLife::setWoldToroidal(bool wt) {
     isToroidal = wt;
-    gpuAutomaton.SetToroidal(wt); // Установка isToroidal в GPUAutomaton
+    gpuAutomaton.SetToroidal(isToroidal); // Установка isToroidal в GPUAutomaton
 }
 
 void GameOfLife::nextGeneration() {
-    static std::vector<int> currentState(grid.getWidth() * grid.getHeight());
-    static std::vector<int> nextState(grid.getWidth() * grid.getHeight());
+    if (isGpuSimulated) {
+        nextGenerationGPU();
+    }
+    else {
+        nextGenerationCPU();
+    }
+}
+
+void GameOfLife::nextGenerationGPU() {
+    int GW = grid.getWidth();
+    int GH = grid.getHeight();
+    static std::vector<int> currentState(GW * GH);
+    static std::vector<int> nextState(GW * GH);
     
     // Асинхронная загрузка данных на GPU
     auto future = std::async(std::launch::async, [&]() {
-        for (int y = 0; y < grid.getHeight(); ++y) {
-            for (int x = 0; x < grid.getWidth(); ++x) {
-                currentState[y * grid.getWidth() + x] = grid.getCellState(x, y) ? 1 : 0;
+        for (int y = 0; y < GH; ++y) {
+            for (int x = 0; x < GW; ++x) {
+                currentState[y * GW + x] = grid.getCellState(x, y) ? 1 : 0;
             }
         }
     });
@@ -81,9 +95,9 @@ void GameOfLife::nextGeneration() {
     gpuAutomaton.GetGridState(nextState);
 
     // Обновляем сетку на основе состояния, полученного с GPU
-    for (auto y = 0; y < grid.getHeight(); ++y) {
-        for (auto x = 0; x < grid.getWidth(); ++x) {
-            bool newState = nextState[y * grid.getWidth() + x] != 0;
+    for (auto y = 0; y < GH; ++y) {
+        for (auto x = 0; x < GW; ++x) {
+            bool newState = nextState[y * GW + x] != 0;
             Cell& cell = grid.getCell(x, y);
             bool currentState = cell.getAlive();
             cell.setAlive(newState);
@@ -91,7 +105,7 @@ void GameOfLife::nextGeneration() {
             if (newState) {
                 if (!currentState) {
                     // Если клетка рождается, делаем её темно-зеленого цвета
-                    cell.setColor(Vector3d(0.0f, 0.5f, 0.0f));
+                    cell.setColor(Vector3d(0.0f, 0.4f, 0.0f));
                 }
                 else {
                     // Если клетка остается живой, делаем её зеленого цвета
@@ -100,23 +114,35 @@ void GameOfLife::nextGeneration() {
             }
             else if (currentState) {
                 // Если клетка умирает, делаем её темно-серого цвета
-                cell.setColor(Vector3d(0.25f, 0.25f, 0.25f));
+                cell.setColor(Vector3d(0.33f, 0.33f, 0.33f));
+            }
+            else {
+                Vector3d oldColor = cell.getColor();
+                float rc = oldColor.X();
+                float gc = oldColor.Y();
+                float bc = oldColor.Z();
+                rc -= 0.01f;
+                gc -= 0.01f;
+                bc -= 0.01f;
+                if (rc < 0) rc = 0.0f;
+                if (gc < 0) gc = 0.0f;
+                if (bc < 0) bc = 0.0f;
+                cell.setColor(Vector3d(rc, bc, gc));
             }
         }
     }
 }
-
 
 void GameOfLife::nextGenerationCPU() {
     //saveCurrentState(); // Сохраняем текущее состояние
     int neighbors;
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
-            if (isToroidal) {
-                neighbors = countLiveNeighbors(x, y);
+            if (isToroidal) {                
+                neighbors = countLiveNeighborsWorldToroidal(x, y);
             }
             else {
-                neighbors = countLiveNeighborsWorld(x, y);
+                neighbors = countLiveNeighbors(x, y);
             }
 
             bool currentState = grid.getCellState(x, y);

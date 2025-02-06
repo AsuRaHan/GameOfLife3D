@@ -13,12 +13,14 @@ ShaderManager::~ShaderManager() {
 }
 
 void ShaderManager::loadVertexShader(const std::string& name, const char* source) {
+    std::cout << "Начинаю загрузку вершинного шейдера " << name << std::endl;
     GLuint shader;
     compileShader(source, GL_VERTEX_SHADER, shader);
     shaders[name] = shader;
 }
 
 void ShaderManager::loadFragmentShader(const std::string& name, const char* source) {
+    std::cout << "Начинаю загрузку фрагментного шейдера " << name << std::endl;
     GLuint shader;
     compileShader(source, GL_FRAGMENT_SHADER, shader);
     shaders[name] = shader;
@@ -31,6 +33,9 @@ void ShaderManager::loadComputeShader(const std::string& name, const char* sourc
 }
 
 void ShaderManager::linkProgram(const std::string& programName, const std::string& vertexShaderName, const std::string& fragmentShaderName) {
+    std::cout << "Начинаю компиляцию шейдерной программы programName=" << programName 
+        << " vertexShaderName=" << vertexShaderName 
+        << " fragmentShaderName=" << fragmentShaderName << std::endl;
     GLuint program = glCreateProgram();
     glAttachShader(program, shaders[vertexShaderName]);
     glAttachShader(program, shaders[fragmentShaderName]);
@@ -84,9 +89,7 @@ void ShaderManager::checkProgramLinking(GLuint program) {
 std::string ShaderManager::LoadShaderSource(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        //throw std::runtime_error("Failed to open shader file: " + filename);
-        std::cout << "Не удалось загрузить файл шейдерной программы: " << filename << std::endl;
-        exit(1);
+        throw std::runtime_error("Не удалось загрузить файл шейдерной программы: " + filename);
     }
     return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 }

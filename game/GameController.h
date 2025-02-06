@@ -20,7 +20,7 @@ private:
     GameOfLife gameOfLife;
     float cellSize; // Размер каждой клетки в пикселях
     bool isRunning; // Флаг, показывает, запущена ли симуляция
-    float simulationSpeed = 0.01f; // Значение 1.0f может соответствовать одной секунде реального времени
+    float simulationSpeed = 0.001f; // Значение 1.0f может соответствовать одной секунде реального времени
     float frameTimeAccumulator = 0.0f;
 
     // Определим тип фигуры как двумерный массив

@@ -164,7 +164,8 @@ void Renderer::InitializeGridVBOs() {
 
 void Renderer::Draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        DrawCells();
+    
+    DrawCells();
     // Отрисовка сетки и клеток
     if (showGrid)DrawGrid();
     // Теперь используем UIController для отрисовки UI
@@ -199,11 +200,11 @@ void Renderer::DrawGrid() {
 
 void Renderer::DrawCells() {
     if (!pGameController) return;
-
+    int GW = pGameController->getGridWidth();
     // Обновляем данные о клетках
     for (size_t i = 0; i < cellInstances.size(); ++i) {
-        int x = i % pGameController->getGridWidth();
-        int y = i / pGameController->getGridWidth();
+        int x = i % GW;
+        int y = i / GW;
         Cell cell = pGameController->getGrid().getCell(x, y);
         cellInstances[i].color = cell.getColor(); // Обновляем только цвет
     }
