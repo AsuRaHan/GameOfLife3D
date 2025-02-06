@@ -2,6 +2,7 @@
 #include "GLFunctions.h"
 
 OpenGLInitializer::OpenGLInitializer(HWND hWnd) : hRC(NULL), hDC(NULL) {
+    m_hWnd = hWnd;
     hDC = GetDC(hWnd);
 }
 
@@ -15,20 +16,136 @@ OpenGLInitializer::~OpenGLInitializer() {
     }
 }
 
-bool OpenGLInitializer::Initialize() {
+bool OpenGLInitializer::Initialize(bool fullScreen) {
     std::cout << "Начинаю инициализацию OpenGL" << std::endl;
-    if (!SetupPixelFormat(hDC)) return false;
+
+    // Настройка полноэкранного режима, если требуется
+    if (fullScreen) {
+        // Удаляем стиль окна с заголовком и рамкой
+        LONG_PTR style = GetWindowLongPtr(m_hWnd, GWL_STYLE);
+        style &= ~WS_CAPTION; // Убирает заголовок
+        style &= ~WS_THICKFRAME; // Убирает рамку (для изменяемых окон)
+        style &= ~WS_BORDER; // Убирает простую границу для неизменяемых окон
+        style &= ~WS_SIZEBOX; // Убирает размерную рамку
+
+        SetWindowLongPtr(m_hWnd, GWL_STYLE, style);
+
+        // Также можно изменить расширенный стиль для полного удаления всех декораций
+        LONG_PTR exStyle = GetWindowLongPtr(m_hWnd, GWL_EXSTYLE);
+        exStyle &= ~WS_EX_WINDOWEDGE;
+        exStyle &= ~WS_EX_CLIENTEDGE;
+        exStyle &= ~WS_EX_STATICEDGE;
+
+        SetWindowLongPtr(m_hWnd, GWL_EXSTYLE, exStyle);
+
+        // Перерисовать окно, чтобы изменения вступили в силу
+        //SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
+        DEVMODE dmScreenSettings;
+        memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
+        dmScreenSettings.dmSize = sizeof(dmScreenSettings);
+        dmScreenSettings.dmPelsWidth = GetSystemMetrics(SM_CXSCREEN);
+        dmScreenSettings.dmPelsHeight = GetSystemMetrics(SM_CYSCREEN);
+        dmScreenSettings.dmBitsPerPel = 32;
+        dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+
+        SetWindowPos(m_hWnd, HWND_TOP, 0, 0, dmScreenSettings.dmPelsWidth, dmScreenSettings.dmPelsHeight, SWP_SHOWWINDOW);
+        ShowWindow(m_hWnd, SW_SHOWMAXIMIZED);
+
+        if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
+            std::cout << "Не удалось переключиться в полноэкранный режим" << std::endl;
+            return false;
+        }
+    }
+    WNDCLASSEX wc = { 0 };
+    wc.cbSize = sizeof(WNDCLASSEX);
+    wc.style = CS_HREDRAW | CS_VREDRAW;
+    wc.lpfnWndProc = DefWindowProc;
+    wc.hInstance = GetModuleHandle(NULL);
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wc.lpszClassName = L"OpenGLTempClass";
+    if (!RegisterClassEx(&wc)) {
+        std::cout << "Не удалось зарегистрировать класс окна. Код ошибки: " << GetLastError() << std::endl;
+        return false;
+    }
+
+    // Временное окно для инициализации OpenGL
+    HWND temporaryWindow = CreateWindowEx(WS_EX_APPWINDOW, L"OpenGLTempClass", L"Temp", WS_OVERLAPPEDWINDOW, 0, 0, 1, 1, NULL, NULL, GetModuleHandle(NULL), NULL);
+    if (temporaryWindow == NULL) {
+        std::cout << "Не удалось создать временное окно. Код ошибки: " << GetLastError() << std::endl;
+        return false;
+    }
+    HDC temporaryDC = GetDC(temporaryWindow);
+    if (temporaryDC == NULL) {
+        std::cout << "Не удалось получить HDC для временного окна. Код ошибки: " << GetLastError() << std::endl;
+        DestroyWindow(temporaryWindow);
+        return false;
+    }
+    if (!SetupPixelFormat(temporaryDC)) {
+        DestroyWindow(temporaryWindow);
+        return false;
+    }
     std::cout << "          SetupPixelFormat успешно" << std::endl;
-    hRC = wglCreateContext(hDC);
-    if (!hRC) return false;
+
+    HGLRC temporaryRC = wglCreateContext(temporaryDC);
+    wglMakeCurrent(temporaryDC, temporaryRC);
+
+    // Загрузка расширений OpenGL
+    wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
+    wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+
+    if (!wglChoosePixelFormatARB || !wglCreateContextAttribsARB) {
+        std::cout << "Не удалось загрузить OpenGL расширения" << std::endl;
+        wglDeleteContext(temporaryRC);
+        DestroyWindow(temporaryWindow);
+        return false;
+    }
+
+    // Выбор формата для основного окна
+    const int formatAttributes[] = {
+        WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+        WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+        WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+        WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+        WGL_COLOR_BITS_ARB, 32,
+        WGL_DEPTH_BITS_ARB, 24,
+        0
+    };
+
+    const int contextAttributes[] = {
+        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+        WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+        WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+        0
+    };
+
+    int format, formatCount;
+    wglChoosePixelFormatARB(hDC, formatAttributes, NULL, 1, &format, (UINT*)&formatCount);
+    PIXELFORMATDESCRIPTOR pfd;
+    DescribePixelFormat(hDC, format, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+    SetPixelFormat(hDC, format, &pfd);
+
+    // Создание современного контекста OpenGL
+    hRC = wglCreateContextAttribsARB(hDC, NULL, contextAttributes);
+    if (!hRC) {
+        std::cout << "Не удалось создать контекст OpenGL" << std::endl;
+        wglDeleteContext(temporaryRC);
+        DestroyWindow(temporaryWindow);
+        return false;
+    }
+
+    wglMakeCurrent(hDC, hRC);
+    wglDeleteContext(temporaryRC);
+    ReleaseDC(temporaryWindow, temporaryDC);
+    DestroyWindow(temporaryWindow);
+
     std::cout << "          wglCreateContext успешно" << std::endl;
-    if (!wglMakeCurrent(hDC, hRC)) return false;
     std::cout << "          wglMakeCurrent успешно" << std::endl;
+
     std::cout << "Начинаю ручную загрузку OpenGL функций" << std::endl;
     LoadOpenGLFunctions();
-    //printSystemInfo();
-    //float maxFarPlane = testFarPlane(10.0f, 1000000000000.0f, 1000000000.0f);
-    //std::cout << "Максимальное значение farPlane без проблем: " << maxFarPlane << std::endl;
+
     return true;
 }
 
@@ -55,20 +172,15 @@ bool OpenGLInitializer::SetupPixelFormat(HDC hdc) {
     int pixelFormat = ChoosePixelFormat(hdc, &pfd);
     if (pixelFormat == 0) {
         DWORD error = GetLastError();
-        wchar_t errorMessage[256];
-        swprintf_s(errorMessage, sizeof(errorMessage) / sizeof(wchar_t), L"Не удалось выбрать pixel format. Код ошибки: %lu", error);
-        MessageBox(NULL, errorMessage, L"Ошибка", MB_OK | MB_ICONERROR);
+        std::cout << "Не удалось выбрать pixel format. Код ошибки: " << error << std::endl;
         return false;
     }
 
     if (!SetPixelFormat(hdc, pixelFormat, &pfd)) {
         DWORD error = GetLastError();
-        wchar_t errorMessage[256];
-        swprintf_s(errorMessage, sizeof(errorMessage) / sizeof(wchar_t), L"Не удалось установить pixel format. Код ошибки: %lu", error);
-        MessageBox(NULL, errorMessage, L"Ошибка", MB_OK | MB_ICONERROR);
+        std::cout << "Не удалось установить pixel format. Код ошибки: " << error << std::endl;
         return false;
     }
-
 
     return true;
 }

@@ -13,11 +13,9 @@ public:
 
     // Расширенное сохранение/загрузка (с дополнительными параметрами)
     static bool saveGameStateCSV(const Grid& grid, const std::string& filename);
-    static bool loadGameStateCSV(Grid& grid, const std::string& filename);
 
 private:
     // Вспомогательные методы
-    static bool validateFile(const std::string& filename);
     static bool validateDimensions(const Grid& grid, int width, int height);
 };
 

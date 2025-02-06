@@ -1,9 +1,6 @@
 #include "Grid.h"
 
 Grid::Grid(int w, int h) : width(w), height(h) {
-    //for (auto y = 0; y < height; ++y) {
-    //    cells[y].resize(width);
-    //}
     cells.resize(height, std::vector<Cell>(width));
 }
 

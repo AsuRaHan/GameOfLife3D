@@ -5,6 +5,7 @@
 #pragma once
 #include <Windows.h>
 #include <gl\GL.h>
+#include <gl\glu.h>
 #include <cstdio> // For swprintf and swprintf_s
 
 //#include "GLFunctions.h"
@@ -13,11 +14,17 @@ class OpenGLInitializer {
 private:
     HGLRC hRC;
     HDC hDC;
+    HWND m_hWnd;
+    // Указатели на функции расширений
+    typedef BOOL(APIENTRY* PFNWGLCHOOSEPIXELFORMATARBPROC)(HDC, const int*, const FLOAT*, UINT, int*, UINT*);
+    typedef HGLRC(APIENTRY* PFNWGLCREATECONTEXTATTRIBSARBPROC)(HDC, HGLRC, const int*);
 
+    PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB;
+    PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
 public:
     OpenGLInitializer(HWND hWnd);
     ~OpenGLInitializer();
-    bool Initialize();
+    bool Initialize(bool fullScreen=false);
 
 private:
     bool SetupPixelFormat(HDC hdc);

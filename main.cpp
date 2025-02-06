@@ -22,26 +22,47 @@
 
 
 // Функция для парсинга командной строки
-void ParseCommandLine(LPWSTR lpCmdLine, int& width, int& height) {
-    std::wstring cmdLine(lpCmdLine);
+void ParseCommandLine(const std::wstring& cmdLine, int& width, int& height, bool& fullscreen) {
     std::wistringstream iss(cmdLine);
     std::wstring token;
 
     // Устанавливаем значения по умолчанию
-    width = 400;  // Значение по умолчанию для ширины
-    height = 300; // Значение по умолчанию для высоты
+    width = 400;      // Значение по умолчанию для ширины
+    height = 300;     // Значение по умолчанию для высоты
+    fullscreen = false; // Значение по умолчанию для полноэкранного режима
 
     // Парсим командную строку
     while (iss >> token) {
         if (token == L"-gridWidth") {
             if (iss >> token) {
-                width = std::stoi(token); // Преобразуем строку в целое число
+                try {
+                    width = std::stoi(token); // Преобразуем строку в целое число
+                    if (width <= 0) {
+                        throw std::invalid_argument("Width must be positive.");
+                    }
+                }
+                catch (const std::exception& e) {
+                    std::wcerr << L"Invalid width value: " << token << L". Using default width." << std::endl;
+                    width = 400; // Возвращаем значение по умолчанию
+                }
             }
         }
         else if (token == L"-gridHeight") {
             if (iss >> token) {
-                height = std::stoi(token); // Преобразуем строку в целое число
+                try {
+                    height = std::stoi(token); // Преобразуем строку в целое число
+                    if (height <= 0) {
+                        throw std::invalid_argument("Height must be positive.");
+                    }
+                }
+                catch (const std::exception& e) {
+                    std::wcerr << L"Invalid height value: " << token << L". Using default height." << std::endl;
+                    height = 300; // Возвращаем значение по умолчанию
+                }
             }
+        }
+        else if (token == L"-fullscreen") {
+            fullscreen = true; // Если параметр указан, устанавливаем fullscreen в true
         }
     }
 }
@@ -98,19 +119,22 @@ int wWinMain(
 
     // Переменные для ширины и высоты
     int gridWidth, gridHeight;
-    ParseCommandLine(lpCmdLine, gridWidth, gridHeight); // Получаем значения из командной строки
+    bool Full;
+    ParseCommandLine(lpCmdLine, gridWidth, gridHeight, Full); // Получаем значения из командной строки
 
     MainWindow mainWindow(hInstance, 800, 600);
 
 
     if (mainWindow.Create()) {
-        int width = mainWindow.GetWidth();
-        int height = mainWindow.GetHeight();
         OpenGLInitializer glInit(mainWindow.GetHwnd());
-        if (!glInit.Initialize()) {
+
+        if (!glInit.Initialize(Full)) {
             MessageBox(NULL, L"OpenGL Initialization Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
             return 1;
         }
+
+        int width = mainWindow.GetWidth();
+        int height = mainWindow.GetHeight();
 
         GameController gameController(gridWidth, gridHeight); // Создаем GameController
         gameController.randomizeGrid(0.1f);

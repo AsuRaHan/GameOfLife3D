@@ -42,15 +42,14 @@ void Renderer::InitializeVBOs() {
     int gridHeight = pGameController->getGridHeight();
     float cellSize = pGameController->getCellSize();
 
-    // Инициализация VBO для клеток
+    // Инициализация VAO для клеток
+    GL_CHECK(glGenVertexArrays(1, &cellsVAO));
+    GL_CHECK(glBindVertexArray(cellsVAO)); // Сначала привязываем VAO
+
+    // Инициализация VBO для вершин клеток
     GL_CHECK(glGenBuffers(1, &cellsVBO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
-    //float vertices[] = {
-    //    0.1f, 0.1f,
-    //    0.9f, 0.1f,
-    //    0.9f, 0.9f,
-    //    0.1f, 0.9f
-    //};
+
     float scale_factor = 0.2f;
     float centerX = 0.5f;
     float centerY = 0.5f;
@@ -68,22 +67,41 @@ void Renderer::InitializeVBOs() {
 
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
 
+    // Настройка атрибутов для вершин квадрата клетки
+    GL_CHECK(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
+    GL_CHECK(glEnableVertexAttribArray(0));
+
     // Инициализация VBO для данных инстанса
     GL_CHECK(glGenBuffers(1, &cellInstanceVBO));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
+
     cellInstances.clear();
     cellInstances.reserve(gridWidth * gridHeight);
     for (int y = 0; y < gridHeight; ++y) {
         for (int x = 0; x < gridWidth; ++x) {
             Cell cell = pGameController->getGrid().getCell(x, y);
+            // Предполагаем, что getColor() возвращает Vector3d
             cellInstances.push_back({
                 x * cellSize, y * cellSize,
-                cell.getColor()
+                {cell.getColor().X(), cell.getColor().Y(), cell.getColor().Z()}
                 });
         }
     }
 
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
+
+    // Настройка атрибутов для инстансинга
+    GL_CHECK(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)0));
+    GL_CHECK(glVertexAttribDivisor(1, 1)); // Каждый инстанс имеет свою позицию
+    GL_CHECK(glEnableVertexAttribArray(1));
+
+    GL_CHECK(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)(offsetof(CellInstance, color))));
+    GL_CHECK(glVertexAttribDivisor(3, 1)); // Цвет для каждого инстанса
+    GL_CHECK(glEnableVertexAttribArray(3));
+
+    // Отвязываем буферы и VAO
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GL_CHECK(glBindVertexArray(0));
 
     InitializeGridVBOs();
 }
@@ -153,52 +171,7 @@ void Renderer::Draw() {
     uiController.DrawUI();
 
     // Обновление состояния UI на основе текущего состояния игры
-    uiController.UpdateUIState();
-
-    // Начало нового кадра ImGui
-    //ImGui_ImplOpenGL3_NewFrame();
-    //ImGui_ImplWin32_NewFrame();
-    //ImGui::NewFrame();
-
-    //// Отрисовка UI с кнопками
-    //ImGui::Begin("Game of Life Control");
-
-    //// Кнопка для запуска симуляции
-    //if (ImGui::Button("Start Simulation")) {
-    //    pGameController->startSimulation();
-    //}
-
-    //// Кнопка для остановки симуляции
-    //if (ImGui::Button("Stop Simulation")) {
-    //    pGameController->stopSimulation();
-    //}
-
-    //// Кнопка для одного шага симуляции
-    //if (ImGui::Button("Step Simulation")) {
-    //    pGameController->stepSimulation();
-    //}
-
-    //// Кнопка для отката на предыдущее поколение
-    //if (ImGui::Button("Previous Generation")) {
-    //    pGameController->previousGeneration();
-    //}
-
-    //// Кнопка для очистки сетки
-    //if (ImGui::Button("Clear Grid")) {
-    //    pGameController->clearGrid();
-    //}
-
-    //// Кнопка для случайного заполнения сетки
-    //if (ImGui::Button("Randomize Grid")) {
-    //    pGameController->randomizeGrid(0.1f); // 10% вероятность для живой клетки
-    //}
-
-    //// Здесь можно добавить другие кнопки или элементы управления
-
-    //ImGui::End();
-    //// Завершение кадра ImGui и отрисовка
-    //ImGui::Render();
-    //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    //uiController.UpdateUIState();
 
     SwapBuffers(wglGetCurrentDC());
 }
@@ -234,12 +207,14 @@ void Renderer::DrawCells() {
         Cell cell = pGameController->getGrid().getCell(x, y);
         cellInstances[i].color = cell.getColor(); // Обновляем только цвет
     }
+    // Привязываем VAO перед настройкой атрибутов
+    GL_CHECK(glBindVertexArray(cellsVAO));
 
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
     void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
     if (ptr) {
         memcpy(ptr, cellInstances.data(), cellInstances.size() * sizeof(CellInstance));
-        glUnmapBuffer(GL_ARRAY_BUFFER);
+        GL_CHECK(glUnmapBuffer(GL_ARRAY_BUFFER));
     }
 
     GL_CHECK(glUseProgram(shaderProgram));
@@ -255,21 +230,20 @@ void Renderer::DrawCells() {
 
     // Настраиваем атрибуты для вершин квадрата клетки
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
-    GL_CHECK(glEnableVertexAttribArray(0)); // Вершины квадрата (позиция)
+    GL_CHECK(glEnableVertexAttribArray(0)); // Вершины квадрата
     GL_CHECK(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
 
-    // Настраиваем атрибуты для инстансинга
+    // Настраиваем атрибуты для инстансинга (позиция и цвет)
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
-    GL_CHECK(glEnableVertexAttribArray(1)); // Позиция инстанса
+    GL_CHECK(glEnableVertexAttribArray(1)); // Позиция инстансов
     GL_CHECK(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)0));
-    GL_CHECK(glVertexAttribDivisor(1, 1)); // Каждый инстанс имеет свою позицию
+    GL_CHECK(glVertexAttribDivisor(1, 1));
 
-    GL_CHECK(glEnableVertexAttribArray(3)); // Цвет клетки
+    GL_CHECK(glEnableVertexAttribArray(3)); // Цвет инстансов
     GL_CHECK(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)(offsetof(CellInstance, color))));
-    GL_CHECK(glVertexAttribDivisor(3, 1)); // Цвет для каждого инстанса
+    GL_CHECK(glVertexAttribDivisor(3, 1));
 
     // Отрисовка клеток с использованием инстансинга
-    //GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, cellInstances.size()));
     GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 8, cellInstances.size()));
 
     // Отключаем использование атрибутов после отрисовки

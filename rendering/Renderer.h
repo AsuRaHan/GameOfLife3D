@@ -4,7 +4,7 @@
 
 #include "../system/GLFunctions.h"
 #include "Camera.h"
-#include "UIController.h" // Добавляем заголовочный файл UIController
+#include "UIController.h"
 #include "../game/GameController.h"
 #include <vector>
 #include <memory>
@@ -19,7 +19,7 @@ public:
     ~Renderer();
 
     void SetCamera(const Camera& camera);
-    Camera& GetCamera() { return camera; } // Удалить const
+    Camera& GetCamera() { return camera; }
 
     void SetGameController(GameController* gameController);
 
@@ -48,9 +48,15 @@ private:
     bool showGrid = true;
     ShaderManager shaderManager; // Добавляем ShaderManager
 
-    void InitializeVBOs();
+    
+    void InitializeGridVBOs();
     GLuint gridVBO;
+    GLuint gridVAO;
+
+    void InitializeVBOs();
     GLuint cellsVBO;
+    GLuint cellsVAO;
+
     std::vector<GLfloat> gridVertices;
     std::vector<GLfloat> cellVertices;
 
@@ -63,7 +69,6 @@ private:
     GLuint shaderProgram;
     // для шейдеров сетки
     GLuint gridShaderProgram;
-    GLuint gridVAO;
 
     GLuint debugOverlayShaderProgram, debugOverlayVAO, debugOverlayVBO, debugOverlayTexture;
 
@@ -75,8 +80,6 @@ private:
     void LoadShaders();
 	void LoadCellShaders();
     void LoadGridShaders();
-    
-    void InitializeGridVBOs();
 
 };
 #endif // RENDERER_H_

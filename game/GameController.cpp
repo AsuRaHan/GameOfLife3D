@@ -1,7 +1,5 @@
 #include "GameController.h"
 
-
-
 GameController::GameController(int width, int height, float cellSize)
     : grid(width, height), gameOfLife(grid), cellSize(cellSize), isRunning(false) {
     currentPattern = glider;

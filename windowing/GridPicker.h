@@ -14,7 +14,6 @@ public:
 
 private:
     const Camera& camera;
-    //GameController& gameController;
 
     void MultiplyMatrixVector(const float* matrix, const float* vector, float* result) const;
     void InvertMatrix(const float* m, float* out) const;

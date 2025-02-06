@@ -1,9 +1,5 @@
 #include "GridPicker.h"
 
-
-//GridPicker::GridPicker(const Camera& camera, GameController& gameController)
-//    : camera(camera), gameController(gameController) {
-//}
 GridPicker::GridPicker(const Camera& camera) : camera(camera) {}
 
 void GridPicker::MultiplyMatrixVector(const float* matrix, const float* vector, float* result) const {

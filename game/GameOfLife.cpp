@@ -1,7 +1,7 @@
 #include "GameOfLife.h"
 
 GameOfLife::GameOfLife(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()),gpuAutomaton(g.getWidth(), g.getHeight()), isToroidal(true) {
-    //std::srand(static_cast<unsigned int>(std::time(nullptr))); // »нициализаци€ генератора случайных чисел
+    std::srand(static_cast<unsigned int>(std::time(nullptr))); // »нициализаци€ генератора случайных чисел
 }
 
 int GameOfLife::countLiveNeighbors(int x, int y) const {
