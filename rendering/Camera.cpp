@@ -204,3 +204,7 @@ void Camera::NormalizeVector(std::array<float, 3>& vector) {
         vector[2] /= length;
     }
 }
+
+float Camera::GetDistance() const {
+    return std::abs(position[2]);
+}

@@ -32,7 +32,7 @@ public:
 
     const float* GetViewMatrix() const { return viewMatrix.data(); }
     const float* GetProjectionMatrix() const { return projectionMatrix.data(); }
-
+    float GetDistance() const;
     static constexpr float PI = 3.14159265358979323846f;
     static constexpr float MAX_PITCH = 89.0f * PI / 180.0f;
 

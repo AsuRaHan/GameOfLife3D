@@ -113,53 +113,48 @@ void Renderer::InitializeGridVBOs() {
     float cellSize = pGameController->getCellSize();
 
     gridVertices.clear();
-    std::vector<float> majorGridVertices;
+
+    // Определение шагов для дополнительных линий
+    int minorStep = 10; // Например, линии через каждые 10 единиц
+    int majorStep = 50; // Например, более заметные линии через каждые 50 единиц
 
     // Создание сетки
     for (int y = 0; y <= gridHeight; ++y) {
         for (int x = 0; x <= gridWidth; ++x) {
+            // Добавляем информацию о "величине" линии в каждую вершину 
+            float majorLine = (x % majorStep == 0 || y % majorStep == 0) ? 1.0f : 0.0f;
+            float minorLine = (x % minorStep == 0 || y % minorStep == 0) ? 1.0f : 0.0f;
+
             gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
+            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine); // Добавляем значения для шейдера
+
+            // Добавляем следующую вершину для линии
             gridVertices.push_back((x + 1) * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
+            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+
+            // Повторяем для вертикальных линий
             gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
+            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+
             gridVertices.push_back(x * cellSize); gridVertices.push_back((y + 1) * cellSize); gridVertices.push_back(0.0f);
-        }
-    }
-    int LS = 100;
-    // Создание "главных" линий
-    for (int y = 0; y <= gridHeight; y += LS) {
-        for (int x = 0; x <= gridWidth; x += LS) {
-            majorGridVertices.push_back(x * cellSize); majorGridVertices.push_back(y * cellSize); majorGridVertices.push_back(0.0f);
-            majorGridVertices.push_back((x == gridWidth ? x : x + LS) * cellSize); majorGridVertices.push_back(y * cellSize); majorGridVertices.push_back(0.0f);
-            majorGridVertices.push_back(x * cellSize); majorGridVertices.push_back(y * cellSize); majorGridVertices.push_back(0.0f);
-            majorGridVertices.push_back(x * cellSize); majorGridVertices.push_back((y == gridHeight ? y : y + LS) * cellSize); majorGridVertices.push_back(0.0f);
+            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
         }
     }
 
-    // Создание VAO и VBO для обычной сетки
+    // Создание VAO и VBO для сетки
     GL_CHECK(glGenVertexArrays(1, &gridVAO));
     GL_CHECK(glGenBuffers(1, &gridVBO));
     GL_CHECK(glBindVertexArray(gridVAO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gridVBO));
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_STATIC_DRAW));
-    GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
-    GL_CHECK(glEnableVertexAttribArray(0));
 
-    // Создание VAO и VBO для "главных" линий
-    GLuint majorGridVAO, majorGridVBO;
-    GL_CHECK(glGenVertexArrays(1, &majorGridVAO));
-    GL_CHECK(glGenBuffers(1, &majorGridVBO));
-    GL_CHECK(glBindVertexArray(majorGridVAO));
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, majorGridVBO));
-    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, majorGridVertices.size() * sizeof(float), majorGridVertices.data(), GL_STATIC_DRAW));
-    GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+    // Настраиваем атрибуты вершин
+    GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0)); // Position
     GL_CHECK(glEnableVertexAttribArray(0));
-
-    // Теперь вам нужно будет отрисовывать оба VAO в методе DrawGrid:
-    GL_CHECK(glBindVertexArray(gridVAO));
-    GL_CHECK(glDrawArrays(GL_LINES, 0, gridVertices.size() / 3));
-    GL_CHECK(glBindVertexArray(majorGridVAO));
-    GL_CHECK(glDrawArrays(GL_LINES, 0, majorGridVertices.size() / 3));
-    GL_CHECK(glBindVertexArray(0));
+    GL_CHECK(glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)))); // Major line flag
+    GL_CHECK(glEnableVertexAttribArray(1));
+    GL_CHECK(glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(4 * sizeof(float)))); // Minor line flag
+    GL_CHECK(glEnableVertexAttribArray(2));
 }
 
 void Renderer::Draw() {
@@ -184,15 +179,19 @@ void Renderer::DrawGrid() {
     // Передаем матрицы проекции и вида в шейдеры
     GLuint projectionLoc = glGetUniformLocation(gridShaderProgram, "projection");
     GLuint viewLoc = glGetUniformLocation(gridShaderProgram, "view");
+    GLuint cameraDistanceLoc = glGetUniformLocation(gridShaderProgram, "cameraDistance"); // Новая uniform для дистанции камеры
 
     GL_CHECK(glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, camera.GetProjectionMatrix()));
     GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
+
+    float cameraDistance = camera.GetDistance(); // Предполагаем, что у камеры есть метод для получения расстояния
+    GL_CHECK(glUniform1f(cameraDistanceLoc, cameraDistance));
 
     // Связываем VAO сетки
     GL_CHECK(glBindVertexArray(gridVAO));
 
     // Рисуем линии сетки
-    GL_CHECK(glDrawArrays(GL_LINES, 0, gridVertices.size() / 3)); // Предполагаем, что gridVertices содержит координаты вершин для линий сетки
+    GL_CHECK(glDrawArrays(GL_LINES, 0, gridVertices.size() / 5)); // Теперь каждый элемент состоит из 5 float
 
     // Отвязываем VAO
     GL_CHECK(glBindVertexArray(0));
@@ -316,27 +315,48 @@ void Renderer::LoadGridShaders() {
     const std::string gridVertexShaderSource = R"(
 #version 330 core
 layout(location = 0) in vec3 aPos;
+layout(location = 1) in float isMajorLine; // Флаг для главных линий (самый большой шаг)
+layout(location = 2) in float isMinorLine; // Флаг для средних линий (средний шаг)
 uniform mat4 projection;
 uniform mat4 view;
-out float isMajorLine; // Выходной параметр для фрагментного шейдера
+uniform float cameraDistance; // Расстояние камеры для определения видимости линий
+out float majorLine; // Выходной параметр для главных линий
+out float minorLine; // Выходной параметр для средних линий
+out float drawMinor; // Определяет видимость самых мелких линий
+out float drawMedium; // Новая переменная для средних линий
+
 void main()
 {
     gl_Position = projection * view * vec4(aPos, 1.0);
-    // Пример: рассчитываем, является ли линия "главной"
-    isMajorLine = mod(aPos.x, 5.0) == 0.0 || mod(aPos.y, 5.0) == 0.0 ? 1.0 : 0.0;
+    majorLine = isMajorLine; // Передаем флаг главных линий во фрагментный шейдер
+    minorLine = isMinorLine; // Передаем флаг средних линий во фрагментный шейдер
+    
+    // Устанавливаем видимость для самых мелких линий
+    drawMinor = (cameraDistance > 100.0) ? 0.0 : 1.0; // Самые мелкие линии видны, если камера ближе 100 единиц
+    
+    // Устанавливаем видимость для средних линий
+    drawMedium = (cameraDistance > 150.0) ? 0.0 : 1.0; // Средние линии видны, если камера ближе 150 единиц
 }
     )";
 
     const std::string gridFragmentShaderSource = R"(
 #version 330 core
-in float isMajorLine;
+in float majorLine; // Входной параметр для определения главных линий
+in float minorLine; // Входной параметр для определения средних линий
+in float drawMinor; // Определяет отображение самых мелких линий
+in float drawMedium; // Определяет отображение средних линий
 out vec4 FragColor;
+
 void main()
 {
-    if(isMajorLine > 0.25) {
-        FragColor = vec4(0.5, 0.5, 0.6, 1.0); // Красный цвет для "главных" линий
+    if(majorLine > 0.5) {
+        FragColor = vec4(0.8, 0.8, 0.8, 1.0); // Цвет для главных линий, всегда видимые
+    } else if(minorLine > 0.5 && drawMedium > 0.5) {
+        FragColor = vec4(0.5, 0.5, 0.5, 1.0); // Цвет для средних линий, видны если drawMedium > 0.5
+    } else if(drawMinor > 0.5) {
+        FragColor = vec4(0.2, 0.2, 0.2, 1.0); // Цвет для самых мелких линий, видны если drawMinor > 0.5
     } else {
-        FragColor = vec4(0.2, 0.2, 0.3, 1.0); // Серый цвет для обычных линий
+        FragColor = vec4(0.0, 0.0, 0.0, 0.0); // Прозрачный цвет, если линия не видна
     }
 }
     )";
