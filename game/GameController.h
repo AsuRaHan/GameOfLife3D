@@ -5,6 +5,7 @@
 #pragma once
 #include "GameOfLife.h"
 #include "Grid.h"
+#include "GameStateManager.h"
 #include <random> // Для генерации случайных чисел
 #include <string>
 #include <fstream>
@@ -20,7 +21,8 @@ private:
     GameOfLife gameOfLife;
     float cellSize; // Размер каждой клетки в пикселях
     bool isRunning; // Флаг, показывает, запущена ли симуляция
-    float simulationSpeed = 0.001f; // Значение 1.0f может соответствовать одной секунде реального времени
+    bool showGrid;
+    float simulationSpeed = 0.01f; // Значение 1.0f может соответствовать одной секунде реального времени
     float frameTimeAccumulator = 0.0f;
 
     // Определим тип фигуры как двумерный массив
@@ -165,7 +167,7 @@ private:
 public:
     
     GameController(int width, int height, float cellSize = 0.5f);
-    void initializeGrid();
+    void randomizeGrid();
     void placePattern(int startX, int startY, const Pattern& pattern);
     void randomizeGrid(float density);
     void clearGrid();
@@ -180,6 +182,8 @@ public:
     float getCellSize() const { return cellSize; }
     int getGridWidth() const { return grid.getWidth(); }
     int getGridHeight() const { return grid.getHeight(); }
+    bool getShowGrid() const {return showGrid;};
+    void setShowGrid(bool isShow) {showGrid = isShow;};
 
     bool getCellState(int x, int y) const;
     const Grid& getGrid() const { return grid; }
@@ -190,7 +194,18 @@ public:
     void setCurrentPattern(int patternNumber);
     void PlacePattern(int startX, int startY);
     void setWoldToroidal(bool wt) { gameOfLife.setWoldToroidal( wt); };
-    bool getWoldToroidal() { return gameOfLife.getWoldToroidal(); };
+    bool getWoldToroidal() const { return gameOfLife.getWoldToroidal(); };
     void setSimulationSpeed(float speed);
+
+    // Новые методы для сохранения и загрузки состояния игры
+    bool saveGameState(const std::string& filename) const {
+        return GameStateManager::saveGameState(grid, filename);
+    }
+    bool loadGameState(const std::string& filename) {
+        return GameStateManager::loadGameState(grid, filename);
+    }
+    bool saveGameStateCSV(const std::string& filename) const {
+        return GameStateManager::saveGameStateCSV(grid, filename);
+    }
 };
 #endif // GAMECONTROLLER_H_

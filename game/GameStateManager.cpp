@@ -25,11 +25,16 @@ bool GameStateManager::saveGameState(const Grid& grid, const std::string& filena
 }
 
 bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
+    
     std::ifstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "Не удалось открыть файл для чтения: " << filename << std::endl;
+        char buffer[256];
+        strerror_s(buffer, sizeof(buffer), errno);
+        std::cerr << "Не удалось открыть файл для чтения: " << filename << ", ошибка: " << buffer << std::endl;
         return false;
     }
+
+
 
     // Читаем размеры
     int width, height;
@@ -46,7 +51,15 @@ bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
     int y = 0;
     while (std::getline(file, line) && y < height) {
         for (int x = 0; x < std::min(width, (int)line.length()); ++x) {
+
             grid.setCellState(x, y, line[x] == '1');
+            if (line[x] == '1') {
+                grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
+            }
+            else {
+                grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
+            }
+            
         }
         ++y;
     }

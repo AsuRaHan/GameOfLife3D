@@ -8,7 +8,7 @@ Renderer::Renderer(int width, int height)
 }
 
 Renderer::~Renderer() {
-    glDeleteProgram(shaderProgram);
+    glDeleteProgram(cellShaderProgram);
     glDeleteProgram(gridShaderProgram);
     glDeleteProgram(debugOverlayShaderProgram);
     glDeleteBuffers(1, &cellsVBO);
@@ -25,7 +25,10 @@ void Renderer::SetCamera(const Camera& camera) {
 void Renderer::SetGameController(GameController* gameController) {
     pGameController = gameController;
     LoadShaders();
-    InitializeVBOs();
+
+    InitializeCellsVBOs();
+    InitializeGridVBOs();
+
     uiController = UIController(pGameController);
     uiController.InitializeUI();
 }
@@ -36,7 +39,7 @@ void Renderer::SetupOpenGL() {
     GL_CHECK(glViewport(0, 0, width, height));
 }
 
-void Renderer::InitializeVBOs() {
+void Renderer::InitializeCellsVBOs() {
     if (!pGameController) return;
     int gridWidth = pGameController->getGridWidth();
     int gridHeight = pGameController->getGridHeight();
@@ -102,8 +105,6 @@ void Renderer::InitializeVBOs() {
     // Отвязываем буферы и VAO
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
     GL_CHECK(glBindVertexArray(0));
-
-    InitializeGridVBOs();
 }
 
 void Renderer::InitializeGridVBOs() {
@@ -116,7 +117,7 @@ void Renderer::InitializeGridVBOs() {
 
     // Определение шагов для дополнительных линий
     int minorStep = 10; // Например, линии через каждые 10 единиц
-    int majorStep = 50; // Например, более заметные линии через каждые 50 единиц
+    int majorStep = 100; // Например, более заметные линии через каждые 50 единиц
 
     // Создание сетки
     for (int y = 0; y <= gridHeight; ++y) {
@@ -162,7 +163,7 @@ void Renderer::Draw() {
     
     DrawCells();
     // Отрисовка сетки и клеток
-    if (showGrid)DrawGrid();
+    if (pGameController->getShowGrid())DrawGrid();
     // Теперь используем UIController для отрисовки UI
     uiController.DrawUI();
 
@@ -179,12 +180,12 @@ void Renderer::DrawGrid() {
     // Передаем матрицы проекции и вида в шейдеры
     GLuint projectionLoc = glGetUniformLocation(gridShaderProgram, "projection");
     GLuint viewLoc = glGetUniformLocation(gridShaderProgram, "view");
-    GLuint cameraDistanceLoc = glGetUniformLocation(gridShaderProgram, "cameraDistance"); // Новая uniform для дистанции камеры
+    GLuint cameraDistanceLoc = glGetUniformLocation(gridShaderProgram, "cameraDistance"); // uniform для дистанции камеры
 
     GL_CHECK(glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, camera.GetProjectionMatrix()));
     GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
 
-    float cameraDistance = camera.GetDistance(); // Предполагаем, что у камеры есть метод для получения расстояния
+    float cameraDistance = camera.GetDistance();
     GL_CHECK(glUniform1f(cameraDistanceLoc, cameraDistance));
 
     // Связываем VAO сетки
@@ -217,12 +218,12 @@ void Renderer::DrawCells() {
         GL_CHECK(glUnmapBuffer(GL_ARRAY_BUFFER));
     }
 
-    GL_CHECK(glUseProgram(shaderProgram));
+    GL_CHECK(glUseProgram(cellShaderProgram));
 
     // Устанавливаем uniform переменные
-    GLuint projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-    GLuint viewLoc = glGetUniformLocation(shaderProgram, "view");
-    GLuint cellSizeLoc = glGetUniformLocation(shaderProgram, "cellSize");
+    GLuint projectionLoc = glGetUniformLocation(cellShaderProgram, "projection");
+    GLuint viewLoc = glGetUniformLocation(cellShaderProgram, "view");
+    GLuint cellSizeLoc = glGetUniformLocation(cellShaderProgram, "cellSize");
 
     GL_CHECK(glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, camera.GetProjectionMatrix()));
     GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
@@ -304,7 +305,7 @@ void main()
     shaderManager.loadVertexShader("cellVertexShader", vertexShaderSource.c_str());
     shaderManager.loadFragmentShader("cellFragmentShader", fragmentShaderSource.c_str());
     shaderManager.linkProgram("cellShaderProgram", "cellVertexShader", "cellFragmentShader");
-    shaderProgram = shaderManager.getProgram("cellShaderProgram");
+    cellShaderProgram = shaderManager.getProgram("cellShaderProgram");
 
 }
 
@@ -335,7 +336,7 @@ void main()
     drawMinor = (cameraDistance > 100.0) ? 0.0 : 1.0; // Самые мелкие линии видны, если камера ближе 100 единиц
     
     // Устанавливаем видимость для средних линий
-    drawMedium = (cameraDistance > 150.0) ? 0.0 : 1.0; // Средние линии видны, если камера ближе 150 единиц
+    drawMedium = (cameraDistance > 250.0) ? 0.0 : 1.0; // Средние линии видны, если камера ближе 150 единиц
 }
     )";
 
@@ -375,9 +376,5 @@ void Renderer::RebuildGameField() {
     glDeleteBuffers(1, &cellInstanceVBO);
     glDeleteBuffers(1, &gridVBO);
 
-    InitializeVBOs(); // Перестраиваем буферы
-}
-
-void Renderer::initializeUI() {
-
+    InitializeGridVBOs(); // Перестраиваем буферы
 }

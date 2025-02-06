@@ -25,7 +25,6 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
     case WM_PAINT:
         if (pRenderer)pRenderer->Draw();
-        //ValidateRect(pWindow->GetHwnd(), NULL);
         break;
     case WM_SIZE:
         Resize(LOWORD(lParam), HIWORD(lParam)); // ќбработка изменени€ размеров окна
@@ -116,12 +115,12 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
         case 'Y':
             if (!pGameController->isSimulationRunning()) {
-                pGameController->setWoldToroidal(!pGameController->getWoldToroidal()); // ќчищение пол€. убить всех
+                pGameController->setWoldToroidal(!pGameController->getWoldToroidal()); // сделать мир безграничным или на оборот ограничеть его
             }
             break;
         case 'I':
             if (!pGameController->isSimulationRunning()) {
-                pGameController->initializeGrid(); // ќчищение пол€. убить всех
+                pGameController->randomizeGrid(); // засе€ть поле рандомными фигурами
             }
             break;
         case 'L':
@@ -131,7 +130,7 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             }
             break;
         case 'G':
-            pRenderer->setShowGrid(!pRenderer->getShowGrid());
+            pGameController->setShowGrid(!pGameController->getShowGrid());
             break;
 
         }
@@ -140,13 +139,26 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     case WM_MOUSEWHEEL:
         if (pRenderer) {
             short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-            float moveZ = zDelta > 0 ? -1.1f : 1.1f;
+            float moveZ = zDelta > 0 ? -2.5f : 2.5f;
             // ѕроверка состо€ни€ клавиши Ctrl
             if (GetKeyState(VK_CONTROL) & 0x8000) {
-                moveZ *= 10.0f; // ”величиваем скорость зума в 10 раз
+                moveZ *= 15.0f; // ”величиваем скорость зума в 10 раз
             }
             Camera& camera = const_cast<Camera&>(pRenderer->GetCamera());
-            camera.Move(0.0f, 0.0f, moveZ);
+
+            float currentPosX;
+            float currentPosY;
+            float currentPosZ;
+            camera.GetPosition(currentPosX, currentPosY, currentPosZ); // ѕолучаем текущую позицию камеры по Z
+
+            // –ассчитываем новую позицию, но не позвол€ем ей быть меньше 0
+            float newPosZ = currentPosZ + moveZ;
+            if (newPosZ < 1) {
+                newPosZ = 1; // ќграничиваем минимальное значение Z
+            }
+
+            // ƒвигаем камеру только по оси Z, сохран€€ еЄ позицию по X и Y
+            camera.Move(0.0f, 0.0f, newPosZ - currentPosZ);
         }
         break;
 
@@ -204,7 +216,8 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
 
 void WindowController::HandleMouseClick(int screenX, int screenY) {
     float worldX, worldY;
-    gridPicker.ScreenToWorld(screenX, screenY, pRenderer->getWindowWidth(), pRenderer->getWindowHeight(), worldX, worldY);
+    gridPicker.ScreenToWorld(screenX, screenY, pWindow->GetWidth(), pWindow->GetHeight(), worldX, worldY);
+    //gridPicker.ScreenToWorld(screenX, screenY, pRenderer->getWindowWidth(), pRenderer->getWindowHeight(), worldX, worldY);
 
     int gridWidth = pGameController->getGridWidth();
     int gridHeight = pGameController->getGridHeight();
@@ -228,11 +241,14 @@ void WindowController::RotateCamera(float yaw, float pitch) {
 void WindowController::MoveCamera(float dx, float dy) {
     if (pRenderer) {
         Camera& camera = const_cast<Camera&>(pRenderer->GetCamera());
-        // ѕолучаем текущее направление камеры дл€ вычислени€ движени€
+
+        // ѕолучаем текущее направление и позицию камеры
         float dirX, dirY, dirZ;
         camera.GetDirection(dirX, dirY, dirZ);
+        float currentPosX, currentPosY, currentPosZ;
+        camera.GetPosition(currentPosX, currentPosY, currentPosZ);
 
-        // ƒвигаем камеру вперед/назад по направлению взгл€да
+        // ¬ычисл€ем движение камеры
         float moveX = dirX * dy;
         float moveZ = dirZ * dy;
 
@@ -241,6 +257,14 @@ void WindowController::MoveCamera(float dx, float dy) {
         float rightZ = -dirX;
         moveX += rightX * dx;
         moveZ += rightZ * dx;
+
+        // ¬ычисл€ем новую позицию по Z
+        float newPosZ = currentPosZ + moveZ;
+
+        // ќграничиваем движение, чтобы камера не уходила за пределы z = 0
+        if (newPosZ < -10) {
+            moveZ = -currentPosZ;  // ƒвигаем ровно до нул€
+        }
 
         // ѕримен€ем движение
         camera.Move(moveX, 0.0f, moveZ);

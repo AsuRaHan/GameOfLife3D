@@ -1,12 +1,12 @@
 #include "GameController.h"
 
 GameController::GameController(int width, int height, float cellSize)
-    : grid(width, height), gameOfLife(grid), cellSize(cellSize), isRunning(false) {
+    : grid(width, height), gameOfLife(grid), cellSize(cellSize), isRunning(false), showGrid(true) {
     currentPattern = glider;
     std::srand(static_cast<unsigned int>(std::time(nullptr))); // »нициализаци€ генератора случайных чисел
 }
 
-void GameController::initializeGrid() {
+void GameController::randomizeGrid() {
 
     std::random_device rd;  // “олько дл€ инициализации генератора
     std::mt19937 gen(rd()); // —тандартный мерсенновский твистер
@@ -104,11 +104,11 @@ void GameController::clearGrid() {
 
 void GameController::update(float deltaTime) {
     if (isRunning) {
-        frameTimeAccumulator += deltaTime;
-        if (frameTimeAccumulator >= simulationSpeed) {
+        //frameTimeAccumulator += deltaTime;
+        //if (frameTimeAccumulator >= simulationSpeed) {
             gameOfLife.nextGeneration();
-            frameTimeAccumulator -= simulationSpeed;
-        }
+        //    frameTimeAccumulator -= simulationSpeed;
+        //}
     }
 }
 

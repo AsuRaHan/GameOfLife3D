@@ -66,22 +66,29 @@ LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
     }
 
     MainWindow* pThis = reinterpret_cast<MainWindow*>(GetWindowLongPtr(hWnd, 0));
-    if (pThis) {
-        if (pThis->pController) {
-            pThis->pController->HandleEvent(message, wParam, lParam);
-        }
-    }
 
     if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
         return true;
 
-    switch (message) {
-    case WM_SIZE: // Добавляем обработку изменения размера
-    {
-        pThis->windowWidth = LOWORD(lParam);
-        pThis->windowHeight = HIWORD(lParam);
-        break;
+    // Если ImGui не перехватил ввод, передаем его контроллеру
+    if (pThis && pThis->pController) {
+        // Проверка на активность любого элемента ImGui
+        bool isInputActive = ImGui::IsAnyItemActive();
+        // Обработка ввода для игры
+        if (!isInputActive)
+        {
+            pThis->pController->HandleEvent(message, wParam, lParam);
+        }
     }
+
+    // Обработка оставшихся сообщений
+    switch (message) {
+    case WM_SIZE: // Обработка изменения размера
+        if (pThis) {
+            pThis->windowWidth = LOWORD(lParam);
+            pThis->windowHeight = HIWORD(lParam);
+        }
+        break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;

@@ -22,51 +22,38 @@ public:
     Camera& GetCamera() { return camera; }
 
     void SetGameController(GameController* gameController);
-
-
     void Draw();
-
     void OnWindowResize(int newWidth, int newHeight);
-
     void MoveCamera(float dx, float dy, float dz);
-
     int getWindowWidth() const { return width; }
     int getWindowHeight() const { return height; }
-    bool getShowGrid() { return showGrid; };
-    void setShowGrid(bool show) { showGrid = show; };
-
     void RebuildGameField(); // метод для перестройки игрового поля
-
-    void initializeUI();
 
 private:
     int width, height;
     Camera camera;
     GameController* pGameController;
     UIController uiController;
-
-    bool showGrid = true;
-    ShaderManager shaderManager; // Добавляем ShaderManager
+    ShaderManager shaderManager;
 
     
     void InitializeGridVBOs();
     GLuint gridVBO;
     GLuint gridVAO;
 
-    void InitializeVBOs();
+    void InitializeCellsVBOs();
     GLuint cellsVBO;
     GLuint cellsVAO;
 
     std::vector<GLfloat> gridVertices;
-    std::vector<GLfloat> cellVertices;
-
     struct CellInstance {
         float x, y; // Позиция клетки
         Vector3d color; // Цвет клетки
     };
     GLuint cellInstanceVBO;
     std::vector<CellInstance> cellInstances;
-    GLuint shaderProgram;
+
+    GLuint cellShaderProgram;
     // для шейдеров сетки
     GLuint gridShaderProgram;
 
@@ -80,6 +67,5 @@ private:
     void LoadShaders();
 	void LoadCellShaders();
     void LoadGridShaders();
-
 };
 #endif // RENDERER_H_
