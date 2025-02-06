@@ -25,7 +25,6 @@ build/
 # Файлы проекта и решения
 *.csproj.user
 *.vbproj.user
-*.vcxproj.filters
 
 # Файлы публикации
 publish/

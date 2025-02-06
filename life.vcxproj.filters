@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="game\GameController.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\GameOfLife.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Camera.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\Renderer.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="game\Cell.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\Grid.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="system\GLFunctions.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="system\OpenGLInitializer.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="windowing\MainWindow.cpp">
+      <Filter>windowing</Filter>
+    </ClCompile>
+    <ClCompile Include="windowing\WindowController.cpp">
+      <Filter>windowing</Filter>
+    </ClCompile>
+    <ClCompile Include="mathematics\Vector3d.cpp">
+      <Filter>mathematics</Filter>
+    </ClCompile>
+    <ClCompile Include="mathematics\Matrix4x4.cpp">
+      <Filter>mathematics</Filter>
+    </ClCompile>
+    <ClCompile Include="windowing\GridPicker.cpp">
+      <Filter>windowing</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="game\GPUAutomaton.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="system\ShaderManager.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="game\GameStateManager.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\backends\imgui_impl_win32.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_demo.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_draw.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_tables.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_widgets.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\UIController.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="game\GameController.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\GameOfLife.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Camera.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\Renderer.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="game\Cell.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\Grid.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="system\GLFunctions.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="system\OpenGLInitializer.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="windowing\MainWindow.h">
+      <Filter>windowing</Filter>
+    </ClInclude>
+    <ClInclude Include="windowing\WindowController.h">
+      <Filter>windowing</Filter>
+    </ClInclude>
+    <ClInclude Include="mathematics\Vector3d.h">
+      <Filter>mathematics</Filter>
+    </ClInclude>
+    <ClInclude Include="mathematics\Matrix4x4.h">
+      <Filter>mathematics</Filter>
+    </ClInclude>
+    <ClInclude Include="windowing\GridPicker.h">
+      <Filter>windowing</Filter>
+    </ClInclude>
+    <ClInclude Include="game\GPUAutomaton.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="system\ShaderManager.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="game\GameStateManager.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\backends\imgui_impl_opengl3.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\backends\imgui_impl_win32.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui_internal.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\UIController.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="life.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="game">
+      <UniqueIdentifier>{413f1d7b-e4da-44d0-8078-cd0b803b0703}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rendering">
+      <UniqueIdentifier>{9d8313b0-8eda-418f-afe4-6d2f98774ae2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system">
+      <UniqueIdentifier>{9656dae3-4ed0-4eb3-bd7b-71ed13d24b8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windowing">
+      <UniqueIdentifier>{8df680a9-d63b-4de4-b99a-09331a81543a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mathematics">
+      <UniqueIdentifier>{34e3d5b6-20f3-4f78-a687-08a3fa2a92ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ImGui">
+      <UniqueIdentifier>{0de5d85d-9863-488f-82bf-6f0a7538512d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+  </ItemGroup>
+</Project>
