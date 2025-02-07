@@ -22,7 +22,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
 ; The [Icons] "quicklaunchicon" entry uses {userappdata} but its [Tasks] entry has a proper IsAdminInstallMode Check.
 UsedUserAreasWarning=no
-LicenseFile=LICENSE ; Убедитесь, что у вас есть этот файл или удалите эту строку
+LicenseFile=license.txt ; Убедитесь, что у вас есть этот файл или удалите эту строку
 OutputDir=output
 OutputBaseFilename=setup
 Compression=lzma

@@ -56,7 +56,7 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 c_cpp_properties.json
-*.txt
+log.txt
 bldml.cpp
 bldml.exe
 bldml.obj
