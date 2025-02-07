@@ -3,7 +3,7 @@ name: Release-setup
 on:
   push:
     tags:
-      - 'setup*'
+      - 'setup-*'
 
 jobs:
   build:
