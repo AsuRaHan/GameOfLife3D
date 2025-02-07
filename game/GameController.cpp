@@ -1,13 +1,13 @@
 #include "GameController.h"
 
 GameController::GameController(int width, int height, float cellSize)
-    : grid(width, height), gameOfLife(grid), cellSize(cellSize), isRunning(false), showGrid(true) {
+    : grid(width, height), gameOfLife(grid), cellSize(cellSize), isRunning(false), showGrid(true), currentPatternRotator(0){
     currentPattern = glider;
     std::srand(static_cast<unsigned int>(std::time(nullptr))); // »нициализаци€ генератора случайных чисел
 }
 
 void GameController::randomizeGrid() {
-
+    if (isRunning) return;
     std::random_device rd;  // “олько дл€ инициализации генератора
     std::mt19937 gen(rd()); // —тандартный мерсенновский твистер
     std::uniform_int_distribution<> disGliders(3, 15); // √енераци€ количества глайдеров
@@ -20,32 +20,13 @@ void GameController::randomizeGrid() {
     for (auto i = 0; i < numberOfGliders; ++i) {
         int startX = disX(gen);
         int startY = disY(gen);
-        // –азмещаем глайдер на сетке
-
-        int randomCondition = disTipe(gen); // √енерируем случайное число
-
-        switch (randomCondition) {
-        case 0:
-            placePattern(startX, startY, gosperGliderGun);
-            break;
-        case 1:
-            placePattern(startX, startY, gosperGliderGunFlipped);
-            break;
-        case 2:
-            placePattern(startX, startY, gosperGliderGunVertical);
-            break;
-        case 3:
-            placePattern(startX, startY, gosperGliderGunVerticalFlipped);
-            break;
-        default:
-            // Ёто условие не должно срабатывать, так как мы ограничены диапазоном от 0 до 3
-            break;
-        }
-        
+        // –азмещаем фигуру на сетке в случайном месте
+        placePattern(startX, startY, gosperGliderGun);
     }
 }
 
 void GameController::placePattern(int startX, int startY, const Pattern& pattern) {
+    if (isRunning) return;
     int patternHeight = pattern.size();
     int patternWidth = pattern[0].size();
 
@@ -69,6 +50,7 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
 
 
 void GameController::randomizeGrid(float density) {
+    if (isRunning) return;
     // √енератор случайных чисел
     std::random_device rd;  // “олько дл€ инициализации генератора
     std::mt19937 gen(rd()); // —тандартный мерсенновский твистер
@@ -94,6 +76,7 @@ void GameController::randomizeGrid(float density) {
 }
 
 void GameController::clearGrid() {
+    if (isRunning) return;
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
             grid.setCellState(x, y, false); // ”станавливаем каждую клетку в мертвое состо€ние
@@ -121,21 +104,20 @@ void GameController::stopSimulation() {
 }
 
 void GameController::stepSimulation() {
-    if (!isRunning) {
-        gameOfLife.nextGeneration();
-    }
+    if (isRunning) return;
+    gameOfLife.nextGeneration();
 }
 
 void GameController::previousGeneration() {
-    if (!isRunning) {
-        gameOfLife.previousGeneration();
-    }
+    if (isRunning) return;
+    gameOfLife.previousGeneration();
 }
 bool GameController::isSimulationRunning() const {
     return isRunning;
 }
 
 void GameController::toggleCellState(int x, int y) {
+    if (isRunning) return;
     bool currentState = grid.getCellState(x, y);
     grid.setCellState(x, y, !currentState);
     if (!currentState) {
@@ -152,6 +134,10 @@ bool GameController::getCellState(int x, int y) const {
 }
 
 void GameController::resizeGrid(int newWidth, int newHeight) {
+    // ≈сли симул€ци€ работает, сбросим ее, чтобы избежать некорректной работы с новыми размерами
+    if (isRunning) {
+        stopSimulation();
+    }
     if (newWidth <= 0 || newHeight <= 0) return; // ѕроверка на положительный размер
 
     // —оздаем новую сетку с новыми размерами
@@ -171,38 +157,112 @@ void GameController::resizeGrid(int newWidth, int newHeight) {
 
     // ќбновл€ем ссылку на сетку в GameOfLife
     gameOfLife.updateGridReference(grid);
-
-    // ≈сли симул€ци€ работает, сбросим ее, чтобы избежать некорректной работы с новыми размерами
-    if (isRunning) {
-        stopSimulation();
-    }
 }
 
 void GameController::setCurrentPattern(int patternNumber) {
     switch (patternNumber) {
-    case 1: currentPattern = glider; break;
-    case 2: currentPattern = blinker; break;
-    case 3: currentPattern = toad; break;
-    case 4: currentPattern = beacon; break;
-    case 5: currentPattern = pentadecathlon; break;
-    case 6: currentPattern = gosperGliderGun; break;
-    case 7: currentPattern = gosperGliderGunFlipped; break;
-    case 8: currentPattern = gosperGliderGunVertical; break;
-    case 9: currentPattern = gosperGliderGunVerticalFlipped; break;
-    default:
-        // ћожно установить по умолчанию какой-то паттерн или оставить текущий без изменений
+    case 1: 
         currentPattern = glider;
+        break;
+    case 2: 
+        currentPattern = blinker; 
+        break;
+    case 3: 
+        currentPattern = toad; 
+        break;
+    case 4: 
+        currentPattern = beacon; 
+        break;
+    case 5: 
+        currentPattern = pentadecathlon; 
+        break;
+    case 6: 
+        currentPattern = gosperGliderGun;
+        break;
+    default:
         break;
     }
 }
-
+void GameController::setCurrentPatternRotator(int patternRotator) {
+     currentPatternRotator = patternRotator;
+}
 void GameController::PlacePattern(int startX, int startY) {
+    if (isRunning) return;
+    
+    static const Rotation rotationByIndex[] = {
+        Rotation::Rotate90,
+        Rotation::Rotate180,
+        Rotation::Rotate270,
+        Rotation::FlipHorizontal,
+        Rotation::FlipVertical
+    };
+
+    Pattern newPattern = currentPattern;
+
+    if (currentPatternRotator > 0) { // наш комбобокс имеет 6 значений. а ротатор всего 5. первый индекс это отсутствие вращени€
+        if (currentPatternRotator >= 1 && currentPatternRotator < 6) { // ѕроверка на допустимость индекса
+            Rotation rotation = rotationByIndex[currentPatternRotator - 1]; // текущий индекс вращение - индекс отсутстви€ вращени€
+            newPattern = rotateOrFlip(currentPattern, rotation);
+        }
+    }
+
     if (!currentPattern.empty()) {
-        placePattern(startX, startY, currentPattern); // »спользуем уже существующий метод
+        placePattern(startX, startY, newPattern); // »спользуем уже существующий метод
     }
 }
 
 void GameController::setSimulationSpeed(float speed) {
     // speed - это количество секунд реального времени между обновлени€ми. ћеньше значение - быстрее симул€ци€.
     simulationSpeed = speed;
+}
+
+Pattern GameController::rotateOrFlip(const Pattern& pattern, Rotation rotation) {
+    int rows = pattern.size();
+    int cols = pattern[0].size();
+    Pattern result;
+
+    switch (rotation) {
+    case Rotation::Rotate90:
+        result = Pattern(cols, std::vector<bool>(rows, false));
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                result[j][rows - 1 - i] = pattern[i][j];
+            }
+        }
+        break;
+
+    case Rotation::Rotate180:
+        result = Pattern(rows, std::vector<bool>(cols, false));
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                result[rows - 1 - i][cols - 1 - j] = pattern[i][j];
+            }
+        }
+        break;
+
+    case Rotation::Rotate270:
+        result = Pattern(cols, std::vector<bool>(rows, false));
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                result[cols - 1 - j][i] = pattern[i][j];
+            }
+        }
+        break;
+
+    case Rotation::FlipHorizontal:
+        result = Pattern(rows, std::vector<bool>(cols, false));
+        for (int i = 0; i < rows; ++i) {
+            std::reverse_copy(pattern[i].begin(), pattern[i].end(), result[i].begin());
+        }
+        break;
+
+    case Rotation::FlipVertical:
+        result = Pattern(rows, std::vector<bool>(cols, false));
+        for (int i = 0; i < rows; ++i) {
+            result[rows - 1 - i] = pattern[i];
+        }
+        break;
+    }
+
+    return result;
 }

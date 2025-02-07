@@ -14,21 +14,21 @@ void UIController::DrawUI() {
     // ------------------------------------ главное меню игры --------------------------------
     ImGui::Begin("Управление игрой", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
     ImGui::SetWindowPos(ImVec2(5, 5), ImGuiCond_Once);
-    //ImGui::SetWindowSize(ImVec2(170, 150), ImGuiCond_Once);
 
     // Находим максимальную ширину текста всех кнопок
     ImVec2 maxSize(0, 0);
-    const char* buttons[] = { 
-        "Начать симуляцию", 
-        "Остановить симуляцию", 
-        "Шаг симуляции", 
+    const char* buttons[] = {
+        "Начать симуляцию",
+        "Остановить симуляцию",
+        "Шаг симуляции",
         //"Предыдущее поколение", 
-        "Очистить поле", 
+        "Очистить поле",
         "Случайные клетки",
         "Спрятать сетку",
         "Показать сетку",
         "Сохранить",
         "Загрузить",
+        "Показать справку",
         "Выход"
     };
     for (int i = 0; i < IM_ARRAYSIZE(buttons); ++i) {
@@ -39,6 +39,7 @@ void UIController::DrawUI() {
     }
     // Добавляем некоторый запас к ширине для лучшей визуализации
     float buttonWidth = maxSize.x + 20; // 20 - это запас по ширине
+
     if (gameController->isSimulationRunning()) {
         if (ImGui::Button("Остановить симуляцию", ImVec2(buttonWidth, 0))) {
             gameController->stopSimulation();
@@ -49,28 +50,34 @@ void UIController::DrawUI() {
             gameController->startSimulation();
         }
     }
+    ImGui::Separator();
     if (ImGui::Button("Шаг симуляции", ImVec2(buttonWidth, 0))) {
         gameController->stepSimulation();
     }
-    //if (ImGui::Button("Предыдущее поколение", ImVec2(buttonWidth, 0))) {
-    //    gameController->previousGeneration();
-    //}
     if (ImGui::Button("Очистить поле", ImVec2(buttonWidth, 0))) {
         gameController->clearGrid();
     }
     if (ImGui::Button("Случайные клетки", ImVec2(buttonWidth, 0))) {
         gameController->randomizeGrid(0.1f);
     }
+    ImGui::Separator();
     ImGui::Text("Фигура для добавления");
-    // Выпадающий список (ComboBox)
+    // Выпадающий список (ComboBox) с фиксированной шириной
     static int selectedPattern = 0;
-    const char* patterns[] = { "Glider", "Blinker", "Toad", "Beacon", "Pentadecathlon","gosperGliderGun","gosperGliderGunFlipped","gosperGliderGunVertical","gosperGliderGunVerticalFlipped"};
-    if (ImGui::Combo("Вбрать", &selectedPattern, patterns, IM_ARRAYSIZE(patterns))) {
-        // Здесь вы можете обработать выбор паттерна, например:
+    const char* patterns[] = { "Glider", "Blinker", "Toad", "Beacon", "Pentadecathlon", "Gosper Glider Gun" };
+    if (ImGui::Combo("##selectPattern", &selectedPattern, patterns, IM_ARRAYSIZE(patterns), static_cast<int>(buttonWidth))) {
         gameController->setCurrentPattern(selectedPattern + 1); // +1 если нумерация начинается с 1
     }
+
+    ImGui::Text("Вращение фигуры");
+    static int selectedPatternRotator = 0;
+    const char* patternsRotator[] = { "None", "Rotate 90", "Rotate 180", "Rotate 270", "Flip Horizontal", "Flip Vertical" };
+    if (ImGui::Combo("##selectRotator", &selectedPatternRotator, patternsRotator, IM_ARRAYSIZE(patternsRotator), static_cast<int>(buttonWidth))) {
+        gameController->setCurrentPatternRotator(selectedPatternRotator); // +1 если нумерация начинается с 1
+    }
+
     if (gameController->getShowGrid()) {
-        if ( ImGui::Button("Спрятать сетку", ImVec2(buttonWidth, 0)) ) {
+        if (ImGui::Button("Спрятать сетку", ImVec2(buttonWidth, 0))) {
             gameController->setShowGrid(!gameController->getShowGrid());
         }
     }
@@ -79,17 +86,29 @@ void UIController::DrawUI() {
             gameController->setShowGrid(!gameController->getShowGrid());
         }
     }
+    ImGui::Separator();
     static char saveFilename[128] = "state.txt";
-    //static char loadFilename[128] = "state.txt";
     ImGui::Text("Имя файла");
+    // Поле ввода с фиксированной шириной
+    ImGui::PushItemWidth(buttonWidth);
     ImGui::InputText("##fileName", saveFilename, IM_ARRAYSIZE(saveFilename));
-    if ( ImGui::Button("Сохранить", ImVec2(buttonWidth, 0)) ) {
+    ImGui::PopItemWidth();
+    if (ImGui::Button("Сохранить", ImVec2(buttonWidth, 0))) {
         gameController->saveGameState(saveFilename);
     }
     if (ImGui::Button("Загрузить", ImVec2(buttonWidth, 0))) {
         gameController->loadGameState(saveFilename);
     }
-
+    ImGui::Separator();
+    for (int i = 0; i < 3; ++i) { // Здесь 3 - это количество дополнительных строк, можете изменить по желанию
+        ImGui::Spacing();
+    }
+    if (ImGui::Button("Показать справку", ImVec2(buttonWidth, 0))) {
+        ImGui::OpenPopup("Справка");
+    }
+    for (int i = 0; i < 3; ++i) { // Здесь 3 - это количество дополнительных строк, можете изменить по желанию
+        ImGui::Spacing();
+    }
     if (ImGui::Button("Выход", ImVec2(buttonWidth, 0))) {
         showExitDialog = true;
     }
@@ -112,6 +131,28 @@ void UIController::DrawUI() {
             ImGui::EndPopup();
         }
     }
+    // Установка размера окна перед его отображением
+    ImGui::SetNextWindowSize(ImVec2(500.0f, 0.0f), ImGuiCond_Appearing); // Ширина 500 пикселей, высота автоматическая
+    // Модальное окно для справки
+    if (ImGui::BeginPopupModal("Справка", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::TextWrapped("Добро пожаловать в справку по использованию программы!\n\n"
+            "Здесь вы можете найти инструкции по работе с различными функциями:\n"
+            "- Начать симуляцию: Нажмите кнопку 'Начать симуляцию' для запуска жизни.\n"
+            "- Остановить симуляцию: Нажмите 'Остановить симуляцию', чтобы приостановить процесс.\n"
+            "- Шаг симуляции: Используйте 'Шаг симуляции' для ручного продвижения на одно поколение.\n"
+            "- Очистить поле: Кнопка 'Очистить поле' очищает всю сетку.\n"
+            "- Случайные клетки: 'Случайные клетки' заполняет сетку случайным образом.\n"
+            "- Управление сеткой: Используйте 'Спрятать сетку' или 'Показать сетку' для изменения видимости сетки.\n"
+            "- Сохранение/Загрузка: 'Сохранить' и 'Загрузить' позволяют работать с состояниями игры.\n"
+            "Для выхода из программы нажмите 'Выход'.");
+
+        if (ImGui::Button("Закрыть", ImVec2(120, 0))) {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+
     ImGui::End();
     // --------------------------------- конец главного меню игры -----------------------------
     

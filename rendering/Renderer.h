@@ -32,6 +32,7 @@ public:
 private:
     int width, height;
     Camera camera;
+    float farPlane;
     GameController* pGameController;
     UIController uiController;
     ShaderManager shaderManager;

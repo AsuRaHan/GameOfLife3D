@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 Renderer::Renderer(int width, int height)
-    : width(width), height(height), camera(45.0f, static_cast<float>(width) / height, 0.1f, 999009000000.0f),
+    : width(width), height(height), farPlane(999009000000.0f), camera(45.0f, static_cast<float>(width) / height, 0.1f, farPlane),
     pGameController(nullptr), uiController(nullptr) {
     SetupOpenGL();
     OnWindowResize(width, height);
@@ -258,7 +258,7 @@ void Renderer::OnWindowResize(int newWidth, int newHeight) {
     height = newHeight;
     GL_CHECK(glViewport(0, 0, width, height));
     // Обновляем проекцию камеры
-    camera.SetProjection(45.0f, static_cast<float>(width) / height, 0.1f, 100000000.0f);
+    camera.SetProjection(45.0f, static_cast<float>(width) / height, 0.1f, farPlane);
 }
 
 void Renderer::MoveCamera(float dx, float dy, float dz) {
