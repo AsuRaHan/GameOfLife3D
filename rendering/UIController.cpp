@@ -100,13 +100,13 @@ void UIController::DrawUI() {
         gameController->loadGameState(saveFilename);
     }
     ImGui::Separator();
-    for (int i = 0; i < 3; ++i) { // Здесь 3 - это количество дополнительных строк, можете изменить по желанию
+    for (int i = 0; i < 3; ++i) {
         ImGui::Spacing();
     }
     if (ImGui::Button("Показать справку", ImVec2(buttonWidth, 0))) {
         ImGui::OpenPopup("Справка");
     }
-    for (int i = 0; i < 3; ++i) { // Здесь 3 - это количество дополнительных строк, можете изменить по желанию
+    for (int i = 0; i < 3; ++i) {
         ImGui::Spacing();
     }
     if (ImGui::Button("Выход", ImVec2(buttonWidth, 0))) {
@@ -156,16 +156,6 @@ void UIController::DrawUI() {
     ImGui::End();
     // --------------------------------- конец главного меню игры -----------------------------
     
-
-    // Окно для сохранения и загрузки
-    //ImGui::Begin("Сохранение и загрузка", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-    //ImGui::SetWindowPos(ImVec2(5, 300), ImGuiCond_Once); // Расположение ниже первого окна
-    //ImGui::SetWindowSize(ImVec2(150, 200), ImGuiCond_Once); // Примерный размер
-
-
-    //ImGui::End();
-
-
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

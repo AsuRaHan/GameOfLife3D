@@ -3,7 +3,7 @@
 #define MAINWINDOW_H_
 
 #include <Windows.h>
-#include "../resource.h"
+#include "../res/resource.h"
 #include "WindowController.h"
 
 class MainWindow {

@@ -76,7 +76,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h" />
     <ClInclude Include="game\GameController.h">
       <Filter>game</Filter>
     </ClInclude>
@@ -142,9 +141,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="life.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="game">
       <UniqueIdentifier>{413f1d7b-e4da-44d0-8078-cd0b803b0703}</UniqueIdentifier>
     </Filter>
@@ -166,5 +162,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res\life.rc" />
   </ItemGroup>
 </Project>

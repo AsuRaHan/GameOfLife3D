@@ -185,7 +185,6 @@
     <ClInclude Include="rendering\Camera.h" />
     <ClInclude Include="rendering\Renderer.h" />
     <ClInclude Include="rendering\UIController.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="system\GLFunctions.h" />
     <ClInclude Include="system\OpenGLInitializer.h" />
     <ClInclude Include="system\ShaderManager.h" />
@@ -194,10 +193,10 @@
     <ClInclude Include="windowing\WindowController.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="life.rc" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="README.md" />
+    <ResourceCompile Include="res\life.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

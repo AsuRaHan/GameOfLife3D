@@ -14,55 +14,55 @@
 
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
-#include "imgui_impl_win32.h" // Если вы работаете под Windows
+#include "imgui_impl_win32.h" // Р•СЃР»Рё РІС‹ СЂР°Р±РѕС‚Р°РµС‚Рµ РїРѕРґ Windows
 
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")
 
 
-// Функция для парсинга командной строки
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РїР°СЂСЃРёРЅРіР° РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё
 void ParseCommandLine(const std::wstring& cmdLine, int& width, int& height, bool& fullscreen) {
     std::wistringstream iss(cmdLine);
     std::wstring token;
 
-    // Устанавливаем значения по умолчанию
-    width = 400;      // Значение по умолчанию для ширины
-    height = 300;     // Значение по умолчанию для высоты
-    fullscreen = false; // Значение по умолчанию для полноэкранного режима
+    // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р·РЅР°С‡РµРЅРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+    width = 400;      // Р—РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ С€РёСЂРёРЅС‹
+    height = 300;     // Р—РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ РІС‹СЃРѕС‚С‹
+    fullscreen = false; // Р—РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ РїРѕР»РЅРѕСЌРєСЂР°РЅРЅРѕРіРѕ СЂРµР¶РёРјР°
 
-    // Парсим командную строку
+    // РџР°СЂСЃРёРј РєРѕРјР°РЅРґРЅСѓСЋ СЃС‚СЂРѕРєСѓ
     while (iss >> token) {
         if (token == L"-gridWidth") {
             if (iss >> token) {
                 try {
-                    width = std::stoi(token); // Преобразуем строку в целое число
+                    width = std::stoi(token); // РџСЂРµРѕР±СЂР°Р·СѓРµРј СЃС‚СЂРѕРєСѓ РІ С†РµР»РѕРµ С‡РёСЃР»Рѕ
                     if (width <= 0) {
                         throw std::invalid_argument("Width must be positive.");
                     }
                 }
                 catch (const std::exception& e) {
                     std::wcerr << L"Invalid width value: " << token << L". Using default width." << std::endl;
-                    width = 400; // Возвращаем значение по умолчанию
+                    width = 400; // Р’РѕР·РІСЂР°С‰Р°РµРј Р·РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
                 }
             }
         }
         else if (token == L"-gridHeight") {
             if (iss >> token) {
                 try {
-                    height = std::stoi(token); // Преобразуем строку в целое число
+                    height = std::stoi(token); // РџСЂРµРѕР±СЂР°Р·СѓРµРј СЃС‚СЂРѕРєСѓ РІ С†РµР»РѕРµ С‡РёСЃР»Рѕ
                     if (height <= 0) {
                         throw std::invalid_argument("Height must be positive.");
                     }
                 }
                 catch (const std::exception& e) {
                     std::wcerr << L"Invalid height value: " << token << L". Using default height." << std::endl;
-                    height = 300; // Возвращаем значение по умолчанию
+                    height = 300; // Р’РѕР·РІСЂР°С‰Р°РµРј Р·РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
                 }
             }
         }
         else if (token == L"-fullscreen") {
-            fullscreen = true; // Если параметр указан, устанавливаем fullscreen в true
+            fullscreen = true; // Р•СЃР»Рё РїР°СЂР°РјРµС‚СЂ СѓРєР°Р·Р°РЅ, СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј fullscreen РІ true
         }
     }
 }
@@ -71,8 +71,8 @@ void loadFontFromRes(ImGuiIO io) {
     HRSRC hRes = FindResource(NULL, MAKEINTRESOURCE(IDR_FONT_CUSTOM), RT_RCDATA);
     if (hRes == NULL) {
         DWORD errorCode = GetLastError();
-        // Обработка ошибки, например:
-        std::cout << "Ошибка при поиске ресурса: " << std::hex << errorCode << std::endl;
+        // РћР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РєРё, РЅР°РїСЂРёРјРµСЂ:
+        std::cout << "РћС€РёР±РєР° РїСЂРё РїРѕРёСЃРєРµ СЂРµСЃСѓСЂСЃР°: " << std::hex << errorCode << std::endl;
     }
     HGLOBAL hGlob = LoadResource(NULL, hRes);
     DWORD dwSize = SizeofResource(NULL, hRes);
@@ -83,19 +83,19 @@ void loadFontFromRes(ImGuiIO io) {
         memcpy(pFontData, pData, dwSize);
 
         ImFontConfig fontConfig;
-        fontConfig.FontDataOwnedByAtlas = false; // Мы управляем памятью
+        fontConfig.FontDataOwnedByAtlas = false; // РњС‹ СѓРїСЂР°РІР»СЏРµРј РїР°РјСЏС‚СЊСЋ
         ImFont* font = io.Fonts->AddFontFromMemoryTTF(pFontData, static_cast<int>(dwSize), 16.0f, &fontConfig, io.Fonts->GetGlyphRangesCyrillic());
 
         if (font) {
             ImGui::GetIO().FontDefault = font;
         }
         else {
-            std::cout << "Не удалось загрузить шрифт из ресурсов!" << std::endl;
-            delete[] pFontData; // Освобождаем память, если шрифт не загрузился
+            std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ С€СЂРёС„С‚ РёР· СЂРµСЃСѓСЂСЃРѕРІ!" << std::endl;
+            delete[] pFontData; // РћСЃРІРѕР±РѕР¶РґР°РµРј РїР°РјСЏС‚СЊ, РµСЃР»Рё С€СЂРёС„С‚ РЅРµ Р·Р°РіСЂСѓР·РёР»СЃСЏ
         }
     }
     else {
-        std::cout << "Ресурс шрифта не найден!" << std::endl;
+        std::cout << "Р РµСЃСѓСЂСЃ С€СЂРёС„С‚Р° РЅРµ РЅР°Р№РґРµРЅ!" << std::endl;
     }
 }
 
@@ -107,12 +107,12 @@ int wWinMain(
 )
 {
     std::ofstream out("log.txt");
-    std::streambuf* coutbuf = std::cout.rdbuf(); // сохраняем буфер cout
-    std::streambuf* cerrbuf = std::cerr.rdbuf(); // сохраняем буфер cerr
-    std::streambuf* clogbuf = std::clog.rdbuf(); // сохраняем буфер clog
-    std::cout.rdbuf(out.rdbuf()); // перенаправляем cout в файл
-    std::cerr.rdbuf(out.rdbuf()); // перенаправляем cerr в тот же файл
-    std::clog.rdbuf(out.rdbuf()); // перенаправляем clog в файл
+    std::streambuf* coutbuf = std::cout.rdbuf(); // СЃРѕС…СЂР°РЅСЏРµРј Р±СѓС„РµСЂ cout
+    std::streambuf* cerrbuf = std::cerr.rdbuf(); // СЃРѕС…СЂР°РЅСЏРµРј Р±СѓС„РµСЂ cerr
+    std::streambuf* clogbuf = std::clog.rdbuf(); // СЃРѕС…СЂР°РЅСЏРµРј Р±СѓС„РµСЂ clog
+    std::cout.rdbuf(out.rdbuf()); // РїРµСЂРµРЅР°РїСЂР°РІР»СЏРµРј cout РІ С„Р°Р№Р»
+    std::cerr.rdbuf(out.rdbuf()); // РїРµСЂРµРЅР°РїСЂР°РІР»СЏРµРј cerr РІ С‚РѕС‚ Р¶Рµ С„Р°Р№Р»
+    std::clog.rdbuf(out.rdbuf()); // РїРµСЂРµРЅР°РїСЂР°РІР»СЏРµРј clog РІ С„Р°Р№Р»
 
     auto now = std::chrono::system_clock::now();
     std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
@@ -121,10 +121,10 @@ int wWinMain(
 
     std::cout << "LOG! " << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S") << std::endl;
 
-    // Переменные для ширины и высоты
+    // РџРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ С€РёСЂРёРЅС‹ Рё РІС‹СЃРѕС‚С‹
     int gridWidth, gridHeight;
     bool Full;
-    ParseCommandLine(lpCmdLine, gridWidth, gridHeight, Full); // Получаем значения из командной строки
+    ParseCommandLine(lpCmdLine, gridWidth, gridHeight, Full); // РџРѕР»СѓС‡Р°РµРј Р·РЅР°С‡РµРЅРёСЏ РёР· РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё
 
     MainWindow mainWindow(hInstance, 800, 600);
 
@@ -140,13 +140,13 @@ int wWinMain(
         int width = mainWindow.GetWidth();
         int height = mainWindow.GetHeight();
 
-        GameController gameController(gridWidth, gridHeight); // Создаем GameController
+        GameController gameController(gridWidth, gridHeight); // РЎРѕР·РґР°РµРј GameController
         gameController.randomizeGrid(0.1f);
 
         Renderer renderer(width, height);
         renderer.SetGameController(&gameController);
 
-        // Передаем один и тот же экземпляр gameController в WindowController
+        // РџРµСЂРµРґР°РµРј РѕРґРёРЅ Рё С‚РѕС‚ Р¶Рµ СЌРєР·РµРјРїР»СЏСЂ gameController РІ WindowController
         WindowController controller(&mainWindow, &renderer, &gameController);
         mainWindow.SetController(&controller);
 
@@ -155,7 +155,7 @@ int wWinMain(
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;    // Enable Gamepad Controls
-        io.IniFilename = NULL; // Отключаем сохранение в ini файл
+        io.IniFilename = NULL; // РћС‚РєР»СЋС‡Р°РµРј СЃРѕС…СЂР°РЅРµРЅРёРµ РІ ini С„Р°Р№Р»
         loadFontFromRes(io);
         // Setup Dear ImGui style
         //ImGui::StyleColorsDark();
@@ -167,34 +167,34 @@ int wWinMain(
 
         MSG msg;
         bool MainLoop = true;
-        // Объявите переменные где-то вне цикла (например, в начале функции или как член класса)
+        // РћР±СЉСЏРІРёС‚Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ РіРґРµ-С‚Рѕ РІРЅРµ С†РёРєР»Р° (РЅР°РїСЂРёРјРµСЂ, РІ РЅР°С‡Р°Р»Рµ С„СѓРЅРєС†РёРё РёР»Рё РєР°Рє С‡Р»РµРЅ РєР»Р°СЃСЃР°)
         std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();
         while (MainLoop) {
             while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) { // PeekMessage(&msg, 0, 0, 0, PM_REMOVE) GetMessage(&msg, NULL, 0, 0)
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
                 if (msg.message == WM_QUIT) {
-                    MainLoop = false; // Завершение приложения
+                    MainLoop = false; // Р—Р°РІРµСЂС€РµРЅРёРµ РїСЂРёР»РѕР¶РµРЅРёСЏ
                 }
                 if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE) {
-                    MainLoop = false; // Завершение приложения
+                    MainLoop = false; // Р—Р°РІРµСЂС€РµРЅРёРµ РїСЂРёР»РѕР¶РµРЅРёСЏ
                 }
             }
 
-            // Вычисление времени для обновления
+            // Р’С‹С‡РёСЃР»РµРЅРёРµ РІСЂРµРјРµРЅРё РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ
             std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
             std::chrono::duration<float> deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(currentTime - lastTime);
             lastTime = currentTime;
 
-            // Здесь вызываем update с deltaTime
-            gameController.update(deltaTime.count()); // .count() возвращает значение в секундах как float
+            // Р—РґРµСЃСЊ РІС‹Р·С‹РІР°РµРј update СЃ deltaTime
+            gameController.update(deltaTime.count()); // .count() РІРѕР·РІСЂР°С‰Р°РµС‚ Р·РЅР°С‡РµРЅРёРµ РІ СЃРµРєСѓРЅРґР°С… РєР°Рє float
             renderer.Draw();
         }
 
     }
     else {
         MessageBox(NULL, L"Window creation failed", L"Error", MB_OK | MB_ICONERROR);
-        // Восстанавливаем буферы
+        // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р±СѓС„РµСЂС‹
         std::cout.rdbuf(coutbuf);
         std::cerr.rdbuf(cerrbuf);
         std::clog.rdbuf(clogbuf);
@@ -203,7 +203,7 @@ int wWinMain(
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-    // Восстанавливаем буферы
+    // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р±СѓС„РµСЂС‹
     std::cout.rdbuf(coutbuf);
     std::cerr.rdbuf(cerrbuf);
     std::clog.rdbuf(clogbuf);
