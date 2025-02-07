@@ -1,0 +1,71 @@
+name: Release-setup
+
+on:
+  push:
+    tags:
+      - 'setup*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'        
+
+    - name: Set up MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build the project
+      run: msbuild life.sln /p:Configuration=Release /p:Platform=x64
+
+    - name: Install Inno Setup
+      run: choco install innosetup --no-progress
+
+    - name: Create Installer
+      run: iscc installer.iss  # Предполагается, что у вас есть файл installer.iss в корне репозитория
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Check if life.exe exists
+      run: if not exist x64/Release/life.exe exit 1
+      shell: cmd
+
+    - name: Upload Release Asset (life.exe)
+      if: success()
+      id: upload-release-asset-life 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./x64/Release/life.exe
+        asset_name: life.exe
+        asset_content_type: application/vnd.microsoft.portable-executable
+
+    - name: Check if setup.exe exists
+      run: if not exist output/setup.exe exit 1
+      shell: cmd
+
+    - name: Upload Release Asset (setup.exe)
+      if: success()
+      id: upload-release-asset-setup
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: output/setup.exe  # Предполагается, что setup.exe создается в папке output
+        asset_name: setup.exe
+        asset_content_type: application/vnd.microsoft.portable-executable
