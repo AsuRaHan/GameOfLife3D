@@ -73,7 +73,7 @@ LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
     // Если ImGui не перехватил ввод, передаем его контроллеру
     if (pThis && pThis->pController) {
         // Проверка на активность любого элемента ImGui
-        bool isInputActive = ImGui::IsAnyItemActive();
+        bool isInputActive = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) || ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive();
         // Обработка ввода для игры
         if (!isInputActive)
         {

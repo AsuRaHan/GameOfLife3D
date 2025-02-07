@@ -99,6 +99,40 @@ void loadFontFromRes(ImGuiIO io) {
     }
 }
 
+void initImgui(HWND hwnd) {
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;    // Enable Gamepad Controls
+    io.IniFilename = NULL; // Отключаем сохранение в ini файл
+    loadFontFromRes(io);
+
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    // Установим светлую цветовую схему для кнопок
+    style.Colors[ImGuiCol_Button] = ImVec4(0.8f, 0.8f, 0.8f, 1.0f); // Светло-серый цвет кнопок
+    style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.9f, 0.9f, 0.9f, 1.0f); // Цвет при наведении
+    style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.7f, 0.7f, 0.7f, 1.0f); // Цвет при активации
+
+    // Черный текст для кнопок
+    style.Colors[ImGuiCol_Text] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+    // Применим черный текст и светлые цвета для других элементов
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.95f, 0.95f, 0.95f, 1.0f); // Фон окна
+    style.Colors[ImGuiCol_FrameBg] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // Фон рамок (слайдеры, текстовые поля)
+    style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.9f, 0.9f, 0.9f, 1.0f);
+    style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.8f, 0.8f, 0.8f, 1.0f);
+    style.Colors[ImGuiCol_Header] = ImVec4(0.8f, 0.8f, 0.8f, 1.0f); // Заголовки
+    style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.9f, 0.9f, 0.9f, 1.0f);
+    style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.7f, 0.7f, 0.7f, 1.0f);
+    ImGui::StyleColorsLight(&style);
+    // Это нужно вызывать один раз при инициализации вашего приложения или в начале каждого кадра, если нужно динамически менять стили
+    
+    // Setup Platform/Renderer backends
+    ImGui_ImplWin32_InitForOpenGL(hwnd);
+    ImGui_ImplOpenGL3_Init();
+}
 int wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -131,7 +165,6 @@ int wWinMain(
 
     if (mainWindow.Create()) {
         OpenGLInitializer glInit(mainWindow.GetHwnd());
-
         if (!glInit.Initialize(Full)) {
             MessageBox(NULL, L"OpenGL Initialization Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
             return 1;
@@ -150,20 +183,7 @@ int wWinMain(
         WindowController controller(&mainWindow, &renderer, &gameController);
         mainWindow.SetController(&controller);
 
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;    // Enable Gamepad Controls
-        io.IniFilename = NULL; // Отключаем сохранение в ini файл
-        loadFontFromRes(io);
-        // Setup Dear ImGui style
-        //ImGui::StyleColorsDark();
-        ImGui::StyleColorsClassic();
-
-        // Setup Platform/Renderer backends
-        ImGui_ImplWin32_InitForOpenGL(mainWindow.GetHwnd());
-        ImGui_ImplOpenGL3_Init();
+        initImgui(mainWindow.GetHwnd());
 
         MSG msg;
         bool MainLoop = true;

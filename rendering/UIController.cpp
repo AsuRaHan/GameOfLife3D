@@ -10,10 +10,10 @@ void UIController::DrawUI() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-
+    //DrawMenuBar();
     // ------------------------------------ главное меню игры --------------------------------
     ImGui::Begin("Управление игрой", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-    ImGui::SetWindowPos(ImVec2(5, 5), ImGuiCond_Once);
+    ImGui::SetWindowPos(ImVec2(6, 6), ImGuiCond_Once);
 
     // Находим максимальную ширину текста всех кнопок
     ImVec2 maxSize(0, 0);
@@ -28,7 +28,7 @@ void UIController::DrawUI() {
         "Показать сетку",
         "Сохранить",
         "Загрузить",
-        "Показать справку",
+        "О программе",
         "Выход"
     };
     for (int i = 0; i < IM_ARRAYSIZE(buttons); ++i) {
@@ -50,7 +50,6 @@ void UIController::DrawUI() {
             gameController->startSimulation();
         }
     }
-    ImGui::Separator();
     if (ImGui::Button("Шаг симуляции", ImVec2(buttonWidth, 0))) {
         gameController->stepSimulation();
     }
@@ -103,8 +102,8 @@ void UIController::DrawUI() {
     for (int i = 0; i < 3; ++i) {
         ImGui::Spacing();
     }
-    if (ImGui::Button("Показать справку", ImVec2(buttonWidth, 0))) {
-        ImGui::OpenPopup("Справка");
+    if (ImGui::Button("О программе", ImVec2(buttonWidth, 0))) {
+        ImGui::OpenPopup("О программе");
     }
     for (int i = 0; i < 3; ++i) {
         ImGui::Spacing();
@@ -134,17 +133,9 @@ void UIController::DrawUI() {
     // Установка размера окна перед его отображением
     ImGui::SetNextWindowSize(ImVec2(500.0f, 0.0f), ImGuiCond_Appearing); // Ширина 500 пикселей, высота автоматическая
     // Модальное окно для справки
-    if (ImGui::BeginPopupModal("Справка", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::TextWrapped("Добро пожаловать в справку по использованию программы!\n\n"
-            "Здесь вы можете найти инструкции по работе с различными функциями:\n"
-            "- Начать симуляцию: Нажмите кнопку 'Начать симуляцию' для запуска жизни.\n"
-            "- Остановить симуляцию: Нажмите 'Остановить симуляцию', чтобы приостановить процесс.\n"
-            "- Шаг симуляции: Используйте 'Шаг симуляции' для ручного продвижения на одно поколение.\n"
-            "- Очистить поле: Кнопка 'Очистить поле' очищает всю сетку.\n"
-            "- Случайные клетки: 'Случайные клетки' заполняет сетку случайным образом.\n"
-            "- Управление сеткой: Используйте 'Спрятать сетку' или 'Показать сетку' для изменения видимости сетки.\n"
-            "- Сохранение/Загрузка: 'Сохранить' и 'Загрузить' позволяют работать с состояниями игры.\n"
-            "Для выхода из программы нажмите 'Выход'.");
+    if (ImGui::BeginPopupModal("О программе", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::TextWrapped("%s", aboutText);
+        
 
         if (ImGui::Button("Закрыть", ImVec2(120, 0))) {
             ImGui::CloseCurrentPopup();
@@ -158,6 +149,42 @@ void UIController::DrawUI() {
     
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void UIController::DrawMenuBar() {
+
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("New")) {}
+            if (ImGui::MenuItem("Open", "Ctrl+O")) {}
+            if (ImGui::MenuItem("Save", "Ctrl+S")) {}
+            if (ImGui::MenuItem("Save As..")) {}
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Exit")) {}
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Edit"))
+        {
+            if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+            ImGui::Separator();
+            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Help"))
+        {
+            if (ImGui::MenuItem("About")) {}
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+    
 }
 
 void UIController::UpdateUIState() {
