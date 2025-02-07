@@ -160,6 +160,7 @@
     <ClCompile Include="mathematics\Matrix4x4.cpp" />
     <ClCompile Include="mathematics\Vector3d.cpp" />
     <ClCompile Include="rendering\Camera.cpp" />
+    <ClCompile Include="rendering\CubeRenderer.cpp" />
     <ClCompile Include="rendering\Renderer.cpp" />
     <ClCompile Include="rendering\UIController.cpp" />
     <ClCompile Include="system\GLFunctions.cpp" />
@@ -183,6 +184,7 @@
     <ClInclude Include="mathematics\Matrix4x4.h" />
     <ClInclude Include="mathematics\Vector3d.h" />
     <ClInclude Include="rendering\Camera.h" />
+    <ClInclude Include="rendering\CubeRenderer.h" />
     <ClInclude Include="rendering\Renderer.h" />
     <ClInclude Include="rendering\UIController.h" />
     <ClInclude Include="res\resource.h" />

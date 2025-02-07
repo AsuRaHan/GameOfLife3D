@@ -6,6 +6,9 @@
 #include "Camera.h"
 #include "UIController.h"
 #include "../game/GameController.h"
+
+#include "CubeRenderer.h"
+
 #include <vector>
 #include <memory>
 
@@ -29,6 +32,8 @@ public:
     int getWindowHeight() const { return height; }
     void RebuildGameField(); // метод для перестройки игрового поля
 
+    void DrawCubes();
+
 private:
     int width, height;
     Camera camera;
@@ -37,6 +42,7 @@ private:
     UIController uiController;
     ShaderManager shaderManager;
 
+    CubeRenderer cubeRenderer;
     
     void InitializeGridVBOs();
     GLuint gridVBO;

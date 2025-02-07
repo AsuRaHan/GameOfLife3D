@@ -2,9 +2,10 @@
 
 Renderer::Renderer(int width, int height)
     : width(width), height(height), farPlane(999009000000.0f), camera(45.0f, static_cast<float>(width) / height, 0.1f, farPlane),
-    pGameController(nullptr), uiController(nullptr) {
+    pGameController(nullptr), uiController(nullptr), cubeRenderer(shaderManager) {
     SetupOpenGL();
     OnWindowResize(width, height);
+    cubeRenderer.SetCamera(camera);
 }
 
 Renderer::~Renderer() {
@@ -20,6 +21,7 @@ Renderer::~Renderer() {
 
 void Renderer::SetCamera(const Camera& camera) {
     this->camera = camera;
+    cubeRenderer.SetCamera(camera);
 }
 
 void Renderer::SetGameController(GameController* gameController) {
@@ -161,6 +163,7 @@ void Renderer::InitializeGridVBOs() {
 void Renderer::Draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
+    //DrawCubes();
     DrawCells();
     // Отрисовка сетки и клеток
     if (pGameController->getShowGrid())DrawGrid();
@@ -171,6 +174,43 @@ void Renderer::Draw() {
     //uiController.UpdateUIState();
 
     SwapBuffers(wglGetCurrentDC());
+}
+
+void Renderer::DrawCubes() {
+    if (!pGameController) return;
+
+    int gridWidth = pGameController->getGridWidth();
+    int gridHeight = pGameController->getGridHeight();
+    float cellSize = pGameController->getCellSize();
+
+    std::vector<Vector3d> positions;
+    std::vector<Vector3d> colors;
+
+    //for (int y = 0; y < gridHeight; ++y) {
+    //    for (int x = 0; x < gridWidth; ++x) {
+    //        Cell cell = pGameController->getGrid().getCell(x, y);
+    //        if (cell.getAlive()) {
+    //            // Позиции теперь должны соответствовать центру клетки, но в шейдере это уже учтено
+    //            positions.push_back(Vector3d(x * cellSize, y * cellSize, 0.0f));
+    //            colors.push_back(cell.getColor());
+    //        }
+    //    }
+    //}
+    for (int y = 0; y < gridHeight; ++y) {
+        for (int x = 0; x < gridWidth; ++x) {
+            Cell cell = pGameController->getGrid().getCell(x, y);
+            if (cell.getAlive()) {
+                positions.push_back(Vector3d(x * cellSize, y * cellSize, 0.0f));
+                colors.push_back(cell.getColor());
+            }
+            else {
+                // Добавляем мертвую клетку с другим цветом, например, серым
+                positions.push_back(Vector3d(x * cellSize, y * cellSize, 0.0f));
+                colors.push_back(cell.getColor()); // Серый цвет для мертвых клеток
+            }
+        }
+    }
+    cubeRenderer.Render(positions, colors, cellSize);
 }
 
 void Renderer::DrawGrid() {
@@ -259,6 +299,7 @@ void Renderer::OnWindowResize(int newWidth, int newHeight) {
     GL_CHECK(glViewport(0, 0, width, height));
     // Обновляем проекцию камеры
     camera.SetProjection(45.0f, static_cast<float>(width) / height, 0.1f, farPlane);
+    cubeRenderer.SetCamera(camera); // Устанавливаем обновленную камеру в CubeRenderer
 }
 
 void Renderer::MoveCamera(float dx, float dy, float dz) {

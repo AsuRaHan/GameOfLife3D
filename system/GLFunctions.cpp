@@ -6,13 +6,11 @@ PFNGLBINDBUFFERPROC glBindBuffer = nullptr;
 PFNGLBUFFERDATAPROC glBufferData = nullptr;
 PFNGLDELETEBUFFERSPROC glDeleteBuffers = nullptr;
 PFNGLBUFFERSUBDATAPROC glBufferSubData = nullptr;
-
 PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray = nullptr;
 PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer = nullptr;
 PFNGLVERTEXATTRIBDIVISORPROC glVertexAttribDivisor = nullptr;
 PFNGLDRAWARRAYSINSTANCEDPROC glDrawArraysInstanced = nullptr;
 PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray = nullptr;
-
 PFNGLCREATESHADERPROC glCreateShader = nullptr;
 PFNGLSHADERSOURCEPROC glShaderSource = nullptr;
 PFNGLCOMPILESHADERPROC glCompileShader = nullptr;
@@ -25,7 +23,6 @@ PFNGLGETSHADERIVPROC glGetShaderiv = nullptr;
 PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog = nullptr;
 PFNGLGETPROGRAMIVPROC glGetProgramiv = nullptr;
 PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog = nullptr;
-
 PFNGLUSEPROGRAMPROC glUseProgram = nullptr;
 PFNGETUNIFORMLOCATIONPROC glGetUniformLocation = nullptr;
 PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv = nullptr;
@@ -34,22 +31,19 @@ PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = nullptr;
 PFNUNIFORM1FPROC glUniform1f = nullptr;
 PFNUNIFORM4FVPROC glUniform4fv = nullptr;
 PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays = nullptr;
-
 PFNGLUNIFORM3FPROC glUniform3f = nullptr;
 PFNGLUNIFORM4FPROC glUniform4f = nullptr;
 PFNGLUNIFORM2FPROC glUniform2f = nullptr;
-
 PFNGLMAPBUFFERPROC glMapBuffer = nullptr;
 PFNGLUNMAPBUFFERPROC glUnmapBuffer = nullptr;
-
 PFNGLUNIFORM2IPROC glUniform2i = nullptr;
 PFNGLBINDBUFFERBASEPROC glBindBufferBase = nullptr;
 PFNGLDISPATCHCOMPUTEPROC glDispatchCompute = nullptr;
 PFNGLMEMORYBARRIERPROC glMemoryBarrier = nullptr;
 PFNGLGETBUFFERSUBDATAPROC glGetBufferSubData = nullptr;
-
 PFNGLUNIFORM1IPROC glUniform1i = nullptr;
 PFNGLGETSTRINGIPROC glGetStringi = nullptr;
+PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced = nullptr;
 
 void LoadOpenGLFunctions() {
         // Загрузка функций для работы с буферами
@@ -115,19 +109,16 @@ void LoadOpenGLFunctions() {
     CHECK_LOAD_FUNCTION(glUniform4fv);
     glDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)wglGetProcAddress("glDeleteVertexArrays");
     CHECK_LOAD_FUNCTION(glDeleteVertexArrays);
-
     glUniform3f = (PFNGLUNIFORM3FPROC)wglGetProcAddress("glUniform3f");
     CHECK_LOAD_FUNCTION(glUniform3f);
     glUniform4f = (PFNGLUNIFORM4FPROC)wglGetProcAddress("glUniform4f");
     CHECK_LOAD_FUNCTION(glUniform4f);
     glUniform2f = (PFNGLUNIFORM2FPROC)wglGetProcAddress("glUniform2f");
     CHECK_LOAD_FUNCTION(glUniform2f);
-
     glMapBuffer = (PFNGLMAPBUFFERPROC)wglGetProcAddress("glMapBuffer");
     CHECK_LOAD_FUNCTION(glMapBuffer);
     glUnmapBuffer = (PFNGLUNMAPBUFFERPROC)wglGetProcAddress("glUnmapBuffer");
     CHECK_LOAD_FUNCTION(glUnmapBuffer);
-
     // Compute Shader related functions
     glUniform2i = (PFNGLUNIFORM2IPROC)wglGetProcAddress("glUniform2i");
     CHECK_LOAD_FUNCTION(glUniform2i);
@@ -139,12 +130,12 @@ void LoadOpenGLFunctions() {
     CHECK_LOAD_FUNCTION(glMemoryBarrier);
     glGetBufferSubData = (PFNGLGETBUFFERSUBDATAPROC)wglGetProcAddress("glGetBufferSubData");
     CHECK_LOAD_FUNCTION(glGetBufferSubData);
-
     glUniform1i = (PFNGLUNIFORM1IPROC)wglGetProcAddress("glUniform1i");
     CHECK_LOAD_FUNCTION(glUniform1i);
-
     glGetStringi = (PFNGLGETSTRINGIPROC)wglGetProcAddress("glGetStringi");
     CHECK_LOAD_FUNCTION(glGetStringi);
+    glDrawElementsInstanced = (PFNGLDRAWELEMENTSINSTANCEDPROC)wglGetProcAddress("glDrawElementsInstanced");
+    CHECK_LOAD_FUNCTION(glDrawElementsInstanced);
 
 }
 

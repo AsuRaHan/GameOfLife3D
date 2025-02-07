@@ -123,6 +123,18 @@
 #define WGL_CONTEXT_CORE_PROFILE_BIT_ARB      0x00000001
 #endif
 
+#ifndef GL_ELEMENT_ARRAY_BUFFER
+#define GL_ELEMENT_ARRAY_BUFFER 0x8893
+#endif
+
+#ifndef GL_TRIANGLES
+#define GL_TRIANGLES 0x0004
+#endif
+
+#ifndef GL_UNSIGNED_INT
+#define GL_UNSIGNED_INT 0x1405
+#endif
+
 #ifndef GLchar
 typedef char GLchar;
 #endif
@@ -180,6 +192,7 @@ typedef void (APIENTRY* PFNGLGETBUFFERSUBDATAPROC)(GLenum target, GLintptr offse
 
 typedef void (APIENTRY* PFNGLUNIFORM1IPROC)(GLint location, GLint v0);
 typedef const GLubyte* (APIENTRY* PFNGLGETSTRINGIPROC)(GLenum name, GLuint index);
+typedef void (APIENTRY* PFNGLDRAWELEMENTSINSTANCEDPROC)(GLenum mode, GLsizei count, GLenum type, const void* indices, GLsizei instancecount);
 
 
 // Объявление указателей на функции
@@ -188,13 +201,11 @@ extern PFNGLBINDBUFFERPROC glBindBuffer;
 extern PFNGLBUFFERDATAPROC glBufferData;
 extern PFNGLDELETEBUFFERSPROC glDeleteBuffers;
 extern PFNGLBUFFERSUBDATAPROC glBufferSubData;
-
 extern PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
 extern PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
 extern PFNGLVERTEXATTRIBDIVISORPROC glVertexAttribDivisor;
 extern PFNGLDRAWARRAYSINSTANCEDPROC glDrawArraysInstanced;
 extern PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
-
 extern PFNGLCREATESHADERPROC glCreateShader;
 extern PFNGLSHADERSOURCEPROC glShaderSource;
 extern PFNGLCOMPILESHADERPROC glCompileShader;
@@ -215,24 +226,19 @@ extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
 extern PFNUNIFORM1FPROC glUniform1f;
 extern PFNUNIFORM4FVPROC glUniform4fv;
 extern PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
-
 extern PFNGLUNIFORM3FPROC glUniform3f;
 extern PFNGLUNIFORM4FPROC glUniform4f;
 extern PFNGLUNIFORM2FPROC glUniform2f;
-
 extern PFNGLMAPBUFFERPROC glMapBuffer;
 extern PFNGLUNMAPBUFFERPROC glUnmapBuffer;
-
 extern PFNGLUNIFORM2IPROC glUniform2i;
 extern PFNGLBINDBUFFERBASEPROC glBindBufferBase;
 extern PFNGLDISPATCHCOMPUTEPROC glDispatchCompute;
 extern PFNGLMEMORYBARRIERPROC glMemoryBarrier;
 extern PFNGLGETBUFFERSUBDATAPROC glGetBufferSubData;
-
 extern PFNGLUNIFORM1IPROC glUniform1i;
-
 extern PFNGLGETSTRINGIPROC glGetStringi;
-
+extern PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced;
 
 // Функции для работы с OpenGL
 void LoadOpenGLFunctions();
