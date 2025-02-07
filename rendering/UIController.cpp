@@ -1,9 +1,33 @@
 #include "UIController.h"
 
-UIController::UIController(GameController* gc) : gameController(gc), showExitDialog(false) {}
+UIController::UIController(GameController* gc) : gameController(gc), showExitDialog(false) {
+    aboutText = LoadTextFromResource(GetModuleHandle(NULL), IDR_ABOUT_TEXT);
+}
 
 void UIController::InitializeUI() {
     // Вы можете добавить здесь инициализацию или настройку UI, если это необходимо
+}
+
+std::string UIController::LoadTextFromResource(HINSTANCE hInstance, int resourceId) {
+    HRSRC hResource = FindResource(hInstance, MAKEINTRESOURCE(resourceId), RT_RCDATA);
+    if (!hResource) {
+        // Обработка ошибки
+        return "";
+    }
+
+    HGLOBAL hResourceData = LoadResource(hInstance, hResource);
+    if (!hResourceData) {
+        // Обработка ошибки
+        return "";
+    }
+
+    DWORD resourceSize = SizeofResource(hInstance, hResource);
+    const char* resourceData = (const char*)LockResource(hResourceData);
+
+    // Копируем данные в строку
+    std::string text(resourceData, resourceSize);
+
+    return text;
 }
 
 void UIController::DrawUI() {
@@ -134,7 +158,7 @@ void UIController::DrawUI() {
     ImGui::SetNextWindowSize(ImVec2(500.0f, 0.0f), ImGuiCond_Appearing); // Ширина 500 пикселей, высота автоматическая
     // Модальное окно для справки
     if (ImGui::BeginPopupModal("О программе", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::TextWrapped("%s", aboutText);
+        ImGui::TextWrapped("%s", aboutText.c_str());
         
 
         if (ImGui::Button("Закрыть", ImVec2(120, 0))) {

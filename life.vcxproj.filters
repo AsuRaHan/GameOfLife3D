@@ -139,6 +139,9 @@
     <ClInclude Include="rendering\UIController.h">
       <Filter>rendering</Filter>
     </ClInclude>
+    <ClInclude Include="res\resource.h">
+      <Filter>res</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">
@@ -159,11 +162,31 @@
     <Filter Include="ImGui">
       <UniqueIdentifier>{0de5d85d-9863-488f-82bf-6f0a7538512d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="res">
+      <UniqueIdentifier>{7466ef7d-e4b1-40da-b435-3c62dd938a45}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="res\life.rc" />
+    <ResourceCompile Include="res\life.rc">
+      <Filter>res</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\about.txt">
+      <Filter>res</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="res\font.otf">
+      <Filter>res</Filter>
+    </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\main.ico">
+      <Filter>res</Filter>
+    </Image>
   </ItemGroup>
 </Project>

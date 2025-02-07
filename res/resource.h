@@ -6,6 +6,7 @@
 //
 #define IDI_ICON1                       101 // иконка приложения 
 #define IDR_FONT_CUSTOM					102 // шрифт для ImGui
+#define IDR_ABOUT_TEXT					103 // текст окна о программе в ImGui
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
