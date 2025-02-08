@@ -116,7 +116,7 @@ void GameOfLife::nextGenerationGPU() {
             else if (currentState) {
                 // Если клетка умирает, делаем её темно-серого цвета
                 //cell.setColor(Vector3d(0.3f, 0.3f, 0.3f));
-                cell.setColor(Vector3d(0.05f, 0.05f, 0.06f));
+                cell.setColor(Vector3d(0.05f, 0.05f, 0.08f));
             }
             //else {
             //    Vector3d oldColor = cell.getColor();

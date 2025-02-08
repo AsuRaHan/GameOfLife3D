@@ -44,7 +44,7 @@ void UIController::DrawUI() {
     if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows | ImGuiHoveredFlags_RootWindow)) {
         windowWasHovered = true;
     }
-    else if (windowWasHovered) {
+    else {
         // Если мышь только что покинула область окна, снимаем фокус
         ImGui::SetWindowFocus(NULL); // NULL означает дефокусировку всех окон
         windowWasHovered = false;
@@ -128,8 +128,11 @@ void UIController::DrawUI() {
         ImGui::Separator();
         ImGui::Text("Рождение");
         {
-            static const char* birthOptions[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8" };
-            ImGui::Combo("##birth", &gpuAutomaton->birth, birthOptions, IM_ARRAYSIZE(birthOptions));
+            static int selectedBirth = 2;
+            static const char* birthOptions[] = { "1", "2", "3", "4", "5", "6", "7", "8" };
+            if (ImGui::Combo("##birth", &selectedBirth , birthOptions, IM_ARRAYSIZE(birthOptions))) {
+                gpuAutomaton->birth = selectedBirth + 1;
+            }
         }
         ImGui::Separator();
         ImGui::Text("Выживание (мин)");

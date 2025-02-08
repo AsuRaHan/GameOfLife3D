@@ -137,7 +137,7 @@ void GPUAutomaton::SetupBuffers() {
 void GPUAutomaton::Update() {
     glUseProgram(computeProgram);
     glUniform2i(glGetUniformLocation(computeProgram, "gridSize"), gridWidth, gridHeight);
-    glUniform1i(glGetUniformLocation(computeProgram, "isToroidal"), isToroidal); // Передача isToroidal
+    glUniform1i(glGetUniformLocation(computeProgram, "isToroidal"), isToroidal);
 
     glUniform1i(glGetUniformLocation(computeProgram, "birth"), birth);
     glUniform1i(glGetUniformLocation(computeProgram, "survivalMin"), survivalMin);

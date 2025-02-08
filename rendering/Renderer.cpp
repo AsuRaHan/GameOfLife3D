@@ -56,19 +56,24 @@ void Renderer::InitializeCellsVBOs() {
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
 
     float scale_factor = 0.1f;
-    float centerX = 0.5f;
-    float centerY = 0.5f;
-
+    //float centerX = 0.5f;
+    //float centerY = 0.5f;
     float vertices[] = {
-        centerX + (0.1f - centerX) * (1 - scale_factor), centerY + (0.1f - centerY) * (1 - scale_factor), // Вершина 1
-        centerX + (0.5f - centerX) * (1 - scale_factor), centerY + (0.0f - centerY) * (1 - scale_factor), // Вершина 5
-        centerX + (0.9f - centerX) * (1 - scale_factor), centerY + (0.1f - centerY) * (1 - scale_factor), // Вершина 2
-        centerX + (1.0f - centerX) * (1 - scale_factor), centerY + (0.5f - centerY) * (1 - scale_factor), // Вершина 6
-        centerX + (0.9f - centerX) * (1 - scale_factor), centerY + (0.9f - centerY) * (1 - scale_factor), // Вершина 3
-        centerX + (0.5f - centerX) * (1 - scale_factor), centerY + (1.0f - centerY) * (1 - scale_factor), // Вершина 7
-        centerX + (0.1f - centerX) * (1 - scale_factor), centerY + (0.9f - centerY) * (1 - scale_factor), // Вершина 4
-        centerX + (0.0f - centerX) * (1 - scale_factor), centerY + (0.5f - centerY) * (1 - scale_factor)  // Вершина 8
+        0.1f, 0.1f,
+        0.9f, 0.1f,
+        0.9f, 0.9f,
+        0.1f, 0.9f
     };
+    //float vertices[] = {
+    //    centerX + (0.1f - centerX) * (1 - scale_factor), centerY + (0.1f - centerY) * (1 - scale_factor), // Вершина 1
+    //    centerX + (0.5f - centerX) * (1 - scale_factor), centerY + (0.0f - centerY) * (1 - scale_factor), // Вершина 5
+    //    centerX + (0.9f - centerX) * (1 - scale_factor), centerY + (0.1f - centerY) * (1 - scale_factor), // Вершина 2
+    //    centerX + (1.0f - centerX) * (1 - scale_factor), centerY + (0.5f - centerY) * (1 - scale_factor), // Вершина 6
+    //    centerX + (0.9f - centerX) * (1 - scale_factor), centerY + (0.9f - centerY) * (1 - scale_factor), // Вершина 3
+    //    centerX + (0.5f - centerX) * (1 - scale_factor), centerY + (1.0f - centerY) * (1 - scale_factor), // Вершина 7
+    //    centerX + (0.1f - centerX) * (1 - scale_factor), centerY + (0.9f - centerY) * (1 - scale_factor), // Вершина 4
+    //    centerX + (0.0f - centerX) * (1 - scale_factor), centerY + (0.5f - centerY) * (1 - scale_factor)  // Вершина 8
+    //};
 
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
 
@@ -162,9 +167,10 @@ void Renderer::InitializeGridVBOs() {
 
 void Renderer::Draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    //DrawCubes();
+
     DrawCells();
+    //DrawCubes();
+    
     // Отрисовка сетки и клеток
     if (pGameController->getShowGrid())DrawGrid();
     // Теперь используем UIController для отрисовки UI
@@ -186,30 +192,30 @@ void Renderer::DrawCubes() {
     std::vector<Vector3d> positions;
     std::vector<Vector3d> colors;
 
-    //for (int y = 0; y < gridHeight; ++y) {
-    //    for (int x = 0; x < gridWidth; ++x) {
-    //        Cell cell = pGameController->getGrid().getCell(x, y);
-    //        if (cell.getAlive()) {
-    //            // Позиции теперь должны соответствовать центру клетки, но в шейдере это уже учтено
-    //            positions.push_back(Vector3d(x * cellSize, y * cellSize, 0.0f));
-    //            colors.push_back(cell.getColor());
-    //        }
-    //    }
-    //}
     for (int y = 0; y < gridHeight; ++y) {
         for (int x = 0; x < gridWidth; ++x) {
             Cell cell = pGameController->getGrid().getCell(x, y);
             if (cell.getAlive()) {
+                // Позиции теперь должны соответствовать центру клетки, но в шейдере это уже учтено
                 positions.push_back(Vector3d(x * cellSize, y * cellSize, 0.0f));
                 colors.push_back(cell.getColor());
             }
-            else {
-                // Добавляем мертвую клетку с другим цветом, например, серым
-                positions.push_back(Vector3d(x * cellSize, y * cellSize, 0.0f));
-                colors.push_back(cell.getColor()); // Серый цвет для мертвых клеток
-            }
         }
     }
+    //for (int y = 0; y < gridHeight; ++y) {
+    //    for (int x = 0; x < gridWidth; ++x) {
+    //        Cell cell = pGameController->getGrid().getCell(x, y);
+    //        if (cell.getAlive()) {
+    //            positions.push_back(Vector3d(x * cellSize, y * cellSize, 0.0f));
+    //            colors.push_back(cell.getColor());
+    //        }
+    //        else {
+    //            // Добавляем мертвую клетку с другим цветом, например, серым
+    //            positions.push_back(Vector3d(x * cellSize, y * cellSize, 0.0f));
+    //            colors.push_back(cell.getColor()); // Серый цвет для мертвых клеток
+    //        }
+    //    }
+    //}
     cubeRenderer.Render(positions, colors, cellSize);
 }
 
@@ -241,13 +247,6 @@ void Renderer::DrawGrid() {
 void Renderer::DrawCells() {
     if (!pGameController) return;
     int GW = pGameController->getGridWidth();
-    // Обновляем данные о клетках
-    //for (size_t i = 0; i < cellInstances.size(); ++i) {
-    //    int x = i % GW;
-    //    int y = i / GW;
-    //    Cell cell = pGameController->getGrid().getCell(x, y);
-    //    cellInstances[i].color = cell.getColor(); // Обновляем только цвет
-    //}
     // Привязываем VAO перед настройкой атрибутов
     GL_CHECK(glBindVertexArray(cellsVAO));
 
@@ -285,8 +284,8 @@ void Renderer::DrawCells() {
     GL_CHECK(glVertexAttribDivisor(3, 1));
 
     // Отрисовка клеток с использованием инстансинга
-    GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 8, cellInstances.size()));
-
+    //GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 8, cellInstances.size()));
+    GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, cellInstances.size()));
     // Отключаем использование атрибутов после отрисовки
     GL_CHECK(glDisableVertexAttribArray(0));
     GL_CHECK(glDisableVertexAttribArray(1));
