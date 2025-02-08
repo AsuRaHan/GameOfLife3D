@@ -2,6 +2,7 @@
 
 UIController::UIController(GameController* gc) : gameController(gc), showExitDialog(false) {
     aboutText = LoadTextFromResource(GetModuleHandle(NULL), IDR_ABOUT_TEXT);
+    gpuAutomaton = &gc->getGPUAutomaton();
 }
 
 void UIController::InitializeUI() {
@@ -36,8 +37,19 @@ void UIController::DrawUI() {
     ImGui::NewFrame();
     //DrawMenuBar();
     // ------------------------------------ главное меню игры --------------------------------
+    bool windowWasHovered = false;
+    ImGui::SetNextWindowSize(ImVec2(0.0f, 650.0f), ImGuiCond_Always);
     ImGui::Begin("Управление игрой", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
-    ImGui::SetWindowPos(ImVec2(6, 6), ImGuiCond_Once);
+    // Проверяем, был ли окно под курсором мыши в прошлый раз
+    if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows | ImGuiHoveredFlags_RootWindow)) {
+        windowWasHovered = true;
+    }
+    else if (windowWasHovered) {
+        // Если мышь только что покинула область окна, снимаем фокус
+        ImGui::SetWindowFocus(NULL); // NULL означает дефокусировку всех окон
+        windowWasHovered = false;
+    }
+    ImGui::SetWindowPos(ImVec2(2, 2), ImGuiCond_Once);
 
     // Находим максимальную ширину текста всех кнопок
     ImVec2 maxSize(0, 0);
@@ -108,6 +120,42 @@ void UIController::DrawUI() {
         if (ImGui::Button("Показать сетку", ImVec2(buttonWidth, 0))) {
             gameController->setShowGrid(!gameController->getShowGrid());
         }
+    }
+    ImGui::Separator();
+    // В UI
+    if (gpuAutomaton) {
+        ImGui::Text("Правила игры:");
+        ImGui::Separator();
+        ImGui::Text("Рождение");
+        {
+            static const char* birthOptions[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8" };
+            ImGui::Combo("##birth", &gpuAutomaton->birth, birthOptions, IM_ARRAYSIZE(birthOptions));
+        }
+        ImGui::Separator();
+        ImGui::Text("Выживание (мин)");
+        {
+            static const char* survivalMinOptions[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8" };
+            ImGui::Combo("##survivalMin", &gpuAutomaton->survivalMin, survivalMinOptions, IM_ARRAYSIZE(survivalMinOptions));
+        }
+        ImGui::Separator();
+        ImGui::Text("Выживание (макс)");
+        {
+            static const char* survivalMaxOptions[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8" };
+            ImGui::Combo("##survivalMax", &gpuAutomaton->survivalMax, survivalMaxOptions, IM_ARRAYSIZE(survivalMaxOptions));
+        }
+        ImGui::Separator();
+        ImGui::Text("Перенаселение");
+        {
+            static int selectedOverPopulation = 3;
+            static const char* overpopulationOptions[] = { "1", "2", "3", "4", "5", "6", "7", "8" };
+            if (ImGui::Combo( "##overpopulation", &selectedOverPopulation, overpopulationOptions, IM_ARRAYSIZE(overpopulationOptions)) ) {
+                gpuAutomaton->overpopulation = selectedOverPopulation + 1;
+            }
+
+        }
+    }
+    else {
+        ImGui::Text("GPUAutomaton не инициализирован!");
     }
     ImGui::Separator();
     static char saveFilename[128] = "state.txt";

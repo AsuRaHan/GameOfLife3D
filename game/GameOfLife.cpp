@@ -115,21 +115,22 @@ void GameOfLife::nextGenerationGPU() {
             }
             else if (currentState) {
                 // Если клетка умирает, делаем её темно-серого цвета
-                cell.setColor(Vector3d(0.33f, 0.33f, 0.33f));
+                //cell.setColor(Vector3d(0.3f, 0.3f, 0.3f));
+                cell.setColor(Vector3d(0.05f, 0.05f, 0.06f));
             }
-            else {
-                Vector3d oldColor = cell.getColor();
-                float rc = oldColor.X();
-                float gc = oldColor.Y();
-                float bc = oldColor.Z();
-                rc -= 0.01f;
-                gc -= 0.01f;
-                bc -= 0.01f;
-                if (rc < 0) rc = 0.0f;
-                if (gc < 0) gc = 0.0f;
-                if (bc < 0) bc = 0.0f;
-                cell.setColor(Vector3d(rc, bc, gc));
-            }
+            //else {
+            //    Vector3d oldColor = cell.getColor();
+            //    float rc = oldColor.X();
+            //    float gc = oldColor.Y();
+            //    float bc = oldColor.Z();
+            //    rc -= 0.01f;
+            //    gc -= 0.01f;
+            //    bc -= 0.01f;
+            //    if (rc < 0) rc = 0.0f;
+            //    if (gc < 0) gc = 0.0f;
+            //    if (bc < 0) bc = 0.0f;
+            //    cell.setColor(Vector3d(rc, bc, gc));
+            //}
 
             SetCellColor(x, y, cell.getColor());
 

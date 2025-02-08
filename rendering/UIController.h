@@ -14,12 +14,15 @@
 class UIController {
 private:
     GameController* gameController;
+    GPUAutomaton* gpuAutomaton;
 
     bool showExitDialog;
     std::string aboutText;
 
 public:
     UIController(GameController* gc);
+    void SetGPUAutomaton(GPUAutomaton* ga) { gpuAutomaton = ga; } // Добавляем сеттер
+
     void InitializeUI();
     std::string LoadTextFromResource(HINSTANCE hInstance, int resourceId);
     void DrawUI();

@@ -23,6 +23,8 @@ public:
     void SetCellProvider(const ICellInstanceProvider* provider);
 
     void SetCellColor(int x, int y, const Vector3d& color);
+
+    GPUAutomaton& getGPUAutomaton() { return gpuAutomaton; }
 private:
     Grid& grid;
     Grid nextGrid; // Добавляем nextGrid для двойного буфера

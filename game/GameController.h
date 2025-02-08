@@ -135,5 +135,7 @@ public:
     void SetCellInstanceProvider(ICellInstanceProvider* provider) {
         gameOfLife.SetCellProvider(provider); // Передаем провайдера в GameOfLife
     }
+
+    GPUAutomaton& getGPUAutomaton() { return gameOfLife.getGPUAutomaton(); }
 };
 #endif // GAMECONTROLLER_H_
