@@ -3,6 +3,7 @@
 #include "rendering/Renderer.h"
 #include "game/GameController.h"
 #include "system/OpenGLInitializer.h"
+#include "system/SettingsManager.h"
 
 #include <iostream>
 #include <chrono>
@@ -155,12 +156,29 @@ int wWinMain(
 
     std::cout << "LOG! " << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S") << std::endl;
 
+    SettingsManager settingsManager;
     // Переменные для ширины и высоты
-    int gridWidth, gridHeight;
+    int gridWidth, gridHeight, windowWidth, windowHeight;
     bool Full;
-    ParseCommandLine(lpCmdLine, gridWidth, gridHeight, Full); // Получаем значения из командной строки
+    if (wcslen(lpCmdLine) != 0) {
+        ParseCommandLine(lpCmdLine, gridWidth, gridHeight, Full); // Получаем значения из командной строки
+        settingsManager.setSetting("gridWidth", gridWidth);
+        settingsManager.setSetting("gridHeight", gridHeight);
+        settingsManager.setSetting("IsFullscreen", Full);
+    }
+    else {
+        gridWidth = settingsManager.getIntSetting("gridWidth", 100);
+        gridHeight = settingsManager.getIntSetting("gridHeight", 100);
+        //float volume = settingsManager.getFloatSetting("Volume");
+        Full = settingsManager.getBoolSetting("IsFullscreen",false);
+    }
 
-    MainWindow mainWindow(hInstance, 800, 600);
+
+    windowWidth = settingsManager.getIntSetting("windowWidth", 800);
+    windowHeight = settingsManager.getIntSetting("windowHeight", 600);
+    
+
+    MainWindow mainWindow(hInstance, windowWidth, windowHeight);
 
 
     if (mainWindow.Create()) {
@@ -225,6 +243,10 @@ int wWinMain(
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
+
+    settingsManager.setSetting("windowWidth", mainWindow.GetWidth());
+    settingsManager.setSetting("windowHeight", mainWindow.GetHeight());
+
     // Восстанавливаем буферы
     std::cout.rdbuf(coutbuf);
     std::cerr.rdbuf(cerrbuf);

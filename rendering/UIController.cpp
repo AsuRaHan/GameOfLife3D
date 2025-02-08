@@ -44,7 +44,7 @@ void UIController::DrawUI() {
     if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows | ImGuiHoveredFlags_RootWindow)) {
         windowWasHovered = true;
     }
-    else {
+    else if (windowWasHovered) {
         // Если мышь только что покинула область окна, снимаем фокус
         ImGui::SetWindowFocus(NULL); // NULL означает дефокусировку всех окон
         windowWasHovered = false;

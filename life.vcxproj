@@ -165,6 +165,7 @@
     <ClCompile Include="rendering\UIController.cpp" />
     <ClCompile Include="system\GLFunctions.cpp" />
     <ClCompile Include="system\OpenGLInitializer.cpp" />
+    <ClCompile Include="system\SettingsManager.cpp" />
     <ClCompile Include="system\ShaderManager.cpp" />
     <ClCompile Include="windowing\GridPicker.cpp" />
     <ClCompile Include="windowing\MainWindow.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="res\resource.h" />
     <ClInclude Include="system\GLFunctions.h" />
     <ClInclude Include="system\OpenGLInitializer.h" />
+    <ClInclude Include="system\SettingsManager.h" />
     <ClInclude Include="system\ShaderManager.h" />
     <ClInclude Include="windowing\GridPicker.h" />
     <ClInclude Include="windowing\MainWindow.h" />
