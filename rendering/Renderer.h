@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "UIController.h"
 #include "../game/GameController.h"
+#include "ICellInstanceProvider.h"
 
 #include "CubeRenderer.h"
 
@@ -16,7 +17,7 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_win32.h" 
 
-class Renderer {
+class Renderer : public ICellInstanceProvider {
 public:
     Renderer(int width, int height);
     ~Renderer();
@@ -33,6 +34,14 @@ public:
     void RebuildGameField(); // метод для перестройки игрового поля
 
     void DrawCubes();
+
+    // Геттер для cellInstances
+    const std::vector<CellInstance> &GetCellInstances() const override {
+        return cellInstances;
+    }
+
+    // Сеттер для cellInstances
+    void SetCellInstances(const std::vector<CellInstance>& instances) { cellInstances = instances; }
 
 private:
     int width, height;
@@ -53,10 +62,6 @@ private:
     GLuint cellsVAO;
 
     std::vector<GLfloat> gridVertices;
-    struct CellInstance {
-        float x, y; // Позиция клетки
-        Vector3d color; // Цвет клетки
-    };
     GLuint cellInstanceVBO;
     std::vector<CellInstance> cellInstances;
 

@@ -148,6 +148,12 @@
     <ClInclude Include="rendering\CubeRenderer.h">
       <Filter>rendering</Filter>
     </ClInclude>
+    <ClInclude Include="rendering\ICellInstanceProvider.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\CellInstance.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">

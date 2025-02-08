@@ -38,9 +38,11 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
                 grid.setCellState(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), pattern[y][x]);
                 if (pattern[y][x]) {
                     grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.5f, 0.9f, 0.5f));
+                    gameOfLife.SetCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), Vector3d(0.5f, 0.9f, 0.5f));
                 }
                 else {
                     grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.1f, 0.1f, 0.1f));
+                    gameOfLife.SetCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), Vector3d(0.1f, 0.1f, 0.1f));
                 }
                 
             }
@@ -62,10 +64,12 @@ void GameController::randomizeGrid(float density) {
             if (dis(gen) < density) {
                 grid.setCellState(x, y, true);
                 grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
+                gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.6f, 0.0f));
             }
             else {
                 grid.setCellState(x, y, false);
                 grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
+                gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
             }
             //float r = static_cast<float>(rand()) / RAND_MAX;
             //float g = static_cast<float>(rand()) / RAND_MAX;
@@ -81,6 +85,7 @@ void GameController::clearGrid() {
         for (int x = 0; x < grid.getWidth(); ++x) {
             grid.setCellState(x, y, false); // ”станавливаем каждую клетку в мертвое состо€ние
             grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
+            gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
         }
     }
 }
@@ -112,6 +117,7 @@ void GameController::previousGeneration() {
     if (isRunning) return;
     gameOfLife.previousGeneration();
 }
+
 bool GameController::isSimulationRunning() const {
     return isRunning;
 }
@@ -121,10 +127,12 @@ void GameController::toggleCellState(int x, int y) {
     bool currentState = grid.getCellState(x, y);
     grid.setCellState(x, y, !currentState);
     if (!currentState) {
-        grid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f));
+        //grid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f));
+        gameOfLife.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
     }
     else {
-        grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
+        //grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
+        gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
     }
     
 }
@@ -183,9 +191,11 @@ void GameController::setCurrentPattern(int patternNumber) {
         break;
     }
 }
+
 void GameController::setCurrentPatternRotator(int patternRotator) {
      currentPatternRotator = patternRotator;
 }
+
 void GameController::PlacePattern(int startX, int startY) {
     if (isRunning) return;
     
@@ -266,3 +276,5 @@ Pattern GameController::rotateOrFlip(const Pattern& pattern, Rotation rotation) 
 
     return result;
 }
+
+

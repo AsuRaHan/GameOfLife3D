@@ -5,14 +5,14 @@
 #include "GameOfLife.h"
 #include "Grid.h"
 #include "GameStateManager.h"
+//#include "../rendering/ICellInstanceProvider.h"
+
 #include <random> // Для генерации случайных чисел
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <array>
-
-
 
 // Определим тип фигуры как двумерный массив
 using Pattern = std::vector<std::vector<bool>>;
@@ -130,7 +130,10 @@ public:
     bool saveGameStateCSV(const std::string& filename) const {
         return GameStateManager::saveGameStateCSV(grid, filename);
     }
-
     Pattern rotateOrFlip(const Pattern& pattern, Rotation rotation);
+
+    void SetCellInstanceProvider(ICellInstanceProvider* provider) {
+        gameOfLife.SetCellProvider(provider); // Передаем провайдера в GameOfLife
+    }
 };
 #endif // GAMECONTROLLER_H_

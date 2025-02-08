@@ -3,6 +3,8 @@
 #define GAMEOFLIFE_H
 
 #include "GPUAutomaton.h"
+#include "../rendering/ICellInstanceProvider.h"
+
 #include "Grid.h"
 #include <vector>
 #include <future>  
@@ -17,6 +19,10 @@ public:
     bool getWoldToroidal() const { return isToroidal; };
 
     void updateGridReference(Grid& newGrid) { grid = newGrid; } // метод для обновления ссылки
+
+    void SetCellProvider(const ICellInstanceProvider* provider);
+
+    void SetCellColor(int x, int y, const Vector3d& color);
 private:
     Grid& grid;
     Grid nextGrid; // Добавляем nextGrid для двойного буфера
@@ -26,6 +32,9 @@ private:
     bool isToroidal;
     bool isGpuSimulated;
     
+    std::vector<CellInstance>* cellInstances;
+    const ICellInstanceProvider* cellProvider;
+
     void nextGenerationGPU();
     void nextGenerationCPU();
     

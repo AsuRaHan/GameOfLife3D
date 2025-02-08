@@ -178,6 +178,7 @@ int wWinMain(
 
         Renderer renderer(width, height);
         renderer.SetGameController(&gameController);
+        gameController.SetCellInstanceProvider(&renderer);
 
         // Передаем один и тот же экземпляр gameController в WindowController
         WindowController controller(&mainWindow, &renderer, &gameController);
@@ -208,6 +209,7 @@ int wWinMain(
 
             // Здесь вызываем update с deltaTime
             gameController.update(deltaTime.count()); // .count() возвращает значение в секундах как float
+            
             renderer.Draw();
         }
 

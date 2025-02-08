@@ -1,7 +1,8 @@
 #include "GameOfLife.h"
 
 GameOfLife::GameOfLife(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()),
-gpuAutomaton(g.getWidth(), g.getHeight()), isToroidal(true), isGpuSimulated(true)
+gpuAutomaton(g.getWidth(), g.getHeight()), isToroidal(true), isGpuSimulated(true),
+cellInstances(nullptr),cellProvider(nullptr)
 {
     gpuAutomaton.SetToroidal(isToroidal); // Установка isToroidal
 }
@@ -129,7 +130,30 @@ void GameOfLife::nextGenerationGPU() {
                 if (bc < 0) bc = 0.0f;
                 cell.setColor(Vector3d(rc, bc, gc));
             }
+
+            SetCellColor(x, y, cell.getColor());
+
         }
+    }
+}
+
+void GameOfLife::SetCellColor(int x, int y, const Vector3d& color) {
+    if (cellProvider && cellInstances) {
+        int GW = grid.getWidth();
+        int index = y * GW + x;
+        if (index < cellInstances->size()) {
+            (*cellInstances)[index].color = color;
+        }
+    }
+}
+
+void GameOfLife::SetCellProvider(const ICellInstanceProvider* provider) {
+    cellProvider = provider;
+    if (cellProvider) {
+        cellInstances = &const_cast<std::vector<CellInstance>&>(cellProvider->GetCellInstances());
+    }
+    else {
+        cellInstances = nullptr;
     }
 }
 
