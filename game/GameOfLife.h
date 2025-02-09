@@ -3,7 +3,7 @@
 #define GAMEOFLIFE_H
 
 #include "GPUAutomaton.h"
-#include "../rendering/ICellInstanceProvider.h"
+#include "../rendering/IRendererProvider.h"
 
 #include "Grid.h"
 #include <vector>
@@ -20,7 +20,7 @@ public:
 
     void updateGridReference(Grid& newGrid) { grid = newGrid; } // метод для обновления ссылки
 
-    void SetCellProvider(const ICellInstanceProvider* provider);
+    void SetCellProvider(const IRendererProvider* provider);
 
     void SetCellColor(int x, int y, const Vector3d& color);
 
@@ -35,7 +35,7 @@ private:
     bool isGpuSimulated;
     
     std::vector<CellInstance>* cellInstances;
-    const ICellInstanceProvider* cellProvider;
+    const IRendererProvider* cellProvider;
 
     void nextGenerationGPU();
     void nextGenerationCPU();

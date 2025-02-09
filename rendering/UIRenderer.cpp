@@ -1,15 +1,15 @@
-#include "UIController.h"
+#include "UIRenderer.h"
 
-UIController::UIController(GameController* gc) : gameController(gc), showExitDialog(false) {
+UIRenderer::UIRenderer(GameController* gc) : gameController(gc), showExitDialog(false) {
     aboutText = LoadTextFromResource(GetModuleHandle(NULL), IDR_ABOUT_TEXT);
     gpuAutomaton = &gc->getGPUAutomaton();
 }
 
-void UIController::InitializeUI() {
+void UIRenderer::InitializeUI() {
     // Вы можете добавить здесь инициализацию или настройку UI, если это необходимо
 }
 
-std::string UIController::LoadTextFromResource(HINSTANCE hInstance, int resourceId) {
+std::string UIRenderer::LoadTextFromResource(HINSTANCE hInstance, int resourceId) {
     HRSRC hResource = FindResource(hInstance, MAKEINTRESOURCE(resourceId), RT_RCDATA);
     if (!hResource) {
         // Обработка ошибки
@@ -31,7 +31,7 @@ std::string UIController::LoadTextFromResource(HINSTANCE hInstance, int resource
     return text;
 }
 
-//void UIController::DrawUI2() {
+//void UIRenderer::DrawUI2() {
 //    ImGui_ImplOpenGL3_NewFrame();
 //    ImGui_ImplWin32_NewFrame();
 //    ImGui::NewFrame();
@@ -226,7 +226,7 @@ std::string UIController::LoadTextFromResource(HINSTANCE hInstance, int resource
 //}
 
 
-void UIController::DrawUI() {
+void UIRenderer::DrawUI() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
@@ -243,7 +243,7 @@ void UIController::DrawUI() {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-//void UIController::DrawMenuBar() {
+//void UIRenderer::DrawMenuBar() {
 //
 //    if (ImGui::BeginMainMenuBar())
 //    {
@@ -278,7 +278,7 @@ void UIController::DrawUI() {
 //    }
 //    
 //}
-void UIController::DrawMenuBar() {
+void UIRenderer::DrawMenuBar() {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("Окна")) {
             ImGui::MenuItem("Управление симуляцией", NULL, &simulationWindowVisible);
@@ -295,7 +295,7 @@ void UIController::DrawMenuBar() {
     }
 }
 
-void UIController::DrawSimulationWindow() {
+void UIRenderer::DrawSimulationWindow() {
     if (!simulationWindowVisible) return;
 
     ImGui::Begin("Управление симуляцией", &simulationWindowVisible, ImGuiWindowFlags_NoResize);
@@ -341,7 +341,7 @@ void UIController::DrawSimulationWindow() {
     ImGui::End();
 }
 
-void UIController::DrawGameSettingsWindow() {
+void UIRenderer::DrawGameSettingsWindow() {
     if (!gameSettingsWindowVisible) return;
 
     ImGui::Begin("Настройки игры", &gameSettingsWindowVisible, ImGuiWindowFlags_NoResize);
@@ -379,7 +379,7 @@ void UIController::DrawGameSettingsWindow() {
     ImGui::End();
 }
 
-void UIController::DrawSaveSettingsWindow() {
+void UIRenderer::DrawSaveSettingsWindow() {
     if (!saveSettingsWindowVisible) return;
 
     ImGui::Begin("Настройки сохранения", &saveSettingsWindowVisible, ImGuiWindowFlags_NoResize);
@@ -397,7 +397,7 @@ void UIController::DrawSaveSettingsWindow() {
     ImGui::End();
 }
 
-void UIController::DrawFieldSettingsWindow() {
+void UIRenderer::DrawFieldSettingsWindow() {
     if (!fieldSettingsWindowVisible) return;
 
     ImGui::Begin("Настройки поля", &fieldSettingsWindowVisible, ImGuiWindowFlags_NoResize);
@@ -414,7 +414,7 @@ void UIController::DrawFieldSettingsWindow() {
     ImGui::End();
 }
 
-void UIController::DrawAboutWindow() {
+void UIRenderer::DrawAboutWindow() {
     if (!aboutWindowVisible) return;
     ImGui::SetNextWindowSize(ImVec2(500.0f, 0.0f), ImGuiCond_Appearing); // Ширина 500 пикселей, высота автоматическая
     ImGui::Begin("О программе", &aboutWindowVisible, ImGuiWindowFlags_AlwaysAutoResize);
@@ -425,7 +425,7 @@ void UIController::DrawAboutWindow() {
     ImGui::End();
 }
 
-void UIController::DrawExitDialog() {
+void UIRenderer::DrawExitDialog() {
     if (!exitDialogVisible) return;
 
     ImGui::OpenPopup("Вы уверены?");
@@ -445,6 +445,6 @@ void UIController::DrawExitDialog() {
     }
 }
 
-void UIController::UpdateUIState() {
+void UIRenderer::UpdateUIState() {
     // Это место для обновления состояния UI на основе изменений в игре или других событий
 }

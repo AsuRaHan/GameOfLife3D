@@ -4,6 +4,8 @@
 
 #include "../rendering/Renderer.h"
 #include "../game/GameController.h" 
+#include "../system/InputHandler.h"
+#include "../rendering/CameraController.h"
 #include "GridPicker.h"
 
 class MainWindow; // Forward declaration
@@ -21,6 +23,10 @@ private:
     Renderer* pRenderer;
     GameController* pGameController;
     GridPicker gridPicker;
+
+    InputHandler inputHandler;
+    CameraController pCameraController; 
+
 
     bool mouseCaptured; // Флаг для отслеживания захвата мыши
     int lastMouseX, lastMouseY; // Последние координаты мыши

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef UICONTROLLER_H_
-#define UICONTROLLER_H_
+#ifndef UIRenderer_H_
+#define UIRenderer_H_
 
 #include <windows.h>
 #include <string>
@@ -11,7 +11,7 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_win32.h"
 
-class UIController {
+class UIRenderer {
 private:
     GameController* gameController;
     GPUAutomaton* gpuAutomaton;
@@ -45,7 +45,7 @@ private:
     void DrawExitDialog();
 
 public:
-    UIController(GameController* gc);
+    UIRenderer(GameController* gc);
 
     void SetGPUAutomaton(GPUAutomaton* ga) { gpuAutomaton = ga; } // Добавляем сеттер
     void InitializeUI();
@@ -53,4 +53,4 @@ public:
     void UpdateUIState();
 };
 
-#endif // UICONTROLLER_H_
+#endif // UIRenderer_H_

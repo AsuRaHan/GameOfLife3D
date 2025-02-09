@@ -208,3 +208,8 @@ void Camera::NormalizeVector(std::array<float, 3>& vector) {
 float Camera::GetDistance() const {
     return std::abs(position[2]);
 }
+
+//void Camera::SetFOV(float newFov) {
+//    fov = newFov;
+//    SetProjection(fov, aspectRatio, nearPlane, farPlane);
+//}

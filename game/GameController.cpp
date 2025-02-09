@@ -141,6 +141,11 @@ bool GameController::getCellState(int x, int y) const {
     return grid.getCellState(x, y);
 }
 
+void GameController::SetCellInstanceProvider(IRendererProvider* provider) {
+    rendererProvider = provider;
+    gameOfLife.SetCellProvider(provider); // Передаем провайдера в GameOfLife
+}
+
 void GameController::setFieldSize(int newWidth, int newHeight) {
     // Если симуляция работает, сбросим ее, чтобы избежать некорректной работы с новыми размерами
     if (isRunning) {
@@ -165,7 +170,8 @@ void GameController::setFieldSize(int newWidth, int newHeight) {
 
     // Обновляем ссылку на сетку в GameOfLife
     gameOfLife.updateGridReference(grid);
-    
+    // Перед перестройкой буферов, уведомляем рендер о необходимости обновлений
+    rendererProvider->RebuildGameField();
 }
 
 void GameController::setCurrentPattern(int patternNumber) {

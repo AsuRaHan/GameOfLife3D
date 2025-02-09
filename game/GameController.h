@@ -84,6 +84,8 @@ private:
         FlipHorizontal, // Отражение по горизонтали
         FlipVertical    // Отражение по вертикали
     };
+
+    IRendererProvider* rendererProvider;
 public:
     GameController(int width, int height, float cellSize = 0.5f);
     void randomizeGrid();
@@ -128,9 +130,7 @@ public:
     }
     Pattern rotateOrFlip(const Pattern& pattern, Rotation rotation);
 
-    void SetCellInstanceProvider(ICellInstanceProvider* provider) {
-        gameOfLife.SetCellProvider(provider); // Передаем провайдера в GameOfLife
-    }
+    void SetCellInstanceProvider(IRendererProvider* provider);
 
     GPUAutomaton& getGPUAutomaton() { return gameOfLife.getGPUAutomaton(); }
 };

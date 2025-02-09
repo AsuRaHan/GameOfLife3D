@@ -4,9 +4,10 @@
 
 #include "../system/GLFunctions.h"
 #include "Camera.h"
-#include "UIController.h"
+#include "UIRenderer.h"
 #include "../game/GameController.h"
-#include "ICellInstanceProvider.h"
+#include "IRendererProvider.h"
+//#include "CameraController.h"
 
 #include "CubeRenderer.h"
 
@@ -17,26 +18,26 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_win32.h" 
 
-class Renderer : public ICellInstanceProvider {
+class Renderer : public IRendererProvider {
 public:
     Renderer(int width, int height);
     ~Renderer();
 
     void SetCamera(const Camera& camera);
-    Camera& GetCamera() { return camera; }
+    Camera& GetCamera() override { return camera; } // смотри интерфейс IRendererProvider
 
     void SetGameController(GameController* gameController);
     void Draw();
     void OnWindowResize(int newWidth, int newHeight);
-    void MoveCamera(float dx, float dy, float dz);
+    //void MoveCamera(float dx, float dy, float dz);
     int getWindowWidth() const { return width; }
     int getWindowHeight() const { return height; }
-    void RebuildGameField(); // метод для перестройки игрового поля
+    void RebuildGameField() override; // метод для перестройки игрового поля. смотри интерфейс IRendererProvider
 
     void DrawCubes();
 
     // Геттер для cellInstances
-    const std::vector<CellInstance> &GetCellInstances() const override {
+    const std::vector<CellInstance>& GetCellInstances() const override {
         return cellInstances;
     }
 
@@ -47,8 +48,10 @@ private:
     int width, height;
     Camera camera;
     float farPlane;
+    //CameraController cameraController;
+
     GameController* pGameController;
-    UIController uiController;
+    UIRenderer uiRenderer;
     ShaderManager shaderManager;
 
     CubeRenderer cubeRenderer;

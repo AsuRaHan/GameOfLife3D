@@ -6,7 +6,36 @@
 WindowController::WindowController(MainWindow* window, Renderer* renderer, GameController* gameController)
     : pWindow(window), pRenderer(renderer), pGameController(gameController),
     mouseCaptured(false), lastMouseX(0), lastMouseY(0), isMiddleButtonDown(false),
-    gridPicker(renderer->GetCamera()) {
+    gridPicker(renderer->GetCamera())
+    , inputHandler(),
+    pCameraController(renderer->GetCamera())
+{
+    // Регистрируем обработчики ввода для камеры
+    inputHandler.RegisterHandler(InputEvent::InputType::MouseMove, [this](const InputEvent& event) {
+        pCameraController.HandleInput(event);
+        });
+
+    inputHandler.RegisterHandler(InputEvent::InputType::MouseWheel, [this](const InputEvent& event) {
+        pCameraController.HandleInput(event);
+        });
+
+    inputHandler.RegisterHandler(InputEvent::InputType::KeyDown, [this](const InputEvent& event) {
+        pCameraController.HandleInput(event);
+        });
+
+    inputHandler.RegisterHandler(InputEvent::InputType::MouseButtonDown, [this](const InputEvent& event) {
+        if (event.button == InputEvent::MouseButton::Right) {
+            mouseCaptured = true;
+            pCameraController.HandleInput(event);
+        }
+        });
+
+    inputHandler.RegisterHandler(InputEvent::InputType::MouseButtonUp, [this](const InputEvent& event) {
+        if (event.button == InputEvent::MouseButton::Right) {
+            mouseCaptured = false;
+            pCameraController.HandleInput(event);
+        }
+        });
     ResetCamera();
 }
 
@@ -21,7 +50,207 @@ void WindowController::Resize(int width, int height) {
     }
 }
 
+//void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
+//    switch (message) {
+//    case WM_PAINT:
+//        if (pRenderer)pRenderer->Draw();
+//        break;
+//    case WM_SIZE:
+//        Resize(LOWORD(lParam), HIWORD(lParam)); // Обработка изменения размеров окна
+//        break;
+//
+//    case WM_KEYDOWN:
+//        if (wParam >= '1' && wParam <= '9') {
+//            pGameController->setCurrentPattern(wParam - '0');
+//        }
+//        switch (wParam) {
+//            break;
+//        case VK_SPACE: // Пробел для запуска/остановки симуляции
+//            if (pGameController->isSimulationRunning()) {
+//                pGameController->stopSimulation();
+//            }
+//            else {
+//                pGameController->startSimulation();
+//            }
+//            break;
+//
+//        case VK_RIGHT: // Стрелка вправо для следующего поколения
+//            if (!pGameController->isSimulationRunning()) {
+//                pGameController->stepSimulation(); // Переход к следующему поколению
+//            }
+//            break;
+//
+//        case VK_LEFT: // Стрелка влево для предыдущего поколения
+//            if (!pGameController->isSimulationRunning()) {
+//                pGameController->previousGeneration(); // Переход к предыдущему поколению
+//            }
+//            break;
+//        case VK_ADD: // Клавиша '+' на нумпаде
+//        case VK_OEM_PLUS: // Клавиша '+' на основной клавиатуре
+//            if (GetKeyState(VK_CONTROL) & 0x8000) {
+//                simulationSpeedMultiplier -= 0.25f; // Уменьшаем интервал на 250 мс
+//            }
+//            else {
+//                simulationSpeedMultiplier -= 0.025f; // Уменьшаем интервал на 25 мс
+//            }
+//            if (simulationSpeedMultiplier < 0.01f) {
+//                simulationSpeedMultiplier = 0.01f; // Устанавливаем минимум 10 мс
+//            }
+//            if (pGameController->isSimulationRunning()) {
+//                pGameController->setSimulationSpeed(simulationSpeedMultiplier);
+//            }
+//            break;
+//
+//        case VK_SUBTRACT: // Клавиша '-' на нумпаде
+//        case VK_OEM_MINUS: // Клавиша '-' на основной клавиатуре
+//            if (GetKeyState(VK_CONTROL) & 0x8000) {
+//                simulationSpeedMultiplier += 0.25f; // Увеличиваем интервал на 250 мс
+//            }
+//            else {
+//                simulationSpeedMultiplier += 0.025f; // Увеличиваем интервал на 25 мс
+//            }
+//            if (simulationSpeedMultiplier > 0.25f) {
+//                simulationSpeedMultiplier = 0.25f; // Устанавливаем максимум 250 мс
+//            }
+//            if (pGameController->isSimulationRunning()) {
+//                pGameController->setSimulationSpeed(simulationSpeedMultiplier);
+//            }
+//            break;
+//
+//        case 'R':
+//            if (!pGameController->isSimulationRunning()) {
+//                pGameController->randomizeGrid(0.1f); // Случайное заполнение поля
+//            }
+//            break;
+//        case 'W':
+//            MoveCamera(0.0f, 5.0f); // Двигаем вперед
+//            break;
+//        case 'S':
+//            MoveCamera(0.0f, -5.0f); // Двигаем назад
+//            break;
+//        case 'A':
+//            MoveCamera(-5.0f, 0.0f); // Двигаем влево
+//            break;
+//        case 'D':
+//            MoveCamera(5.0f, 0.0f); // Двигаем вправо
+//            break;
+//        case 'T':
+//            ResetCamera();
+//            break;
+//        case 'C':
+//            if (!pGameController->isSimulationRunning()) {
+//                pGameController->clearGrid(); // Очищение поля. убить всех
+//            }
+//            break;
+//        case 'Y':
+//            if (!pGameController->isSimulationRunning()) {
+//                pGameController->setWoldToroidal(!pGameController->getWoldToroidal()); // сделать мир безграничным или на оборот ограничеть его
+//            }
+//            break;
+//        case 'I':
+//            if (!pGameController->isSimulationRunning()) {
+//                pGameController->randomizeGrid(); // засеять поле рандомными фигурами
+//            }
+//            break;
+//        //case 'L':
+//        //    if (!pGameController->isSimulationRunning()) {
+//        //        pGameController->setFieldSize(30, 30);
+//        //        pRenderer->RebuildGameField();
+//        //    }
+//        //    break;
+//        case 'G':
+//            pGameController->setShowGrid(!pGameController->getShowGrid());
+//            break;
+//
+//        }
+//        break;
+//
+//    case WM_MOUSEWHEEL:
+//        if (pRenderer) {
+//            short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+//            float moveZ = zDelta > 0 ? -2.5f : 2.5f;
+//            // Проверка состояния клавиши Ctrl
+//            if (GetKeyState(VK_CONTROL) & 0x8000) {
+//                moveZ *= 15.0f; // Увеличиваем скорость зума в 10 раз
+//            }
+//            Camera& camera = const_cast<Camera&>(pRenderer->GetCamera());
+//
+//            float currentPosX;
+//            float currentPosY;
+//            float currentPosZ;
+//            camera.GetPosition(currentPosX, currentPosY, currentPosZ); // Получаем текущую позицию камеры по Z
+//
+//            // Рассчитываем новую позицию, но не позволяем ей быть меньше 0
+//            float newPosZ = currentPosZ + moveZ;
+//            if (newPosZ < 1) {
+//                newPosZ = 1; // Ограничиваем минимальное значение Z
+//            }
+//
+//            // Двигаем камеру только по оси Z, сохраняя её позицию по X и Y
+//            camera.Move(0.0f, 0.0f, newPosZ - currentPosZ);
+//        }
+//        break;
+//
+//    case WM_LBUTTONDOWN: // Левый клик мыши
+//        if (pRenderer) {
+//            int xPos = LOWORD(lParam);
+//            int yPos = HIWORD(lParam);
+//        }
+//        HandleMouseClick(LOWORD(lParam), HIWORD(lParam));
+//        break;
+//
+//    case WM_RBUTTONDOWN: // Начало захвата мыши
+//        SetCapture(pWindow->GetHwnd());
+//        mouseCaptured = true;
+//        lastMouseX = LOWORD(lParam);
+//        lastMouseY = HIWORD(lParam);
+//        // Скрыть курсор
+//        //ShowCursor(FALSE);
+//        break;
+//
+//    case WM_RBUTTONUP: // Конец захвата мыши
+//        ReleaseCapture();
+//        mouseCaptured = false;
+//        // Показать курсор
+//        //ShowCursor(TRUE);
+//        break;
+//    case WM_MBUTTONDOWN: // Нажатие средней кнопки мыши
+//        PlacePattern(LOWORD(lParam), HIWORD(lParam));
+//        break;
+//
+//    case WM_MBUTTONUP: // Отпускание средней кнопки мыши
+//        ReleaseCapture();
+//        isMiddleButtonDown = false;
+//        break;
+//    case WM_MOUSEMOVE:
+//        if (pRenderer) {
+//            auto currentX = LOWORD(lParam);
+//            auto currentY = HIWORD(lParam);
+//            if (mouseCaptured) {
+//                float dx = static_cast<float>(currentX - lastMouseX) * 0.1f; // Чувствительность для перемещения
+//                float dy = static_cast<float>(currentY - lastMouseY) * 0.1f;
+//                // Перемещаем камеру
+//                Camera& camera = const_cast<Camera&>(pRenderer->GetCamera());
+//                camera.Move(dx, dy, 0.0f); // Обратите внимание на знак для Y
+//                lastMouseX = currentX;
+//                lastMouseY = currentY;
+//            }
+//        }
+//        break;
+//
+//    default:
+//        break;
+//    }
+//}
+
+// Изменяем HandleEvent для использования InputHandler
 void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
+    InputEvent event;
+    event.deltaX = 0;
+    event.deltaY = 0;
+    event.wheelDelta = 0;
+    event.key = 0;
+
     switch (message) {
     case WM_PAINT:
         if (pRenderer)pRenderer->Draw();
@@ -29,13 +258,43 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     case WM_SIZE:
         Resize(LOWORD(lParam), HIWORD(lParam)); // Обработка изменения размеров окна
         break;
+    case WM_MOUSEMOVE:
+        event.type = InputEvent::InputType::MouseMove;
+        event.deltaX = static_cast<float>(LOWORD(lParam) - lastMouseX) / 10.0f;
+        event.deltaY = static_cast<float>(HIWORD(lParam) - lastMouseY) / 10.0f;
+        lastMouseX = LOWORD(lParam);
+        lastMouseY = HIWORD(lParam);
+        inputHandler.ProcessEvent(event);
+        break;
+    case WM_MOUSEWHEEL:
+        event.type = InputEvent::InputType::MouseWheel;
+        if (GetKeyState(VK_CONTROL) & 0x8000) {
+            event.wheelDelta = (GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA) * 10; // Увеличиваем скорость зума в 10 раз
+        }
+        else {
+            event.wheelDelta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+        }
+        inputHandler.ProcessEvent(event);
+        break;
+    case WM_LBUTTONDOWN: // Левый клик мыши
+        if (pRenderer) {
+            int xPos = LOWORD(lParam);
+            int yPos = HIWORD(lParam);
+        }
+        HandleMouseClick(LOWORD(lParam), HIWORD(lParam));
+        break;
+    case WM_MBUTTONDOWN: // Нажатие средней кнопки мыши
+        PlacePattern(LOWORD(lParam), HIWORD(lParam));
+        break;
+
 
     case WM_KEYDOWN:
-        if (wParam >= '1' && wParam <= '9') {
-            pGameController->setCurrentPattern(wParam - '0');
-        }
+        event.type = InputEvent::InputType::KeyDown;
+        event.key = static_cast<int>(wParam);
+        inputHandler.ProcessEvent(event);
+        // Здесь может быть дополнительная обработка клавиш, не связанных с камерой
         switch (wParam) {
-            break;
+
         case VK_SPACE: // Пробел для запуска/остановки симуляции
             if (pGameController->isSimulationRunning()) {
                 pGameController->stopSimulation();
@@ -44,66 +303,15 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
                 pGameController->startSimulation();
             }
             break;
-
         case VK_RIGHT: // Стрелка вправо для следующего поколения
             if (!pGameController->isSimulationRunning()) {
                 pGameController->stepSimulation(); // Переход к следующему поколению
             }
             break;
-
-        case VK_LEFT: // Стрелка влево для предыдущего поколения
-            if (!pGameController->isSimulationRunning()) {
-                pGameController->previousGeneration(); // Переход к предыдущему поколению
-            }
-            break;
-        case VK_ADD: // Клавиша '+' на нумпаде
-        case VK_OEM_PLUS: // Клавиша '+' на основной клавиатуре
-            if (GetKeyState(VK_CONTROL) & 0x8000) {
-                simulationSpeedMultiplier -= 0.25f; // Уменьшаем интервал на 250 мс
-            }
-            else {
-                simulationSpeedMultiplier -= 0.025f; // Уменьшаем интервал на 25 мс
-            }
-            if (simulationSpeedMultiplier < 0.01f) {
-                simulationSpeedMultiplier = 0.01f; // Устанавливаем минимум 10 мс
-            }
-            if (pGameController->isSimulationRunning()) {
-                pGameController->setSimulationSpeed(simulationSpeedMultiplier);
-            }
-            break;
-
-        case VK_SUBTRACT: // Клавиша '-' на нумпаде
-        case VK_OEM_MINUS: // Клавиша '-' на основной клавиатуре
-            if (GetKeyState(VK_CONTROL) & 0x8000) {
-                simulationSpeedMultiplier += 0.25f; // Увеличиваем интервал на 250 мс
-            }
-            else {
-                simulationSpeedMultiplier += 0.025f; // Увеличиваем интервал на 25 мс
-            }
-            if (simulationSpeedMultiplier > 0.25f) {
-                simulationSpeedMultiplier = 0.25f; // Устанавливаем максимум 250 мс
-            }
-            if (pGameController->isSimulationRunning()) {
-                pGameController->setSimulationSpeed(simulationSpeedMultiplier);
-            }
-            break;
-
         case 'R':
             if (!pGameController->isSimulationRunning()) {
                 pGameController->randomizeGrid(0.1f); // Случайное заполнение поля
             }
-            break;
-        case 'W':
-            MoveCamera(0.0f, 5.0f); // Двигаем вперед
-            break;
-        case 'S':
-            MoveCamera(0.0f, -5.0f); // Двигаем назад
-            break;
-        case 'A':
-            MoveCamera(-5.0f, 0.0f); // Двигаем влево
-            break;
-        case 'D':
-            MoveCamera(5.0f, 0.0f); // Двигаем вправо
             break;
         case 'T':
             ResetCamera();
@@ -123,92 +331,25 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
                 pGameController->randomizeGrid(); // засеять поле рандомными фигурами
             }
             break;
-        //case 'L':
-        //    if (!pGameController->isSimulationRunning()) {
-        //        pGameController->setFieldSize(30, 30);
-        //        pRenderer->RebuildGameField();
-        //    }
-        //    break;
         case 'G':
             pGameController->setShowGrid(!pGameController->getShowGrid());
             break;
 
         }
         break;
-
-    case WM_MOUSEWHEEL:
-        if (pRenderer) {
-            short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-            float moveZ = zDelta > 0 ? -2.5f : 2.5f;
-            // Проверка состояния клавиши Ctrl
-            if (GetKeyState(VK_CONTROL) & 0x8000) {
-                moveZ *= 15.0f; // Увеличиваем скорость зума в 10 раз
-            }
-            Camera& camera = const_cast<Camera&>(pRenderer->GetCamera());
-
-            float currentPosX;
-            float currentPosY;
-            float currentPosZ;
-            camera.GetPosition(currentPosX, currentPosY, currentPosZ); // Получаем текущую позицию камеры по Z
-
-            // Рассчитываем новую позицию, но не позволяем ей быть меньше 0
-            float newPosZ = currentPosZ + moveZ;
-            if (newPosZ < 1) {
-                newPosZ = 1; // Ограничиваем минимальное значение Z
-            }
-
-            // Двигаем камеру только по оси Z, сохраняя её позицию по X и Y
-            camera.Move(0.0f, 0.0f, newPosZ - currentPosZ);
-        }
+    //case WM_LBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+        event.type = message == WM_LBUTTONDOWN ? InputEvent::InputType::MouseButtonDown : InputEvent::InputType::MouseButtonDown;
+        event.button = message == WM_LBUTTONDOWN ? InputEvent::MouseButton::Left : InputEvent::MouseButton::Right;
+        inputHandler.ProcessEvent(event);
         break;
-
-    case WM_LBUTTONDOWN: // Левый клик мыши
-        if (pRenderer) {
-            int xPos = LOWORD(lParam);
-            int yPos = HIWORD(lParam);
-        }
-        HandleMouseClick(LOWORD(lParam), HIWORD(lParam));
+    case WM_LBUTTONUP:
+    case WM_RBUTTONUP:
+        event.type = message == WM_LBUTTONUP ? InputEvent::InputType::MouseButtonUp : InputEvent::InputType::MouseButtonUp;
+        event.button = message == WM_LBUTTONUP ? InputEvent::MouseButton::Left : InputEvent::MouseButton::Right;
+        inputHandler.ProcessEvent(event);
         break;
-
-    case WM_RBUTTONDOWN: // Начало захвата мыши
-        SetCapture(pWindow->GetHwnd());
-        mouseCaptured = true;
-        lastMouseX = LOWORD(lParam);
-        lastMouseY = HIWORD(lParam);
-        // Скрыть курсор
-        //ShowCursor(FALSE);
-        break;
-
-    case WM_RBUTTONUP: // Конец захвата мыши
-        ReleaseCapture();
-        mouseCaptured = false;
-        // Показать курсор
-        //ShowCursor(TRUE);
-        break;
-    case WM_MBUTTONDOWN: // Нажатие средней кнопки мыши
-        PlacePattern(LOWORD(lParam), HIWORD(lParam));
-        break;
-
-    case WM_MBUTTONUP: // Отпускание средней кнопки мыши
-        ReleaseCapture();
-        isMiddleButtonDown = false;
-        break;
-    case WM_MOUSEMOVE:
-        if (pRenderer) {
-            auto currentX = LOWORD(lParam);
-            auto currentY = HIWORD(lParam);
-            if (mouseCaptured) {
-                float dx = static_cast<float>(currentX - lastMouseX) * 0.1f; // Чувствительность для перемещения
-                float dy = static_cast<float>(currentY - lastMouseY) * 0.1f;
-                // Перемещаем камеру
-                Camera& camera = const_cast<Camera&>(pRenderer->GetCamera());
-                camera.Move(dx, dy, 0.0f); // Обратите внимание на знак для Y
-                lastMouseX = currentX;
-                lastMouseY = currentY;
-            }
-        }
-        break;
-
+        // Добавьте обработку других сообщений по мере необходимости
     default:
         break;
     }

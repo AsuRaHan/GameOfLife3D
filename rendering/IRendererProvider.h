@@ -1,10 +1,12 @@
 #pragma once
 #include <vector>
-//#include "Renderer.h"
 #include "CellInstance.h" // Включаем определение CellInstance
+#include "Camera.h"
 
-class ICellInstanceProvider {
+class IRendererProvider {
 public:
-    virtual ~ICellInstanceProvider() = default;
+    virtual ~IRendererProvider() = default;
     virtual const std::vector<CellInstance> &GetCellInstances() const = 0;
+    virtual void RebuildGameField() = 0;
+    virtual Camera& GetCamera() = 0;
 };

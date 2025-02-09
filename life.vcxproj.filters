@@ -71,13 +71,19 @@
     <ClCompile Include="external\imgui\imgui_widgets.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="rendering\UIController.cpp">
+    <ClCompile Include="rendering\UIRenderer.cpp">
       <Filter>rendering</Filter>
     </ClCompile>
     <ClCompile Include="rendering\CubeRenderer.cpp">
       <Filter>rendering</Filter>
     </ClCompile>
     <ClCompile Include="system\SettingsManager.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\CameraController.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="system\InputHandler.cpp">
       <Filter>system</Filter>
     </ClCompile>
   </ItemGroup>
@@ -142,7 +148,7 @@
     <ClInclude Include="external\imgui\imgui_internal.h">
       <Filter>ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\UIController.h">
+    <ClInclude Include="rendering\UIRenderer.h">
       <Filter>rendering</Filter>
     </ClInclude>
     <ClInclude Include="res\resource.h">
@@ -151,13 +157,22 @@
     <ClInclude Include="rendering\CubeRenderer.h">
       <Filter>rendering</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\ICellInstanceProvider.h">
+    <ClInclude Include="rendering\IRendererProvider.h">
       <Filter>rendering</Filter>
     </ClInclude>
     <ClInclude Include="rendering\CellInstance.h">
       <Filter>rendering</Filter>
     </ClInclude>
     <ClInclude Include="system\SettingsManager.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\CameraController.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="system\InputHandler.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="system\InputEvent.h">
       <Filter>system</Filter>
     </ClInclude>
   </ItemGroup>

@@ -148,7 +148,7 @@ void GameOfLife::SetCellColor(int x, int y, const Vector3d& color) {
     }
 }
 
-void GameOfLife::SetCellProvider(const ICellInstanceProvider* provider) {
+void GameOfLife::SetCellProvider(const IRendererProvider* provider) {
     cellProvider = provider;
     if (cellProvider) {
         cellInstances = &const_cast<std::vector<CellInstance>&>(cellProvider->GetCellInstances());

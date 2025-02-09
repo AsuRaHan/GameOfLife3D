@@ -60,4 +60,5 @@ log.txt
 bldml.cpp
 bldml.exe
 bldml.obj
+settings.ini
 external/

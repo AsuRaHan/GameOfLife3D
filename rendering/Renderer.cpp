@@ -2,7 +2,10 @@
 
 Renderer::Renderer(int width, int height)
     : width(width), height(height), farPlane(999009000000.0f), camera(45.0f, static_cast<float>(width) / height, 0.1f, farPlane),
-    pGameController(nullptr), uiController(nullptr), cubeRenderer(shaderManager) {
+    pGameController(nullptr), uiRenderer(nullptr)
+    , cubeRenderer(shaderManager)
+    //, cameraController(camera) 
+{
     SetupOpenGL();
     OnWindowResize(width, height);
     cubeRenderer.SetCamera(camera);
@@ -21,7 +24,10 @@ Renderer::~Renderer() {
 
 void Renderer::SetCamera(const Camera& camera) {
     this->camera = camera;
-    cubeRenderer.SetCamera(camera);
+    //cameraController.~CameraController(); // Вызов деструктора вручную
+    //new (&cameraController) CameraController(this->camera); // это если что называется placement new
+    
+    //cubeRenderer.SetCamera(camera);
 }
 
 void Renderer::SetGameController(GameController* gameController) {
@@ -31,8 +37,8 @@ void Renderer::SetGameController(GameController* gameController) {
     InitializeCellsVBOs();
     InitializeGridVBOs();
 
-    uiController = UIController(pGameController);
-    uiController.InitializeUI();
+    uiRenderer = UIRenderer(pGameController);
+    uiRenderer.InitializeUI();
 }
 
 void Renderer::SetupOpenGL() {
@@ -167,17 +173,18 @@ void Renderer::InitializeGridVBOs() {
 
 void Renderer::Draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //cameraController.Update(1.0f / 60.0f); // Примерное значение для 60fps, нужно заменить на реальное deltaTim
 
     DrawCells();
     //DrawCubes();
     
     // Отрисовка сетки и клеток
     if (pGameController->getShowGrid())DrawGrid();
-    // Теперь используем UIController для отрисовки UI
-    uiController.DrawUI();
+    // Теперь используем UIRenderer для отрисовки UI
+    uiRenderer.DrawUI();
 
     // Обновление состояния UI на основе текущего состояния игры
-    //uiController.UpdateUIState();
+    //UIRenderer.UpdateUIState();
 
     SwapBuffers(wglGetCurrentDC());
 }
@@ -301,12 +308,10 @@ void Renderer::OnWindowResize(int newWidth, int newHeight) {
     cubeRenderer.SetCamera(camera); // Устанавливаем обновленную камеру в CubeRenderer
 }
 
-void Renderer::MoveCamera(float dx, float dy, float dz) {
-    // Обновляем позицию камеры
-    float currentX, currentY, currentZ;
-    camera.GetPosition(currentX, currentY, currentZ);
-    camera.SetPosition(currentX + dx, currentY + dy, currentZ + dz);
-}
+//void Renderer::MoveCamera(float dx, float dy, float dz) {
+//    // Обновляем позицию камеры
+//    //cameraController.Move(dx, dy, dz);
+//}
 
 void Renderer::LoadShaders() {
     LoadCellShaders();
@@ -416,5 +421,7 @@ void Renderer::RebuildGameField() {
     glDeleteBuffers(1, &cellInstanceVBO);
     glDeleteBuffers(1, &gridVBO);
 
-    InitializeGridVBOs(); // Перестраиваем буферы
+    // Пересоздаем буферы
+    InitializeCellsVBOs();
+    InitializeGridVBOs();
 }
