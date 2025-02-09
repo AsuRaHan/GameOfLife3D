@@ -15,7 +15,25 @@ void CameraController::Rotate(float yaw, float pitch) {
 }
 
 void CameraController::Move(float dx, float dy, float dz) {
-    camera.Move(dx * moveSpeed, dy * moveSpeed, dz * moveSpeed);
+    float currentPosX, currentPosY, currentPosZ;
+    camera.GetPosition(currentPosX, currentPosY, currentPosZ);
+
+    // Минимальное расстояние, на которое камера может приблизиться к сетке
+    float minZoomDistance = 1.0f; // или другая величина, которую вы считаете подходящей
+
+    // Проверка на движение по оси Z
+    if (dz < 0) { // движение вперед
+        float newPosZ = currentPosZ + dz * moveSpeed;
+        if (newPosZ < minZoomDistance) {
+            camera.Move(dx * moveSpeed, dy * moveSpeed, minZoomDistance - currentPosZ);
+        }
+        else {
+            camera.Move(dx * moveSpeed, dy * moveSpeed, dz * moveSpeed);
+        }
+    }
+    else { // движение назад или нет движения по Z
+        camera.Move(dx * moveSpeed, dy * moveSpeed, dz * moveSpeed);
+    }
 }
 
 void CameraController::Zoom(float zoomAmount) {
@@ -64,12 +82,12 @@ void CameraController::HandleInput(const InputEvent& event) {
     case InputEvent::InputType::KeyDown:
         // Управление движением камеры клавиатурой остается без изменений
         switch (event.key) {
-        case 'W': Move(0, 0, 1); break; // Вперед
-        case 'S': Move(0, 0, -1); break; // Назад
-        case 'A': Move(-1, 0, 0); break; // Влево
-        case 'D': Move(1, 0, 0); break; // Вправо
-        case 'Q': Move(0, 1, 0); break; // Вверх
-        case 'E': Move(0, -1, 0); break; // Вниз
+        case 'W': Move(0, 0, -1.1f); break; // Вперед
+        case 'S': Move(0, 0, 1.1f); break; // Назад
+        case 'A': Move(-1.1f, 0, 0); break; // Влево
+        case 'D': Move(1.1f, 0, 0); break; // Вправо
+        case 'Q': Move(0, 1.1f, 0); break; // Вверх
+        case 'E': Move(0, -1.1f, 0); break; // Вниз
         default: break;
         }
         break;
