@@ -2,7 +2,7 @@
 
 GameOfLife::GameOfLife(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()),
 gpuAutomaton(g.getWidth(), g.getHeight()), isToroidal(true), isGpuSimulated(true),
-cellInstances(nullptr),cellProvider(nullptr)
+cellInstances(nullptr),cellProvider(nullptr), gridReferenceIsUbdated(false)
 {
     gpuAutomaton.SetToroidal(isToroidal); // Установка isToroidal
 }
@@ -69,12 +69,22 @@ void GameOfLife::nextGeneration() {
     }
 }
 
+void GameOfLife::updateGridReference(Grid& newGrid) {
+    grid = newGrid;
+    gridReferenceIsUbdated = true;
+}
+
 void GameOfLife::nextGenerationGPU() {
     int GW = grid.getWidth();
     int GH = grid.getHeight();
     static std::vector<int> currentState(GW * GH);
     static std::vector<int> nextState(GW * GH);
-    
+    if (gridReferenceIsUbdated) {
+        currentState.resize(GW * GH);
+        nextState.resize(GW * GH);
+        gpuAutomaton.SetNewGridSize(GW , GH);
+        gridReferenceIsUbdated = false;
+    }
     // Асинхронная загрузка данных на GPU
     auto future = std::async(std::launch::async, [&]() {
         for (int y = 0; y < GH; ++y) {
@@ -83,9 +93,7 @@ void GameOfLife::nextGenerationGPU() {
             }
         }
     });
-    
     // Другие операции пока данные загружаются
-    
     future.wait(); // Ждем завершения загрузки
     gpuAutomaton.SetGridState(currentState);
 
@@ -136,6 +144,8 @@ void GameOfLife::nextGenerationGPU() {
 
         }
     }
+    static bool isFinish = true;
+    if (isFinish) isFinish = false;
 }
 
 void GameOfLife::SetCellColor(int x, int y, const Vector3d& color) {

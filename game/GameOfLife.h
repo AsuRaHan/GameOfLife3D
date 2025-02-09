@@ -18,7 +18,7 @@ public:
 	void setWoldToroidal(bool wt);
     bool getWoldToroidal() const { return isToroidal; };
 
-    void updateGridReference(Grid& newGrid) { grid = newGrid; } // метод дл€ обновлени€ ссылки
+    void updateGridReference(Grid& newGrid); // метод дл€ обновлени€ ссылки
 
     void SetCellProvider(const IRendererProvider* provider);
 
@@ -29,7 +29,7 @@ private:
     Grid& grid;
     Grid nextGrid; // ƒобавл€ем nextGrid дл€ двойного буфера
     GPUAutomaton gpuAutomaton; // член класса дл€ вычислений на GPU
-
+    bool gridReferenceIsUbdated;
     std::vector<Grid> history;
     bool isToroidal;
     bool isGpuSimulated;

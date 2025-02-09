@@ -27,6 +27,7 @@ public:
     void SetSurvivalMax(int smax) { survivalMax = smax; }
     void SetOverpopulation(int o) { overpopulation = o; }
 
+    void SetNewGridSize(int width, int height);
 private:
     void CreateComputeShader();
     void SetupBuffers();
