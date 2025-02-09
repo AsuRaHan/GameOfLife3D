@@ -161,7 +161,19 @@ void GameController::setFieldSize(int newWidth, int newHeight) {
         if (y >= newHeight) break; // ¬ыходим из цикла, если превышаем новую высоту
         for (int x = 0; x < grid.getWidth(); ++x) {
             if (x >= newWidth) break; // ¬ыходим из цикла, если превышаем новую ширину
-            newGrid.setCellState(x, y, grid.getCellState(x, y));
+
+            bool currentState = grid.getCellState(x, y);
+            newGrid.setCellState(x, y, currentState);
+            if (currentState) {
+                newGrid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f));
+                //gameOfLife.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
+            }
+            else {
+                newGrid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
+                //gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+            }
+
+            //newGrid.setCellState(x, y, grid.getCellState(x, y));
         }
     }
 

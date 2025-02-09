@@ -33,11 +33,19 @@ private:
     std::vector<Grid> history;
     bool isToroidal;
     bool isGpuSimulated;
-    
+    int GW;
+    int GH;
     std::vector<CellInstance>* cellInstances;
     const IRendererProvider* cellProvider;
 
     void nextGenerationGPU();
+
+    std::atomic_flag gpuTaskReady = ATOMIC_FLAG_INIT;
+    std::vector<int> currentState;
+    std::vector<int> nextState;
+    std::future<void> gpuTaskFuture;
+
+
     void nextGenerationCPU();
     
     void saveCurrentState();

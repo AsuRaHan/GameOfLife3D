@@ -85,7 +85,7 @@ bool GameStateManager::saveGameStateCSV(const Grid& grid, const std::string& fil
             const Vector3d& color = cell.getColor();
             file << x << "," << y << ","
                  << (cell.getAlive() ? "1" : "0") << ","
-                 << cell.getType() << ","
+                 //<< cell.getType() << ","
                  << color.X() << ","
                  << color.Y() << ","
                  << color.Z() << "\n";

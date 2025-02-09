@@ -34,6 +34,8 @@ private:
     char saveFilename[128] = "state.txt";
     std::string aboutText;
 
+    ImVec2 buttonSize; // «адаем фиксированный размер дл€ кнопок
+
     std::string LoadTextFromResource(HINSTANCE hInstance, int resourceId);
 
     void DrawMenuBar();

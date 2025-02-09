@@ -2,9 +2,15 @@
 
 GameOfLife::GameOfLife(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()),
 gpuAutomaton(g.getWidth(), g.getHeight()), isToroidal(true), isGpuSimulated(true),
-cellInstances(nullptr),cellProvider(nullptr), gridReferenceIsUbdated(false)
+cellInstances(nullptr),cellProvider(nullptr), gridReferenceIsUbdated(true)
 {
+    GW = grid.getWidth();
+    GH = grid.getHeight();
     gpuAutomaton.SetToroidal(isToroidal); // Установка isToroidal
+    gpuAutomaton.SetNewGridSize(GW, GH);
+    currentState.resize(GW * GH);
+    nextState.resize(GW * GH);
+    
 }
 
 int GameOfLife::countLiveNeighbors(int x, int y) const {
@@ -71,86 +77,80 @@ void GameOfLife::nextGeneration() {
 
 void GameOfLife::updateGridReference(Grid& newGrid) {
     grid = newGrid;
-    gridReferenceIsUbdated = true;
+    GW = grid.getWidth();
+    GH = grid.getHeight();
+
+    currentState.resize(GW * GH);
+    nextState.resize(GW * GH);
+    gpuAutomaton.SetNewGridSize(GW, GH);
+
 }
 
 void GameOfLife::nextGenerationGPU() {
-    int GW = grid.getWidth();
-    int GH = grid.getHeight();
-    static std::vector<int> currentState(GW * GH);
-    static std::vector<int> nextState(GW * GH);
-    if (gridReferenceIsUbdated) {
-        currentState.resize(GW * GH);
-        nextState.resize(GW * GH);
-        gpuAutomaton.SetNewGridSize(GW , GH);
-        gridReferenceIsUbdated = false;
-    }
-    // Асинхронная загрузка данных на GPU
+    //for (int y = 0; y < GH; ++y) {
+    //    for (int x = 0; x < GW; ++x) {
+    //        currentState[y * GW + x] = grid.getCellState(x, y) ? 1 : 0;
+    //    }
+    //}
+
+    //Асинхронная загрузка данных на GPU
     auto future = std::async(std::launch::async, [&]() {
         for (int y = 0; y < GH; ++y) {
             for (int x = 0; x < GW; ++x) {
                 currentState[y * GW + x] = grid.getCellState(x, y) ? 1 : 0;
             }
         }
-    });
+        });
+
     // Другие операции пока данные загружаются
     future.wait(); // Ждем завершения загрузки
-    gpuAutomaton.SetGridState(currentState);
 
+    gpuAutomaton.SetGridState(currentState);
     // Выполняем обновление на GPU
     gpuAutomaton.Update();
-
     // Получаем новое состояние с GPU
     gpuAutomaton.GetGridState(nextState);
 
-    // Обновляем сетку на основе состояния, полученного с GPU
+
     for (auto y = 0; y < GH; ++y) {
         for (auto x = 0; x < GW; ++x) {
             bool newState = nextState[y * GW + x] != 0;
             Cell& cell = grid.getCell(x, y);
-            bool currentState = cell.getAlive();
-            cell.setAlive(newState);
+            bool oldState = cell.getAlive();
 
-            if (newState) {
-                if (!currentState) {
-                    // Если клетка рождается, делаем её темно-зеленого цвета
-                    cell.setColor(Vector3d(0.0f, 0.4f, 0.0f));
+            if (newState != oldState) { // Только если состояние изменилось
+                cell.setAlive(newState);
+                if (newState) {
+                    // Вновь рожденные клетки получают темный цвет
+                    cell.setColor(Vector3d(0.0f, 0.4f, 0.0f)); // рождение
                 }
                 else {
-                    // Если клетка остается живой, делаем её зеленого цвета
-                    cell.setColor(Vector3d(0.3f, 0.8f, 0.3f));
+                    // Умершие клетки получают темно-серый цвет
+                    cell.setColor(Vector3d(0.05f, 0.05f, 0.08f)); // смерть
                 }
+                SetCellColor(x, y, cell.getColor());
             }
-            else if (currentState) {
-                // Если клетка умирает, делаем её темно-серого цвета
-                //cell.setColor(Vector3d(0.3f, 0.3f, 0.3f));
-                cell.setColor(Vector3d(0.05f, 0.05f, 0.08f));
+            else if (newState) {
+                // Если клетка пережила шаг, делаем её светлее
+                Vector3d currentColor = cell.getColor();
+                // Увеличиваем все компоненты цвета на небольшое значение, но не более 1.0
+                float newR = currentColor.X() + 0.05f;
+                float newG = currentColor.Y() + 0.05f;
+                float newB = currentColor.Z() + 0.05f;
+                newR = newR > 0.3f ? 0.3f : newR;
+                newG = newG > 0.9f ? 0.9f : newG;
+                newB = newB > 0.3f ? 0.3f : newB;
+                cell.setColor(Vector3d(newR, newG, newB));
+                SetCellColor(x, y, cell.getColor());
             }
-            //else {
-            //    Vector3d oldColor = cell.getColor();
-            //    float rc = oldColor.X();
-            //    float gc = oldColor.Y();
-            //    float bc = oldColor.Z();
-            //    rc -= 0.01f;
-            //    gc -= 0.01f;
-            //    bc -= 0.01f;
-            //    if (rc < 0) rc = 0.0f;
-            //    if (gc < 0) gc = 0.0f;
-            //    if (bc < 0) bc = 0.0f;
-            //    cell.setColor(Vector3d(rc, bc, gc));
-            //}
-
-            SetCellColor(x, y, cell.getColor());
-
         }
     }
-    static bool isFinish = true;
-    if (isFinish) isFinish = false;
+
 }
 
 void GameOfLife::SetCellColor(int x, int y, const Vector3d& color) {
     if (cellProvider && cellInstances) {
-        int GW = grid.getWidth();
+        //int GW = grid.getWidth();
         int index = y * GW + x;
         if (index < cellInstances->size()) {
             (*cellInstances)[index].color = color;
