@@ -108,7 +108,7 @@ public:
     const Grid& getGrid() const { return grid; }
 
     // метод для изменения размера сетки
-    void resizeGrid(int newWidth, int newHeight);
+    void setFieldSize(int newWidth, int newHeight);
 
     void setCurrentPattern(int patternNumber);
     void setCurrentPatternRotator(int patternNumber);
@@ -121,12 +121,8 @@ public:
     void setSimulationSpeed(float speed);
 
     // Новые методы для сохранения и загрузки состояния игры
-    bool saveGameState(const std::string& filename) const {
-        return GameStateManager::saveGameState(grid, filename);
-    }
-    bool loadGameState(const std::string& filename) {
-        return GameStateManager::loadGameState(grid, filename);
-    }
+    bool saveGameState(const std::string& filename) const;
+    bool loadGameState(const std::string& filename);
     bool saveGameStateCSV(const std::string& filename) const {
         return GameStateManager::saveGameStateCSV(grid, filename);
     }

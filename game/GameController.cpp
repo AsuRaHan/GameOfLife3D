@@ -141,7 +141,7 @@ bool GameController::getCellState(int x, int y) const {
     return grid.getCellState(x, y);
 }
 
-void GameController::resizeGrid(int newWidth, int newHeight) {
+void GameController::setFieldSize(int newWidth, int newHeight) {
     // Если симуляция работает, сбросим ее, чтобы избежать некорректной работы с новыми размерами
     if (isRunning) {
         stopSimulation();
@@ -165,6 +165,7 @@ void GameController::resizeGrid(int newWidth, int newHeight) {
 
     // Обновляем ссылку на сетку в GameOfLife
     gameOfLife.updateGridReference(grid);
+    
 }
 
 void GameController::setCurrentPattern(int patternNumber) {
@@ -277,4 +278,24 @@ Pattern GameController::rotateOrFlip(const Pattern& pattern, Rotation rotation) 
     return result;
 }
 
+bool GameController::saveGameState(const std::string& filename) const {
+    return GameStateManager::saveGameState(grid, filename);
+}
+bool GameController::loadGameState(const std::string& filename) {
+    bool gameIsSave = GameStateManager::loadGameState(grid, filename);
+    if (!gameIsSave) return gameIsSave;
+    for (int y = 0; y < grid.getHeight(); ++y) {
+        for (int x = 0; x < grid.getWidth(); ++x) {
+            if (grid.getCellState(x,y)) {
+                grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
+                gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.6f, 0.0f));
+            }
+            else {
+                grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
+                gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+            }
 
+        }
+    }
+    return gameIsSave;
+}

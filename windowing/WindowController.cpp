@@ -123,12 +123,12 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
                 pGameController->randomizeGrid(); // засеять поле рандомными фигурами
             }
             break;
-        case 'L':
-            if (!pGameController->isSimulationRunning()) {
-                pGameController->resizeGrid(30, 30);
-                pRenderer->RebuildGameField();
-            }
-            break;
+        //case 'L':
+        //    if (!pGameController->isSimulationRunning()) {
+        //        pGameController->setFieldSize(30, 30);
+        //        pRenderer->RebuildGameField();
+        //    }
+        //    break;
         case 'G':
             pGameController->setShowGrid(!pGameController->getShowGrid());
             break;

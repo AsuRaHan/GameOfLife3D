@@ -167,8 +167,8 @@ int wWinMain(
         settingsManager.setSetting("IsFullscreen", Full);
     }
     else {
-        gridWidth = settingsManager.getIntSetting("gridWidth", 100);
-        gridHeight = settingsManager.getIntSetting("gridHeight", 100);
+        gridWidth = settingsManager.getIntSetting("gridWidth", 400);
+        gridHeight = settingsManager.getIntSetting("gridHeight", 300);
         //float volume = settingsManager.getFloatSetting("Volume");
         Full = settingsManager.getBoolSetting("IsFullscreen",false);
     }
@@ -191,8 +191,8 @@ int wWinMain(
         int width = mainWindow.GetWidth();
         int height = mainWindow.GetHeight();
 
-        GameController gameController(gridWidth, gridHeight); // Создаем GameController
-        gameController.randomizeGrid(0.1f);
+        GameController gameController(gridWidth, gridHeight); // Создаем GameController и задаем размер игрового поля
+        gameController.randomizeGrid(0.1f); // заполняем игровое поле случайными живыми клетками
 
         Renderer renderer(width, height);
         renderer.SetGameController(&gameController);
@@ -206,7 +206,6 @@ int wWinMain(
 
         MSG msg;
         bool MainLoop = true;
-        // Объявите переменные где-то вне цикла (например, в начале функции или как член класса)
         std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();
         while (MainLoop) {
             while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) { // PeekMessage(&msg, 0, 0, 0, PM_REMOVE) GetMessage(&msg, NULL, 0, 0)
