@@ -5,7 +5,6 @@
 #include "GameSimulation.h"
 #include "Grid.h"
 #include "GameStateManager.h"
-//#include "../rendering/ICellInstanceProvider.h"
 
 #include <random> // Для генерации случайных чисел
 #include <string>

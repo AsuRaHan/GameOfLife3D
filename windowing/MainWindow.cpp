@@ -53,18 +53,6 @@ bool MainWindow::Create() {
     return true;
 }
 
-//int MainWindow::GetPosX() const {
-//    RECT windowRect;
-//    GetWindowRect(hWnd, &windowRect);
-//    return windowRect.left;
-//}
-//
-//int MainWindow::GetPosY() const {
-//    RECT windowRect;
-//    GetWindowRect(hWnd, &windowRect);
-//    return windowRect.top;
-//}
-
 void MainWindow::SetController(WindowController* controller) {
     pController = controller;
 }
