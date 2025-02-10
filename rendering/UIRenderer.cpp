@@ -52,17 +52,28 @@ void UIRenderer::DrawUI() {
 
 void UIRenderer::DrawMenuBar() {
     if (ImGui::BeginMainMenuBar()) {
-        if (ImGui::MenuItem("Выход")) {
-            exitDialogVisible = true;
-        }
+        // Сначала добавляем меню "Окна" слева
         if (ImGui::BeginMenu("Окна")) {
             ImGui::MenuItem("Управление симуляцией", NULL, &simulationWindowVisible);
-            ImGui::MenuItem("Настройки игры", NULL, &gameSettingsWindowVisible);
-            ImGui::MenuItem("Настройки сохранения", NULL, &saveSettingsWindowVisible);
-            ImGui::MenuItem("Настройки поля", NULL, &fieldSettingsWindowVisible);
+            if (ImGui::BeginMenu("Настройки")) {
+                ImGui::MenuItem("Настройки игры", NULL, &gameSettingsWindowVisible);
+                ImGui::MenuItem("Сохранения и загрузка", NULL, &saveSettingsWindowVisible);
+                ImGui::MenuItem("Настройки поля", NULL, &fieldSettingsWindowVisible);
+                ImGui::EndMenu();
+            }
             ImGui::MenuItem("О программе", NULL, &aboutWindowVisible);
             ImGui::EndMenu();
         }
+
+        // Перемещаем курсор в крайнее правое положение
+        float menuBarWidth = ImGui::GetWindowWidth(); // Получаем ширину меню-бара
+        ImGui::SetCursorPosX(menuBarWidth - ImGui::CalcTextSize("Выход").x - ImGui::GetStyle().ItemSpacing.x - 10.0f); // Учитываем отступы и ширину текста
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.3f, 1.0f)); // Красный цвет текста для "Выход"
+        if (ImGui::MenuItem("Выход")) {
+            exitDialogVisible = true;
+        }
+        ImGui::PopStyleColor();
+
         ImGui::EndMainMenuBar();
     }
 }
@@ -201,13 +212,14 @@ void UIRenderer::DrawAboutWindow() {
 void UIRenderer::DrawExitDialog() {
     if (!exitDialogVisible) return;
 
-    ImGui::OpenPopup("Вы уверены?");
-    if (ImGui::BeginPopupModal("Вы уверены?", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::Text("Вы действительно хотите выйти?\n");
+    ImGui::OpenPopup("Подтверждение выхода");
+    if (ImGui::BeginPopupModal("Подтверждение выхода", NULL,
+        ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings)) {
+        ImGui::Text("Вы уверены, что хотите выйти?");
+        ImGui::Separator();
         if (ImGui::Button("Да", ImVec2(120, 0))) {
+            // Закрытие приложения
             PostQuitMessage(0);
-            exitDialogVisible = false;
-            ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
         if (ImGui::Button("Нет", ImVec2(120, 0))) {
@@ -216,6 +228,7 @@ void UIRenderer::DrawExitDialog() {
         }
         ImGui::EndPopup();
     }
+
 }
 
 void UIRenderer::UpdateUIState() {
