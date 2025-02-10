@@ -1,6 +1,6 @@
 #pragma once
-#ifndef GAMEOFLIFE_H
-#define GAMEOFLIFE_H
+#ifndef GAMESIMULATION_H
+#define GAMESIMULATION_H
 
 #include "GPUAutomaton.h"
 #include "../rendering/IRendererProvider.h"
@@ -9,9 +9,9 @@
 #include <vector>
 #include <future>  
 
-class GameOfLife {
+class GameSimulation {
 public:
-    GameOfLife(Grid& g);
+    GameSimulation(Grid& g);
     void nextGeneration();
     void previousGeneration();
 
@@ -53,5 +53,5 @@ private:
     int countLiveNeighborsWorldToroidal(int x, int y) const;
 };
 
-#endif // GAMEOFLIFE_H
+#endif // GAMESIMULATION_H
 

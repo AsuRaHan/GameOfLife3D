@@ -1,6 +1,6 @@
-#include "GameOfLife.h"
+#include "GameSimulation.h"
 
-GameOfLife::GameOfLife(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()),
+GameSimulation::GameSimulation(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()),
 gpuAutomaton(g.getWidth(), g.getHeight()), isToroidal(true), isGpuSimulated(true),
 cellInstances(nullptr),cellProvider(nullptr), gridReferenceIsUbdated(true)
 {
@@ -13,7 +13,7 @@ cellInstances(nullptr),cellProvider(nullptr), gridReferenceIsUbdated(true)
     
 }
 
-int GameOfLife::countLiveNeighbors(int x, int y) const {
+int GameSimulation::countLiveNeighbors(int x, int y) const {
     constexpr int offsets[8][2] = {
         {-1, -1}, {-1, 0}, {-1, 1},
         {0, -1},           {0, 1},
@@ -35,7 +35,7 @@ int GameOfLife::countLiveNeighbors(int x, int y) const {
     return count;
 }
 
-int GameOfLife::countLiveNeighborsWorldToroidal(int x, int y) const {
+int GameSimulation::countLiveNeighborsWorldToroidal(int x, int y) const {
     constexpr int offsets[8][2] = {
         {-1, -1}, {-1, 0}, {-1, 1},
         {0, -1},           {0, 1},
@@ -61,12 +61,12 @@ int GameOfLife::countLiveNeighborsWorldToroidal(int x, int y) const {
     return count;
 }
 
-void GameOfLife::setWoldToroidal(bool wt) {
+void GameSimulation::setWoldToroidal(bool wt) {
     isToroidal = wt;
     gpuAutomaton.SetToroidal(isToroidal); // Установка isToroidal в GPUAutomaton
 }
 
-void GameOfLife::nextGeneration() {
+void GameSimulation::nextGeneration() {
     if (isGpuSimulated) {
         nextGenerationGPU();
     }
@@ -75,7 +75,7 @@ void GameOfLife::nextGeneration() {
     }
 }
 
-void GameOfLife::updateGridReference(Grid& newGrid) {
+void GameSimulation::updateGridReference(Grid& newGrid) {
     grid = newGrid;
     GW = grid.getWidth();
     GH = grid.getHeight();
@@ -86,7 +86,7 @@ void GameOfLife::updateGridReference(Grid& newGrid) {
 
 }
 
-void GameOfLife::nextGenerationGPU() {
+void GameSimulation::nextGenerationGPU() {
     //for (int y = 0; y < GH; ++y) {
     //    for (int x = 0; x < GW; ++x) {
     //        currentState[y * GW + x] = grid.getCellState(x, y) ? 1 : 0;
@@ -148,7 +148,7 @@ void GameOfLife::nextGenerationGPU() {
 
 }
 
-void GameOfLife::SetCellColor(int x, int y, const Vector3d& color) {
+void GameSimulation::SetCellColor(int x, int y, const Vector3d& color) {
     if (cellProvider && cellInstances) {
         //int GW = grid.getWidth();
         int index = y * GW + x;
@@ -158,7 +158,7 @@ void GameOfLife::SetCellColor(int x, int y, const Vector3d& color) {
     }
 }
 
-void GameOfLife::SetCellProvider(const IRendererProvider* provider) {
+void GameSimulation::SetCellProvider(const IRendererProvider* provider) {
     cellProvider = provider;
     if (cellProvider) {
         cellInstances = &const_cast<std::vector<CellInstance>&>(cellProvider->GetCellInstances());
@@ -168,7 +168,7 @@ void GameOfLife::SetCellProvider(const IRendererProvider* provider) {
     }
 }
 
-void GameOfLife::nextGenerationCPU() {
+void GameSimulation::nextGenerationCPU() {
     //saveCurrentState(); // Сохраняем текущее состояние
     int neighbors;
     for (int y = 0; y < grid.getHeight(); ++y) {
@@ -210,7 +210,7 @@ void GameOfLife::nextGenerationCPU() {
     std::swap(grid, nextGrid); // Переключаем буферы
 }
 
-void GameOfLife::previousGeneration() {
+void GameSimulation::previousGeneration() {
     if (!history.empty()) {
         grid = history.back(); // Восстанавливаем предыдущее состояние
         history.pop_back(); // Удаляем последнее сохраненное состояние из истории
@@ -221,7 +221,7 @@ void GameOfLife::previousGeneration() {
     }
 }
 
-void GameOfLife::saveCurrentState() {
+void GameSimulation::saveCurrentState() {
     if (history.size() >= 100) {
         history.erase(history.begin()); // Удаляем самое старое состояние
     }

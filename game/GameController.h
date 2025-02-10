@@ -2,7 +2,7 @@
 #ifndef GAMECONTROLLER_H_
 #define GAMECONTROLLER_H_
 
-#include "GameOfLife.h"
+#include "GameSimulation.h"
 #include "Grid.h"
 #include "GameStateManager.h"
 //#include "../rendering/ICellInstanceProvider.h"
@@ -20,7 +20,7 @@ using Pattern = std::vector<std::vector<bool>>;
 class GameController {
 private:
     Grid grid;
-    GameOfLife gameOfLife;
+    GameSimulation GameSimulation;
     float cellSize; // Размер каждой клетки в пикселях
     bool isRunning; // Флаг, показывает, запущена ли симуляция
     bool showGrid;
@@ -117,8 +117,8 @@ public:
 
     void PlacePattern(int startX, int startY);
 
-    void setWoldToroidal(bool wt) { gameOfLife.setWoldToroidal( wt); };
-    bool getWoldToroidal() const { return gameOfLife.getWoldToroidal(); };
+    void setWoldToroidal(bool wt) { GameSimulation.setWoldToroidal( wt); };
+    bool getWoldToroidal() const { return GameSimulation.getWoldToroidal(); };
 
     void setSimulationSpeed(float speed);
 
@@ -132,6 +132,6 @@ public:
 
     void SetCellInstanceProvider(IRendererProvider* provider);
 
-    GPUAutomaton& getGPUAutomaton() { return gameOfLife.getGPUAutomaton(); }
+    GPUAutomaton& getGPUAutomaton() { return GameSimulation.getGPUAutomaton(); }
 };
 #endif // GAMECONTROLLER_H_

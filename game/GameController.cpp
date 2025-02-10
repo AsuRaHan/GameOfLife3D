@@ -1,7 +1,10 @@
 #include "GameController.h"
 
 GameController::GameController(int width, int height, float cellSize)
-    : grid(width, height), gameOfLife(grid), cellSize(cellSize), isRunning(false), showGrid(true), currentPatternRotator(0){
+    : grid(width, height), GameSimulation(grid), cellSize(cellSize), 
+    isRunning(false), showGrid(true), currentPatternRotator(0),
+    rendererProvider(nullptr)
+{
     currentPattern = glider;
     std::srand(static_cast<unsigned int>(std::time(nullptr))); // Инициализация генератора случайных чисел
 }
@@ -38,11 +41,11 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
                 grid.setCellState(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), pattern[y][x]);
                 if (pattern[y][x]) {
                     grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.5f, 0.9f, 0.5f));
-                    gameOfLife.SetCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), Vector3d(0.5f, 0.9f, 0.5f));
+                    GameSimulation.SetCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), Vector3d(0.5f, 0.9f, 0.5f));
                 }
                 else {
                     grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.1f, 0.1f, 0.1f));
-                    gameOfLife.SetCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), Vector3d(0.1f, 0.1f, 0.1f));
+                    GameSimulation.SetCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), Vector3d(0.1f, 0.1f, 0.1f));
                 }
                 
             }
@@ -64,12 +67,12 @@ void GameController::randomizeGrid(float density) {
             if (dis(gen) < density) {
                 grid.setCellState(x, y, true);
                 grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
-                gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.6f, 0.0f));
+                GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.6f, 0.0f));
             }
             else {
                 grid.setCellState(x, y, false);
                 grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
-                gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+                GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
             }
             //float r = static_cast<float>(rand()) / RAND_MAX;
             //float g = static_cast<float>(rand()) / RAND_MAX;
@@ -85,7 +88,7 @@ void GameController::clearGrid() {
         for (int x = 0; x < grid.getWidth(); ++x) {
             grid.setCellState(x, y, false); // Устанавливаем каждую клетку в мертвое состояние
             grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
-            gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+            GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
         }
     }
 }
@@ -94,7 +97,7 @@ void GameController::update(float deltaTime) {
     if (isRunning) {
         //frameTimeAccumulator += deltaTime;
         //if (frameTimeAccumulator >= simulationSpeed) {
-            gameOfLife.nextGeneration();
+            GameSimulation.nextGeneration();
         //    frameTimeAccumulator -= simulationSpeed;
         //}
     }
@@ -110,12 +113,12 @@ void GameController::stopSimulation() {
 
 void GameController::stepSimulation() {
     if (isRunning) return;
-    gameOfLife.nextGeneration();
+    GameSimulation.nextGeneration();
 }
 
 void GameController::previousGeneration() {
     if (isRunning) return;
-    gameOfLife.previousGeneration();
+    GameSimulation.previousGeneration();
 }
 
 bool GameController::isSimulationRunning() const {
@@ -128,11 +131,11 @@ void GameController::toggleCellState(int x, int y) {
     grid.setCellState(x, y, !currentState);
     if (!currentState) {
         //grid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f));
-        gameOfLife.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
+        GameSimulation.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
     }
     else {
         //grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
-        gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+        GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
     }
     
 }
@@ -143,7 +146,7 @@ bool GameController::getCellState(int x, int y) const {
 
 void GameController::SetCellInstanceProvider(IRendererProvider* provider) {
     rendererProvider = provider;
-    gameOfLife.SetCellProvider(provider); // Передаем провайдера в GameOfLife
+    GameSimulation.SetCellProvider(provider); // Передаем провайдера в GameOfLife
 }
 
 void GameController::setFieldSize(int newWidth, int newHeight) {
@@ -166,11 +169,11 @@ void GameController::setFieldSize(int newWidth, int newHeight) {
             newGrid.setCellState(x, y, currentState);
             if (currentState) {
                 newGrid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f));
-                //gameOfLife.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
+                //GameSimulation.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
             }
             else {
                 newGrid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
-                //gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+                //GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
             }
 
             //newGrid.setCellState(x, y, grid.getCellState(x, y));
@@ -181,7 +184,7 @@ void GameController::setFieldSize(int newWidth, int newHeight) {
     grid = std::move(newGrid);
 
     // Обновляем ссылку на сетку в GameOfLife
-    gameOfLife.updateGridReference(grid);
+    GameSimulation.updateGridReference(grid);
     // Перед перестройкой буферов, уведомляем рендер о необходимости обновлений
     rendererProvider->RebuildGameField();
 }
@@ -306,11 +309,11 @@ bool GameController::loadGameState(const std::string& filename) {
         for (int x = 0; x < grid.getWidth(); ++x) {
             if (grid.getCellState(x,y)) {
                 grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
-                gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.6f, 0.0f));
+                GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.6f, 0.0f));
             }
             else {
                 grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
-                gameOfLife.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+                GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
             }
 
         }

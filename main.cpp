@@ -162,7 +162,7 @@ int wWinMain(
 
 
     // Переменные для ширины и высоты
-    int gridWidth, gridHeight, windowWidth, windowHeight;
+    int gridWidth, gridHeight, windowWidth, windowHeight, windowPosX, windowPosY;
     bool Full;
     if (wcslen(lpCmdLine) != 0) {
         ParseCommandLine(lpCmdLine, gridWidth, gridHeight, Full); // Получаем значения из командной строки
@@ -179,9 +179,11 @@ int wWinMain(
 
     windowWidth = settings.getIntSetting("Graphics", "windowWidth", 800);
     windowHeight = settings.getIntSetting("Graphics", "windowHeight", 600);
+    windowPosX = settings.getIntSetting("Graphics", "windowPosX", 0);
+    windowPosY = settings.getIntSetting("Graphics", "windowPosY", 0);
     
 
-    MainWindow mainWindow(hInstance, windowWidth, windowHeight);
+    MainWindow mainWindow(hInstance, windowWidth, windowHeight, windowPosX, windowPosY);
 
 
     if (mainWindow.Create()) {
@@ -244,6 +246,8 @@ int wWinMain(
     }
     settings.setSetting("Graphics", "windowWidth", mainWindow.GetWidth());
     settings.setSetting("Graphics", "windowHeight", mainWindow.GetHeight());
+    settings.setSetting("Graphics", "windowPosX", mainWindow.GetPosX());
+    settings.setSetting("Graphics", "windowPosY", mainWindow.GetPosY());
     settings.saveToFile();
 
     ImGui_ImplOpenGL3_Shutdown();

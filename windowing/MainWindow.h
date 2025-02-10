@@ -17,14 +17,18 @@ private:
     WindowController* pController;
     int windowWidth; // поле для ширины
     int windowHeight; // поле для высоты
+    int windowPosX; // X-координата
+    int windowPosY; // Y-координата
 public:
-    MainWindow(HINSTANCE hInstance, int width = 1000, int height = 1000);
+    MainWindow(HINSTANCE hInstance, int width = 1000, int height = 1000, int xPos = 0, int yPos = 0);
     bool Create();
     void SetController(WindowController* controller);
     HWND GetHwnd() const;
     // Геттеры для размеров окна
     int GetWidth() const { return windowWidth; }
     int GetHeight() const { return windowHeight; }
+    int GetPosX() const { return windowPosX; }
+    int GetPosY() const { return windowPosY; }
 
 private:
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

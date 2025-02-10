@@ -1,8 +1,10 @@
 #include "MainWindow.h"
 
-MainWindow::MainWindow(HINSTANCE hInstance, int width, int height) :
+MainWindow::MainWindow(HINSTANCE hInstance, int width, int height, int xPos, int yPos) :
     hInstance(hInstance), hWnd(NULL), pController(nullptr),
-    windowWidth(width), windowHeight(height) {
+    windowWidth(width), windowHeight(height),
+    windowPosX(xPos), windowPosY(yPos)
+{
 }
 
 bool MainWindow::Create() {
@@ -37,7 +39,7 @@ bool MainWindow::Create() {
         L"GameOfLife3DWindowClass",
         L"Game of life 3D",
         WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
+        windowPosX, windowPosY, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
         NULL, NULL, hInstance, this // Передаем this как lpParam
     );
         
@@ -50,6 +52,18 @@ bool MainWindow::Create() {
     UpdateWindow(hWnd);
     return true;
 }
+
+//int MainWindow::GetPosX() const {
+//    RECT windowRect;
+//    GetWindowRect(hWnd, &windowRect);
+//    return windowRect.left;
+//}
+//
+//int MainWindow::GetPosY() const {
+//    RECT windowRect;
+//    GetWindowRect(hWnd, &windowRect);
+//    return windowRect.top;
+//}
 
 void MainWindow::SetController(WindowController* controller) {
     pController = controller;
@@ -89,6 +103,14 @@ LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
             pThis->windowHeight = HIWORD(lParam);
         }
         break;
+    case WM_MOVE:
+    {
+        RECT windowRect;
+        GetWindowRect(hWnd, &windowRect);
+        pThis->windowPosX = windowRect.left;
+        pThis->windowPosY = windowRect.top;
+    }
+    break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
