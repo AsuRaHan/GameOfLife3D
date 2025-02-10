@@ -106,7 +106,7 @@ void initImgui(HWND hwnd) {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;    // Enable Gamepad Controls
-    io.IniFilename = NULL; // Отключаем сохранение в ini файл
+    io.IniFilename = "gui_setting.ini";
     loadFontFromRes(io);
 
     ImGuiStyle& style = ImGui::GetStyle();
@@ -134,6 +134,7 @@ void initImgui(HWND hwnd) {
     ImGui_ImplWin32_InitForOpenGL(hwnd);
     ImGui_ImplOpenGL3_Init();
 }
+
 int wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -156,26 +157,28 @@ int wWinMain(
 
     std::cout << "LOG! " << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S") << std::endl;
 
-    SettingsManager settingsManager;
+    //const std::string& settingsFilename = "settings.ini";
+    SettingsManager settings("game_settings.ini");
+
+
     // Переменные для ширины и высоты
     int gridWidth, gridHeight, windowWidth, windowHeight;
     bool Full;
     if (wcslen(lpCmdLine) != 0) {
         ParseCommandLine(lpCmdLine, gridWidth, gridHeight, Full); // Получаем значения из командной строки
-        settingsManager.setSetting("gridWidth", gridWidth);
-        settingsManager.setSetting("gridHeight", gridHeight);
-        settingsManager.setSetting("IsFullscreen", Full);
+        settings.setSetting("Gameplay", "gridWidth", gridWidth);
+        settings.setSetting("Gameplay", "gridHeight", gridHeight);
+        settings.setSetting("Graphics", "IsFullscreen", Full);
     }
     else {
-        gridWidth = settingsManager.getIntSetting("gridWidth", 400);
-        gridHeight = settingsManager.getIntSetting("gridHeight", 300);
-        //float volume = settingsManager.getFloatSetting("Volume");
-        Full = settingsManager.getBoolSetting("IsFullscreen",false);
+        gridWidth = settings.getIntSetting("Gameplay", "gridWidth", 400);
+        gridHeight = settings.getIntSetting("Gameplay", "gridHeight", 300);
+        Full = settings.getBoolSetting("Graphics", "IsFullscreen", false);
     }
 
 
-    windowWidth = settingsManager.getIntSetting("windowWidth", 800);
-    windowHeight = settingsManager.getIntSetting("windowHeight", 600);
+    windowWidth = settings.getIntSetting("Graphics", "windowWidth", 800);
+    windowHeight = settings.getIntSetting("Graphics", "windowHeight", 600);
     
 
     MainWindow mainWindow(hInstance, windowWidth, windowHeight);
@@ -239,13 +242,13 @@ int wWinMain(
         std::clog.rdbuf(clogbuf);
         return 1;
     }
+    settings.setSetting("Graphics", "windowWidth", mainWindow.GetWidth());
+    settings.setSetting("Graphics", "windowHeight", mainWindow.GetHeight());
+    settings.saveToFile();
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-
-    settingsManager.setSetting("windowWidth", mainWindow.GetWidth());
-    settingsManager.setSetting("windowHeight", mainWindow.GetHeight());
-
     // Восстанавливаем буферы
     std::cout.rdbuf(coutbuf);
     std::cerr.rdbuf(cerrbuf);
