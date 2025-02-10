@@ -7,16 +7,11 @@
 #include "UIRenderer.h"
 #include "../game/GameController.h"
 #include "IRendererProvider.h"
-//#include "CameraController.h"
 
 #include "CubeRenderer.h"
 
 #include <vector>
 #include <memory>
-
-#include "imgui.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_impl_win32.h" 
 
 class Renderer : public IRendererProvider {
 public:
@@ -27,9 +22,8 @@ public:
     Camera& GetCamera() override { return camera; } // смотри интерфейс IRendererProvider
 
     void SetGameController(GameController* gameController);
-    void Draw();
-    void OnWindowResize(int newWidth, int newHeight);
-    //void MoveCamera(float dx, float dy, float dz);
+    void Draw() override;
+    void OnWindowResize(int newWidth, int newHeight) override;
     int getWindowWidth() const { return width; }
     int getWindowHeight() const { return height; }
     void RebuildGameField() override; // метод для перестройки игрового поля. смотри интерфейс IRendererProvider
@@ -48,7 +42,6 @@ private:
     int width, height;
     Camera camera;
     float farPlane;
-    //CameraController cameraController;
 
     GameController* pGameController;
     UIRenderer uiRenderer;

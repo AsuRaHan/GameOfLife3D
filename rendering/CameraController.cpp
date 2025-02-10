@@ -73,7 +73,7 @@ void CameraController::HandleInput(const InputEvent& event) {
         }
         else if (isMouseRighttCaptured) {
             // Перемещаем камеру в горизонтальной плоскости
-            Move(event.deltaX * 0.5f, event.deltaY * 0.5f, 0); // Умножаем на 0.1f для уменьшения скорости движения
+            Move(event.deltaX * 0.5f, event.deltaY * 0.5f, 0); // Умножаем на 0.5f для уменьшения скорости движения
         }
         break;
     case InputEvent::InputType::MouseWheel:

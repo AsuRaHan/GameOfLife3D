@@ -4,7 +4,6 @@ Renderer::Renderer(int width, int height)
     : width(width), height(height), farPlane(999009000000.0f), camera(45.0f, static_cast<float>(width) / height, 0.1f, farPlane),
     pGameController(nullptr), uiRenderer(nullptr)
     , cubeRenderer(shaderManager)
-    //, cameraController(camera) 
 {
     SetupOpenGL();
     OnWindowResize(width, height);
@@ -23,10 +22,7 @@ Renderer::~Renderer() {
 }
 
 void Renderer::SetCamera(const Camera& camera) {
-    this->camera = camera;
-    //cameraController.~CameraController(); // Вызов деструктора вручную
-    //new (&cameraController) CameraController(this->camera); // это если что называется placement new
-    
+    this->camera = camera;    
     //cubeRenderer.SetCamera(camera);
 }
 
@@ -61,7 +57,7 @@ void Renderer::InitializeCellsVBOs() {
     GL_CHECK(glGenBuffers(1, &cellsVBO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
 
-    float scale_factor = 0.1f;
+    //float scale_factor = 0.1f;
     //float centerX = 0.5f;
     //float centerY = 0.5f;
     float vertices[] = {
@@ -307,11 +303,6 @@ void Renderer::OnWindowResize(int newWidth, int newHeight) {
     camera.SetProjection(45.0f, static_cast<float>(width) / height, 0.1f, farPlane);
     cubeRenderer.SetCamera(camera); // Устанавливаем обновленную камеру в CubeRenderer
 }
-
-//void Renderer::MoveCamera(float dx, float dy, float dz) {
-//    // Обновляем позицию камеры
-//    //cameraController.Move(dx, dy, dz);
-//}
 
 void Renderer::LoadShaders() {
     LoadCellShaders();

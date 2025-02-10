@@ -1,5 +1,3 @@
-#pragma once
-
 //{{NO_DEPENDENCIES}}
 // Включаемый файл, созданный в Microsoft Visual C++.
 // Используется life.rc

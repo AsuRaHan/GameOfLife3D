@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-WindowController::WindowController(MainWindow* window, Renderer* renderer, GameController* gameController)
+WindowController::WindowController(MainWindow* window, IRendererProvider* renderer, GameController* gameController)
     : pWindow(window), pRenderer(renderer), pGameController(gameController),
     mouseCaptured(false), lastMouseX(0), lastMouseY(0), isMiddleButtonDown(false),
     gridPicker(renderer->GetCamera())
@@ -168,7 +168,6 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
 void WindowController::HandleMouseClick(int screenX, int screenY) {
     float worldX, worldY;
     gridPicker.ScreenToWorld(screenX, screenY, pWindow->GetWidth(), pWindow->GetHeight(), worldX, worldY);
-    //gridPicker.ScreenToWorld(screenX, screenY, pRenderer->getWindowWidth(), pRenderer->getWindowHeight(), worldX, worldY);
 
     int gridWidth = pGameController->getGridWidth();
     int gridHeight = pGameController->getGridHeight();
@@ -224,7 +223,7 @@ void WindowController::MoveCamera(float dx, float dy) {
 
 void WindowController::PlacePattern(int screenX, int screenY) {
     float worldX, worldY;
-    gridPicker.ScreenToWorld(screenX, screenY, pRenderer->getWindowWidth(), pRenderer->getWindowHeight(), worldX, worldY);
+    gridPicker.ScreenToWorld(screenX, screenY, pWindow->GetWidth(), pWindow->GetHeight(), worldX, worldY);
 
     int gridWidth = pGameController->getGridWidth();
     int gridHeight = pGameController->getGridHeight();
@@ -247,12 +246,12 @@ void WindowController::ResetCamera() {
         float height = pGameController->getGridHeight() * pGameController->getCellSize();
 
         // Определяем необходимый zoom, чтобы все поле было видно
-        float windowAspectRatio = static_cast<float>(pRenderer->getWindowWidth()) / pRenderer->getWindowHeight();
+        float windowAspectRatio = static_cast<float>(pWindow->GetWidth()) / pWindow->GetHeight();
         float fieldAspectRatio = width / height;
 
         float zoom = 1.0f;
         if (fieldAspectRatio > windowAspectRatio) {
-            zoom = width / (2.0f * std::tan(camera.GetFOV() / 2.0f * 3.14159265358979323846f / 180.0f) * pRenderer->getWindowWidth() / pRenderer->getWindowHeight());
+            zoom = width / (2.0f * std::tan(camera.GetFOV() / 2.0f * 3.14159265358979323846f / 180.0f) * pWindow->GetWidth() / pWindow->GetHeight());
         }
         else {
             zoom = height / (2.0f * std::tan(camera.GetFOV() / 2.0f * 3.14159265358979323846f / 180.0f));

@@ -1,8 +1,9 @@
 #pragma once
+
 #ifndef WINDOWCONTROLLER_H_
 #define WINDOWCONTROLLER_H_
 
-#include "../rendering/Renderer.h"
+#include "../rendering/IRendererProvider.h"
 #include "../game/GameController.h" 
 #include "../system/InputHandler.h"
 #include "../rendering/CameraController.h"
@@ -12,7 +13,7 @@ class MainWindow; // Forward declaration
 
 class WindowController {
 public:
-    WindowController(MainWindow* window, Renderer* renderer, GameController* gameController);
+    WindowController(MainWindow* window, IRendererProvider* renderer, GameController* gameController);
     ~WindowController();
 
     void Resize(int width, int height);
@@ -20,7 +21,7 @@ public:
 
 private:
     MainWindow* pWindow;
-    Renderer* pRenderer;
+    IRendererProvider* pRenderer;
     GameController* pGameController;
     GridPicker gridPicker;
 
