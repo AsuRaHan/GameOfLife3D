@@ -204,11 +204,14 @@ int wWinMain(
         gameController.SetCellInstanceProvider(&renderer);
 
         // Передаем один и тот же экземпляр gameController в WindowController
-        WindowController controller(&mainWindow, &renderer, &gameController);
+        WindowController controller(&renderer, &gameController);
         mainWindow.SetController(&controller);
 
         initImgui(mainWindow.GetHwnd());
-
+        // ========== код хак что бы вызвать обработчики у других классов ====================
+        // Вызываем событие WM_SIZE с текущими размерами
+        SendMessage(mainWindow.GetHwnd(), WM_SIZE, SIZE_RESTORED, MAKELPARAM(width, height));
+        // ===================================================================================
         MSG msg;
         bool MainLoop = true;
         std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();

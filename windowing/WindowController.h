@@ -9,25 +9,23 @@
 #include "../rendering/CameraController.h"
 #include "GridPicker.h"
 
-class MainWindow; // Forward declaration
-
 class WindowController {
 public:
-    WindowController(MainWindow* window, IRendererProvider* renderer, GameController* gameController);
+    WindowController(IRendererProvider* renderer, GameController* gameController);
     ~WindowController();
 
     void Resize(int width, int height);
     void HandleEvent(UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-    MainWindow* pWindow;
     IRendererProvider* pRenderer;
     GameController* pGameController;
     GridPicker gridPicker;
 
     InputHandler inputHandler;
     CameraController pCameraController; 
-
+    int windowWidth; // поле дл€ ширины
+    int windowHeight; // поле дл€ высоты
 
     bool mouseCaptured; // ‘лаг дл€ отслеживани€ захвата мыши
     int lastMouseX, lastMouseY; // ѕоследние координаты мыши

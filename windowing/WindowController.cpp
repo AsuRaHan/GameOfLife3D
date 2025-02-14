@@ -1,13 +1,13 @@
 #include "WindowController.h"
-#include "MainWindow.h"
 
 #include <iostream>
 
-WindowController::WindowController(MainWindow* window, IRendererProvider* renderer, GameController* gameController)
-    : pWindow(window), pRenderer(renderer), pGameController(gameController),
+WindowController::WindowController(IRendererProvider* renderer, GameController* gameController)
+    : pRenderer(renderer), pGameController(gameController),
     mouseCaptured(false), lastMouseX(0), lastMouseY(0), isMiddleButtonDown(false),
     gridPicker(renderer->GetCamera())
     , inputHandler(),
+    windowWidth(1024), windowHeight(768),
     pCameraController(renderer->GetCamera())
 {
     // Регистрируем обработчики ввода для камеры
@@ -63,7 +63,9 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         if (pRenderer)pRenderer->Draw();
         break;
     case WM_SIZE:
-        Resize(LOWORD(lParam), HIWORD(lParam)); // Обработка изменения размеров окна
+        windowWidth = LOWORD(lParam);
+        windowHeight = HIWORD(lParam);
+        Resize(windowWidth, windowHeight); // Обработка изменения размеров окна
         break;
     case WM_MOUSEMOVE:
         event.type = InputEvent::InputType::MouseMove;
@@ -167,7 +169,7 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
 
 void WindowController::HandleMouseClick(int screenX, int screenY) {
     float worldX, worldY;
-    gridPicker.ScreenToWorld(static_cast<float>(screenX), static_cast<float>(screenY), static_cast<float>(pWindow->GetWidth()), static_cast<float>(pWindow->GetHeight()), worldX, worldY);
+    gridPicker.ScreenToWorld(static_cast<float>(screenX), static_cast<float>(screenY), static_cast<float>(windowWidth), static_cast<float>(windowHeight), worldX, worldY);
 
     int gridWidth = pGameController->getGridWidth();
     int gridHeight = pGameController->getGridHeight();
@@ -223,7 +225,7 @@ void WindowController::MoveCamera(float dx, float dy) {
 
 void WindowController::PlacePattern(int screenX, int screenY) {
     float worldX, worldY;
-    gridPicker.ScreenToWorld(static_cast<float>(screenX), static_cast<float>(screenY), static_cast<float>(pWindow->GetWidth()), static_cast<float>(pWindow->GetHeight()), worldX, worldY);
+    gridPicker.ScreenToWorld(static_cast<float>(screenX), static_cast<float>(screenY), static_cast<float>(windowWidth), static_cast<float>(windowHeight), worldX, worldY);
 
     int gridWidth = pGameController->getGridWidth();
     int gridHeight = pGameController->getGridHeight();
@@ -244,19 +246,17 @@ void WindowController::ResetCamera() {
         Camera& camera = const_cast<Camera&>(pRenderer->GetCamera());
         float width = pGameController->getGridWidth() * pGameController->getCellSize();
         float height = pGameController->getGridHeight() * pGameController->getCellSize();
-
         // Определяем необходимый zoom, чтобы все поле было видно
-        float windowAspectRatio = static_cast<float>(pWindow->GetWidth()) / pWindow->GetHeight();
+        float windowAspectRatio = static_cast<float>(windowWidth) / windowHeight;
         float fieldAspectRatio = width / height;
-
+        float tanHalfFov = std::tan(camera.GetFOV() / 2.0f * 3.14159265358979323846f / 180.0f);
         float zoom = 1.0f;
         if (fieldAspectRatio > windowAspectRatio) {
-            zoom = width / (2.0f * std::tan(camera.GetFOV() / 2.0f * 3.14159265358979323846f / 180.0f) * pWindow->GetWidth() / pWindow->GetHeight());
+            zoom = width / (2.0f * tanHalfFov * windowAspectRatio);
         }
         else {
-            zoom = height / (2.0f * std::tan(camera.GetFOV() / 2.0f * 3.14159265358979323846f / 180.0f));
+            zoom = height / (2.0f * tanHalfFov);
         }
-
         // Устанавливаем позицию камеры
         camera.SetPosition(width / 2.0f, height / 2.0f, zoom);
         camera.SetDirection(0.0f, 0.0f, -1.0f); // Направление вдоль оси Z (назад)
