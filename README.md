@@ -1,5 +1,7 @@
 # Game of Life 3D
 
+![Game of Life 3D](.github/nowar.png)
+
 ![Game of Life 3D](.github/preview_image.png)
 
 ![Game of Life 3D](.github/preview_image2.png)
