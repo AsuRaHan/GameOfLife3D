@@ -99,14 +99,16 @@ void UIRenderer::DrawSimulationWindow() {
 
     if (gameController->getWoldToroidal()) {
         if (ImGui::Button("Ограничить мир", buttonSize)) {
-            if (gameController->isSimulationRunning()) return;
-            gameController->setWoldToroidal(false); // сделать мир безграничным или на оборот ограничеть его
+            if (!gameController->isSimulationRunning()) {
+                gameController->setWoldToroidal(false); // сделать мир безграничным или на оборот ограничеть его
+            }
         }
     }
     else {
         if (ImGui::Button("Разграничить мир", buttonSize)) {
-            if (gameController->isSimulationRunning()) return;
-            gameController->setWoldToroidal(true);
+            if (!gameController->isSimulationRunning()) {
+                gameController->setWoldToroidal(true);
+            }
         }
     }
 
@@ -249,7 +251,7 @@ void UIRenderer::DrawPatternWindow() {
     if (!patternWindowVisible) return;
 
     ImGui::Begin("пользовательские паттерны", &patternWindowVisible, ImGuiWindowFlags_NoResize);
-
+    ImGui::SetWindowSize(ImVec2(0, 460), ImGuiCond_Once);
     // 1. Кнопка "Загрузить список"
     if (ImGui::Button("Загрузить список", buttonSize)) {
         gameController->loadPatternList();

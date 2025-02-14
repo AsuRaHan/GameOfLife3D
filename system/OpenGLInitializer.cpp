@@ -29,10 +29,12 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
         style &= ~WS_BORDER; // Убирает простую границу для неизменяемых окон
         style &= ~WS_SIZEBOX; // Убирает размерную рамку
 
-        if (SetWindowLongPtr(m_hWnd, GWL_STYLE, style) == 0) {
-            std::cout << "Не удалось изменить стиль окна: " << GetErrorMessage(GetLastError()) << std::endl;
-            return false;
-        }
+        //if (
+        SetWindowLongPtr(m_hWnd, GWL_STYLE, style);
+        //    ) {
+        //    std::cout << "Не удалось изменить стиль окна: " << GetErrorMessage(GetLastError()) << std::endl;
+        //    return false;
+        //}
 
         // Изменяем расширенный стиль
         LONG_PTR exStyle = GetWindowLongPtr(m_hWnd, GWL_EXSTYLE);
@@ -40,10 +42,12 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
         exStyle &= ~WS_EX_CLIENTEDGE;
         exStyle &= ~WS_EX_STATICEDGE;
 
-        if (SetWindowLongPtr(m_hWnd, GWL_EXSTYLE, exStyle) == 0) {
-            std::cout << "Не удалось изменить расширенный стиль окна: " << GetErrorMessage(GetLastError()) << std::endl;
-            return false;
-        }
+        //if (
+        SetWindowLongPtr(m_hWnd, GWL_EXSTYLE, exStyle);
+        //    ) {
+        //    std::cout << "Не удалось изменить расширенный стиль окна: " << GetErrorMessage(GetLastError()) << std::endl;
+        //    return false;
+        //}
 
         // Перерисовать окно
         DEVMODE dmScreenSettings;
@@ -53,6 +57,9 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
         dmScreenSettings.dmPelsHeight = GetSystemMetrics(SM_CYSCREEN);
         dmScreenSettings.dmBitsPerPel = 32;
         dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+
+        SetWindowPos(m_hWnd, HWND_TOP, 0, 0, dmScreenSettings.dmPelsWidth, dmScreenSettings.dmPelsHeight, SWP_SHOWWINDOW);
+        ShowWindow(m_hWnd, SW_SHOWMAXIMIZED);
 
         if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
             std::cout << "Не удалось переключиться в полноэкранный режим" << std::endl;
