@@ -32,5 +32,6 @@ private:
     bool checkForDepthIssues();
     float testFarPlane(float start, float end, float step);
     void printSystemInfo();
+    std::string GetErrorMessage(DWORD errorCode);
 };
 #endif // OPENGLINITIALIZER_H_

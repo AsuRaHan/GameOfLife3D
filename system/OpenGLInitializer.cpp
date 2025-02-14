@@ -20,7 +20,6 @@ OpenGLInitializer::~OpenGLInitializer() {
 
 bool OpenGLInitializer::Initialize(bool fullScreen) {
     std::cout << "Начинаю инициализацию OpenGL" << std::endl;
-
     // Настройка полноэкранного режима, если требуется
     if (fullScreen) {
         // Удаляем стиль окна с заголовком и рамкой
@@ -30,17 +29,23 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
         style &= ~WS_BORDER; // Убирает простую границу для неизменяемых окон
         style &= ~WS_SIZEBOX; // Убирает размерную рамку
 
-        SetWindowLongPtr(m_hWnd, GWL_STYLE, style);
+        if (SetWindowLongPtr(m_hWnd, GWL_STYLE, style) == 0) {
+            std::cout << "Не удалось изменить стиль окна: " << GetErrorMessage(GetLastError()) << std::endl;
+            return false;
+        }
 
-        // Также можно изменить расширенный стиль для полного удаления всех декораций
+        // Изменяем расширенный стиль
         LONG_PTR exStyle = GetWindowLongPtr(m_hWnd, GWL_EXSTYLE);
         exStyle &= ~WS_EX_WINDOWEDGE;
         exStyle &= ~WS_EX_CLIENTEDGE;
         exStyle &= ~WS_EX_STATICEDGE;
 
-        SetWindowLongPtr(m_hWnd, GWL_EXSTYLE, exStyle);
+        if (SetWindowLongPtr(m_hWnd, GWL_EXSTYLE, exStyle) == 0) {
+            std::cout << "Не удалось изменить расширенный стиль окна: " << GetErrorMessage(GetLastError()) << std::endl;
+            return false;
+        }
 
-        // Перерисовать окно, чтобы изменения вступили в силу
+        // Перерисовать окно
         DEVMODE dmScreenSettings;
         memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
         dmScreenSettings.dmSize = sizeof(dmScreenSettings);
@@ -49,46 +54,48 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
         dmScreenSettings.dmBitsPerPel = 32;
         dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
-        //SetWindowPos(m_hWnd, HWND_TOP, 0, 0, dmScreenSettings.dmPelsWidth, dmScreenSettings.dmPelsHeight, SWP_SHOWWINDOW);
-        SetWindowPos(m_hWnd, HWND_TOP, 0, 0, dmScreenSettings.dmPelsWidth, dmScreenSettings.dmPelsHeight, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-        ShowWindow(m_hWnd, SW_SHOWMAXIMIZED);
-
         if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
             std::cout << "Не удалось переключиться в полноэкранный режим" << std::endl;
             return false;
         }
     }
-    WNDCLASSEX wc = { 0 };
-    wc.cbSize = sizeof(WNDCLASSEX);
-    wc.style = CS_HREDRAW | CS_VREDRAW;
-    wc.lpfnWndProc = DefWindowProc;
-    wc.hInstance = GetModuleHandle(NULL);
-    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wc.lpszClassName = L"OpenGLTempClass";
+
+    // Регистрация класса окна
+    WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW, DefWindowProc, 0, 0, GetModuleHandle(nullptr), nullptr, nullptr, (HBRUSH)(COLOR_WINDOW + 1), nullptr, L"OpenGLTempClass", nullptr };
     if (!RegisterClassEx(&wc)) {
-        std::cout << "Не удалось зарегистрировать класс окна. Код ошибки: " << GetLastError() << std::endl;
+        std::cout << "Не удалось зарегистрировать класс временного окна: " << GetErrorMessage(GetLastError()) << std::endl;
         return false;
     }
 
-    // Временное окно для инициализации OpenGL
-    HWND temporaryWindow = CreateWindowEx(WS_EX_APPWINDOW, L"OpenGLTempClass", L"Temp", WS_OVERLAPPEDWINDOW, 0, 0, 1, 1, NULL, NULL, GetModuleHandle(NULL), NULL);
-    if (temporaryWindow == NULL) {
-        std::cout << "Не удалось создать временное окно. Код ошибки: " << GetLastError() << std::endl;
+    // Создание временного окна
+    HWND temporaryWindow = CreateWindowEx(WS_EX_APPWINDOW, L"OpenGLTempClass", L"Temp", WS_OVERLAPPEDWINDOW, 0, 0, 1, 1, NULL, NULL, GetModuleHandle(nullptr), NULL);
+    if (temporaryWindow == nullptr) {
+        std::cout << "Не удалось создать временное окно: " << GetErrorMessage(GetLastError()) << std::endl;
         return false;
     }
+
     HDC temporaryDC = GetDC(temporaryWindow);
-    if (temporaryDC == NULL) {
-        std::cout << "Не удалось получить HDC для временного окна. Код ошибки: " << GetLastError() << std::endl;
+    if (temporaryDC == nullptr) {
+        std::cout << "Не удалось получить HDC для временного окна: " << GetErrorMessage(GetLastError()) << std::endl;
         DestroyWindow(temporaryWindow);
         return false;
     }
+
     if (!SetupPixelFormat(temporaryDC)) {
-        std::cout << "Не удалось [temporaryWindow] SetupPixelFormat" << std::endl;
+        std::cout << "Не удалось установить формат пикселей для временного окна" << std::endl;
+        ReleaseDC(temporaryWindow, temporaryDC);
         DestroyWindow(temporaryWindow);
         return false;
     }
 
     HGLRC temporaryRC = wglCreateContext(temporaryDC);
+    if (temporaryRC == nullptr) {
+        std::cout << "Не удалось создать временный контекст OpenGL: " << GetErrorMessage(GetLastError()) << std::endl;
+        ReleaseDC(temporaryWindow, temporaryDC);
+        DestroyWindow(temporaryWindow);
+        return false;
+    }
+
     wglMakeCurrent(temporaryDC, temporaryRC);
 
     // Загрузка расширений OpenGL
@@ -98,6 +105,7 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
     if (!wglChoosePixelFormatARB || !wglCreateContextAttribsARB) {
         std::cout << "Не удалось загрузить OpenGL расширения" << std::endl;
         wglDeleteContext(temporaryRC);
+        ReleaseDC(temporaryWindow, temporaryDC);
         DestroyWindow(temporaryWindow);
         return false;
     }
@@ -114,7 +122,7 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
     };
     int major, minor;
     const GLubyte* version = glGetString(GL_VERSION);
-    std::cout << "OpenGL Version: " << version << std::endl;
+    std::cout << "  OpenGL Version: " << version << std::endl;
     // Извлекаем основные и минорные версии OpenGL
     std::istringstream versionStream(reinterpret_cast<const char*>(version));
     versionStream >> major; // Основная версия
@@ -128,7 +136,24 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
         WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
         0
     };
-
+    //====================================
+    if (glGetString(GL_SHADING_LANGUAGE_VERSION) == nullptr) {
+        std::cout << "Не удалось получить версию GLSL" << std::endl;
+    }
+    else {
+        std::cout << "  GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+    }
+    // Проверка поддержки теселяции
+    if (glGetString(GL_EXTENSIONS) != nullptr) {
+        std::string extensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+        if (extensions.find("GL_ARB_tessellation_shader") != std::string::npos) {
+            std::cout << "  Теселяция поддерживается" << std::endl;
+        }
+        else {
+            std::cout << "  Теселяция не поддерживается" << std::endl;
+        }
+    }
+    //====================================
     int format, formatCount;
     wglChoosePixelFormatARB(hDC, formatAttributes, NULL, 1, &format, (UINT*)&formatCount);
     PIXELFORMATDESCRIPTOR pfd;
@@ -149,8 +174,8 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
     ReleaseDC(temporaryWindow, temporaryDC);
     DestroyWindow(temporaryWindow);
 
-    std::cout << "          wglCreateContext успешно" << std::endl;
-    std::cout << "          wglMakeCurrent успешно" << std::endl;
+    std::cout << "  wglCreateContext успешно" << std::endl;
+    std::cout << "  wglMakeCurrent успешно" << std::endl;
 
     std::cout << "Начинаю ручную загрузку OpenGL функций" << std::endl;
     LoadOpenGLFunctions();
@@ -180,14 +205,12 @@ bool OpenGLInitializer::SetupPixelFormat(HDC hdc) {
 
     int pixelFormat = ChoosePixelFormat(hdc, &pfd);
     if (pixelFormat == 0) {
-        DWORD error = GetLastError();
-        std::cout << "Не удалось выбрать pixel format. Код ошибки: " << error << std::endl;
+        std::cout << "Не удалось выбрать pixel format: " << GetErrorMessage(GetLastError()) << std::endl;
         return false;
     }
 
     if (!SetPixelFormat(hdc, pixelFormat, &pfd)) {
-        DWORD error = GetLastError();
-        std::cout << "Не удалось установить pixel format. Код ошибки: " << error << std::endl;
+        std::cout << "Не удалось установить pixel format: " << GetErrorMessage(GetLastError()) << std::endl;
         return false;
     }
 
@@ -265,4 +288,36 @@ void OpenGLInitializer::printSystemInfo() {
     for (GLint i = 0; i < numExtensions; ++i) {
         std::cout << "      " << glGetStringi(GL_EXTENSIONS, i) << std::endl;
     }
+}
+
+std::string OpenGLInitializer::GetErrorMessage(DWORD errorCode) {
+    LPVOID lpMsgBuf;
+    DWORD bufLen;
+
+    // Получаем сообщение об ошибке
+    bufLen = FormatMessage(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL,
+        errorCode,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Используем язык по умолчанию
+        (LPWSTR)&lpMsgBuf,
+        0,
+        NULL);
+
+    std::string message;
+    if (bufLen > 0) {
+        // Преобразуем wide string в narrow string
+        wchar_t* wideMessage = (wchar_t*)lpMsgBuf;
+        int size_needed = WideCharToMultiByte(CP_ACP, 0, wideMessage, -1, NULL, 0, NULL, NULL);
+        message.resize(size_needed, 0);
+        WideCharToMultiByte(CP_ACP, 0, wideMessage, -1, &message[0], size_needed, NULL, NULL);
+        LocalFree(lpMsgBuf); // Освобождаем память
+    }
+    else {
+        // Если bufLen равно 0, значит произошла ошибка
+        DWORD error = GetLastError();
+        message = "Не удалось получить сообщение об ошибке. Код ошибки: " + std::to_string(error);
+    }
+
+    return message;
 }
