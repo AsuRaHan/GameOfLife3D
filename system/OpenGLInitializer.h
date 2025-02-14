@@ -7,6 +7,7 @@
 #include <gl\GL.h>
 #include <gl\glu.h>
 #include <cstdio> // For swprintf and swprintf_s
+#include <sstream>
 
 //#include "GLFunctions.h"
 

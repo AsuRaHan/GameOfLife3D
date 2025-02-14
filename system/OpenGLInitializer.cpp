@@ -1,7 +1,9 @@
 #include "OpenGLInitializer.h"
 #include "GLFunctions.h"
 
-OpenGLInitializer::OpenGLInitializer(HWND hWnd) : hRC(NULL), hDC(NULL) {
+OpenGLInitializer::OpenGLInitializer(HWND hWnd) : hRC(NULL), hDC(NULL),
+wglChoosePixelFormatARB(nullptr), wglCreateContextAttribsARB(nullptr)
+{
     m_hWnd = hWnd;
     hDC = GetDC(hWnd);
 }
@@ -39,8 +41,6 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
         SetWindowLongPtr(m_hWnd, GWL_EXSTYLE, exStyle);
 
         // Перерисовать окно, чтобы изменения вступили в силу
-        //SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-
         DEVMODE dmScreenSettings;
         memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
         dmScreenSettings.dmSize = sizeof(dmScreenSettings);
@@ -49,7 +49,8 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
         dmScreenSettings.dmBitsPerPel = 32;
         dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
-        SetWindowPos(m_hWnd, HWND_TOP, 0, 0, dmScreenSettings.dmPelsWidth, dmScreenSettings.dmPelsHeight, SWP_SHOWWINDOW);
+        //SetWindowPos(m_hWnd, HWND_TOP, 0, 0, dmScreenSettings.dmPelsWidth, dmScreenSettings.dmPelsHeight, SWP_SHOWWINDOW);
+        SetWindowPos(m_hWnd, HWND_TOP, 0, 0, dmScreenSettings.dmPelsWidth, dmScreenSettings.dmPelsHeight, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
         ShowWindow(m_hWnd, SW_SHOWMAXIMIZED);
 
         if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
@@ -82,10 +83,10 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
         return false;
     }
     if (!SetupPixelFormat(temporaryDC)) {
+        std::cout << "Не удалось [temporaryWindow] SetupPixelFormat" << std::endl;
         DestroyWindow(temporaryWindow);
         return false;
     }
-    std::cout << "          SetupPixelFormat успешно" << std::endl;
 
     HGLRC temporaryRC = wglCreateContext(temporaryDC);
     wglMakeCurrent(temporaryDC, temporaryRC);
@@ -111,10 +112,18 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
         WGL_DEPTH_BITS_ARB, 24,
         0
     };
+    int major, minor;
+    const GLubyte* version = glGetString(GL_VERSION);
+    std::cout << "OpenGL Version: " << version << std::endl;
+    // Извлекаем основные и минорные версии OpenGL
+    std::istringstream versionStream(reinterpret_cast<const char*>(version));
+    versionStream >> major; // Основная версия
+    versionStream.ignore(1); // Игнорируем точку
+    versionStream >> minor; // Минорная версия
 
     const int contextAttributes[] = {
-        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+        WGL_CONTEXT_MAJOR_VERSION_ARB, major,
+        WGL_CONTEXT_MINOR_VERSION_ARB, minor,
         WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
         WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
         0
