@@ -76,10 +76,10 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     case WM_MOUSEWHEEL:
         event.type = InputEvent::InputType::MouseWheel;
         if (GetKeyState(VK_CONTROL) & 0x8000) {
-            event.wheelDelta = (GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA) * 10; // Увеличиваем скорость зума в 10 раз
+            event.wheelDelta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA) * 10; // Увеличиваем скорость зума в 10 раз
         }
         else {
-            event.wheelDelta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+            event.wheelDelta = static_cast<float>GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
         }
         inputHandler.ProcessEvent(event);
         break;
@@ -167,7 +167,7 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
 
 void WindowController::HandleMouseClick(int screenX, int screenY) {
     float worldX, worldY;
-    gridPicker.ScreenToWorld(screenX, screenY, pWindow->GetWidth(), pWindow->GetHeight(), worldX, worldY);
+    gridPicker.ScreenToWorld(static_cast<float>(screenX), static_cast<float>(screenY), static_cast<float>(pWindow->GetWidth()), static_cast<float>(pWindow->GetHeight()), worldX, worldY);
 
     int gridWidth = pGameController->getGridWidth();
     int gridHeight = pGameController->getGridHeight();
@@ -223,7 +223,7 @@ void WindowController::MoveCamera(float dx, float dy) {
 
 void WindowController::PlacePattern(int screenX, int screenY) {
     float worldX, worldY;
-    gridPicker.ScreenToWorld(screenX, screenY, pWindow->GetWidth(), pWindow->GetHeight(), worldX, worldY);
+    gridPicker.ScreenToWorld(static_cast<float>(screenX), static_cast<float>(screenY), static_cast<float>(pWindow->GetWidth()), static_cast<float>(pWindow->GetHeight()), worldX, worldY);
 
     int gridWidth = pGameController->getGridWidth();
     int gridHeight = pGameController->getGridHeight();

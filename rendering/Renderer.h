@@ -8,8 +8,6 @@
 #include "../game/GameController.h"
 #include "IRendererProvider.h"
 
-#include "CubeRenderer.h"
-
 #include <vector>
 #include <memory>
 
@@ -28,8 +26,6 @@ public:
     int getWindowHeight() const { return height; }
     void RebuildGameField() override; // метод для перестройки игрового поля. смотри интерфейс IRendererProvider
 
-    void DrawCubes();
-
     // Геттер для cellInstances
     const std::vector<CellInstance>& GetCellInstances() const override {
         return cellInstances;
@@ -46,8 +42,6 @@ private:
     GameController* pGameController;
     UIRenderer uiRenderer;
     ShaderManager shaderManager;
-
-    CubeRenderer cubeRenderer;
     
     void InitializeGridVBOs();
     GLuint gridVBO;

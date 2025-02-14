@@ -30,8 +30,8 @@ void GameController::randomizeGrid() {
 
 void GameController::placePattern(int startX, int startY, const Pattern& pattern) {
     if (isRunning) return;
-    int patternHeight = pattern.size();
-    int patternWidth = pattern[0].size();
+    int patternHeight = static_cast<int>(pattern.size());
+    int patternWidth = static_cast<int>(pattern[0].size());
 
     // ѕровер€ем, помещаетс€ ли фигура в пределах сетки
     if (startX + patternWidth <= grid.getWidth() && startY + patternHeight <= grid.getHeight()) {
@@ -249,8 +249,8 @@ void GameController::setSimulationSpeed(float speed) {
 }
 
 Pattern GameController::rotateOrFlip(const Pattern& pattern, Rotation rotation) {
-    int rows = pattern.size();
-    int cols = pattern[0].size();
+    int rows = static_cast<int>(pattern.size());
+    int cols = static_cast<int>(pattern[0].size());
     Pattern result;
 
     switch (rotation) {

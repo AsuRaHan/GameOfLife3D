@@ -3,11 +3,9 @@
 Renderer::Renderer(int width, int height)
     : width(width), height(height), farPlane(999009000000.0f), camera(45.0f, static_cast<float>(width) / height, 0.1f, farPlane),
     pGameController(nullptr), uiRenderer(nullptr)
-    , cubeRenderer(shaderManager)
 {
     SetupOpenGL();
     OnWindowResize(width, height);
-    cubeRenderer.SetCamera(camera);
 }
 
 Renderer::~Renderer() {
@@ -169,57 +167,15 @@ void Renderer::InitializeGridVBOs() {
 
 void Renderer::Draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //cameraController.Update(1.0f / 60.0f); // Примерное значение для 60fps, нужно заменить на реальное deltaTim
 
     DrawCells();
-    //DrawCubes();
     
     // Отрисовка сетки и клеток
     if (pGameController->getShowGrid())DrawGrid();
-    // Теперь используем UIRenderer для отрисовки UI
+    // используем UIRenderer для отрисовки UI
     uiRenderer.DrawUI();
 
-    // Обновление состояния UI на основе текущего состояния игры
-    //UIRenderer.UpdateUIState();
-
     SwapBuffers(wglGetCurrentDC());
-}
-
-void Renderer::DrawCubes() {
-    if (!pGameController) return;
-
-    int gridWidth = pGameController->getGridWidth();
-    int gridHeight = pGameController->getGridHeight();
-    float cellSize = pGameController->getCellSize();
-
-    std::vector<Vector3d> positions;
-    std::vector<Vector3d> colors;
-
-    for (int y = 0; y < gridHeight; ++y) {
-        for (int x = 0; x < gridWidth; ++x) {
-            Cell cell = pGameController->getGrid().getCell(x, y);
-            if (cell.getAlive()) {
-                // Позиции теперь должны соответствовать центру клетки, но в шейдере это уже учтено
-                positions.push_back(Vector3d(x * cellSize, y * cellSize, 0.0f));
-                colors.push_back(cell.getColor());
-            }
-        }
-    }
-    //for (int y = 0; y < gridHeight; ++y) {
-    //    for (int x = 0; x < gridWidth; ++x) {
-    //        Cell cell = pGameController->getGrid().getCell(x, y);
-    //        if (cell.getAlive()) {
-    //            positions.push_back(Vector3d(x * cellSize, y * cellSize, 0.0f));
-    //            colors.push_back(cell.getColor());
-    //        }
-    //        else {
-    //            // Добавляем мертвую клетку с другим цветом, например, серым
-    //            positions.push_back(Vector3d(x * cellSize, y * cellSize, 0.0f));
-    //            colors.push_back(cell.getColor()); // Серый цвет для мертвых клеток
-    //        }
-    //    }
-    //}
-    cubeRenderer.Render(positions, colors, cellSize);
 }
 
 void Renderer::DrawGrid() {
@@ -241,7 +197,7 @@ void Renderer::DrawGrid() {
     GL_CHECK(glBindVertexArray(gridVAO));
 
     // Рисуем линии сетки
-    GL_CHECK(glDrawArrays(GL_LINES, 0, gridVertices.size() / 5)); // Теперь каждый элемент состоит из 5 float
+    GL_CHECK(glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(gridVertices.size() / 5))); // Теперь каждый элемент состоит из 5 float
 
     // Отвязываем VAO
     GL_CHECK(glBindVertexArray(0));
@@ -288,7 +244,7 @@ void Renderer::DrawCells() {
 
     // Отрисовка клеток с использованием инстансинга
     //GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 8, cellInstances.size()));
-    GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, cellInstances.size()));
+    GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, static_cast<GLsizei>(cellInstances.size())));
     // Отключаем использование атрибутов после отрисовки
     GL_CHECK(glDisableVertexAttribArray(0));
     GL_CHECK(glDisableVertexAttribArray(1));
@@ -301,7 +257,6 @@ void Renderer::OnWindowResize(int newWidth, int newHeight) {
     GL_CHECK(glViewport(0, 0, width, height));
     // Обновляем проекцию камеры
     camera.SetProjection(45.0f, static_cast<float>(width) / height, 0.1f, farPlane);
-    cubeRenderer.SetCamera(camera); // Устанавливаем обновленную камеру в CubeRenderer
 }
 
 void Renderer::LoadShaders() {
