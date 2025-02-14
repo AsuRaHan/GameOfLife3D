@@ -49,3 +49,6 @@
   - **6**: 				Ружьё Госпера (Gosper Glider Gun)
 
  Для выхода из программы нажмите 'Выход'.
+
+ == БАЗА ДАННЫХ ШАБЛОНОВ CONWAYLIFE.COM ==
+Скачать можно с: https://conwaylife.com/patterns/all.zip
