@@ -4,7 +4,7 @@
 
 WindowController::WindowController(IRendererProvider* renderer, GameController* gameController)
     : pRenderer(renderer), pGameController(gameController),
-    mouseCaptured(false), lastMouseX(0), lastMouseY(0), isMiddleButtonDown(false),
+    mouseCaptured(false), isLeftButtonDown(false), lastMouseX(0), lastMouseY(0), isMiddleButtonDown(false),
     gridPicker(renderer->GetCamera())
     , inputHandler(),
     windowWidth(1024), windowHeight(768),
@@ -67,14 +67,6 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         windowHeight = HIWORD(lParam);
         Resize(windowWidth, windowHeight); // Обработка изменения размеров окна
         break;
-    case WM_MOUSEMOVE:
-        event.type = InputEvent::InputType::MouseMove;
-        event.deltaX = static_cast<float>(LOWORD(lParam) - lastMouseX) / 10.0f;
-        event.deltaY = static_cast<float>(HIWORD(lParam) - lastMouseY) / 10.0f;
-        lastMouseX = LOWORD(lParam);
-        lastMouseY = HIWORD(lParam);
-        inputHandler.ProcessEvent(event);
-        break;
     case WM_MOUSEWHEEL:
         event.type = InputEvent::InputType::MouseWheel;
         if (GetKeyState(VK_CONTROL) & 0x8000) {
@@ -85,20 +77,48 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         }
         inputHandler.ProcessEvent(event);
         break;
-    case WM_LBUTTONDOWN: // Левый клик мыши
-        if (pRenderer) {
-            int xPos = LOWORD(lParam);
-            int yPos = HIWORD(lParam);
+    case WM_MOUSEMOVE:
+        if (GetKeyState(VK_SHIFT) & 0x8000) {
+            if (wParam & MK_LBUTTON) { // Если левая кнопка мыши зажата
+                if (isLeftButtonDown) UpdateSelection(LOWORD(lParam), HIWORD(lParam));
+            }
         }
-        HandleMouseClick(LOWORD(lParam), HIWORD(lParam));
+        else {
+            event.type = InputEvent::InputType::MouseMove;
+            event.deltaX = static_cast<float>(LOWORD(lParam) - lastMouseX) / 10.0f;
+            event.deltaY = static_cast<float>(HIWORD(lParam) - lastMouseY) / 10.0f;
+            lastMouseX = LOWORD(lParam);
+            lastMouseY = HIWORD(lParam);
+            inputHandler.ProcessEvent(event);
 
-
-
+        }
+        break;
+    case WM_LBUTTONDOWN: // Начало выделения
+        isLeftButtonDown = true;
+        if (GetKeyState(VK_SHIFT) & 0x8000) {
+            StartSelection(LOWORD(lParam), HIWORD(lParam));
+        }
+        else {
+            HandleMouseClick(LOWORD(lParam), HIWORD(lParam));
+        }
+        break;
+    case WM_LBUTTONUP:
+        isLeftButtonDown = false;
+        
         break;
     case WM_MBUTTONDOWN: // Нажатие средней кнопки мыши
         PlacePattern(LOWORD(lParam), HIWORD(lParam));
         break;
-
+    case WM_RBUTTONDOWN:
+        event.type = message == WM_LBUTTONDOWN ? InputEvent::InputType::MouseButtonDown : InputEvent::InputType::MouseButtonDown;
+        event.button = message == WM_LBUTTONDOWN ? InputEvent::MouseButton::Left : InputEvent::MouseButton::Right;
+        inputHandler.ProcessEvent(event);
+        break;
+    case WM_RBUTTONUP:
+        event.type = message == WM_LBUTTONUP ? InputEvent::InputType::MouseButtonUp : InputEvent::InputType::MouseButtonUp;
+        event.button = message == WM_LBUTTONUP ? InputEvent::MouseButton::Left : InputEvent::MouseButton::Right;
+        inputHandler.ProcessEvent(event);
+        break;
 
     case WM_KEYDOWN:
         event.type = InputEvent::InputType::KeyDown;
@@ -106,7 +126,16 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         inputHandler.ProcessEvent(event);
         // Здесь может быть дополнительная обработка клавиш, не связанных с камерой
         switch (wParam) {
-
+        case VK_DELETE:
+            if (!pGameController->isSimulationRunning() && pGameController->IsSelectionActive()) {
+                pGameController->KillSelectedCells(); // Убиваем выделенные клетки
+            }
+            break;
+        case VK_INSERT:
+            if (!pGameController->isSimulationRunning() && pGameController->IsSelectionActive()) {
+                pGameController->ReviveSelectedCells(); // Оживляем выделенные клетки
+            }
+            break;
         case VK_SPACE: // Пробел для запуска/остановки симуляции
             if (pGameController->isSimulationRunning()) {
                 pGameController->stopSimulation();
@@ -145,23 +174,13 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
         case 'G':
             pGameController->setShowGrid(!pGameController->getShowGrid());
+            break;        
+        case 'U':
+            pGameController->setShowUI(!pGameController->getShowUI());
             break;
 
         }
         break;
-    //case WM_LBUTTONDOWN:
-    case WM_RBUTTONDOWN:
-        event.type = message == WM_LBUTTONDOWN ? InputEvent::InputType::MouseButtonDown : InputEvent::InputType::MouseButtonDown;
-        event.button = message == WM_LBUTTONDOWN ? InputEvent::MouseButton::Left : InputEvent::MouseButton::Right;
-        inputHandler.ProcessEvent(event);
-        break;
-    case WM_LBUTTONUP:
-    case WM_RBUTTONUP:
-        event.type = message == WM_LBUTTONUP ? InputEvent::InputType::MouseButtonUp : InputEvent::InputType::MouseButtonUp;
-        event.button = message == WM_LBUTTONUP ? InputEvent::MouseButton::Left : InputEvent::MouseButton::Right;
-        inputHandler.ProcessEvent(event);
-        break;
-        // Добавьте обработку других сообщений по мере необходимости
     default:
         break;
     }
@@ -262,4 +281,40 @@ void WindowController::ResetCamera() {
         camera.SetDirection(0.0f, 0.0f, -1.0f); // Направление вдоль оси Z (назад)
         camera.SetUpVector(0.0f, 1.0f, 0.0f); // Установка вектора "вверх"
     }
+}
+
+void WindowController::StartSelection(int screenX, int screenY) {
+    float worldX, worldY;
+    gridPicker.ScreenToWorld(screenX, screenY, windowWidth, windowHeight, worldX, worldY);
+
+    int gridWidth = pGameController->getGridWidth();
+    int gridHeight = pGameController->getGridHeight();
+    float cellSize = pGameController->getCellSize();
+
+    int x = static_cast<int>(worldX / cellSize);
+    int y = static_cast<int>(worldY / cellSize);
+
+    // Ограничиваем координаты в пределах игрового поля
+    x = (x < 0) ? 0 : (x >= gridWidth) ? (gridWidth - 1) : x;
+    y = (y < 0) ? 0 : (y >= gridHeight) ? (gridHeight - 1) : y;
+
+    pGameController->SetSelectionStart(x, y);
+}
+
+void WindowController::UpdateSelection(int screenX, int screenY) {
+    float worldX, worldY;
+    gridPicker.ScreenToWorld(screenX, screenY, windowWidth, windowHeight, worldX, worldY);
+
+    int gridWidth = pGameController->getGridWidth();
+    int gridHeight = pGameController->getGridHeight();
+    float cellSize = pGameController->getCellSize();
+
+    int x = static_cast<int>(worldX / cellSize);
+    int y = static_cast<int>(worldY / cellSize);
+
+    // Ограничиваем координаты в пределах игрового поля
+    x = (x < 0) ? 0 : (x >= gridWidth) ? (gridWidth - 1) : x;
+    y = (y < 0) ? 0 : (y >= gridHeight) ? (gridHeight - 1) : y;
+
+    pGameController->SetSelectionEnd(x, y);
 }

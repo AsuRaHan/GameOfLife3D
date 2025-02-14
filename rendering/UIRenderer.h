@@ -52,7 +52,6 @@ private:
     void DrawFieldSettingsWindow();
     void DrawAboutWindow();
     void DrawExitDialog();
-    // Новый метод для окна паттернов
     void DrawPatternWindow();
 
 public:

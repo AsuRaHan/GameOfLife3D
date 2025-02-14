@@ -163,6 +163,7 @@
     <ClCompile Include="rendering\Camera.cpp" />
     <ClCompile Include="rendering\CameraController.cpp" />
     <ClCompile Include="rendering\Renderer.cpp" />
+    <ClCompile Include="rendering\SelectionRenderer.cpp" />
     <ClCompile Include="rendering\UIRenderer.cpp" />
     <ClCompile Include="system\GLFunctions.cpp" />
     <ClCompile Include="system\InputHandler.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="rendering\CellInstance.h" />
     <ClInclude Include="rendering\IRendererProvider.h" />
     <ClInclude Include="rendering\Renderer.h" />
+    <ClInclude Include="rendering\SelectionRenderer.h" />
     <ClInclude Include="rendering\UIRenderer.h" />
     <ClInclude Include="res\resource.h" />
     <ClInclude Include="system\GLFunctions.h" />

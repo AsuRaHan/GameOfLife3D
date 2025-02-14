@@ -5,6 +5,7 @@
 #include "../system/GLFunctions.h"
 #include "Camera.h"
 #include "UIRenderer.h"
+#include "SelectionRenderer.h"
 #include "../game/GameController.h"
 #include "IRendererProvider.h"
 
@@ -42,7 +43,7 @@ private:
     GameController* pGameController;
     UIRenderer uiRenderer;
     ShaderManager shaderManager;
-    
+    SelectionRenderer selectionRenderer; // Добавляем экземпляр SelectionRenderer
     void InitializeGridVBOs();
     GLuint gridVBO;
     GLuint gridVAO;

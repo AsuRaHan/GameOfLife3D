@@ -86,6 +86,9 @@
     <ClCompile Include="game\PatternManager.cpp">
       <Filter>game</Filter>
     </ClCompile>
+    <ClCompile Include="rendering\SelectionRenderer.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game\GameController.h">
@@ -174,6 +177,9 @@
     </ClInclude>
     <ClInclude Include="game\PatternManager.h">
       <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\SelectionRenderer.h">
+      <Filter>rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

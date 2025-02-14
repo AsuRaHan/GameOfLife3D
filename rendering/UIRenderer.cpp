@@ -44,8 +44,7 @@ void UIRenderer::DrawUI() {
     DrawFieldSettingsWindow();
     DrawAboutWindow();
     DrawExitDialog();
-
-    DrawPatternWindow(); // Добавляем новое окно
+    DrawPatternWindow(); 
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -85,9 +84,7 @@ void UIRenderer::DrawSimulationWindow() {
     if (!simulationWindowVisible) return;
 
     ImGui::Begin("Симуляция", &simulationWindowVisible, ImGuiWindowFlags_NoResize);
-    //ImGui::SetWindowPos(ImVec2(2, 2), ImGuiCond_Once);
-    //ImGui::SetWindowSize(ImVec2(320, 0), ImGuiCond_Once);
-
+    ImGui::SetWindowSize(ImVec2(0, 310), ImGuiCond_Once);
     // Управление симуляцией
     if (gameController->isSimulationRunning()) {
         if (ImGui::Button("Остановить симуляцию", buttonSize)) {
@@ -99,6 +96,20 @@ void UIRenderer::DrawSimulationWindow() {
             gameController->startSimulation();
         }
     }
+
+    if (gameController->getWoldToroidal()) {
+        if (ImGui::Button("Ограничить мир", buttonSize)) {
+            if (gameController->isSimulationRunning()) return;
+            gameController->setWoldToroidal(false); // сделать мир безграничным или на оборот ограничеть его
+        }
+    }
+    else {
+        if (ImGui::Button("Разграничить мир", buttonSize)) {
+            if (gameController->isSimulationRunning()) return;
+            gameController->setWoldToroidal(true);
+        }
+    }
+
     if (ImGui::Button("Шаг симуляции", buttonSize)) {
         gameController->stepSimulation();
     }
@@ -237,7 +248,7 @@ void UIRenderer::DrawExitDialog() {
 void UIRenderer::DrawPatternWindow() {
     if (!patternWindowVisible) return;
 
-    ImGui::Begin("Паттерны", &patternWindowVisible, ImGuiWindowFlags_NoResize);
+    ImGui::Begin("пользовательские паттерны", &patternWindowVisible, ImGuiWindowFlags_NoResize);
 
     // 1. Кнопка "Загрузить список"
     if (ImGui::Button("Загрузить список", buttonSize)) {
@@ -293,9 +304,10 @@ void UIRenderer::DrawPatternWindow() {
     //ImGui::Separator();
 
     // 8. Кнопка "Выбрать паттерн"
-    //if (ImGui::Button("Выбрать паттерн", buttonSize) && selectedPatternIndex >= 0) {
-    //    gameController->setCurrentPatternFromFile(gameController->getPatternList()[selectedPatternIndex], gameController->getGridWidth() / 2, gameController->getGridHeight() / 2);
-    //}
+    if (ImGui::Button("Скачать паттерны", buttonSize)) {
+        const char* url = "https://conwaylife.com/patterns/all.zip";
+        ShellExecuteA(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
+    }
 
     ImGui::End();
 }

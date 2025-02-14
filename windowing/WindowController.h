@@ -33,7 +33,11 @@ private:
 
     //UINT_PTR timerId; // Идентификатор таймера
     float simulationSpeedMultiplier = 0.01f; // Начальная скорость (100 мс)
-    //void UpdateTimer();
+    
+    bool isLeftButtonDown; // Флаг для отслеживания нажатия средней кнопки мыши
+    void StartSelection(int screenX, int screenY); // Новый метод для начала выделения
+    void UpdateSelection(int screenX, int screenY); // Новый метод для обновления выделения
+
     void HandleMouseClick(int screenX, int screenY);
     void PlacePattern(int screenX, int screenY); // метод для размещения шаблона
     void RotateCamera(float yaw, float pitch);

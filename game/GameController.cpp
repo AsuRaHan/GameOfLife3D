@@ -2,7 +2,8 @@
 
 GameController::GameController(int width, int height, float cellSize)
     : grid(width, height), GameSimulation(grid), cellSize(cellSize), 
-    isRunning(false), showGrid(true), currentPatternRotator(0),
+    isRunning(false), showGrid(true), showUI(true),
+    currentPatternRotator(0),
     rendererProvider(nullptr)
 {
     currentPattern = glider;
@@ -359,4 +360,66 @@ void GameController::setCurrentPatternFromFile(const std::string& filename, int 
     catch (const std::exception& e) {
         std::cerr << "Ошибка при выборе паттерна: " << e.what() << std::endl;
     }
+}
+
+void GameController::SetSelectionStart(int x, int y) {
+    selectionStart = Vector3d(x, y, 0.0f); // Z-координату устанавливаем в 0, так как работаем в 2D
+    selectionEnd = Vector3d(x, y, 0.0f); // Аналогично для конца выделения
+    isSelectionActive = true;
+}
+
+void GameController::SetSelectionEnd(int x, int y) {
+    selectionEnd = Vector3d(x, y, 0.0f); // Аналогично для конца выделения
+    // Очищаем список выделенных клеток перед добавлением новых
+    ClearSelectedCells();
+
+    int startX = static_cast<int>(selectionStart.X());
+    int startY = static_cast<int>(selectionStart.Y());
+    int endX = static_cast<int>(selectionEnd.X());
+    int endY = static_cast<int>(selectionEnd.Y());
+
+    // Определяем минимальные и максимальные координаты для правильного выделения
+    int minX = (startX < endX) ? startX : endX;
+    int maxX = (startX > endX) ? startX : endX;
+    int minY = (startY < endY) ? startY : endY;
+    int maxY = (startY > endY) ? startY : endY;
+
+    // Добавляем все клетки в пределах выделенного прямоугольника
+    for (int y = minY; y <= maxY; ++y) {
+        for (int x = minX; x <= maxX; ++x) {
+            if (x >= 0 && y >= 0 && x < grid.getWidth() && y < grid.getHeight()) { // Проверка границ сетки
+                AddSelectedCell(x, y);
+            }
+        }
+    }
+}
+
+void GameController::AddSelectedCell(int x, int y) {
+    selectedCells.push_back(Vector3d(x, y, 0.0f)); // Добавляем клетку в список выделенных, z всегда 0 в 2D
+}
+
+void GameController::ClearSelectedCells() {
+    selectedCells.clear(); // Очищаем список выделенных клеток
+}
+
+void GameController::KillSelectedCells() {
+    for (const auto& cell : selectedCells) {
+        int x = static_cast<int>(cell.X());
+        int y = static_cast<int>(cell.Y());
+        grid.setCellState(x, y, false);
+        grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f)); // Устанавливаем цвет для мертвой клетки
+        GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+    }
+    isSelectionActive = false;
+}
+
+void GameController::ReviveSelectedCells() {
+    for (const auto& cell : selectedCells) {
+        int x = static_cast<int>(cell.X());
+        int y = static_cast<int>(cell.Y());
+        grid.setCellState(x, y, true);
+        grid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f)); // Устанавливаем цвет для живой клетки
+        GameSimulation.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
+    }
+    isSelectionActive = false;
 }

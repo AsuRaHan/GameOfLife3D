@@ -2,7 +2,7 @@
 
 Renderer::Renderer(int width, int height)
     : width(width), height(height), farPlane(999009000000.0f), camera(45.0f, static_cast<float>(width) / height, 0.1f, farPlane),
-    pGameController(nullptr), uiRenderer(nullptr)
+    pGameController(nullptr), uiRenderer(nullptr), selectionRenderer(camera, shaderManager)
 {
     SetupOpenGL();
     OnWindowResize(width, height);
@@ -21,7 +21,6 @@ Renderer::~Renderer() {
 
 void Renderer::SetCamera(const Camera& camera) {
     this->camera = camera;    
-    //cubeRenderer.SetCamera(camera);
 }
 
 void Renderer::SetGameController(GameController* gameController) {
@@ -33,6 +32,9 @@ void Renderer::SetGameController(GameController* gameController) {
 
     uiRenderer = UIRenderer(pGameController);
     uiRenderer.InitializeUI();
+
+    pGameController = gameController;
+    selectionRenderer.SetGameController(gameController);
 }
 
 void Renderer::SetupOpenGL() {
@@ -169,11 +171,16 @@ void Renderer::Draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     DrawCells();
-    
+    if (pGameController->IsSelectionActive()) {
+        selectionRenderer.SetIsSelecting(pGameController->IsSelectionActive());
+        selectionRenderer.Draw();
+    }
     // ќтрисовка сетки и клеток
     if (pGameController->getShowGrid())DrawGrid();
     // используем UIRenderer дл€ отрисовки UI
-    uiRenderer.DrawUI();
+    if (pGameController->getShowUI())uiRenderer.DrawUI();
+
+    
 
     SwapBuffers(wglGetCurrentDC());
 }

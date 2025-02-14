@@ -208,7 +208,7 @@ int wWinMain(
         mainWindow.SetController(&controller);
 
         initImgui(mainWindow.GetHwnd());
-        // ========== код хак что бы вызвать обработчики у других классов ====================
+        // ========== кодOхак что бы вызвать обработчики у других классов ====================
         // Вызываем событие WM_SIZE с текущими размерами
         SendMessage(mainWindow.GetHwnd(), WM_SIZE, SIZE_RESTORED, MAKELPARAM(width, height));
         // ===================================================================================
@@ -222,9 +222,9 @@ int wWinMain(
                 if (msg.message == WM_QUIT) {
                     MainLoop = false; // Завершение приложения
                 }
-                if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE) {
-                    MainLoop = false; // Завершение приложения
-                }
+                //if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE) {
+                //    MainLoop = false; // Завершение приложения
+                //}
             }
 
             // Вычисление времени для обновления

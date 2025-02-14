@@ -25,6 +25,7 @@ private:
     float cellSize; // Размер каждой клетки в пикселях
     bool isRunning; // Флаг, показывает, запущена ли симуляция
     bool showGrid;
+    bool showUI;
     float simulationSpeed = 0.01f; // Значение 1.0f может соответствовать одной секунде реального времени
     float frameTimeAccumulator = 0.0f;
 
@@ -89,6 +90,13 @@ private:
     };
 
     IRendererProvider* rendererProvider;
+
+    Vector3d selectionStart; // Начало выделяемой области
+    Vector3d selectionEnd;   // Конец выделяемой области
+    bool isSelectionActive;  // Флаг активности выделения
+
+    std::vector<Vector3d> selectedCells; // Массив для хранения выделенных клеток
+
 public:
     GameController(int width, int height, float cellSize = 0.5f);
     void randomizeGrid();
@@ -108,6 +116,9 @@ public:
     int getGridHeight() const { return grid.getHeight(); }
     bool getShowGrid() const {return showGrid;};
     void setShowGrid(bool isShow) {showGrid = isShow;};
+
+    bool getShowUI() const { return showUI; };
+    void setShowUI(bool isShow) { showUI = isShow;};
 
     bool getCellState(int x, int y) const;
     const Grid& getGrid() const { return grid; }
@@ -143,6 +154,19 @@ public:
     const std::vector<std::string>& getPatternList() const { return patternList; }
 
     void setCurrentPatternFromFile(const std::string& filename, int startX, int startY);
+
+    void SetSelectionStart(int x, int y);
+    void SetSelectionEnd(int x, int y);
+
+    Vector3d GetSelectionStart() const { return selectionStart; }
+    Vector3d GetSelectionEnd() const { return selectionEnd; }
+    bool IsSelectionActive() const { return isSelectionActive; }
+
+    void AddSelectedCell(int x, int y);
+    void ClearSelectedCells();
+    void KillSelectedCells();
+    void ReviveSelectedCells();
+    const std::vector<Vector3d>& GetSelectedCells() const { return selectedCells; }
 
 };
 #endif // GAMECONTROLLER_H_
