@@ -83,6 +83,9 @@
     <ClCompile Include="system\InputHandler.cpp">
       <Filter>system</Filter>
     </ClCompile>
+    <ClCompile Include="game\PatternManager.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game\GameController.h">
@@ -168,6 +171,9 @@
     </ClInclude>
     <ClInclude Include="system\InputEvent.h">
       <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="game\PatternManager.h">
+      <Filter>game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

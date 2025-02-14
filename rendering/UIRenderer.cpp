@@ -45,6 +45,8 @@ void UIRenderer::DrawUI() {
     DrawAboutWindow();
     DrawExitDialog();
 
+    DrawPatternWindow(); // Добавляем новое окно
+
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
@@ -55,12 +57,13 @@ void UIRenderer::DrawMenuBar() {
         // Сначала добавляем меню "Окна" слева
         if (ImGui::BeginMenu("Окна")) {
             ImGui::MenuItem("Управление симуляцией", NULL, &simulationWindowVisible);
-            if (ImGui::BeginMenu("Настройки")) {
+            //if (ImGui::BeginMenu("Настройки")) {
                 ImGui::MenuItem("Настройки игры", NULL, &gameSettingsWindowVisible);
                 ImGui::MenuItem("Сохранения и загрузка", NULL, &saveSettingsWindowVisible);
                 ImGui::MenuItem("Настройки поля", NULL, &fieldSettingsWindowVisible);
-                ImGui::EndMenu();
-            }
+            //    ImGui::EndMenu();
+            //}
+            ImGui::MenuItem("Паттерны", NULL, &patternWindowVisible); // Новый пункт меню
             ImGui::MenuItem("О программе", NULL, &aboutWindowVisible);
             ImGui::EndMenu();
         }
@@ -229,6 +232,72 @@ void UIRenderer::DrawExitDialog() {
         ImGui::EndPopup();
     }
 
+}
+
+void UIRenderer::DrawPatternWindow() {
+    if (!patternWindowVisible) return;
+
+    ImGui::Begin("Паттерны", &patternWindowVisible, ImGuiWindowFlags_NoResize);
+
+    // 1. Кнопка "Загрузить список"
+    if (ImGui::Button("Загрузить список", buttonSize)) {
+        gameController->loadPatternList();
+        patternListLoaded = true;
+        selectedPatternIndex = -1; // Сбрасываем выбор при новой загрузке
+    }
+
+    // 2. Сепаратор
+    ImGui::Separator();
+
+    // 3. Лейбл с текущим паттерном
+    ImGui::Text("Текущий паттерн: %s", currentPatternName.c_str());
+
+    // 4. Сепаратор
+    ImGui::Separator();
+
+    // 5. Поле для поиска
+    ImGui::InputText("Поиск", searchFilter, IM_ARRAYSIZE(searchFilter));
+
+    // 6. Список загруженных паттернов с прокруткой и фильтром
+    if (patternListLoaded) {
+        const auto& patterns = gameController->getPatternList();
+        if (patterns.empty()) {
+            ImGui::Text("Список паттернов пуст.");
+        }
+        else {
+            // Начинаем область с прокруткой
+            ImGui::BeginChild("PatternList", ImVec2(0, 295), true);
+
+            for (size_t i = 0; i < patterns.size(); ++i) {
+                std::string itemName = std::filesystem::path(patterns[i]).filename().string();
+                // Фильтруем по имени файла
+                std::string filterLower = searchFilter;
+                std::transform(filterLower.begin(), filterLower.end(), filterLower.begin(), ::tolower);
+                std::string itemNameLower = itemName;
+                std::transform(itemNameLower.begin(), itemNameLower.end(), itemNameLower.begin(), ::tolower);
+
+                if (itemNameLower.find(filterLower) != std::string::npos) {
+                    if (ImGui::Selectable(itemName.c_str(), selectedPatternIndex == static_cast<int>(i))) {
+                        selectedPatternIndex = static_cast<int>(i);
+                        currentPatternName = itemName;
+                        gameController->setCurrentPatternFromFile(gameController->getPatternList()[selectedPatternIndex], gameController->getGridWidth() / 2, gameController->getGridHeight() / 2);
+                    }
+                }
+            }
+
+            ImGui::EndChild(); // Заканчиваем область с прокруткой
+        }
+    }
+
+    // 7. Сепаратор
+    //ImGui::Separator();
+
+    // 8. Кнопка "Выбрать паттерн"
+    //if (ImGui::Button("Выбрать паттерн", buttonSize) && selectedPatternIndex >= 0) {
+    //    gameController->setCurrentPatternFromFile(gameController->getPatternList()[selectedPatternIndex], gameController->getGridWidth() / 2, gameController->getGridHeight() / 2);
+    //}
+
+    ImGui::End();
 }
 
 void UIRenderer::UpdateUIState() {

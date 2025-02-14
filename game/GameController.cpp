@@ -302,6 +302,7 @@ Pattern GameController::rotateOrFlip(const Pattern& pattern, Rotation rotation) 
 bool GameController::saveGameState(const std::string& filename) const {
     return GameStateManager::saveGameState(grid, filename);
 }
+
 bool GameController::loadGameState(const std::string& filename) {
     bool gameIsSave = GameStateManager::loadGameState(grid, filename);
     if (!gameIsSave) return gameIsSave;
@@ -319,4 +320,43 @@ bool GameController::loadGameState(const std::string& filename) {
         }
     }
     return gameIsSave;
+}
+
+
+void GameController::loadPatternList(const std::string& patternFolder) {
+    patternList.clear(); // Очищаем существующий список
+
+    try {
+        // Проверяем, существует ли папка
+        if (!std::filesystem::exists(patternFolder)) {
+            std::cerr << "Папка " << patternFolder << " не существует!" << std::endl;
+            return;
+        }
+
+        // Перебираем все файлы в папке
+        for (const auto& entry : std::filesystem::directory_iterator(patternFolder)) {
+            if (entry.path().extension() == ".cells") {
+                patternList.push_back(entry.path().string());
+            }
+        }
+
+        // Сортируем список для удобства (опционально)
+        std::sort(patternList.begin(), patternList.end());
+
+        std::cout << "Найдено " << patternList.size() << " файлов .cells в папке " << patternFolder << std::endl;
+    }
+    catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Ошибка при сканировании папки: " << e.what() << std::endl;
+    }
+}
+
+void GameController::setCurrentPatternFromFile(const std::string& filename, int startX, int startY) {
+    PatternManager patternManager;
+    try {
+        currentPattern = patternManager.LoadPatternFromCells(filename);
+        //patternManager.LoadAndPlacePattern(*this, filename, startX, startY);
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Ошибка при выборе паттерна: " << e.what() << std::endl;
+    }
 }

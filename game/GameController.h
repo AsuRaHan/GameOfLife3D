@@ -5,6 +5,7 @@
 #include "GameSimulation.h"
 #include "Grid.h"
 #include "GameStateManager.h"
+#include "PatternManager.h"
 
 #include <random> // Для генерации случайных чисел
 #include <string>
@@ -12,6 +13,7 @@
 #include <sstream>
 #include <vector>
 #include <array>
+#include <filesystem>
 
 // Определим тип фигуры как двумерный массив
 using Pattern = std::vector<std::vector<bool>>;
@@ -25,6 +27,8 @@ private:
     bool showGrid;
     float simulationSpeed = 0.01f; // Значение 1.0f может соответствовать одной секунде реального времени
     float frameTimeAccumulator = 0.0f;
+
+    std::vector<std::string> patternList;
 
     // Определяем шаблоны фигур
     Pattern glider = {
@@ -132,5 +136,13 @@ public:
     void SetCellInstanceProvider(IRendererProvider* provider);
 
     GPUAutomaton& getGPUAutomaton() { return GameSimulation.getGPUAutomaton(); }
+
+    // Новый метод для загрузки списка паттернов
+    void loadPatternList(const std::string& patternFolder = "patterns");
+
+    const std::vector<std::string>& getPatternList() const { return patternList; }
+
+    void setCurrentPatternFromFile(const std::string& filename, int startX, int startY);
+
 };
 #endif // GAMECONTROLLER_H_

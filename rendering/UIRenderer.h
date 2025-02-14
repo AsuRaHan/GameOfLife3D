@@ -36,6 +36,13 @@ private:
 
     ImVec2 buttonSize; // Задаем фиксированный размер для кнопок
 
+    // Новые переменные для окна паттернов
+    bool patternWindowVisible = false;
+    bool patternListLoaded = false;
+    std::string currentPatternName = "None";
+    int selectedPatternIndex = -1; // Индекс выбранного паттерна
+    char searchFilter[128] = ""; // переменная для фильтра поиска паттерна
+
     std::string LoadTextFromResource(HINSTANCE hInstance, int resourceId);
 
     void DrawMenuBar();
@@ -45,6 +52,8 @@ private:
     void DrawFieldSettingsWindow();
     void DrawAboutWindow();
     void DrawExitDialog();
+    // Новый метод для окна паттернов
+    void DrawPatternWindow();
 
 public:
     UIRenderer(GameController* gc);
