@@ -167,6 +167,7 @@ git push origin v1.0.0
   - `CameraController.h`, `CameraController.cpp` - Управление камерой.
   - `Renderer.h`, `Renderer.cpp` - Логика рендеринга в OpenGL.
   - `UIRenderer.h`, `UIRenderer.cpp` - Отрисовка и работа с GUI окна и меню.
+  - `SelectionRenderer.h`, `SelectionRenderer.cpp` - Отрисовка линий выделения поля мышкой.
   - `CellInstance.h` - Структура для хранения инстанса дивых и мертвых клеток для оптимальной отрисовки в OpenGL.
   - `IRendererProvider.h` - Проводник обеспечивающий обмен данными между разными классами. Это простой интерфейс, паттерн провайдер.
 
