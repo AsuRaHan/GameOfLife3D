@@ -131,11 +131,11 @@ void GameController::toggleCellState(int x, int y) {
     bool currentState = grid.getCellState(x, y);
     grid.setCellState(x, y, !currentState);
     if (!currentState) {
-        //grid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f));
+        grid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f));
         GameSimulation.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
     }
     else {
-        //grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
+        grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
         GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
     }
     

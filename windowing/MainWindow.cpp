@@ -7,7 +7,7 @@ MainWindow::MainWindow(HINSTANCE hInstance, int width, int height, int xPos, int
 {
 }
 
-bool MainWindow::Create() {
+HWND MainWindow::Create() {
     WNDCLASSEX wc = { 0 };
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -24,14 +24,14 @@ bool MainWindow::Create() {
 
     if (!RegisterClassEx(&wc)) {
         MessageBox(NULL, L"Window Registration Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
-        return false;
+        return 0;
     }
 
-    // Создаем RECT для размеров окна
-    RECT windowRect = { 0, 0, windowWidth, windowHeight };
+    //// Создаем RECT для размеров окна
+    //RECT windowRect = { 0, 0, windowWidth, windowHeight };
 
-    // Корректируем размеры с учетом рамки, заголовка и меню
-    AdjustWindowRectEx(&windowRect, WS_OVERLAPPEDWINDOW | WS_VISIBLE, TRUE, 0);
+    //// Корректируем размеры с учетом рамки, заголовка и меню
+    //AdjustWindowRectEx(&windowRect, WS_OVERLAPPEDWINDOW | WS_VISIBLE, TRUE, 0);
 
     // Создание окна с учетом скорректированных размеров
     hWnd = CreateWindowEx(
@@ -39,18 +39,18 @@ bool MainWindow::Create() {
         L"GameOfLife3DWindowClass",
         L"Game of life 3D",
         WS_OVERLAPPEDWINDOW,
-        windowPosX, windowPosY, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
+        windowPosX, windowPosY, windowWidth, windowHeight,
         NULL, NULL, hInstance, this // Передаем this как lpParam
     );
         
     if (!hWnd) {
         MessageBox(NULL, L"Window Creation Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
-        return false;
+        return 0;
     }
 
     ShowWindow(hWnd, SW_SHOW);
     UpdateWindow(hWnd);
-    return true;
+    return hWnd;
 }
 
 void MainWindow::SetController(WindowController* controller) {

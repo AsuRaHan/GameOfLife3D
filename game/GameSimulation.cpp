@@ -111,7 +111,7 @@ void GameSimulation::nextGenerationGPU() {
     // Получаем новое состояние с GPU
     gpuAutomaton.GetGridState(nextState);
 
-
+    Vector3d currentColor = Vector3d(0.05f, 0.05f, 0.08f);
     for (auto y = 0; y < GH; ++y) {
         for (auto x = 0; x < GW; ++x) {
             bool newState = nextState[y * GW + x] != 0;
@@ -122,27 +122,30 @@ void GameSimulation::nextGenerationGPU() {
                 cell.setAlive(newState);
                 if (newState) {
                     // Вновь рожденные клетки получают темный цвет
-                    cell.setColor(Vector3d(0.0f, 0.4f, 0.0f)); // рождение
+                    currentColor = Vector3d(0.0f, 0.5f, 0.0f);
                 }
                 else {
                     // Умершие клетки получают темно-серый цвет
-                    cell.setColor(Vector3d(0.05f, 0.05f, 0.08f)); // смерть
+                    currentColor =  Vector3d(0.05f, 0.05f, 0.08f);
                 }
-                SetCellColor(x, y, cell.getColor());
+                cell.setColor(currentColor);
+                SetCellColor(x, y, currentColor);
             }
             else if (newState) {
                 // Если клетка пережила шаг, делаем её светлее
-                Vector3d currentColor = cell.getColor();
+                currentColor = cell.getColor();
                 // Увеличиваем все компоненты цвета на небольшое значение, но не более 1.0
                 float newR = currentColor.X() + 0.05f;
                 float newG = currentColor.Y() + 0.05f;
                 float newB = currentColor.Z() + 0.05f;
                 newR = newR > 0.3f ? 0.3f : newR;
-                newG = newG > 0.9f ? 0.9f : newG;
+                newG = newG > 1.0f ? 1.0f : newG;
                 newB = newB > 0.3f ? 0.3f : newB;
-                cell.setColor(Vector3d(newR, newG, newB));
-                SetCellColor(x, y, cell.getColor());
+                currentColor = Vector3d(newR, newG, newB);
+                cell.setColor(currentColor);
+                SetCellColor(x, y, currentColor);
             }
+
         }
     }
 
@@ -150,7 +153,6 @@ void GameSimulation::nextGenerationGPU() {
 
 void GameSimulation::SetCellColor(int x, int y, const Vector3d& color) {
     if (cellProvider && cellInstances) {
-        //int GW = grid.getWidth();
         int index = y * GW + x;
         if (index < cellInstances->size()) {
             (*cellInstances)[index].color = color;

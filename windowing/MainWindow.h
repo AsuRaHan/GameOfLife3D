@@ -21,7 +21,7 @@ private:
     int windowPosY; // Y-координата
 public:
     MainWindow(HINSTANCE hInstance, int width = 1000, int height = 1000, int xPos = 0, int yPos = 0);
-    bool Create();
+    HWND Create();
     void SetController(WindowController* controller);
     HWND GetHwnd() const;
     // Геттеры для размеров окна

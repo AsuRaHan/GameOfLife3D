@@ -175,7 +175,7 @@ void Renderer::Draw() {
         selectionRenderer.SetIsSelecting(pGameController->IsSelectionActive());
         selectionRenderer.Draw();
     }
-    // Отрисовка сетки и клеток
+    // Отрисовка сетки
     if (pGameController->getShowGrid())DrawGrid();
     // используем UIRenderer для отрисовки UI
     if (pGameController->getShowUI())uiRenderer.DrawUI();

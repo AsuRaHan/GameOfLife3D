@@ -212,10 +212,9 @@ int wWinMain(
     
 
     MainWindow mainWindow(hInstance, windowWidth, windowHeight, windowPosX, windowPosY);
-
-
-    if (mainWindow.Create()) {
-        OpenGLInitializer glInit(mainWindow.GetHwnd());
+    HWND mHnd = mainWindow.Create();
+    if (mHnd) {
+        OpenGLInitializer glInit(mHnd);
         if (!glInit.Initialize(Full, screenWidth, screenHeight)) {
             MessageBox(NULL, L"OpenGL Initialization Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
             return 1;
