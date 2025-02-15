@@ -91,6 +91,7 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             lastMouseY = HIWORD(lParam);
             inputHandler.ProcessEvent(event);
 
+            if (isLeftButtonDown) HandleMouse(LOWORD(lParam), HIWORD(lParam),true);
         }
         break;
     case WM_LBUTTONDOWN: // Начало выделения
@@ -99,7 +100,7 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             StartSelection(LOWORD(lParam), HIWORD(lParam));
         }
         else {
-            HandleMouseClick(LOWORD(lParam), HIWORD(lParam));
+            HandleMouse(LOWORD(lParam), HIWORD(lParam));
         }
         break;
     case WM_LBUTTONUP:
@@ -130,6 +131,9 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             if (!pGameController->isSimulationRunning() && pGameController->IsSelectionActive()) {
                 pGameController->KillSelectedCells(); // Убиваем выделенные клетки
             }
+            break;        
+        case VK_ESCAPE:
+                pGameController->setlectionActive(false); // Убиваем выделение
             break;
         case VK_INSERT:
             if (!pGameController->isSimulationRunning() && pGameController->IsSelectionActive()) {
@@ -144,7 +148,7 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
                 pGameController->startSimulation();
             }
             break;
-        case VK_RIGHT: // Стрелка вправо для следующего поколения
+        case VK_RETURN: // Стрелка вправо для следующего поколения
             if (!pGameController->isSimulationRunning()) {
                 pGameController->stepSimulation(); // Переход к следующему поколению
             }
@@ -186,7 +190,7 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     }
 }
 
-void WindowController::HandleMouseClick(int screenX, int screenY) {
+void WindowController::HandleMouse(int screenX, int screenY, bool isMove) {
     float worldX, worldY;
     gridPicker.ScreenToWorld(static_cast<float>(screenX), static_cast<float>(screenY), static_cast<float>(windowWidth), static_cast<float>(windowHeight), worldX, worldY);
 
@@ -198,7 +202,12 @@ void WindowController::HandleMouseClick(int screenX, int screenY) {
     int y = static_cast<int>(worldY / cellSize);
 
     if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight) {
-        pGameController->toggleCellState(x, y);
+        if (isMove) {
+            pGameController->setLiveCell(x, y, isMove);
+        }
+        else {
+            pGameController->toggleCellState(x, y);
+        }
     }
 }
 

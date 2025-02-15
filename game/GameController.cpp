@@ -45,8 +45,8 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
                     GameSimulation.SetCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), Vector3d(0.5f, 0.9f, 0.5f));
                 }
                 else {
-                    grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.1f, 0.1f, 0.1f));
-                    GameSimulation.SetCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), Vector3d(0.1f, 0.1f, 0.1f));
+                    grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.1f, 0.1f, 0.2f));
+                    GameSimulation.SetCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), Vector3d(0.1f, 0.1f, 0.2f));
                 }
                 
             }
@@ -54,6 +54,30 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
     }
 }
 
+void GameController::PlacePattern(int startX, int startY) {
+    if (isRunning) return;
+
+    static const Rotation rotationByIndex[] = {
+        Rotation::Rotate90,
+        Rotation::Rotate180,
+        Rotation::Rotate270,
+        Rotation::FlipHorizontal,
+        Rotation::FlipVertical
+    };
+
+    Pattern newPattern = currentPattern;
+
+    if (currentPatternRotator > 0) { // наш комбобокс имеет 6 значений. а ротатор всего 5. первый индекс это отсутствие вращения
+        if (currentPatternRotator >= 1 && currentPatternRotator < 6) { // Проверка на допустимость индекса
+            Rotation rotation = rotationByIndex[currentPatternRotator - 1]; // текущий индекс вращение - индекс отсутствия вращения
+            newPattern = rotateOrFlip(currentPattern, rotation);
+        }
+    }
+
+    if (!currentPattern.empty()) {
+        placePattern(startX, startY, newPattern); // Используем уже существующий метод
+    }
+}
 
 void GameController::randomizeGrid(float density) {
     if (isRunning) return;
@@ -141,6 +165,13 @@ void GameController::toggleCellState(int x, int y) {
     
 }
 
+void GameController::setLiveCell(int x, int y, bool state) {
+    if (isRunning) return;
+    grid.setCellState(x, y, state);
+    grid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f));
+    GameSimulation.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
+}
+
 bool GameController::getCellState(int x, int y) const {
     return grid.getCellState(x, y);
 }
@@ -217,31 +248,6 @@ void GameController::setCurrentPattern(int patternNumber) {
 
 void GameController::setCurrentPatternRotator(int patternRotator) {
      currentPatternRotator = patternRotator;
-}
-
-void GameController::PlacePattern(int startX, int startY) {
-    if (isRunning) return;
-    
-    static const Rotation rotationByIndex[] = {
-        Rotation::Rotate90,
-        Rotation::Rotate180,
-        Rotation::Rotate270,
-        Rotation::FlipHorizontal,
-        Rotation::FlipVertical
-    };
-
-    Pattern newPattern = currentPattern;
-
-    if (currentPatternRotator > 0) { // наш комбобокс имеет 6 значений. а ротатор всего 5. первый индекс это отсутствие вращения
-        if (currentPatternRotator >= 1 && currentPatternRotator < 6) { // Проверка на допустимость индекса
-            Rotation rotation = rotationByIndex[currentPatternRotator - 1]; // текущий индекс вращение - индекс отсутствия вращения
-            newPattern = rotateOrFlip(currentPattern, rotation);
-        }
-    }
-
-    if (!currentPattern.empty()) {
-        placePattern(startX, startY, newPattern); // Используем уже существующий метод
-    }
 }
 
 void GameController::setSimulationSpeed(float speed) {

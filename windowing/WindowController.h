@@ -38,7 +38,7 @@ private:
     void StartSelection(int screenX, int screenY); // Новый метод для начала выделения
     void UpdateSelection(int screenX, int screenY); // Новый метод для обновления выделения
 
-    void HandleMouseClick(int screenX, int screenY);
+    void HandleMouse(int screenX, int screenY, bool isMove = false);
     void PlacePattern(int screenX, int screenY); // метод для размещения шаблона
     void RotateCamera(float yaw, float pitch);
     void MoveCamera(float dx, float dy);

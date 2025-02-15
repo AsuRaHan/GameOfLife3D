@@ -10,6 +10,9 @@
 #include <cstdio> // For swprintf and swprintf_s
 
 // Определение идентификаторов, если они не определены
+#ifndef GL_MULTISAMPLE
+#define GL_MULTISAMPLE 0x809D
+#endif
 #ifndef GL_ARRAY_BUFFER
 #define GL_ARRAY_BUFFER 0x8892
 #endif

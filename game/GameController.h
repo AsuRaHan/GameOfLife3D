@@ -111,6 +111,7 @@ public:
     bool isSimulationRunning() const;
 
     void toggleCellState(int x, int y);
+    void setLiveCell(int x, int y, bool state = true);
     float getCellSize() const { return cellSize; }
     int getGridWidth() const { return grid.getWidth(); }
     int getGridHeight() const { return grid.getHeight(); }
@@ -161,6 +162,7 @@ public:
     Vector3d GetSelectionStart() const { return selectionStart; }
     Vector3d GetSelectionEnd() const { return selectionEnd; }
     bool IsSelectionActive() const { return isSelectionActive; }
+    void setlectionActive(bool isActive) { isSelectionActive = isActive; }
 
     void AddSelectedCell(int x, int y);
     void ClearSelectedCells();
