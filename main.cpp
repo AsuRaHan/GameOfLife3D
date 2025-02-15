@@ -17,9 +17,7 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_win32.h" // Если вы работаете под Windows
 
-#pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "opengl32.lib")
-#pragma comment(lib, "glu32.lib")
 
 
 // Функция для парсинга командной строки

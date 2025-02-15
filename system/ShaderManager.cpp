@@ -26,7 +26,29 @@ void ShaderManager::loadFragmentShader(const std::string& name, const char* sour
     shaders[name] = shader;
 }
 
+void ShaderManager::loadGeometryShader(const std::string& name, const char* source) {
+    std::cout << "Начинаю загрузку геометрического шейдера " << name << std::endl;
+    GLuint shader;
+    compileShader(source, GL_GEOMETRY_SHADER, shader);
+    shaders[name] = shader;
+}
+
+void ShaderManager::loadTessControlShader(const std::string& name, const char* source) {
+    std::cout << "Начинаю загрузку контрольного шейдера тесселяции " << name << std::endl;
+    GLuint shader;
+    compileShader(source, GL_TESS_CONTROL_SHADER, shader);
+    shaders[name] = shader;
+}
+
+void ShaderManager::loadTessEvaluationShader(const std::string& name, const char* source) {
+    std::cout << "Начинаю загрузку оценочного шейдера тесселяции " << name << std::endl;
+    GLuint shader;
+    compileShader(source, GL_TESS_EVALUATION_SHADER, shader);
+    shaders[name] = shader;
+}
+
 void ShaderManager::loadComputeShader(const std::string& name, const char* source) {
+    std::cout << "Начинаю загрузку вычислительного шейдера " << name << std::endl;
     GLuint shader;
     compileShader(source, GL_COMPUTE_SHADER, shader);
     shaders[name] = shader;
@@ -44,7 +66,45 @@ void ShaderManager::linkProgram(const std::string& programName, const std::strin
     programs[programName] = program;
 }
 
+void ShaderManager::linkGeometryProgram(const std::string& programName, const std::string& vertexShaderName, 
+    const std::string& geometryShaderName, const std::string& fragmentShaderName) {
+
+    std::cout << "Начинаю компиляцию геометрической шейдерной программы programName=" << programName
+        << " vertexShaderName=" << vertexShaderName
+        << " geometryShaderName=" << geometryShaderName
+        << " fragmentShaderName=" << fragmentShaderName << std::endl;
+    GLuint program = glCreateProgram();
+    glAttachShader(program, shaders[vertexShaderName]);
+    glAttachShader(program, shaders[geometryShaderName]);
+    glAttachShader(program, shaders[fragmentShaderName]);
+    glLinkProgram(program);
+    checkProgramLinking(program);
+    programs[programName] = program;
+}
+
+void ShaderManager::linkTessellationProgram(const std::string& programName, const std::string& vertexShaderName, 
+    const std::string& tessControlShaderName, const std::string& tessEvaluationShaderName, const std::string& fragmentShaderName) {
+
+    std::cout << "Начинаю компиляцию шейдерной программы тесселяции programName=" << programName
+        << " vertexShaderName=" << vertexShaderName
+        << " tessControlShaderName=" << tessControlShaderName
+        << " tessEvaluationShaderName=" << tessEvaluationShaderName
+        << " fragmentShaderName=" << fragmentShaderName << std::endl;
+
+    GLuint program = glCreateProgram();
+    glAttachShader(program, shaders[vertexShaderName]);
+    glAttachShader(program, shaders[tessControlShaderName]);
+    glAttachShader(program, shaders[tessEvaluationShaderName]);
+    glAttachShader(program, shaders[fragmentShaderName]);
+    glLinkProgram(program);
+    checkProgramLinking(program);
+    programs[programName] = program;
+}
+
+
 void ShaderManager::linkComputeProgram(const std::string& programName, const std::string& computeShaderName) {
+    std::cout << "Начинаю компиляцию шейдерной программы programName=" << programName
+        << " computeShaderName=" << computeShaderName << std::endl;
     GLuint program = glCreateProgram();
     glAttachShader(program, shaders[computeShaderName]);
     glLinkProgram(program);

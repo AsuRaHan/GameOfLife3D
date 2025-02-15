@@ -33,6 +33,15 @@
 #ifndef GL_VERTEX_SHADER
 #define GL_VERTEX_SHADER 0x8B31
 #endif
+#ifndef GL_GEOMETRY_SHADER
+#define GL_GEOMETRY_SHADER 0x8DD9
+#endif
+#ifndef GL_TESS_CONTROL_SHADER
+#define GL_TESS_CONTROL_SHADER 0x8E88
+#endif
+#ifndef GL_TESS_EVALUATION_SHADER
+#define GL_TESS_EVALUATION_SHADER 0x8E87
+#endif
 #ifndef GL_FRAGMENT_SHADER
 #define GL_FRAGMENT_SHADER 0x8B30
 #endif
@@ -125,14 +134,6 @@
 
 #ifndef GL_ELEMENT_ARRAY_BUFFER
 #define GL_ELEMENT_ARRAY_BUFFER 0x8893
-#endif
-
-#ifndef GL_TRIANGLES
-#define GL_TRIANGLES 0x0004
-#endif
-
-#ifndef GL_UNSIGNED_INT
-#define GL_UNSIGNED_INT 0x1405
 #endif
 
 #ifndef GLchar
@@ -255,5 +256,4 @@ void CheckOpenGLError(const char* stmt, const char* fname, int line);
 
 #define CHECK_LOAD_FUNCTION(func) \
     std::cout << ((func) ? "            Успешно загружена функция " #func : "   Не удалось загрузить функцию " #func) << std::endl;
-
 #endif //GLFUNC_H

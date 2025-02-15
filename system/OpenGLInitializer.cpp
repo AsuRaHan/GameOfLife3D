@@ -224,32 +224,6 @@ bool OpenGLInitializer::SetupPixelFormat(HDC hdc) {
     return true;
 }
 
-float OpenGLInitializer::testFarPlane(float start, float end, float step) {
-    float farPlane = start;
-    bool hasIssues = false;
-
-    while (farPlane <= end) {
-        // Установите farPlane
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        gluPerspective(45.0f, 1.0f, 0.1f, farPlane); // fov, aspect, near, far
-
-        // Здесь вы должны выполнить рендеринг сцены и проверить на наличие артефактов
-        // Например, вы можете отрисовать объекты и проверить их видимость
-
-        // Для упрощения, предположим, что у вас есть функция, которая проверяет наличие проблем
-        hasIssues = checkForDepthIssues(); // Эта функция должна быть реализована вами
-
-        if (hasIssues) {
-            break; // Если есть проблемы, выходим из цикла
-        }
-
-        farPlane += step; // Увеличиваем farPlane
-    }
-
-    return farPlane - step; // Возвращаем последнее значение без проблем
-}
-
 bool OpenGLInitializer::checkForDepthIssues() {
     // Получаем размер окна
     int width = 800; // Замените на фактическую ширину вашего окна

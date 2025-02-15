@@ -14,9 +14,19 @@ public:
 
     void loadVertexShader(const std::string& name, const char* source);
     void loadFragmentShader(const std::string& name, const char* source);
+    void loadGeometryShader(const std::string& name, const char* source);
+    void loadTessControlShader(const std::string& name, const char* source);
+    void loadTessEvaluationShader(const std::string& name, const char* source);
+
+
     void loadComputeShader(const std::string& name, const char* source);
     void linkProgram(const std::string& programName, const std::string& vertexShaderName, const std::string& fragmentShaderName);
+    void linkGeometryProgram(const std::string& programName, const std::string& vertexShaderName, const std::string& geometryShaderName, const std::string& fragmentShaderName);
+    void linkTessellationProgram(const std::string& programName, const std::string& vertexShaderName, const std::string& tessControlShaderName, const std::string& tessEvaluationShaderName, const std::string& fragmentShaderName);
+
+
     void linkComputeProgram(const std::string& programName, const std::string& computeShaderName);
+
     void useProgram(const std::string& programName);
     GLuint getProgram(const std::string& programName) const;
     std::string LoadShaderSource(const std::string& filename);

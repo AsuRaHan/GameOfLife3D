@@ -146,19 +146,16 @@ void CheckOpenGLError(const char* stmt, const char* fname, int line)
     if (err != GL_NO_ERROR)
     {
         errorCount++; // Увеличиваем счетчик ошибок
-        //PlaySound(TEXT("SystemExclamation"), NULL, SND_ALIAS | SND_ASYNC);
-        //Sleep(1000); // Задержка 1 секунда
         std::cout << "OpenGL error " << std::hex << err
             << ", at " << fname << ":" << line
             << " - for " << stmt << std::endl;
-        // Проверяем, достигли ли мы 10 ошибок
+        // Проверяем, достигли ли мы 50 ошибок
         if (errorCount >= 50)
         {
             std::cout << "Достигнуто максимальное количество ошибок. Завершение программы." << std::endl;
             WCHAR errorMsg[256];
             swprintf_s(errorMsg, L"OpenGL error %08X, at %S:%d - for %S", err, fname, line, stmt);
             MessageBoxW(NULL, errorMsg, L"OpenGL Error", MB_OK | MB_ICONERROR);
-
             exit(EXIT_FAILURE); // Завершаем программу
         }
     }
