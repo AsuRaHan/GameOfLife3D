@@ -18,7 +18,7 @@ OpenGLInitializer::~OpenGLInitializer() {
     }
 }
 
-bool OpenGLInitializer::Initialize(bool fullScreen) {
+bool OpenGLInitializer::Initialize(bool fullScreen, int width, int height) {
     std::cout << "Начинаю инициализацию OpenGL" << std::endl;
     // Настройка полноэкранного режима, если требуется
     if (fullScreen) {
@@ -29,12 +29,7 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
         style &= ~WS_BORDER; // Убирает простую границу для неизменяемых окон
         style &= ~WS_SIZEBOX; // Убирает размерную рамку
 
-        //if (
         SetWindowLongPtr(m_hWnd, GWL_STYLE, style);
-        //    ) {
-        //    std::cout << "Не удалось изменить стиль окна: " << GetErrorMessage(GetLastError()) << std::endl;
-        //    return false;
-        //}
 
         // Изменяем расширенный стиль
         LONG_PTR exStyle = GetWindowLongPtr(m_hWnd, GWL_EXSTYLE);
@@ -42,29 +37,43 @@ bool OpenGLInitializer::Initialize(bool fullScreen) {
         exStyle &= ~WS_EX_CLIENTEDGE;
         exStyle &= ~WS_EX_STATICEDGE;
 
-        //if (
         SetWindowLongPtr(m_hWnd, GWL_EXSTYLE, exStyle);
-        //    ) {
-        //    std::cout << "Не удалось изменить расширенный стиль окна: " << GetErrorMessage(GetLastError()) << std::endl;
-        //    return false;
-        //}
+
 
         // Перерисовать окно
         DEVMODE dmScreenSettings;
         memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
         dmScreenSettings.dmSize = sizeof(dmScreenSettings);
-        dmScreenSettings.dmPelsWidth = GetSystemMetrics(SM_CXSCREEN);
-        dmScreenSettings.dmPelsHeight = GetSystemMetrics(SM_CYSCREEN);
+        //dmScreenSettings.dmPelsWidth = GetSystemMetrics(SM_CXSCREEN);
+        //dmScreenSettings.dmPelsHeight = GetSystemMetrics(SM_CYSCREEN);
+        
+        // Если width или height равны 0, получаем текущее разрешение экрана
+        if (width == 0 || height == 0) {
+            EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmScreenSettings);
+            if (width == 0) {
+                width = dmScreenSettings.dmPelsWidth; // Устанавливаем ширину
+            }
+            if (height == 0) {
+                height = dmScreenSettings.dmPelsHeight; // Устанавливаем высоту
+            }
+        }
+
+        dmScreenSettings.dmPelsWidth = width; // Устанавливаем ширину
+        dmScreenSettings.dmPelsHeight = height; // Устанавливаем высоту
+
         dmScreenSettings.dmBitsPerPel = 32;
         dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
-        SetWindowPos(m_hWnd, HWND_TOP, 0, 0, dmScreenSettings.dmPelsWidth, dmScreenSettings.dmPelsHeight, SWP_SHOWWINDOW);
-        ShowWindow(m_hWnd, SW_SHOWMAXIMIZED);
+        //SetWindowPos(m_hWnd, HWND_TOP, 0, 0, dmScreenSettings.dmPelsWidth, dmScreenSettings.dmPelsHeight, SWP_SHOWWINDOW);
+        //ShowWindow(m_hWnd, SW_SHOWMAXIMIZED);
 
         if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
             std::cout << "Не удалось переключиться в полноэкранный режим" << std::endl;
             return false;
         }
+
+        SetWindowPos(m_hWnd, HWND_TOP, 0, 0, dmScreenSettings.dmPelsWidth, dmScreenSettings.dmPelsHeight, SWP_SHOWWINDOW);
+        ShowWindow(m_hWnd, SW_SHOWMAXIMIZED);
     }
 
     // Регистрация класса окна

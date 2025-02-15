@@ -25,7 +25,7 @@ private:
 public:
     OpenGLInitializer(HWND hWnd);
     ~OpenGLInitializer();
-    bool Initialize(bool fullScreen=false);
+    bool Initialize(bool fullScreen=false, int width = 0, int height = 0);
 
 private:
     bool SetupPixelFormat(HDC hdc);
