@@ -9,9 +9,6 @@ Renderer::Renderer(int width, int height)
 }
 
 Renderer::~Renderer() {
-    glDeleteProgram(cellShaderProgram);
-    glDeleteProgram(gridShaderProgram);
-    glDeleteProgram(debugOverlayShaderProgram);
     glDeleteBuffers(1, &cellsVBO);
     glDeleteBuffers(1, &gridVBO);
     glDeleteBuffers(1, &cellInstanceVBO);
@@ -49,41 +46,25 @@ void Renderer::InitializeCellsVBOs() {
     int gridHeight = pGameController->getGridHeight();
     float cellSize = pGameController->getCellSize();
 
-    // Инициализация VAO для клеток
     GL_CHECK(glGenVertexArrays(1, &cellsVAO));
-    GL_CHECK(glBindVertexArray(cellsVAO)); // Сначала привязываем VAO
+    GL_CHECK(glBindVertexArray(cellsVAO));
 
-    // Инициализация VBO для вершин клеток
     GL_CHECK(glGenBuffers(1, &cellsVBO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
 
-    //float scale_factor = 0.1f;
-    //float centerX = 0.5f;
-    //float centerY = 0.5f;
     float vertices[] = {
         0.1f, 0.1f,
         0.9f, 0.1f,
         0.9f, 0.9f,
         0.1f, 0.9f
     };
-    //float vertices[] = {
-    //    centerX + (0.1f - centerX) * (1 - scale_factor), centerY + (0.1f - centerY) * (1 - scale_factor), // Вершина 1
-    //    centerX + (0.5f - centerX) * (1 - scale_factor), centerY + (0.0f - centerY) * (1 - scale_factor), // Вершина 5
-    //    centerX + (0.9f - centerX) * (1 - scale_factor), centerY + (0.1f - centerY) * (1 - scale_factor), // Вершина 2
-    //    centerX + (1.0f - centerX) * (1 - scale_factor), centerY + (0.5f - centerY) * (1 - scale_factor), // Вершина 6
-    //    centerX + (0.9f - centerX) * (1 - scale_factor), centerY + (0.9f - centerY) * (1 - scale_factor), // Вершина 3
-    //    centerX + (0.5f - centerX) * (1 - scale_factor), centerY + (1.0f - centerY) * (1 - scale_factor), // Вершина 7
-    //    centerX + (0.1f - centerX) * (1 - scale_factor), centerY + (0.9f - centerY) * (1 - scale_factor), // Вершина 4
-    //    centerX + (0.0f - centerX) * (1 - scale_factor), centerY + (0.5f - centerY) * (1 - scale_factor)  // Вершина 8
-    //};
 
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
 
-    // Настройка атрибутов для вершин квадрата клетки
+    // Настраиваем атрибуты вершин один раз при инициализации
     GL_CHECK(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
     GL_CHECK(glEnableVertexAttribArray(0));
 
-    // Инициализация VBO для данных инстанса
     GL_CHECK(glGenBuffers(1, &cellInstanceVBO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
 
@@ -92,7 +73,6 @@ void Renderer::InitializeCellsVBOs() {
     for (int y = 0; y < gridHeight; ++y) {
         for (int x = 0; x < gridWidth; ++x) {
             Cell cell = pGameController->getGrid().getCell(x, y);
-            // Предполагаем, что getColor() возвращает Vector3d
             cellInstances.push_back({
                 x * cellSize, y * cellSize,
                 {cell.getColor().X(), cell.getColor().Y(), cell.getColor().Z()}
@@ -102,18 +82,16 @@ void Renderer::InitializeCellsVBOs() {
 
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
 
-    // Настройка атрибутов для инстансинга
+    // Настраиваем атрибуты инстансинга один раз при инициализации
     GL_CHECK(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)0));
-    GL_CHECK(glVertexAttribDivisor(1, 1)); // Каждый инстанс имеет свою позицию
+    GL_CHECK(glVertexAttribDivisor(1, 1));
     GL_CHECK(glEnableVertexAttribArray(1));
 
     GL_CHECK(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)(offsetof(CellInstance, color))));
-    GL_CHECK(glVertexAttribDivisor(3, 1)); // Цвет для каждого инстанса
+    GL_CHECK(glVertexAttribDivisor(3, 1));
     GL_CHECK(glEnableVertexAttribArray(3));
 
-    // Отвязываем буферы и VAO
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    GL_CHECK(glBindVertexArray(0));
+    GL_CHECK(glBindVertexArray(0)); // Отвязываем VAO
 }
 
 void Renderer::InitializeGridVBOs() {
@@ -124,25 +102,20 @@ void Renderer::InitializeGridVBOs() {
 
     gridVertices.clear();
 
-    // Определение шагов для дополнительных линий
-    int minorStep = 10; // Например, линии через каждые 10 единиц
-    int majorStep = 100; // Например, более заметные линии через каждые 50 единиц
+    int minorStep = 10;
+    int majorStep = 100;
 
-    // Создание сетки
     for (int y = 0; y <= gridHeight; ++y) {
         for (int x = 0; x <= gridWidth; ++x) {
-            // Добавляем информацию о "величине" линии в каждую вершину 
             float majorLine = (x % majorStep == 0 || y % majorStep == 0) ? 1.0f : 0.0f;
             float minorLine = (x % minorStep == 0 || y % minorStep == 0) ? 1.0f : 0.0f;
 
             gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
-            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine); // Добавляем значения для шейдера
+            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
 
-            // Добавляем следующую вершину для линии
             gridVertices.push_back((x + 1) * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
             gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
 
-            // Повторяем для вертикальных линий
             gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
             gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
 
@@ -151,20 +124,21 @@ void Renderer::InitializeGridVBOs() {
         }
     }
 
-    // Создание VAO и VBO для сетки
     GL_CHECK(glGenVertexArrays(1, &gridVAO));
     GL_CHECK(glGenBuffers(1, &gridVBO));
     GL_CHECK(glBindVertexArray(gridVAO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gridVBO));
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_STATIC_DRAW));
 
-    // Настраиваем атрибуты вершин
-    GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0)); // Position
+    GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0));
     GL_CHECK(glEnableVertexAttribArray(0));
-    GL_CHECK(glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)))); // Major line flag
+    GL_CHECK(glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))));
     GL_CHECK(glEnableVertexAttribArray(1));
-    GL_CHECK(glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(4 * sizeof(float)))); // Minor line flag
+    GL_CHECK(glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(4 * sizeof(float))));
     GL_CHECK(glEnableVertexAttribArray(2));
+
+    GL_CHECK(glBindVertexArray(0));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 
 void Renderer::Draw() {
@@ -186,13 +160,11 @@ void Renderer::Draw() {
 }
 
 void Renderer::DrawGrid() {
-    // Используем шейдерную программу для сетки
     GL_CHECK(glUseProgram(gridShaderProgram));
 
-    // Передаем матрицы проекции и вида в шейдеры
     GLuint projectionLoc = glGetUniformLocation(gridShaderProgram, "projection");
     GLuint viewLoc = glGetUniformLocation(gridShaderProgram, "view");
-    GLuint cameraDistanceLoc = glGetUniformLocation(gridShaderProgram, "cameraDistance"); // uniform для дистанции камеры
+    GLuint cameraDistanceLoc = glGetUniformLocation(gridShaderProgram, "cameraDistance");
 
     GL_CHECK(glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, camera.GetProjectionMatrix()));
     GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
@@ -200,20 +172,14 @@ void Renderer::DrawGrid() {
     float cameraDistance = camera.GetDistance();
     GL_CHECK(glUniform1f(cameraDistanceLoc, cameraDistance));
 
-    // Связываем VAO сетки
     GL_CHECK(glBindVertexArray(gridVAO));
-
-    // Рисуем линии сетки
-    GL_CHECK(glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(gridVertices.size() / 5))); // Теперь каждый элемент состоит из 5 float
-
-    // Отвязываем VAO
+    GL_CHECK(glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(gridVertices.size() / 5)));
     GL_CHECK(glBindVertexArray(0));
 }
 
 void Renderer::DrawCells() {
     if (!pGameController) return;
-    int GW = pGameController->getGridWidth();
-    // Привязываем VAO перед настройкой атрибутов
+
     GL_CHECK(glBindVertexArray(cellsVAO));
 
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
@@ -225,7 +191,6 @@ void Renderer::DrawCells() {
 
     GL_CHECK(glUseProgram(cellShaderProgram));
 
-    // Устанавливаем uniform переменные
     GLuint projectionLoc = glGetUniformLocation(cellShaderProgram, "projection");
     GLuint viewLoc = glGetUniformLocation(cellShaderProgram, "view");
     GLuint cellSizeLoc = glGetUniformLocation(cellShaderProgram, "cellSize");
@@ -234,28 +199,9 @@ void Renderer::DrawCells() {
     GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
     GL_CHECK(glUniform1f(cellSizeLoc, pGameController->getCellSize()));
 
-    // Настраиваем атрибуты для вершин квадрата клетки
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
-    GL_CHECK(glEnableVertexAttribArray(0)); // Вершины квадрата
-    GL_CHECK(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
-
-    // Настраиваем атрибуты для инстансинга (позиция и цвет)
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
-    GL_CHECK(glEnableVertexAttribArray(1)); // Позиция инстансов
-    GL_CHECK(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)0));
-    GL_CHECK(glVertexAttribDivisor(1, 1));
-
-    GL_CHECK(glEnableVertexAttribArray(3)); // Цвет инстансов
-    GL_CHECK(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)(offsetof(CellInstance, color))));
-    GL_CHECK(glVertexAttribDivisor(3, 1));
-
-    // Отрисовка клеток с использованием инстансинга
-    //GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 8, cellInstances.size()));
     GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, static_cast<GLsizei>(cellInstances.size())));
-    // Отключаем использование атрибутов после отрисовки
-    GL_CHECK(glDisableVertexAttribArray(0));
-    GL_CHECK(glDisableVertexAttribArray(1));
-    GL_CHECK(glDisableVertexAttribArray(3));
+
+    GL_CHECK(glBindVertexArray(0)); // Отвязываем VAO
 }
 
 void Renderer::OnWindowResize(int newWidth, int newHeight) {

@@ -113,14 +113,14 @@ void UIRenderer::DrawSimulationWindow() {
     }
 
     if (gameController->getGpuSimulated()) {
-        if (ImGui::Button("Симуляция CPU", buttonSize)) {
+        if (ImGui::Button("Симуляция на CPU", buttonSize)) {
             if (!gameController->isSimulationRunning()) {
                 gameController->setGpuSimulated(false); // установить симуляцию через ЦП
             }
         }
     }
     else {
-        if (ImGui::Button("Симуляция GPU", buttonSize)) {
+        if (ImGui::Button("Симуляция на GPU", buttonSize)) {
             if (!gameController->isSimulationRunning()) {
                 gameController->setGpuSimulated(true); // установить симуляцию через видеокарту 
             }

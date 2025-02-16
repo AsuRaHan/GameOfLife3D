@@ -7,7 +7,7 @@ GPUAutomaton::GPUAutomaton(int width, int height)
 }
 
 GPUAutomaton::~GPUAutomaton() {
-    GL_CHECK(glDeleteProgram(computeProgram));
+    //GL_CHECK(glDeleteProgram(computeProgram));
     GL_CHECK(glDeleteBuffers(2, cellsBuffer));
 }
 
@@ -93,19 +93,6 @@ void GPUAutomaton::SetNewGridSize(int width, int height) {
 }
 void GPUAutomaton::Update() {
     GL_CHECK(glUseProgram(computeProgram));
-    //glUniform2i(glGetUniformLocation(computeProgram, "gridSize"), gridWidth, gridHeight);
-    //glUniform1i(glGetUniformLocation(computeProgram, "isToroidal"), isToroidal);
-
-    //glUniform1i(glGetUniformLocation(computeProgram, "birth"), birth);
-    //glUniform1i(glGetUniformLocation(computeProgram, "survivalMin"), survivalMin);
-    //glUniform1i(glGetUniformLocation(computeProgram, "survivalMax"), survivalMax);
-    //glUniform1i(glGetUniformLocation(computeProgram, "overpopulation"), overpopulation);
-
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[bufferIndex]);
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[(bufferIndex + 1) % 2]);
-
-    //glDispatchCompute(gridWidth, gridHeight, 1);
-    //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     GL_CHECK(glUniform2i(glGetUniformLocation(computeProgram, "gridSize"), gridWidth, gridHeight));
     GL_CHECK(glUniform1i(glGetUniformLocation(computeProgram, "isToroidal"), isToroidal));
     GL_CHECK(glUniform1i(glGetUniformLocation(computeProgram, "birth"), birth));

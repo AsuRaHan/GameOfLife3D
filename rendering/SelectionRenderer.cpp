@@ -10,7 +10,7 @@ SelectionRenderer::SelectionRenderer(const Camera& camera, ShaderManager& shader
 SelectionRenderer::~SelectionRenderer() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteProgram(selectionShaderProgram);
+    //glDeleteProgram(selectionShaderProgram);
 }
 
 void SelectionRenderer::SetGameController(GameController* gameController) {

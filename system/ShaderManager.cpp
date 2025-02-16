@@ -5,10 +5,14 @@ ShaderManager::ShaderManager() {}
 
 ShaderManager::~ShaderManager() {
     for (auto& pair : shaders) {
-        glDeleteShader(pair.second);
+        if (pair.second != 0) { // Проверяем, что шейдер существует
+            GL_CHECK(glDeleteShader(pair.second));
+        }
     }
     for (auto& pair : programs) {
-        glDeleteProgram(pair.second);
+        if (pair.second != 0) { // Проверяем, что программа существует
+            GL_CHECK(glDeleteProgram(pair.second));
+        }
     }
 }
 
@@ -55,7 +59,7 @@ void ShaderManager::loadComputeShader(const std::string& name, const char* sourc
 }
 
 void ShaderManager::linkProgram(const std::string& programName, const std::string& vertexShaderName, const std::string& fragmentShaderName) {
-    std::cout << "Начинаю компиляцию шейдерной программы programName=" << programName 
+    std::cout << "[ShaderManager::linkProgram] Начинаю компиляцию шейдерной программы programName=" << programName 
         << " vertexShaderName=" << vertexShaderName 
         << " fragmentShaderName=" << fragmentShaderName << std::endl;
     GLuint program = glCreateProgram();
@@ -64,12 +68,13 @@ void ShaderManager::linkProgram(const std::string& programName, const std::strin
     glLinkProgram(program);
     checkProgramLinking(program);
     programs[programName] = program;
+    std::cout << "[ShaderManager::linkProgram] Компиляция шейдерной программы programName=" << programName << " завершена ей присвоен ID=" << program << std::endl;
 }
 
 void ShaderManager::linkGeometryProgram(const std::string& programName, const std::string& vertexShaderName, 
     const std::string& geometryShaderName, const std::string& fragmentShaderName) {
 
-    std::cout << "Начинаю компиляцию геометрической шейдерной программы programName=" << programName
+    std::cout << "[ShaderManager::linkGeometryProgram] Начинаю компиляцию геометрической шейдерной программы programName=" << programName
         << " vertexShaderName=" << vertexShaderName
         << " geometryShaderName=" << geometryShaderName
         << " fragmentShaderName=" << fragmentShaderName << std::endl;
@@ -80,12 +85,13 @@ void ShaderManager::linkGeometryProgram(const std::string& programName, const st
     glLinkProgram(program);
     checkProgramLinking(program);
     programs[programName] = program;
+    std::cout << "[ShaderManager::linkGeometryProgram] Компиляция шейдерной программы programName=" << programName << " завершена ей присвоен ID=" << program << std::endl;
 }
 
 void ShaderManager::linkTessellationProgram(const std::string& programName, const std::string& vertexShaderName, 
     const std::string& tessControlShaderName, const std::string& tessEvaluationShaderName, const std::string& fragmentShaderName) {
 
-    std::cout << "Начинаю компиляцию шейдерной программы тесселяции programName=" << programName
+    std::cout << "[ShaderManager::linkTessellationProgram] Начинаю компиляцию шейдерной программы тесселяции programName=" << programName
         << " vertexShaderName=" << vertexShaderName
         << " tessControlShaderName=" << tessControlShaderName
         << " tessEvaluationShaderName=" << tessEvaluationShaderName
@@ -99,17 +105,19 @@ void ShaderManager::linkTessellationProgram(const std::string& programName, cons
     glLinkProgram(program);
     checkProgramLinking(program);
     programs[programName] = program;
+    std::cout << "[ShaderManager::linkTessellationProgram] Компиляция шейдерной программы programName=" << programName << " завершена ей присвоен ID=" << program << std::endl;
 }
 
 
 void ShaderManager::linkComputeProgram(const std::string& programName, const std::string& computeShaderName) {
-    std::cout << "Начинаю компиляцию шейдерной программы programName=" << programName
+    std::cout << "[ShaderManager::linkComputeProgram] Начинаю компиляцию шейдерной программы programName=" << programName
         << " computeShaderName=" << computeShaderName << std::endl;
     GLuint program = glCreateProgram();
     glAttachShader(program, shaders[computeShaderName]);
     glLinkProgram(program);
     checkProgramLinking(program);
     programs[programName] = program;
+    std::cout << "[ShaderManager::linkComputeProgram] Компиляция шейдерной программы programName=" << programName << " завершена ей присвоен ID=" << program << std::endl;
 }
 
 void ShaderManager::useProgram(const std::string& programName) {
@@ -133,7 +141,7 @@ void ShaderManager::checkShaderCompilation(GLuint shader, const std::string& nam
     if (!success) {
         char infoLog[512];
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cerr << "Ошибка компиляции " << name << ": " << infoLog << std::endl;
+        std::cerr << "[ShaderManager::checkShaderCompilation] Ошибка компиляции " << name << ": " << infoLog << std::endl;
     }
 }
 
@@ -143,7 +151,7 @@ void ShaderManager::checkProgramLinking(GLuint program) {
     if (!success) {
         char infoLog[512];
         glGetProgramInfoLog(program, 512, NULL, infoLog);
-        std::cerr << "Ошибка линковки программы: " << infoLog << std::endl;
+        std::cerr << "[ShaderManager::checkProgramLinking] Ошибка линковки программы: " << infoLog << " ID=" << program << std::endl;
     }
 }
 std::string ShaderManager::LoadShaderSource(const std::string& filename) {
