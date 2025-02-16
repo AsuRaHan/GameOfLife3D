@@ -7,7 +7,6 @@ GPUAutomaton::GPUAutomaton(int width, int height)
 }
 
 GPUAutomaton::~GPUAutomaton() {
-    //GL_CHECK(glDeleteProgram(computeProgram));
     GL_CHECK(glDeleteBuffers(2, cellsBuffer));
 }
 
@@ -15,7 +14,8 @@ void GPUAutomaton::CreateComputeShader() {
     const char* computedRulesShaderSource = R"(
 #version 430 core
 
-layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+//layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
 layout(std430, binding = 0) buffer CurrentCells {
     int current[];
@@ -103,7 +103,9 @@ void GPUAutomaton::Update() {
     GL_CHECK(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[bufferIndex]));
     GL_CHECK(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[(bufferIndex + 1) % 2]));
 
-    GL_CHECK(glDispatchCompute(gridWidth, gridHeight, 1));
+    //GL_CHECK(glDispatchCompute(gridWidth, gridHeight, 1));
+    GL_CHECK(glDispatchCompute((gridWidth + 15) / 16, (gridHeight + 15) / 16, 1));
+
     GL_CHECK(glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT));
     bufferIndex = (bufferIndex + 1) % 2;
 }
