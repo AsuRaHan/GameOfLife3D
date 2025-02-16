@@ -59,7 +59,8 @@ void Renderer::InitializeCellsVBOs() {
         0.1f, 0.9f
     };
 
-    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
+    //GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW));
 
     // Настраиваем атрибуты вершин один раз при инициализации
     GL_CHECK(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
@@ -80,7 +81,8 @@ void Renderer::InitializeCellsVBOs() {
         }
     }
 
-    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
+    //GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_DYNAMIC_DRAW));
 
     // Настраиваем атрибуты инстансинга один раз при инициализации
     GL_CHECK(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)0));
@@ -128,7 +130,8 @@ void Renderer::InitializeGridVBOs() {
     GL_CHECK(glGenBuffers(1, &gridVBO));
     GL_CHECK(glBindVertexArray(gridVAO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gridVBO));
-    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_STATIC_DRAW));
+    //GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_STATIC_DRAW));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_DYNAMIC_DRAW));
 
     GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0));
     GL_CHECK(glEnableVertexAttribArray(0));
@@ -312,15 +315,78 @@ void main()
 
 }
 
+//void Renderer::RebuildGameField() {
+//    if (!pGameController) return;
+//
+//    // Освобождаем старые буферы
+//    glDeleteBuffers(1, &cellsVBO);
+//    glDeleteBuffers(1, &cellInstanceVBO);
+//    glDeleteBuffers(1, &gridVBO);
+//
+//    // Пересоздаем буферы
+//    InitializeCellsVBOs();
+//    InitializeGridVBOs();
+//}
+
 void Renderer::RebuildGameField() {
     if (!pGameController) return;
 
-    // Освобождаем старые буферы
-    glDeleteBuffers(1, &cellsVBO);
-    glDeleteBuffers(1, &cellInstanceVBO);
-    glDeleteBuffers(1, &gridVBO);
+    std::cout << "Rebuilding game field..." << std::endl;
 
-    // Пересоздаем буферы
-    InitializeCellsVBOs();
-    InitializeGridVBOs();
+    int gridWidth = pGameController->getGridWidth();
+    int gridHeight = pGameController->getGridHeight();
+    float cellSize = pGameController->getCellSize();
+
+    // Обновляем VBO для клеток
+    GL_CHECK(glBindVertexArray(cellsVAO));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
+
+    cellInstances.clear();
+    cellInstances.reserve(gridWidth * gridHeight);
+    for (int y = 0; y < gridHeight; ++y) {
+        for (int x = 0; x < gridWidth; ++x) {
+            Cell cell = pGameController->getGrid().getCell(x, y);
+            cellInstances.push_back({
+                x * cellSize, y * cellSize,
+                {cell.getColor().X(), cell.getColor().Y(), cell.getColor().Z()}
+                });
+        }
+    }
+
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GL_CHECK(glBindVertexArray(0));
+
+    // Обновляем VBO для сетки
+    GL_CHECK(glBindVertexArray(gridVAO));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gridVBO));
+
+    gridVertices.clear();
+    int minorStep = 10;
+    int majorStep = 100;
+
+    for (int y = 0; y <= gridHeight; ++y) {
+        for (int x = 0; x <= gridWidth; ++x) {
+            float majorLine = (x % majorStep == 0 || y % majorStep == 0) ? 1.0f : 0.0f;
+            float minorLine = (x % minorStep == 0 || y % minorStep == 0) ? 1.0f : 0.0f;
+
+            gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
+            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+
+            gridVertices.push_back((x + 1) * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
+            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+
+            gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
+            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+
+            gridVertices.push_back(x * cellSize); gridVertices.push_back((y + 1) * cellSize); gridVertices.push_back(0.0f);
+            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+        }
+    }
+
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_STATIC_DRAW));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GL_CHECK(glBindVertexArray(0));
+
+    std::cout << "Game field rebuilt." << std::endl;
 }
