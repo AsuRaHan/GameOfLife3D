@@ -197,11 +197,11 @@ bool OpenGLInitializer::Initialize(bool fullScreen, int width, int height) {
     LoadOpenGLFunctions();
 
 #ifdef _DEBUG
-    //OpenGLDebug debugger;
-    //if (!debugger.Initialize()) {
-    //    std::cout << "Не удалось инициализировать отладку OpenGL" << std::endl;
-    //    // Не завершаем программу, так как отладка опциональна
-    //}
+    OpenGLDebug debugger;
+    if (!debugger.Initialize()) {
+        std::cout << "Не удалось инициализировать отладку OpenGL" << std::endl;
+        // Не завершаем программу, так как отладка опциональна
+    }
 #endif
 
 
