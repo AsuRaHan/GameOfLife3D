@@ -7,8 +7,8 @@ GPUAutomaton::GPUAutomaton(int width, int height)
 }
 
 GPUAutomaton::~GPUAutomaton() {
-    glDeleteProgram(computeProgram);
-    glDeleteBuffers(2, cellsBuffer);
+    GL_CHECK(glDeleteProgram(computeProgram));
+    GL_CHECK(glDeleteBuffers(2, cellsBuffer));
 }
 
 void GPUAutomaton::CreateComputeShader() {
@@ -79,47 +79,58 @@ void main() {
 }
 
 void GPUAutomaton::SetupBuffers() {
-    glGenBuffers(2, cellsBuffer);
+    GL_CHECK(glGenBuffers(2, cellsBuffer));
     for (int i = 0; i < 2; ++i) {
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[i]);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int) * gridWidth * gridHeight, nullptr, GL_DYNAMIC_COPY);
+        GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[i]));
+        GL_CHECK(glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int) * gridWidth * gridHeight, nullptr, GL_DYNAMIC_COPY));
     }
 }
 void GPUAutomaton::SetNewGridSize(int width, int height) {
     gridWidth = width;
     gridHeight = height;
-    glDeleteBuffers(2, cellsBuffer);
+    GL_CHECK(glDeleteBuffers(2, cellsBuffer));
     SetupBuffers();
 }
 void GPUAutomaton::Update() {
-    glUseProgram(computeProgram);
-    glUniform2i(glGetUniformLocation(computeProgram, "gridSize"), gridWidth, gridHeight);
-    glUniform1i(glGetUniformLocation(computeProgram, "isToroidal"), isToroidal);
+    GL_CHECK(glUseProgram(computeProgram));
+    //glUniform2i(glGetUniformLocation(computeProgram, "gridSize"), gridWidth, gridHeight);
+    //glUniform1i(glGetUniformLocation(computeProgram, "isToroidal"), isToroidal);
 
-    glUniform1i(glGetUniformLocation(computeProgram, "birth"), birth);
-    glUniform1i(glGetUniformLocation(computeProgram, "survivalMin"), survivalMin);
-    glUniform1i(glGetUniformLocation(computeProgram, "survivalMax"), survivalMax);
-    glUniform1i(glGetUniformLocation(computeProgram, "overpopulation"), overpopulation);
+    //glUniform1i(glGetUniformLocation(computeProgram, "birth"), birth);
+    //glUniform1i(glGetUniformLocation(computeProgram, "survivalMin"), survivalMin);
+    //glUniform1i(glGetUniformLocation(computeProgram, "survivalMax"), survivalMax);
+    //glUniform1i(glGetUniformLocation(computeProgram, "overpopulation"), overpopulation);
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[bufferIndex]);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[(bufferIndex + 1) % 2]);
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[bufferIndex]);
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[(bufferIndex + 1) % 2]);
 
-    glDispatchCompute(gridWidth, gridHeight, 1);
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    //glDispatchCompute(gridWidth, gridHeight, 1);
+    //glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    GL_CHECK(glUniform2i(glGetUniformLocation(computeProgram, "gridSize"), gridWidth, gridHeight));
+    GL_CHECK(glUniform1i(glGetUniformLocation(computeProgram, "isToroidal"), isToroidal));
+    GL_CHECK(glUniform1i(glGetUniformLocation(computeProgram, "birth"), birth));
+    GL_CHECK(glUniform1i(glGetUniformLocation(computeProgram, "survivalMin"), survivalMin));
+    GL_CHECK(glUniform1i(glGetUniformLocation(computeProgram, "survivalMax"), survivalMax));
+    GL_CHECK(glUniform1i(glGetUniformLocation(computeProgram, "overpopulation"), overpopulation));
 
+    GL_CHECK(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[bufferIndex]));
+    GL_CHECK(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[(bufferIndex + 1) % 2]));
+
+    GL_CHECK(glDispatchCompute(gridWidth, gridHeight, 1));
+    GL_CHECK(glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT));
     bufferIndex = (bufferIndex + 1) % 2;
 }
 
 
 void GPUAutomaton::GetGridState(std::vector<int>& outState) {
     outState.resize(gridWidth * gridHeight);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[bufferIndex]);
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(int) * gridWidth * gridHeight, outState.data());
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[bufferIndex]));
+    GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(int) * gridWidth * gridHeight, outState.data()));
 }
 
 void GPUAutomaton::SetGridState(const std::vector<int>& inState) {
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[bufferIndex]);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(int) * gridWidth * gridHeight, inState.data());
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[bufferIndex]));
+    GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(int) * gridWidth * gridHeight, inState.data()));
 }
 
 void GPUAutomaton::SetToroidal(bool toroidal) {

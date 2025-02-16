@@ -54,6 +54,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
@@ -171,6 +172,7 @@
     <ClCompile Include="rendering\UIRenderer.cpp" />
     <ClCompile Include="system\GLFunctions.cpp" />
     <ClCompile Include="system\InputHandler.cpp" />
+    <ClCompile Include="system\OpenGLDebug.cpp" />
     <ClCompile Include="system\OpenGLInitializer.cpp" />
     <ClCompile Include="system\SettingsManager.cpp" />
     <ClCompile Include="system\ShaderManager.cpp" />
@@ -203,6 +205,7 @@
     <ClInclude Include="system\GLFunctions.h" />
     <ClInclude Include="system\InputEvent.h" />
     <ClInclude Include="system\InputHandler.h" />
+    <ClInclude Include="system\OpenGLDebug.h" />
     <ClInclude Include="system\OpenGLInitializer.h" />
     <ClInclude Include="system\SettingsManager.h" />
     <ClInclude Include="system\ShaderManager.h" />
@@ -211,6 +214,9 @@
     <ClInclude Include="windowing\WindowController.h" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="AsmTools.asm">
+      <FileType>Document</FileType>
+    </MASM>
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
@@ -227,5 +233,6 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
   </ImportGroup>
 </Project>

@@ -2,14 +2,15 @@
 #ifndef OPENGLINITIALIZER_H_
 #define OPENGLINITIALIZER_H_
 
-#pragma once
+#include "OpenGLDebug.h"
+
 #include <Windows.h>
 #include <gl\GL.h>
 #include <gl\glu.h>
 #include <cstdio> // For swprintf and swprintf_s
 #include <sstream>
 
-//#include "GLFunctions.h"
+
 
 class OpenGLInitializer {
 private:

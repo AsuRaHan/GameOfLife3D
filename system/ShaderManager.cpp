@@ -1,5 +1,5 @@
 #include "ShaderManager.h"
-#include <iostream>
+
 
 ShaderManager::ShaderManager() {}
 

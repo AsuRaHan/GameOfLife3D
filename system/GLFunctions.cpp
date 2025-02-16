@@ -45,6 +45,9 @@ PFNGLUNIFORM1IPROC glUniform1i = nullptr;
 PFNGLGETSTRINGIPROC glGetStringi = nullptr;
 PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced = nullptr;
 
+PFNGLDEBUGMESSAGECALLBACKPROC glDebugMessageCallback = nullptr;
+PFNGLDEBUGMESSAGECONTROLPROC glDebugMessageControl = nullptr;
+
 void LoadOpenGLFunctions() {
         // Загрузка функций для работы с буферами
     glGenBuffers = (PFNGLGENBUFFERSPROC)wglGetProcAddress("glGenBuffers");
@@ -136,6 +139,12 @@ void LoadOpenGLFunctions() {
     CHECK_LOAD_FUNCTION(glGetStringi);
     glDrawElementsInstanced = (PFNGLDRAWELEMENTSINSTANCEDPROC)wglGetProcAddress("glDrawElementsInstanced");
     CHECK_LOAD_FUNCTION(glDrawElementsInstanced);
+
+    glDebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKPROC)wglGetProcAddress("glDebugMessageCallback");
+    CHECK_LOAD_FUNCTION(glDebugMessageCallback);
+
+    glDebugMessageControl = (PFNGLDEBUGMESSAGECONTROLPROC)wglGetProcAddress("glDebugMessageControl");
+    CHECK_LOAD_FUNCTION(glDebugMessageControl);
 
 }
 

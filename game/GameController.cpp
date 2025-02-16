@@ -141,10 +141,10 @@ void GameController::stepSimulation() {
     GameSimulation.nextGeneration();
 }
 
-void GameController::previousGeneration() {
-    if (isRunning) return;
-    GameSimulation.previousGeneration();
-}
+//void GameController::previousGeneration() {
+//    if (isRunning) return;
+//    GameSimulation.previousGeneration();
+//}
 
 bool GameController::isSimulationRunning() const {
     return isRunning;

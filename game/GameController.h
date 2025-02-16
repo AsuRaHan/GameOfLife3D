@@ -107,7 +107,7 @@ public:
     void startSimulation();
     void stopSimulation();
     void stepSimulation();
-    void previousGeneration();
+
     bool isSimulationRunning() const;
 
     void toggleCellState(int x, int y);
@@ -120,6 +120,10 @@ public:
 
     bool getShowUI() const { return showUI; };
     void setShowUI(bool isShow) { showUI = isShow;};
+
+    void setGpuSimulated(bool gs) { GameSimulation.setGpuSimulated(gs) ; };
+    bool getGpuSimulated() const { return GameSimulation.getGpuSimulated(); };
+
 
     bool getCellState(int x, int y) const;
     const Grid& getGrid() const { return grid; }

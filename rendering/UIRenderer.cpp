@@ -84,7 +84,7 @@ void UIRenderer::DrawSimulationWindow() {
     if (!simulationWindowVisible) return;
 
     ImGui::Begin("Симуляция", &simulationWindowVisible, ImGuiWindowFlags_NoResize);
-    ImGui::SetWindowSize(ImVec2(0, 310), ImGuiCond_Once);
+    ImGui::SetWindowSize(ImVec2(0, 340), ImGuiCond_Once);
     // Управление симуляцией
     if (gameController->isSimulationRunning()) {
         if (ImGui::Button("Остановить симуляцию", buttonSize)) {
@@ -108,6 +108,21 @@ void UIRenderer::DrawSimulationWindow() {
         if (ImGui::Button("Разграничить мир", buttonSize)) {
             if (!gameController->isSimulationRunning()) {
                 gameController->setWoldToroidal(true);
+            }
+        }
+    }
+
+    if (gameController->getGpuSimulated()) {
+        if (ImGui::Button("Симуляция CPU", buttonSize)) {
+            if (!gameController->isSimulationRunning()) {
+                gameController->setGpuSimulated(false); // установить симуляцию через ЦП
+            }
+        }
+    }
+    else {
+        if (ImGui::Button("Симуляция GPU", buttonSize)) {
+            if (!gameController->isSimulationRunning()) {
+                gameController->setGpuSimulated(true); // установить симуляцию через видеокарту 
             }
         }
     }

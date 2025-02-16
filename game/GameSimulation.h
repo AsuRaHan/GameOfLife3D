@@ -13,13 +13,14 @@ class GameSimulation {
 public:
     GameSimulation(Grid& g);
     void nextGeneration();
-    void previousGeneration();
 
 	void setWoldToroidal(bool wt);
     bool getWoldToroidal() const { return isToroidal; };
 
-    void updateGridReference(Grid& newGrid); // метод для обновления ссылки
+    void setGpuSimulated(bool gs) { isGpuSimulated = gs; };
+    bool getGpuSimulated() const { return isGpuSimulated; };
 
+    void updateGridReference(Grid& newGrid); // метод для обновления ссылки
     void SetCellProvider(const IRendererProvider* provider);
 
     void SetCellColor(int x, int y, const Vector3d& color);
@@ -38,19 +39,13 @@ private:
     std::vector<CellInstance>* cellInstances;
     const IRendererProvider* cellProvider;
 
-    void nextGenerationGPU();
 
-    std::atomic_flag gpuTaskReady = ATOMIC_FLAG_INIT;
+    //std::atomic_flag gpuTaskReady = ATOMIC_FLAG_INIT;
     std::vector<int> currentState;
     std::vector<int> nextState;
-    std::future<void> gpuTaskFuture;
+    //std::future<void> gpuTaskFuture;
 
-
-    void nextGenerationCPU();
-    
-    void saveCurrentState();
-    int countLiveNeighbors(int x, int y) const;
-    int countLiveNeighborsWorldToroidal(int x, int y) const;
+    void updateGridCpp(int* currentState, int* nextState, int GW, int GH);
 };
 
 #endif // GAMESIMULATION_H

@@ -182,7 +182,11 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         case 'U':
             pGameController->setShowUI(!pGameController->getShowUI());
             break;
-
+        case 'O':
+            if (!pGameController->isSimulationRunning()) {
+                pGameController->setGpuSimulated(!pGameController->getGpuSimulated()); // переключить метод симул€ции с GPU на CPU
+            }
+            break;
         }
         break;
     default:

@@ -89,6 +89,9 @@
     <ClCompile Include="rendering\SelectionRenderer.cpp">
       <Filter>rendering</Filter>
     </ClCompile>
+    <ClCompile Include="system\OpenGLDebug.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game\GameController.h">
@@ -181,6 +184,9 @@
     <ClInclude Include="rendering\SelectionRenderer.h">
       <Filter>rendering</Filter>
     </ClInclude>
+    <ClInclude Include="system\OpenGLDebug.h">
+      <Filter>system</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">
@@ -203,6 +209,9 @@
     </Filter>
     <Filter Include="res">
       <UniqueIdentifier>{7466ef7d-e4b1-40da-b435-3c62dd938a45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools">
+      <UniqueIdentifier>{b01f03c4-4e5b-41f0-8db5-981dc16abe21}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -227,5 +236,10 @@
     <Image Include="res\main.ico">
       <Filter>res</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="AsmTools.asm">
+      <Filter>tools</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
