@@ -2,22 +2,20 @@
 #ifndef GRID_H_
 #define GRID_H_
 
-#include <vector>
-#include "Cell.h"
+#include "GPUAutomaton.h"
 
 class Grid {
 private:
-    std::vector<std::vector<Cell>> cells;
     int width, height;
-
+    GPUAutomaton* gpuAutomaton = nullptr; // член класса для вычислений на GPU
 public:
     Grid(int w, int h);
+    void SetGPUAutomaton(GPUAutomaton* ga) { gpuAutomaton = ga; } // Добавляем сеттер
+    void setCellColor(int x, int y, float r, float g, float b);
+    void getCellColor(int x, int y, float& r, float& g, float& b);
     void setCellState(int x, int y, bool alive);
     bool getCellState(int x, int y) const;
     int getWidth() const;
     int getHeight() const;
-    Cell& getCell(int x, int y); // метод для получения клетки
-    const Cell& getCell(int x, int y) const; // Константа версия метода для получения клетки
-    void setCell(int x, int y, const Cell& cell);
 };
 #endif // GRID_H_

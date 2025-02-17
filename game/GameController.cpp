@@ -8,7 +8,7 @@ GameController::GameController(int width, int height, float cellSize)
 {
     currentPattern = glider;
     std::srand(static_cast<unsigned int>(std::time(nullptr))); // Инициализация генератора случайных чисел
-    //GameSimulation.updateStateInGPU();
+
 }
 
 void GameController::randomizeGrid() {
@@ -28,7 +28,6 @@ void GameController::randomizeGrid() {
         // Размещаем фигуру на сетке в случайном месте
         placePattern(startX, startY, gosperGliderGun);
     }
-    GameSimulation.updateStateInGPU();
 }
 
 void GameController::placePattern(int startX, int startY, const Pattern& pattern) {
@@ -43,17 +42,13 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
                 // Инвертируем x, чтобы перевернуть паттерн по горизонтали
                 grid.setCellState(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), pattern[y][x]);
                 if (pattern[y][x]) {
-                    grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.5f, 0.9f, 0.5f));
-                    GameSimulation.SetCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), Vector3d(0.5f, 0.9f, 0.5f));
+                    grid.setCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), 0.5f, 0.9f, 0.5f);
                 }
                 else {
-                    grid.getCell(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y)).setColor(Vector3d(0.1f, 0.1f, 0.2f));
-                    GameSimulation.SetCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), Vector3d(0.1f, 0.1f, 0.2f));
+                    grid.setCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), 0.1f, 0.1f, 0.2f);
                 }
-                
             }
         }
-        GameSimulation.updateStateInGPU();
     }
 }
 
@@ -94,21 +89,14 @@ void GameController::randomizeGrid(float density) {
             // Если случайное число меньше density, клетка становится живой
             if (dis(gen) < density) {
                 grid.setCellState(x, y, true);
-                grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
-                GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.6f, 0.0f));
+                grid.setCellColor(x, y, 0.0f, 0.6f, 0.0f);
             }
             else {
                 grid.setCellState(x, y, false);
-                grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
-                GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+                grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
             }
-            //float r = static_cast<float>(rand()) / RAND_MAX;
-            //float g = static_cast<float>(rand()) / RAND_MAX;
-            //float b = static_cast<float>(rand()) / RAND_MAX;
-            //grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
         }
     }
-    GameSimulation.updateStateInGPU();
 }
 
 void GameController::clearGrid() {
@@ -116,11 +104,9 @@ void GameController::clearGrid() {
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
             grid.setCellState(x, y, false); // Устанавливаем каждую клетку в мертвое состояние
-            grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
-            GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+            grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
         }
     }
-    GameSimulation.updateStateInGPU();
 }
 
 void GameController::update(float deltaTime) {
@@ -155,22 +141,19 @@ void GameController::toggleCellState(int x, int y) {
     bool currentState = grid.getCellState(x, y);
     grid.setCellState(x, y, !currentState);
     if (!currentState) {
-        grid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f));
-        GameSimulation.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
+        grid.setCellColor(x, y, 0.1f, 0.4f, 0.1f);
     }
     else {
-        grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
-        GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+        grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
     }
-    GameSimulation.updateStateInGPU();
+
 }
 
 void GameController::setLiveCell(int x, int y, bool state) {
     if (isRunning) return;
     grid.setCellState(x, y, state);
-    grid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f));
-    GameSimulation.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
-    GameSimulation.updateStateInGPU();
+    grid.setCellColor(x, y, 0.1f, 0.4f, 0.1f);
+
 }
 
 bool GameController::getCellState(int x, int y) const {
@@ -201,18 +184,13 @@ void GameController::setFieldSize(int newWidth, int newHeight) {
             bool currentState = grid.getCellState(x, y);
             newGrid.setCellState(x, y, currentState);
             if (currentState) {
-                newGrid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f));
-                //GameSimulation.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
+                newGrid.setCellColor(x, y, 0.1f, 0.4f, 0.1f);
             }
             else {
-                newGrid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
-                //GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+                newGrid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
             }
-
-            //newGrid.setCellState(x, y, grid.getCellState(x, y));
         }
     }
-
     // Обновляем текущую сетку
     grid = std::move(newGrid);
 
@@ -317,19 +295,16 @@ bool GameController::loadGameState(const std::string& filename) {
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
             if (grid.getCellState(x,y)) {
-                grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
-                GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.6f, 0.0f));
+                grid.setCellColor(x, y, 0.0f, 0.6f, 0.0f);
             }
             else {
-                grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
-                GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+                grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
             }
 
         }
     }
     return gameIsSave;
 }
-
 
 void GameController::loadPatternList(const std::string& patternFolder) {
     patternList.clear(); // Очищаем существующий список
@@ -414,11 +389,9 @@ void GameController::KillSelectedCells() {
         int x = static_cast<int>(cell.X());
         int y = static_cast<int>(cell.Y());
         grid.setCellState(x, y, false);
-        grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f)); // Устанавливаем цвет для мертвой клетки
-        GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
+        grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f); // Устанавливаем цвет для мертвой клетки
     }
     isSelectionActive = false;
-    GameSimulation.updateStateInGPU();
 }
 
 void GameController::ReviveSelectedCells() {
@@ -426,9 +399,7 @@ void GameController::ReviveSelectedCells() {
         int x = static_cast<int>(cell.X());
         int y = static_cast<int>(cell.Y());
         grid.setCellState(x, y, true);
-        grid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f)); // Устанавливаем цвет для живой клетки
-        GameSimulation.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
+        grid.setCellColor(x, y, 0.1f, 0.4f, 0.1f); // Устанавливаем цвет для живой клетки
     }
     isSelectionActive = false;
-    GameSimulation.updateStateInGPU();
 }

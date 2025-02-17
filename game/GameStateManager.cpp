@@ -25,7 +25,6 @@ bool GameStateManager::saveGameState(const Grid& grid, const std::string& filena
 }
 
 bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
-    
     std::ifstream file(filename);
     if (!file.is_open()) {
         char buffer[256];
@@ -33,8 +32,6 @@ bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
         std::cerr << "Не удалось открыть файл для чтения: " << filename << ", ошибка: " << buffer << std::endl;
         return false;
     }
-
-
 
     // Читаем размеры
     int width, height;
@@ -50,46 +47,18 @@ bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
     // Читаем состояния клеток
     int y = 0;
     while (std::getline(file, line) && y < height) {
-        for (int x = 0; x < std::min(width, (int)line.length()); ++x) {
-
+        int lineLength = static_cast<int>(line.length());
+        int limit = width < lineLength ? width : lineLength; // Определяем меньшее значение вручную
+        for (int x = 0; x < limit; ++x) {
             grid.setCellState(x, y, line[x] == '1');
             if (line[x] == '1') {
-                grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
+                grid.setCellColor(x, y, 0.0f, 0.6f, 0.0f); // Зеленый для живой клетки
             }
             else {
-                grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
+                grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f); // Черный для мертвой клетки
             }
-            
         }
         ++y;
-    }
-
-    return true;
-}
-
-bool GameStateManager::saveGameStateCSV(const Grid& grid, const std::string& filename) {
-    std::ofstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Не удалось открыть файл для записи: " << filename << std::endl;
-        return false;
-    }
-
-    // Записываем заголовок
-    file << "Width:" << grid.getWidth() << ",Height:" << grid.getHeight() << "\n";
-    file << "x,y,alive,type,colorR,colorG,colorB\n";
-
-    // Записываем данные клеток
-    for (int y = 0; y < grid.getHeight(); ++y) {
-        for (int x = 0; x < grid.getWidth(); ++x) {
-            const Cell& cell = grid.getCell(x, y);
-            const Vector3d& color = cell.getColor();
-            file << x << "," << y << ","
-                 << (cell.getAlive() ? "1" : "0") << ","
-                 //<< cell.getType() << ","
-                 << color.X() << ","
-                 << color.Y() << ","
-                 << color.Z() << "\n";
-        }
     }
 
     return true;

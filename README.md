@@ -153,9 +153,8 @@ git push origin v1.0.0
 ## Структура проекта
 
 - **./game**: Основная логика игры:
-  - `Cell.h`, `Cell.cpp` - Реализация класса клетки
   - `Grid.h`, `Grid.cpp` - Управление сеткой
-  - `GameSimulation.h`, `GameSimulation.cpp` - Правила и логика игры
+  - `GameSimulation.h`, `GameSimulation.cpp` - Правила и логика игры (Кондидат на удаление)
   - `GameController.h`, `GameController.cpp` - Управление состоянием игры
   - `GPUAutomaton.h`, `GPUAutomaton.cpp` - Клеточный автомат, использующий для расчёта GPU
   - `GameStateManager.h`, `GameStateManager.cpp` - Управление загрузкой и сохранением мира
@@ -172,7 +171,7 @@ git push origin v1.0.0
 
 - **./mathematics**: Математические утилиты:
   - `Matrix4x4.h`, `Matrix4x4.cpp` - Операции с матрицами (на данный момент не используется)
-  - `Vector3d.h`, `Vector3d.cpp` - Операции с векторами
+  - `Vector3d.h`, `Vector3d.cpp` - Операции с векторами (Кондидат на удаление)
 
 - **./windowing**: Управление окнами и вводом:
   - `MainWindow.h`, `MainWindow.cpp` - Создание окна и базовая обработка событий

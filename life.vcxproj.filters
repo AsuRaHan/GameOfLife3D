@@ -13,9 +13,6 @@
     <ClCompile Include="rendering\Renderer.cpp">
       <Filter>rendering</Filter>
     </ClCompile>
-    <ClCompile Include="game\Cell.cpp">
-      <Filter>game</Filter>
-    </ClCompile>
     <ClCompile Include="game\Grid.cpp">
       <Filter>game</Filter>
     </ClCompile>
@@ -105,9 +102,6 @@
     </ClInclude>
     <ClInclude Include="rendering\Renderer.h">
       <Filter>rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="game\Cell.h">
-      <Filter>game</Filter>
     </ClInclude>
     <ClInclude Include="game\Grid.h">
       <Filter>game</Filter>

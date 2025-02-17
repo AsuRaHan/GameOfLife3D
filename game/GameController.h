@@ -121,10 +121,6 @@ public:
     bool getShowUI() const { return showUI; };
     void setShowUI(bool isShow) { showUI = isShow;};
 
-    void setGpuSimulated(bool gs) { GameSimulation.setGpuSimulated(gs) ; };
-    bool getGpuSimulated() const { return GameSimulation.getGpuSimulated(); };
-
-
     bool getCellState(int x, int y) const;
     const Grid& getGrid() const { return grid; }
 
@@ -145,7 +141,7 @@ public:
     bool saveGameState(const std::string& filename) const;
     bool loadGameState(const std::string& filename);
     bool saveGameStateCSV(const std::string& filename) const {
-        return GameStateManager::saveGameStateCSV(grid, filename);
+        //return GameStateManager::saveGameStateCSV(grid, filename);
     }
     Pattern rotateOrFlip(const Pattern& pattern, Rotation rotation);
 

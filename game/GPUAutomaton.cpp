@@ -244,15 +244,15 @@ void GPUAutomaton::SetCellColor(int x,int y, float r, float g, float b) {
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 }
 
-void GPUAutomaton::GetCellColor(int x, int y, float& r, float& g, float& b, float& a) {
+void GPUAutomaton::GetCellColor(int x, int y, float& r, float& g, float& b) {
     if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
         std::cerr << "GetCellColor: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
-        r = g = b = a = 0.0f; // Возвращаем черный цвет с нулевой прозрачностью в случае ошибки
+        r = g = b = 0.0f; // Возвращаем черный цвет с нулевой прозрачностью в случае ошибки
         return;
     }
     if (colorsBuffer == 0) {
         std::cerr << "GetCellColor: colorsBuffer is not initialized!" << std::endl;
-        r = g = b = a = 0.0f;
+        r = g = b = 0.0f;
         return;
     }
 
@@ -269,7 +269,7 @@ void GPUAutomaton::GetCellColor(int x, int y, float& r, float& g, float& b, floa
     r = colorData[0];
     g = colorData[1];
     b = colorData[2];
-    a = colorData[3];
+    //a = colorData[3];
 }
 
 void GPUAutomaton::SetCellState(int x, int y, int state) {

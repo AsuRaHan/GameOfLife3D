@@ -1,18 +1,32 @@
 #include "Grid.h"
 
 Grid::Grid(int w, int h) : width(w), height(h) {
-    cells.resize(height, std::vector<Cell>(width));
+    
+}
+
+void Grid::setCellColor(int x, int y, float r, float g, float b)
+{
+    if (!gpuAutomaton) return;
+    gpuAutomaton->SetCellColor( x,  y,  r,  g,  b);
+}
+
+void Grid::getCellColor(int x, int y, float& r, float& g, float& b)
+{
+    if (!gpuAutomaton) return;
+    gpuAutomaton->GetCellColor( x,  y, r, g, b);
 }
 
 void Grid::setCellState(int x, int y, bool alive) {
+    if (!gpuAutomaton) return;
     if (x >= 0 && x < width && y >= 0 && y < height) {
-        cells[y][x].setAlive(alive);
+        gpuAutomaton->SetCellState(x, y, alive);
     }
 }
 
 bool Grid::getCellState(int x, int y) const {
+    if (!gpuAutomaton) return false;
     if (x >= 0 && x < width && y >= 0 && y < height) {
-        return cells[y][x].getAlive();
+        return gpuAutomaton->GetCellState(x, y);
     }
     return false; // Возвращаем false для несуществующих координат
 }
@@ -23,24 +37,4 @@ int Grid::getWidth() const {
 
 int Grid::getHeight() const {
     return height;
-}
-
-//Cell& Grid::getCell(int x, int y) {
-//    if (x >= 0 && x < width && y >= 0 && y < height) {
-//        return cells[y][x];
-//    }
-//    throw std::out_of_range("Grid::getCell: координаты за пределами сетки");
-//}
-//
-//const Cell& Grid::getCell(int x, int y) const {
-//    if (x >= 0 && x < width && y >= 0 && y < height) {
-//        return cells[y][x];
-//    }
-//    throw std::out_of_range("Grid::getCell: координаты за пределами сетки");
-//}
-
-void Grid::setCell(int x, int y, const Cell& cell) {
-    if (x >= 0 && x < width && y >= 0 && y < height) {
-        cells[y][x] = cell;
-    }
 }

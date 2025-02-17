@@ -341,11 +341,7 @@ void Renderer::RebuildGameField() {
     cellInstances.reserve(gridWidth * gridHeight);
     for (int y = 0; y < gridHeight; ++y) {
         for (int x = 0; x < gridWidth; ++x) {
-            Cell cell = pGameController->getGrid().getCell(x, y);
-            cellInstances.push_back({
-                x * cellSize, y * cellSize//,
-                //{cell.getColor().X(), cell.getColor().Y(), cell.getColor().Z()}
-                });
+            cellInstances.push_back({x * cellSize, y * cellSize});
         }
     }
 

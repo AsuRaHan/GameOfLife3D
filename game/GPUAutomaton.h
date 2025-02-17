@@ -32,7 +32,7 @@ public:
     GLint getColorsBuffer() { return colorsBuffer; };
 
     void SetCellColor(int x, int y, float r, float g, float b);
-    void GetCellColor(int x, int y, float& r, float& g, float& b, float& a);
+    void GetCellColor(int x, int y, float& r, float& g, float& b);
 
     void SetCellState(int x, int y, int state);
     int GetCellState(int x, int y);
