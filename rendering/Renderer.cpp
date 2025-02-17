@@ -3,6 +3,7 @@
 Renderer::Renderer(int width, int height)
     : width(width), height(height), farPlane(999009000000.0f), camera(45.0f, static_cast<float>(width) / height, 0.1f, farPlane),
     pGameController(nullptr), uiRenderer(nullptr), selectionRenderer(camera, shaderManager)
+    , debugTextureShaderProgram(0), debugTextureVAO(0), debugTextureVBO(0), debugTextureID(0)
 {
     SetupOpenGL();
     OnWindowResize(width, height);
@@ -14,6 +15,10 @@ Renderer::~Renderer() {
     glDeleteBuffers(1, &cellInstanceVBO);
     glDeleteVertexArrays(1, &gridVAO);
     glDeleteVertexArrays(1, &debugOverlayVAO);
+
+    glDeleteVertexArrays(1, &debugTextureVAO);
+    glDeleteBuffers(1, &debugTextureVBO);
+    glDeleteTextures(1, &debugTextureID);
 }
 
 void Renderer::SetCamera(const Camera& camera) {
@@ -32,14 +37,78 @@ void Renderer::SetGameController(GameController* gameController) {
 
     pGameController = gameController;
     selectionRenderer.SetGameController(gameController);
+
+    // Инициализация отладочной текстуры
+    LoadDebugTextureShaders();
+    InitializeDebugTexture();
 }
 
 void Renderer::SetupOpenGL() {
     GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 1.0f)); // Черный фон
     GL_CHECK(glEnable(GL_DEPTH_TEST)); // Включаем тест глубины
     GL_CHECK(glViewport(0, 0, width, height));
+
+    // Проверка максимального количества текстурных единиц
+    GLint maxTextureUnits;
+    GL_CHECK(glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits));
+    std::cout << "Max Texture Units: " << maxTextureUnits << std::endl;
 }
 
+//void Renderer::InitializeCellsVBOs() {
+//    if (!pGameController) return;
+//    int gridWidth = pGameController->getGridWidth();
+//    int gridHeight = pGameController->getGridHeight();
+//    float cellSize = pGameController->getCellSize();
+//
+//    GL_CHECK(glGenVertexArrays(1, &cellsVAO));
+//    GL_CHECK(glBindVertexArray(cellsVAO));
+//
+//    GL_CHECK(glGenBuffers(1, &cellsVBO));
+//    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
+//
+//    float vertices[] = {
+//        0.1f, 0.1f,
+//        0.9f, 0.1f,
+//        0.9f, 0.9f,
+//        0.1f, 0.9f
+//    };
+//
+//    //GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
+//    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW));
+//
+//    // Настраиваем атрибуты вершин один раз при инициализации
+//    GL_CHECK(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
+//    GL_CHECK(glEnableVertexAttribArray(0));
+//
+//    GL_CHECK(glGenBuffers(1, &cellInstanceVBO));
+//    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
+//
+//    cellInstances.clear();
+//    cellInstances.reserve(gridWidth * gridHeight);
+//    for (int y = 0; y < gridHeight; ++y) {
+//        for (int x = 0; x < gridWidth; ++x) {
+//            Cell cell = pGameController->getGrid().getCell(x, y);
+//            cellInstances.push_back({
+//                x * cellSize, y * cellSize,
+//                {cell.getColor().X(), cell.getColor().Y(), cell.getColor().Z()}
+//                });
+//        }
+//    }
+//
+//    //GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
+//    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_DYNAMIC_DRAW));
+//
+//    // Настраиваем атрибуты инстансинга один раз при инициализации
+//    GL_CHECK(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)0));
+//    GL_CHECK(glVertexAttribDivisor(1, 1));
+//    GL_CHECK(glEnableVertexAttribArray(1));
+//
+//    GL_CHECK(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)(offsetof(CellInstance, color))));
+//    GL_CHECK(glVertexAttribDivisor(3, 1));
+//    GL_CHECK(glEnableVertexAttribArray(3));
+//
+//    GL_CHECK(glBindVertexArray(0)); // Отвязываем VAO
+//}
 void Renderer::InitializeCellsVBOs() {
     if (!pGameController) return;
     int gridWidth = pGameController->getGridWidth();
@@ -59,10 +128,8 @@ void Renderer::InitializeCellsVBOs() {
         0.1f, 0.9f
     };
 
-    //GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
-    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
 
-    // Настраиваем атрибуты вершин один раз при инициализации
     GL_CHECK(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
     GL_CHECK(glEnableVertexAttribArray(0));
 
@@ -73,28 +140,22 @@ void Renderer::InitializeCellsVBOs() {
     cellInstances.reserve(gridWidth * gridHeight);
     for (int y = 0; y < gridHeight; ++y) {
         for (int x = 0; x < gridWidth; ++x) {
-            Cell cell = pGameController->getGrid().getCell(x, y);
             cellInstances.push_back({
                 x * cellSize, y * cellSize,
-                {cell.getColor().X(), cell.getColor().Y(), cell.getColor().Z()}
+                {0.0f, 0.0f, 0.0f} // Цвета теперь берутся из colorsBuffer, здесь можно оставить 0
                 });
         }
     }
 
-    //GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
-    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_DYNAMIC_DRAW));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
 
-    // Настраиваем атрибуты инстансинга один раз при инициализации
     GL_CHECK(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)0));
     GL_CHECK(glVertexAttribDivisor(1, 1));
     GL_CHECK(glEnableVertexAttribArray(1));
 
-    GL_CHECK(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)(offsetof(CellInstance, color))));
-    GL_CHECK(glVertexAttribDivisor(3, 1));
-    GL_CHECK(glEnableVertexAttribArray(3));
-
-    GL_CHECK(glBindVertexArray(0)); // Отвязываем VAO
+    GL_CHECK(glBindVertexArray(0));
 }
+
 
 void Renderer::InitializeGridVBOs() {
     if (!pGameController) return;
@@ -157,7 +218,8 @@ void Renderer::Draw() {
     // используем UIRenderer для отрисовки UI
     if (pGameController->getShowUI())uiRenderer.DrawUI();
 
-    
+    // Отрисовка отладочной текстуры
+    DrawDebugTexture();
 
     SwapBuffers(wglGetCurrentDC());
 }
@@ -180,17 +242,49 @@ void Renderer::DrawGrid() {
     GL_CHECK(glBindVertexArray(0));
 }
 
+//void Renderer::DrawCells() {
+//    if (!pGameController) return;
+//
+//    GL_CHECK(glBindVertexArray(cellsVAO));
+//
+//    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
+//    void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+//    if (ptr) {
+//        memcpy(ptr, cellInstances.data(), cellInstances.size() * sizeof(CellInstance));
+//        GL_CHECK(glUnmapBuffer(GL_ARRAY_BUFFER));
+//    }
+//
+//    GL_CHECK(glUseProgram(cellShaderProgram));
+//
+//    GLuint projectionLoc = glGetUniformLocation(cellShaderProgram, "projection");
+//    GLuint viewLoc = glGetUniformLocation(cellShaderProgram, "view");
+//    GLuint cellSizeLoc = glGetUniformLocation(cellShaderProgram, "cellSize");
+//
+//    GL_CHECK(glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, camera.GetProjectionMatrix()));
+//    GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
+//    GL_CHECK(glUniform1f(cellSizeLoc, pGameController->getCellSize()));
+//
+//    GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, static_cast<GLsizei>(cellInstances.size())));
+//
+//    GL_CHECK(glBindVertexArray(0)); // Отвязываем VAO
+//}
 void Renderer::DrawCells() {
     if (!pGameController) return;
 
     GL_CHECK(glBindVertexArray(cellsVAO));
 
+    // Привязываем буфер позиций инстансов
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
-    void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-    if (ptr) {
-        memcpy(ptr, cellInstances.data(), cellInstances.size() * sizeof(CellInstance));
-        GL_CHECK(glUnmapBuffer(GL_ARRAY_BUFFER));
-    }
+    GL_CHECK(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)0));
+    GL_CHECK(glEnableVertexAttribArray(1));
+    GL_CHECK(glVertexAttribDivisor(1, 1)); // Позиция обновляется для каждого инстанса
+
+    // Привязываем буфер цветов из GPUAutomaton
+    GLuint colorsBuffer = pGameController->getGPUAutomaton().getColorsBuffer();
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, colorsBuffer));
+    GL_CHECK(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
+    GL_CHECK(glEnableVertexAttribArray(3));
+    GL_CHECK(glVertexAttribDivisor(3, 1)); // Цвет обновляется для каждого инстанса
 
     GL_CHECK(glUseProgram(cellShaderProgram));
 
@@ -202,9 +296,12 @@ void Renderer::DrawCells() {
     GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
     GL_CHECK(glUniform1f(cellSizeLoc, pGameController->getCellSize()));
 
-    GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, static_cast<GLsizei>(cellInstances.size())));
+    // Убедитесь, что количество экземпляров соответствует размеру сетки
+    int gridWidth = pGameController->getGridWidth();
+    int gridHeight = pGameController->getGridHeight();
+    GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, gridWidth * gridHeight));
 
-    GL_CHECK(glBindVertexArray(0)); // Отвязываем VAO
+    GL_CHECK(glBindVertexArray(0));
 }
 
 void Renderer::OnWindowResize(int newWidth, int newHeight) {
@@ -218,6 +315,7 @@ void Renderer::OnWindowResize(int newWidth, int newHeight) {
 void Renderer::LoadShaders() {
     LoadCellShaders();
     LoadGridShaders();
+    LoadDebugTextureShaders();
 }
 
 void Renderer::LoadCellShaders() {
@@ -315,19 +413,6 @@ void main()
 
 }
 
-//void Renderer::RebuildGameField() {
-//    if (!pGameController) return;
-//
-//    // Освобождаем старые буферы
-//    glDeleteBuffers(1, &cellsVBO);
-//    glDeleteBuffers(1, &cellInstanceVBO);
-//    glDeleteBuffers(1, &gridVBO);
-//
-//    // Пересоздаем буферы
-//    InitializeCellsVBOs();
-//    InitializeGridVBOs();
-//}
-
 void Renderer::RebuildGameField() {
     if (!pGameController) return;
 
@@ -389,4 +474,109 @@ void Renderer::RebuildGameField() {
     GL_CHECK(glBindVertexArray(0));
 
     std::cout << "Game field rebuilt." << std::endl;
+}
+
+void Renderer::InitializeDebugTexture() {
+    if (!pGameController) return;
+
+    int gridWidth = pGameController->getGridWidth();
+    int gridHeight = pGameController->getGridHeight();
+
+    // Создание VAO и VBO для прямоугольника
+    glGenVertexArrays(1, &debugTextureVAO);
+    glGenBuffers(1, &debugTextureVBO);
+    glBindVertexArray(debugTextureVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, debugTextureVBO);
+
+    float vertices[] = {
+        0.5f, -1.0f, 0.0f, 1.0f, // Нижний правый угол
+        1.0f, -1.0f, 1.0f, 1.0f, // Верхний правый угол
+        1.0f,  1.0f, 1.0f, 0.0f, // Верхний левый угол
+        0.5f,  1.0f, 0.0f, 0.0f  // Нижний левый угол
+    };
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+
+    // Создание текстуры
+    glGenTextures(1, &debugTextureID);
+
+    // Установка активной текстурной единицы
+    glActiveTexture(GL_TEXTURE1);
+
+    // Привязка текстуры
+    glBindTexture(GL_TEXTURE_2D, debugTextureID);
+
+    // Создание данных текстуры в памяти (красный цвет)
+    std::vector<float> textureData(gridWidth * gridHeight * 3);
+    for (int i = 0; i < gridWidth * gridHeight; ++i) {
+        textureData[i * 3] = 1.0f;     // R
+        textureData[i * 3 + 1] = 0.0f; // G
+        textureData[i * 3 + 2] = 0.0f; // B
+    }
+
+    // Настройка текстуры
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, gridWidth, gridHeight, 0, GL_RGB, GL_FLOAT, textureData.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // Отвязка текстуры
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Renderer::LoadDebugTextureShaders() {
+    const std::string vertexShaderSource = R"(
+#version 430 core
+layout(location = 0) in vec2 aPos;
+layout(location = 1) in vec2 aTexCoord;
+out vec2 TexCoord;
+void main()
+{
+    gl_Position = vec4(aPos, 0.0, 1.0);
+    TexCoord = aTexCoord;
+}
+    )";
+
+    const std::string fragmentShaderSource = R"(
+#version 430 core
+in vec2 TexCoord;
+out vec4 FragColor;
+uniform sampler2D textureSampler;
+void main()
+{
+    FragColor = texture(textureSampler, TexCoord);
+}
+    )";
+
+    shaderManager.loadVertexShader("debugTextureVertexShader", vertexShaderSource.c_str());
+    shaderManager.loadFragmentShader("debugTextureFragmentShader", fragmentShaderSource.c_str());
+    shaderManager.linkProgram("debugTextureShaderProgram", "debugTextureVertexShader", "debugTextureFragmentShader");
+    debugTextureShaderProgram = shaderManager.getProgram("debugTextureShaderProgram");
+}
+
+void Renderer::DrawDebugTexture() {
+    if (!pGameController) return;
+
+    // Установка активной текстурной единицы
+    glActiveTexture(GL_TEXTURE1);
+
+    // Привязка текстуры
+    glBindTexture(GL_TEXTURE_2D, debugTextureID);
+
+    // Установка шейдера и отрисовка
+    glUseProgram(debugTextureShaderProgram);
+    glUniform1i(glGetUniformLocation(debugTextureShaderProgram, "textureSampler"), 1);
+
+    glBindVertexArray(debugTextureVAO);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glBindVertexArray(0);
+
+    // Отвязка текстуры
+    glBindTexture(GL_TEXTURE_2D, 0);
 }

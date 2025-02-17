@@ -70,5 +70,14 @@ private:
     void LoadShaders();
 	void LoadCellShaders();
     void LoadGridShaders();
+
+    // ƒл€ отладочной текстуры
+    GLuint debugTextureShaderProgram;
+    GLuint debugTextureVAO;
+    GLuint debugTextureVBO;
+    GLuint debugTextureID; // ID текстуры
+    void DrawDebugTexture(); // Ќовый метод дл€ отрисовки текстуры
+    void LoadDebugTextureShaders(); // Ќовый метод дл€ загрузки шейдеров текстуры
+    void InitializeDebugTexture();
 };
 #endif // RENDERER_H_

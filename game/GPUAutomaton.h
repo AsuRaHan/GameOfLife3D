@@ -26,8 +26,10 @@ public:
     void SetSurvivalMin(int smin) { survivalMin = smin; }
     void SetSurvivalMax(int smax) { survivalMax = smax; }
     void SetOverpopulation(int o) { overpopulation = o; }
-
+    
     void SetNewGridSize(int width, int height);
+
+    GLint getColorsBuffer() { return colorsBuffer; };
 private:
     void CreateComputeShader();
     void SetupBuffers();
@@ -36,6 +38,8 @@ private:
     GLuint computeProgram;
     GLuint cellsBuffer[2];
     GLint bufferIndex;
+
+    GLuint colorsBuffer; // Буфер для хранения цветов клеток
 
     int gridWidth, gridHeight;
     bool isToroidal;

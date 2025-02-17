@@ -235,6 +235,131 @@
 #define GL_DEBUG_OUTPUT_SYNCHRONOUS 0x8242
 #endif
 
+
+#ifndef GL_R32I
+#define GL_R32I 0x8235
+#endif
+#ifndef GL_RED_INTEGER
+#define GL_RED_INTEGER 0x8D94
+#endif
+#ifndef GL_TEXTURE0
+#define GL_TEXTURE0 0x84C0
+#endif
+#ifndef GL_TEXTURE1
+#define GL_TEXTURE1 0x84C1
+#endif
+#ifndef GL_TEXTURE2
+#define GL_TEXTURE2 0x84C2
+#endif
+#ifndef GL_TEXTURE3
+#define GL_TEXTURE3 0x84C3
+#endif
+#ifndef GL_TEXTURE4
+#define GL_TEXTURE4 0x84C4
+#endif
+#ifndef GL_TEXTURE5
+#define GL_TEXTURE5 0x84C5
+#endif
+#ifndef GL_TEXTURE6
+#define GL_TEXTURE6 0x84C6
+#endif
+#ifndef GL_TEXTURE7
+#define GL_TEXTURE7 0x84C7
+#endif
+#ifndef GL_TEXTURE8
+#define GL_TEXTURE8 0x84C8
+#endif
+#ifndef GL_TEXTURE9
+#define GL_TEXTURE9 0x84C9
+#endif
+#ifndef GL_TEXTURE10
+#define GL_TEXTURE10 0x84CA
+#endif
+#ifndef GL_TEXTURE11
+#define GL_TEXTURE11 0x84CB
+#endif
+#ifndef GL_TEXTURE12
+#define GL_TEXTURE12 0x84CC
+#endif
+#ifndef GL_TEXTURE13
+#define GL_TEXTURE13 0x84CD
+#endif
+#ifndef GL_TEXTURE14
+#define GL_TEXTURE14 0x84CE
+#endif
+#ifndef GL_TEXTURE15
+#define GL_TEXTURE15 0x84CF
+#endif
+#ifndef GL_TEXTURE16
+#define GL_TEXTURE16 0x84D0
+#endif
+#ifndef GL_TEXTURE17
+#define GL_TEXTURE17 0x84D1
+#endif
+#ifndef GL_TEXTURE18
+#define GL_TEXTURE18 0x84D2
+#endif
+#ifndef GL_TEXTURE19
+#define GL_TEXTURE19 0x84D3
+#endif
+#ifndef GL_TEXTURE20
+#define GL_TEXTURE20 0x84D4
+#endif
+#ifndef GL_TEXTURE21
+#define GL_TEXTURE21 0x84D5
+#endif
+#ifndef GL_TEXTURE22
+#define GL_TEXTURE22 0x84D6
+#endif
+#ifndef GL_TEXTURE23
+#define GL_TEXTURE23 0x84D7
+#endif
+#ifndef GL_TEXTURE24
+#define GL_TEXTURE24 0x84D8
+#endif
+#ifndef GL_TEXTURE25
+#define GL_TEXTURE25 0x84D9
+#endif
+#ifndef GL_TEXTURE26
+#define GL_TEXTURE26 0x84DA
+#endif
+#ifndef GL_TEXTURE27
+#define GL_TEXTURE27 0x84DB
+#endif
+#ifndef GL_TEXTURE28
+#define GL_TEXTURE28 0x84DC
+#endif
+#ifndef GL_TEXTURE29
+#define GL_TEXTURE29 0x84DD
+#endif
+#ifndef GL_TEXTURE30
+#define GL_TEXTURE30 0x84DE
+#endif
+#ifndef GL_TEXTURE31
+#define GL_TEXTURE31 0x84DF
+#endif
+#ifndef GL_SHADER_IMAGE_ACCESS_BARRIER_BIT
+#define GL_SHADER_IMAGE_ACCESS_BARRIER_BIT 0x00000020
+#endif
+#ifndef GL_TEXTURE_BUFFER
+#define GL_TEXTURE_BUFFER 0x8C2A
+#endif
+#ifndef GL_RGBA32F
+#define GL_RGBA32F 0x8814
+#endif
+#ifndef GL_RGB32F
+#define GL_RGB32F 0x8815
+#endif
+#ifndef GL_RGBA16F
+#define GL_RGBA16F 0x881A
+#endif
+#ifndef GL_RGB16F
+#define GL_RGB16F 0x881B
+#endif
+#ifndef GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS
+#define GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS 0x8B4D
+#endif
+
 #ifndef GLchar
 typedef char GLchar;
 #endif
@@ -299,6 +424,12 @@ typedef void (APIENTRY* GLDEBUGPROC)(GLenum source, GLenum type, GLuint id, GLen
 typedef void (APIENTRY* PFNGLDEBUGMESSAGECALLBACKPROC)(GLDEBUGPROC callback, const void* userParam);
 typedef void (APIENTRY* PFNGLDEBUGMESSAGECONTROLPROC)(GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint* ids, GLboolean enabled);
 
+
+
+typedef void (APIENTRY* PFNGLBINDIMAGETEXTUREPROC)(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);
+typedef void (APIENTRY* PFNGLACTIVETEXTUREPROC)(GLenum texture);
+typedef void (APIENTRY* PFNGLTEXBUFFERPROC)(GLenum target, GLenum internalformat, GLuint buffer);
+
 // Объявление указателей на функции
 extern PFNGLGENBUFFERSPROC glGenBuffers;
 extern PFNGLBINDBUFFERPROC glBindBuffer;
@@ -346,6 +477,10 @@ extern PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced;
 
 extern PFNGLDEBUGMESSAGECALLBACKPROC glDebugMessageCallback;
 extern PFNGLDEBUGMESSAGECONTROLPROC glDebugMessageControl;
+
+extern PFNGLBINDIMAGETEXTUREPROC glBindImageTexture;
+extern PFNGLACTIVETEXTUREPROC glActiveTexture;
+extern PFNGLTEXBUFFERPROC glTexBuffer;
 
 // Функции для работы с OpenGL
 void LoadOpenGLFunctions();

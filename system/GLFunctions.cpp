@@ -48,6 +48,10 @@ PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced = nullptr;
 PFNGLDEBUGMESSAGECALLBACKPROC glDebugMessageCallback = nullptr;
 PFNGLDEBUGMESSAGECONTROLPROC glDebugMessageControl = nullptr;
 
+PFNGLBINDIMAGETEXTUREPROC glBindImageTexture = nullptr;
+PFNGLACTIVETEXTUREPROC glActiveTexture = nullptr;
+PFNGLTEXBUFFERPROC glTexBuffer = nullptr;
+
 void LoadOpenGLFunctions() {
         // Загрузка функций для работы с буферами
     glGenBuffers = (PFNGLGENBUFFERSPROC)wglGetProcAddress("glGenBuffers");
@@ -142,10 +146,15 @@ void LoadOpenGLFunctions() {
 
     glDebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKPROC)wglGetProcAddress("glDebugMessageCallback");
     CHECK_LOAD_FUNCTION(glDebugMessageCallback);
-
     glDebugMessageControl = (PFNGLDEBUGMESSAGECONTROLPROC)wglGetProcAddress("glDebugMessageControl");
     CHECK_LOAD_FUNCTION(glDebugMessageControl);
 
+    glBindImageTexture = (PFNGLBINDIMAGETEXTUREPROC)wglGetProcAddress("glBindImageTexture");
+    CHECK_LOAD_FUNCTION(glBindImageTexture)
+    glActiveTexture = (PFNGLACTIVETEXTUREPROC)wglGetProcAddress("glBindImageTexture");
+    CHECK_LOAD_FUNCTION(glActiveTexture);    
+    glTexBuffer = (PFNGLTEXBUFFERPROC)wglGetProcAddress("glBindImageTexture");
+    CHECK_LOAD_FUNCTION(glTexBuffer);
 }
 
 void CheckOpenGLError(const char* stmt, const char* fname, int line)

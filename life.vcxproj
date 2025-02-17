@@ -214,9 +214,6 @@
     <ClInclude Include="windowing\WindowController.h" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="AsmTools.asm">
-      <FileType>Document</FileType>
-    </MASM>
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>

@@ -1,217 +1,258 @@
-; Файл: asmPaintCell.asm
+.data
+; Здесь можно определить константы, если необходимо
+ALIVE equ 1
+DEAD  equ 0
 
 .code
+extern printf : PROC
 
-; ============================================================================================================================
+asmUpdateGrid PROC
+    ; rcx: int* currentState
+    ; rdx: int* nextState
+    ; r8:  CellParams* cellParams
+    ; r9:  GridParams* gridParams
 
-; Процедура asmUpdateGrid
-; RCX  = int* currentState
-; RDX  = int* nextState
-; R8   = int GW
-; R9   = int GH
-; [RSP + 40] = int isToroidal
-; [RSP + 48] = int birth
-; [RSP + 56] = int survivalMin
-; [RSP + 64] = int survivalMax
-; [RSP + 72] = int overpopulation
-asmUpdateGrid proc
     push rbp
-    mov rbp, rsp        ; Сохраняем исходное значение rsp в rbp
-    sub rsp, 96         ; Выделяем место: 56 байт для регистров + 32 байта для локальных переменных + 8 байт для выравнивания
-    and rsp, -16        ; Выравнивание стека по 16 байтам
+    mov rbp, rsp
+    push rsi
+    push rdi
+    push r12
+    push r13
+    push r14
+    push r15
 
-    ; Сохраняем регистры вручную
-    mov [rbp - 8], rbx
-    mov [rbp - 16], rsi
-    mov [rbp - 24], rdi
-    mov [rbp - 32], r12
-    mov [rbp - 40], r13
-    mov [rbp - 48], r14
-    mov [rbp - 56], r15
+    ; Сохраняем параметры GridParams в регистры
+    mov r12d, [r9 + 0]  ; isToroidal
+    mov r13d, [r9 + 4]  ; GW
+    mov r14d, [r9 + 8]  ; GH
 
-    ; Сохраняем параметры в регистрах
-    mov r12, rcx        ; r12 = currentState
-    mov r13, rdx        ; r13 = nextState
-    mov r14, r8         ; r14 = GW (64-bit)
-    mov r15, r9         ; r15 = GH (64-bit)
-    mov ebx, [rbp + 16 + 40] ; ebx = isToroidal
-    mov r10d, [rbp + 16 + 48] ; r10d = birth
-    mov r11d, [rbp + 16 + 56] ; r11d = survivalMin
-    mov r8d, [rbp + 16 + 64]  ; r8d = survivalMax
-    mov r9d, [rbp + 16 + 72]  ; r9d = overpopulation (не используется, синхронизировано с GPU)
+    ; Сохраняем параметры CellParams в регистры
+    mov r15d, [r8 + 0]  ; birth
+    mov esi,    [r8 + 4]  ; survivalMin
+    mov edi,    [r8 + 8]  ; survivalMax
 
-    ; Инициализируем счетчики циклов
-    xor rsi, rsi        ; rsi = y = 0
-outer_loop:
-    cmp rsi, r15        ; Сравниваем y с GH
-    jge end_outer_loop  ; Если y >= GH, выходим
+    ; Внешний цикл по высоте сетки (y)
+    xor r10d, r10d      ; y = 0
+    outer_loop:
+        cmp r10d, r14d  ; y < GH
+        jge outer_loop_end
 
-    xor rdi, rdi        ; rdi = x = 0
-inner_loop:
-    cmp rdi, r14        ; Сравниваем x с GW
-    jge end_inner_loop  ; Если x >= GW, выходим
+        ; Внутренний цикл по ширине сетки (x)
+        xor r11d, r11d  ; x = 0
+        inner_loop:
+            cmp r11d, r13d  ; x < GW
+            jge inner_loop_end
 
-    ; Подсчитываем количество живых соседей
-    xor eax, eax        ; eax = count (количество живых соседей)
+            ; Вычисление индекса текущей клетки
+            mov eax, r10d   ; y
+            imul eax, r13d  ; y * GW
+            add eax, r11d   ; y * GW + x
+            mov rbx, rcx    ; Указатель на currentState
+            lea rbx, [rbx + rax * 4] ; &currentState[y * GW + x]
+            mov eax, [rbx]  ; currentState[y * GW + x]
 
-    ; Смещения для 8 соседей: {-1,-1}, {-1,0}, {-1,1}, {0,-1}, {0,1}, {1,-1}, {1,0}, {1,1}
-    mov edx, -1         ; edx = dy
-dy_loop:
-    cmp edx, 1
-    jg end_dy_loop
+            ; Подсчет живых соседей
+            push rcx
+            push rdx
+            push r8
+            push r9
+            push r10
+            push r11
 
-    mov ecx, -1         ; ecx = dx
-dx_loop:
-    cmp ecx, 1
-    jg end_dx_loop
+            mov ecx, r11d ; x
+            mov edx, r10d ; y
+            mov r8d, r13d ; GW
+            mov r9d, r14d ; GH
+            mov edi, r12d ; isToroidal
 
-    ; Пропускаем центр (dx=0, dy=0)
-    test ecx, ecx
-    jnz check_neighbor
-    test edx, edx
-    jz next_neighbor
+            call count_alive_neighbors
 
-check_neighbor:
-    ; Вычисляем координаты соседа: nx = x + dx, ny = y + dy
-    mov rbx, rdi        ; rbx = x
-    add rbx, rcx        ; rbx = nx = x + dx
-    mov r11, rsi        ; r11 = y
-    add r11, rdx        ; r11 = ny = y + dy
+            pop r11
+            pop r10
+            pop r9
+            pop r8
+            pop rdx
+            pop rcx
 
-    ; Проверяем тороидальность
-    test ebx, ebx       ; isToroidal?
-    jz non_toroidal
+            ; Применяем правила игры
+            cmp eax, r15d   ; Живых соседей == birth?
+            je  is_born
+            cmp eax, esi    ; Живых соседей < survivalMin?
+            jl  is_dead
+            cmp eax, edi    ; Живых соседей > survivalMax?
+            jg  is_dead
+            ; Иначе выживает если жива
+            jmp is_alive
 
-    ; Тороидальная коррекция: nx = (nx + GW) % GW
-    mov rax, rbx        ; rax = nx
-    cqo                 ; Подготовка к делению
-    idiv r14            ; Делим nx на GW, остаток в rdx
-    mov rbx, rdx        ; rbx = nx % GW
-    test rbx, rbx       ; Если nx < 0
-    jge no_adjust_x
-    add rbx, r14        ; nx = nx + GW
-no_adjust_x:
+            is_born:        ; Клетка рождается
+                mov eax, ALIVE
+                jmp store_state
+            is_dead:        ; Клетка умирает
+                mov eax, DEAD
+                jmp store_state
+            is_alive:       ; Клетка выживает, проверяем исходное состояние
+                mov eax, [rbx]
+                jmp store_state
 
-    ; ny = (ny + GH) % GH
-    mov rax, r11        ; rax = ny
-    cqo                 ; Подготовка к делению
-    idiv r15            ; Делим ny на GH, остаток в rdx
-    mov r11, rdx        ; r11 = ny % GH
-    test r11, r11       ; Если ny < 0
-    jge no_adjust_y
-    add r11, r15        ; ny = ny + GH
-no_adjust_y:
-    jmp check_bounds
+            store_state:
+            ; Сохраняем новое состояние клетки в nextState
+            mov rbx, rdx    ; Указатель на nextState
 
-non_toroidal:
-    ; Проверяем границы для нетороидального мира
-    cmp rbx, 0
-    jl next_neighbor
-    cmp rbx, r14
-    jge next_neighbor
-    cmp r11, 0
-    jl next_neighbor
-    cmp r11, r15
-    jge next_neighbor
+            mov esi, r10d   ; y
+            imul esi, r13d  ; y * GW
+            add esi, r11d   ; y * GW + x
 
-check_bounds:
-    ; Вычисляем индекс соседа: index = ny * GW + nx
-    mov rax, r11        ; rax = ny
-    imul rax, r14       ; rax = ny * GW
-    add rax, rbx        ; rax = ny * GW + nx
+            lea rbx, [rdx + rsi * 4]  ; Используем rdx (nextState) и esi (индекс)
+            mov [rbx], eax
 
-    ; Дополнительная проверка границ массива
-    cmp rax, 0
-    jl skip_neighbor
-    mov rbx, r14        ; rbx = GW
-    imul rbx, r15       ; rbx = GW * GH
-    cmp rax, rbx
-    jge skip_neighbor
+            ; Переходим к следующей клетке
+            inc r11d
+            jmp inner_loop
 
-    ; Читаем состояние соседа
-    mov ebx, [r12 + rax * 4]  ; ebx = currentState[ny * GW + nx]
-    test ebx, ebx
-    jz skip_neighbor
-    inc eax             ; Увеличиваем счетчик живых соседей
+        inner_loop_end:
+        inc r10d
+        jmp outer_loop
 
-skip_neighbor:
-next_neighbor:
-    inc ecx             ; dx++
-    jmp dx_loop
+    outer_loop_end:
 
-end_dx_loop:
-    inc edx             ; dy++
-    jmp dy_loop
-
-end_dy_loop:
-    ; Сохраняем количество соседей
-    mov rbx, rax        ; rbx = count (количество живых соседей)
-
-    ; Получаем текущее состояние клетки
-    mov rax, rsi        ; rax = y
-    imul rax, r14       ; rax = y * GW
-    add rax, rdi        ; rax = y * GW + x
-    mov eax, [r12 + rax * 4]  ; eax = currentState[y * GW + x]
-    test eax, eax
-    setnz al            ; al = currentState != 0 (1 если жива, 0 если мертва)
-    movzx eax, al       ; eax = currentState (0 или 1)
-
-    ; Применяем правила "Игры Жизни"
-    test eax, eax
-    jz dead_cell
-
-    ; Живая клетка: проверяем выживание
-    cmp ebx, r11d       ; Сравниваем count с survivalMin
-    jl dead             ; Если меньше survivalMin, клетка умирает
-    cmp ebx, r8d        ; Сравниваем count с survivalMax
-    jg dead             ; Если больше survivalMax, клетка умирает
-    mov edx, 1          ; Клетка выживает
-    jmp apply_state
-
-dead:
-    mov edx, 0          ; Клетка умирает
-    jmp apply_state
-
-dead_cell:
-    ; Мертвая клетка: проверяем рождение
-    cmp ebx, r10d       ; Сравниваем count с birth
-    jne no_birth
-    mov edx, 1          ; Клетка оживает
-    jmp apply_state
-
-no_birth:
-    mov edx, 0          ; Клетка остается мертвой
-
-apply_state:
-    ; Сохраняем новое состояние в nextState
-    mov rax, rsi        ; rax = y
-    imul rax, r14       ; rax = y * GW
-    add rax, rdi        ; rax = y * GW + x
-    mov [r13 + rax * 4], edx  ; nextState[y * GW + x] = edx
-
-next_iteration:
-    inc rdi             ; x++
-    jmp inner_loop
-
-end_inner_loop:
-    inc rsi             ; y++
-    jmp outer_loop
-
-end_outer_loop:
-    ; Восстанавливаем регистры
-    mov rbx, [rbp - 8]
-    mov rsi, [rbp - 16]
-    mov rdi, [rbp - 24]
-    mov r12, [rbp - 32]
-    mov r13, [rbp - 40]
-    mov r14, [rbp - 48]
-    mov r15, [rbp - 56]
-
-    mov rsp, rbp        ; Восстанавливаем rsp
-    pop rbp             ; Восстанавливаем rbp
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rdi
+    pop rsi
+    pop rbp
     ret
 
-asmUpdateGrid endp
-; ============================================================================================================================
+asmUpdateGrid ENDP
 
-end
+count_alive_neighbors PROC
+    ; rcx: x
+    ; rdx: y
+    ; r8: GW
+    ; r9: GH
+    ; rdi: isToroidal
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push rsi
+    push rdi
+    push r12
+    push r13
+    push r14
+    push r15
+
+    xor eax, eax ; Обнуляем счетчик живых соседей
+
+    mov r10d, ecx ; x
+    mov r11d, edx ; y
+    mov r12d, r8d ; GW
+    mov r13d, r9d ; GH
+    mov r14d, edi ; isToroidal
+
+    ; Обходим соседей
+    mov esi, -1 ; i = -1
+    neighbor_loop_i:
+        cmp esi, 2 ; i < 2
+        jge neighbor_loop_i_end
+
+        mov edi, -1 ; j = -1
+        neighbor_loop_j:
+            cmp edi, 2 ; j < 2
+            jge neighbor_loop_j_end
+
+            ; Пропускаем текущую клетку
+            cmp esi, 0
+            je skip_current
+            cmp edi, 0
+            je skip_current
+
+            ; Вычисляем координаты соседа
+            mov eax, r10d ; x
+            add eax, edi ; x + j
+            mov ebx, r11d ; y
+            add ebx, esi ; y + i
+
+            ; Проверяем границы
+            cmp r14d, 0 ; isToroidal == 0?
+            je not_toroidal
+
+            ; Тороидальные границы
+            toroidal_x:
+            cmp eax, r12d ; x + j < GW
+            jl toroidal_y
+
+            sub eax, r12d ; x + j -= GW
+
+            toroidal_y:
+            cmp eax, 0
+            jge toroidal_y_end
+
+            add eax, r12d
+
+            toroidal_y_end:
+
+            cmp ebx, r13d ; y + i < GH
+            jl check_neighbor
+
+            sub ebx, r13d ; y + i -= GH
+
+            check_neighbor:
+            cmp ebx, 0
+            jge check_neighbor_end
+
+            add ebx, r13d
+
+            check_neighbor_end:
+
+            jmp get_neighbor_state
+
+            not_toroidal:
+            cmp eax, 0
+            jl skip_neighbor
+            cmp eax, r12d
+            jge skip_neighbor
+            cmp ebx, 0
+            jl skip_neighbor
+            cmp ebx, r13d
+            jge skip_neighbor
+
+            get_neighbor_state:
+            ; Вычисляем индекс текущей клетки
+            mov r15d, r11d ; y
+            imul r15d, r12d ; y * GW
+            add r15d, r10d ; y * GW + x
+
+            mov rbx, rcx    ; Указатель на currentState
+            lea rbx, [rcx + r15d * 4] ; &currentState[y * GW + x]
+
+            cmp dword ptr [rbx],0
+			je next_neighbor
+
+            inc eax
+
+            skip_neighbor:
+
+			next_neighbor:
+            skip_current:
+            inc edi
+            jmp neighbor_loop_j
+
+        neighbor_loop_j_end:
+        inc esi
+        jmp neighbor_loop_i
+
+    neighbor_loop_i_end:
+
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rdi
+    pop rsi
+    pop rbx
+    pop rbp
+    ret
+count_alive_neighbors ENDP
+
+END

@@ -1,18 +1,5 @@
 #include "GameSimulation.h"
 
-// пробую реализовать подсчет клеток на ASM
-//extern "C" void asmUpdateGrid(
-//    int* currentState,    // Указатель на массив текущего состояния
-//    int* nextState,       // Указатель на массив следующего состояния (для записи результата)
-//    int GW,               // Ширина сетки
-//    int GH,               // Высота сетки
-//    int isToroidal,       // Флаг тороидальности (0 = нет, 1 = да)
-//    int birth,            // Число соседей для рождения
-//    int survivalMin,      // Минимальное число соседей для выживания
-//    int survivalMax,      // Максимальное число соседей для выживания
-//    int overpopulation    // Число соседей для смерти от перенаселения
-//);
-
 GameSimulation::GameSimulation(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()),
 gpuAutomaton(g.getWidth(), g.getHeight()), isToroidal(true), isGpuSimulated(false),
 cellInstances(nullptr),cellProvider(nullptr), gridReferenceIsUbdated(true)
@@ -44,7 +31,7 @@ void GameSimulation::nextGeneration() {
     future.wait(); // Ждем завершения загрузки
 
 
-    if (isGpuSimulated) {
+    if (true) {
         gpuAutomaton.SetGridState(currentState);
         //Выполняем обновление на GPU
         gpuAutomaton.Update();
@@ -52,56 +39,40 @@ void GameSimulation::nextGeneration() {
         gpuAutomaton.GetGridState(nextState);
     }
     else {
-        
-        // Параметры правил "Игры Жизни" (можно сделать настраиваемыми)
-        //int birth = 3;         // Рождение при 3 соседях
-        //int survivalMin = 2;   // Выживание при 2-3 соседях
-        //int survivalMax = 3;   // Максимум 3 соседа для выживания
-        //int overpopulation = 4; // Смерть от перенаселения при 4 и более соседях
 
-        // Вычисляем следующее состояние с помощью ассемблерной процедуры
-        //asmUpdateGrid(
-        //    currentState.data(),
-        //    nextState.data(),
-        //    GW,
-        //    GH,
-        //    isToroidal ? 1 : 0,
-        //    gpuAutomaton.birth,
-        //    gpuAutomaton.survivalMin,
-        //    gpuAutomaton.survivalMax,
-        //    gpuAutomaton.overpopulation
-        //);
         updateGridCpp(currentState.data(), nextState.data(), GW, GH);
-    }
+        //}
 
 
-    for (int y = 0; y < GH; ++y) {
-        for (int x = 0; x < GW; ++x) {
-            bool newState = nextState[y * GW + x] != 0;
-            Cell& cell = grid.getCell(x, y);
-            bool oldState = cell.getAlive();
+        for (int y = 0; y < GH; ++y) {
+            for (int x = 0; x < GW; ++x) {
+                bool newState = nextState[y * GW + x] != 0;
+                Cell& cell = grid.getCell(x, y);
+                bool oldState = cell.getAlive();
 
-            if (newState != oldState) {
-                cell.setAlive(newState);
-                Vector3d newColor = newState ? Vector3d(0.0f, 0.5f, 0.0f) : Vector3d(0.05f, 0.05f, 0.08f);
-                cell.setColor(newColor);
-                SetCellColor(x, y, newColor);
-            }
-            else if (newState) { // Клетка выжила
-                Vector3d oldColor = cell.getColor();
-                float newR = oldColor.X() + 0.05f;
-                float newG = oldColor.Y() + 0.05f;
-                float newB = oldColor.Z() + 0.05f;
-                newR = newR > 0.3f ? 0.3f : newR;
-                newG = newG > 1.0f ? 1.0f : newG;
-                newB = newB > 0.3f ? 0.3f : newB;
-                Vector3d newColor(newR, newG, newB);
-                if (newColor.X() != oldColor.X() || newColor.Y() != oldColor.Y() || newColor.Z() != oldColor.Z()) {
+                if (newState != oldState) {
+                    cell.setAlive(newState);
+                    Vector3d newColor = newState ? Vector3d(0.0f, 0.5f, 0.0f) : Vector3d(0.05f, 0.05f, 0.08f);
                     cell.setColor(newColor);
                     SetCellColor(x, y, newColor);
                 }
+                else if (newState) { // Клетка выжила
+                    Vector3d oldColor = cell.getColor();
+                    float newR = oldColor.X() + 0.05f;
+                    float newG = oldColor.Y() + 0.05f;
+                    float newB = oldColor.Z() + 0.05f;
+                    newR = newR > 0.3f ? 0.3f : newR;
+                    newG = newG > 1.0f ? 1.0f : newG;
+                    newB = newB > 0.3f ? 0.3f : newB;
+                    Vector3d newColor(newR, newG, newB);
+                    if (newColor.X() != oldColor.X() || newColor.Y() != oldColor.Y() || newColor.Z() != oldColor.Z()) {
+                        cell.setColor(newColor);
+                        SetCellColor(x, y, newColor);
+                    }
+                }
             }
         }
+
     }
 }
 
