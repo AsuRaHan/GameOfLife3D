@@ -156,7 +156,6 @@
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="game\GameController.cpp" />
-    <ClCompile Include="game\GameSimulation.cpp" />
     <ClCompile Include="game\GameStateManager.cpp" />
     <ClCompile Include="game\GPUAutomaton.cpp" />
     <ClCompile Include="game\Grid.cpp" />
@@ -185,7 +184,6 @@
     <ClInclude Include="external\imgui\imgui.h" />
     <ClInclude Include="external\imgui\imgui_internal.h" />
     <ClInclude Include="game\GameController.h" />
-    <ClInclude Include="game\GameSimulation.h" />
     <ClInclude Include="game\GameStateManager.h" />
     <ClInclude Include="game\GPUAutomaton.h" />
     <ClInclude Include="game\Grid.h" />

@@ -190,8 +190,6 @@ void GPUAutomaton::Update() {
     glDispatchCompute((gridWidth + 31) / 32, (gridHeight + 31) / 32, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-    //bufferIndex = (bufferIndex + 1) % 2;
-
     SwapBuffers();
 }
 //  Как это работает

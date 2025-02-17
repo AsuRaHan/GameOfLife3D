@@ -1,14 +1,16 @@
 #include "GameController.h"
 
 GameController::GameController(int width, int height, float cellSize)
-    : grid(width, height), GameSimulation(grid), cellSize(cellSize), 
-    isRunning(false), showGrid(true), showUI(true),
+    : grid(width, height), 
+    gpuAutomaton(grid.getWidth(), grid.getHeight()),
+    cellSize(cellSize), 
+    isRunning(false), showGrid(true), showUI(true), isWorldToroidal(true),
     currentPatternRotator(0), isSelectionActive(false),
     rendererProvider(nullptr)
 {
     currentPattern = glider;
     std::srand(static_cast<unsigned int>(std::time(nullptr))); // Инициализация генератора случайных чисел
-
+    grid.SetGPUAutomaton(&gpuAutomaton);
 }
 
 void GameController::randomizeGrid() {
@@ -77,6 +79,12 @@ void GameController::PlacePattern(int startX, int startY) {
     }
 }
 
+void GameController::setWoldToroidal(bool wt)
+{
+    isWorldToroidal = wt;
+    gpuAutomaton.SetToroidal(isWorldToroidal);
+}
+
 void GameController::randomizeGrid(float density) {
     if (isRunning) return;
     // Генератор случайных чисел
@@ -113,7 +121,7 @@ void GameController::update(float deltaTime) {
     if (isRunning) {
         //frameTimeAccumulator += deltaTime;
         //if (frameTimeAccumulator >= simulationSpeed) {
-            GameSimulation.nextGeneration();
+        gpuAutomaton.Update();
         //    frameTimeAccumulator -= simulationSpeed;
         //}
     }
@@ -129,7 +137,7 @@ void GameController::stopSimulation() {
 
 void GameController::stepSimulation() {
     if (isRunning) return;
-    GameSimulation.nextGeneration();
+    gpuAutomaton.Update();
 }
 
 bool GameController::isSimulationRunning() const {
@@ -162,7 +170,7 @@ bool GameController::getCellState(int x, int y) const {
 
 void GameController::SetCellInstanceProvider(IRendererProvider* provider) {
     rendererProvider = provider;
-    GameSimulation.SetCellProvider(provider); // Передаем провайдера в GameOfLife
+    //GameSimulation.SetCellProvider(provider); // Передаем провайдера в GameOfLife
 }
 
 void GameController::setFieldSize(int newWidth, int newHeight) {
@@ -172,30 +180,8 @@ void GameController::setFieldSize(int newWidth, int newHeight) {
     }
     if (newWidth <= 0 || newHeight <= 0) return; // Проверка на положительный размер
 
-    // Создаем новую сетку с новыми размерами
-    Grid newGrid(newWidth, newHeight);
-
-    // Копируем старые данные в новую сетку, где это возможно
-    for (int y = 0; y < grid.getHeight(); ++y) {
-        if (y >= newHeight) break; // Выходим из цикла, если превышаем новую высоту
-        for (int x = 0; x < grid.getWidth(); ++x) {
-            if (x >= newWidth) break; // Выходим из цикла, если превышаем новую ширину
-
-            bool currentState = grid.getCellState(x, y);
-            newGrid.setCellState(x, y, currentState);
-            if (currentState) {
-                newGrid.setCellColor(x, y, 0.1f, 0.4f, 0.1f);
-            }
-            else {
-                newGrid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
-            }
-        }
-    }
-    // Обновляем текущую сетку
-    grid = std::move(newGrid);
-
-    // Обновляем ссылку на сетку в GameOfLife
-    GameSimulation.updateGridReference(grid);
+    grid.setSize(newWidth, newHeight);
+    gpuAutomaton.SetNewGridSize(newWidth, newHeight);
     // Перед перестройкой буферов, уведомляем рендер о необходимости обновлений
     rendererProvider->RebuildGameField();
 }

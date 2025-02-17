@@ -180,7 +180,7 @@ git push origin v1.0.0
 
 - **./system**: Настройка системы, OpenGL и пользовательского ввода:
   - `OpenGLInitializer.h`, `OpenGLInitializer.cpp` - Инициализация контекста OpenGL
-  - `GLFunctions.h`, `GLFunctions.cpp` - Загрузка функций OpenGL
+  - `GLFunctions.h`, `GLFunctions.cpp` - Загрузка функций OpenGL (урезанный GLAD)
   - `ShaderManager.h`, `ShaderManager.cpp` - Создание компиляция проверка шейдеров (GLSL) OpenGL
   - `SettingsManager.h`, `SettingsManager.cpp` - Сохранение и загрузка пользовательских настроек.
   - `InputHandler.h`, `InputHandler.cpp` - Обработчик пользовательского ввода (клавиатура мыш).

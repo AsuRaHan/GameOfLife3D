@@ -4,9 +4,6 @@
     <ClCompile Include="game\GameController.cpp">
       <Filter>game</Filter>
     </ClCompile>
-    <ClCompile Include="game\GameSimulation.cpp">
-      <Filter>game</Filter>
-    </ClCompile>
     <ClCompile Include="rendering\Camera.cpp">
       <Filter>rendering</Filter>
     </ClCompile>
@@ -91,12 +88,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="game\GameController.h">
-      <Filter>game</Filter>
-    </ClInclude>
-    <ClInclude Include="game\GameSimulation.h">
-      <Filter>game</Filter>
-    </ClInclude>
     <ClInclude Include="rendering\Camera.h">
       <Filter>rendering</Filter>
     </ClInclude>
@@ -180,6 +171,9 @@
     </ClInclude>
     <ClInclude Include="system\OpenGLDebug.h">
       <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="game\GameController.h">
+      <Filter>game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

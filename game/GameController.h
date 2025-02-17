@@ -2,10 +2,13 @@
 #ifndef GAMECONTROLLER_H_
 #define GAMECONTROLLER_H_
 
-#include "GameSimulation.h"
+//#include "GameSimulation.h"
+
 #include "Grid.h"
+#include "GPUAutomaton.h"
 #include "GameStateManager.h"
 #include "PatternManager.h"
+#include "../rendering/IRendererProvider.h"
 
 #include <random> // Для генерации случайных чисел
 #include <string>
@@ -21,11 +24,13 @@ using Pattern = std::vector<std::vector<bool>>;
 class GameController {
 private:
     Grid grid;
-    GameSimulation GameSimulation;
+    //GameSimulation GameSimulation;
+    GPUAutomaton gpuAutomaton; // член класса для вычислений на GPU
     float cellSize; // Размер каждой клетки в пикселях
     bool isRunning; // Флаг, показывает, запущена ли симуляция
     bool showGrid;
     bool showUI;
+    bool isWorldToroidal;
     float simulationSpeed = 0.01f; // Значение 1.0f может соответствовать одной секунде реального времени
     float frameTimeAccumulator = 0.0f;
 
@@ -132,8 +137,8 @@ public:
 
     void PlacePattern(int startX, int startY);
 
-    void setWoldToroidal(bool wt) { GameSimulation.setWoldToroidal( wt); };
-    bool getWoldToroidal() const { return GameSimulation.getWoldToroidal(); };
+    void setWoldToroidal(bool wt);
+    bool getWoldToroidal() const { return isWorldToroidal; };
 
     void setSimulationSpeed(float speed);
 
@@ -147,7 +152,7 @@ public:
 
     void SetCellInstanceProvider(IRendererProvider* provider);
 
-    GPUAutomaton& getGPUAutomaton() { return GameSimulation.getGPUAutomaton(); }
+    GPUAutomaton& getGPUAutomaton() { return gpuAutomaton; }
 
     // Новый метод для загрузки списка паттернов
     void loadPatternList(const std::string& patternFolder = "patterns");

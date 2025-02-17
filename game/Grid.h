@@ -16,6 +16,9 @@ public:
     void setCellState(int x, int y, bool alive);
     bool getCellState(int x, int y) const;
     int getWidth() const;
+    void setWidth(int w) { width = w; };
     int getHeight() const;
+    void setHeight(int h) { height = h; };
+    void setSize(int w, int h);
 };
 #endif // GRID_H_

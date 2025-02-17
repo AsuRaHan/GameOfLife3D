@@ -38,3 +38,9 @@ int Grid::getWidth() const {
 int Grid::getHeight() const {
     return height;
 }
+
+void Grid::setSize(int w, int h)
+{
+    width = w;
+    height = h;
+}

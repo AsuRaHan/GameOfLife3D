@@ -93,9 +93,9 @@ void Renderer::InitializeCellsVBOs() {
     GL_CHECK(glBindVertexArray(0));
 }
 
-
 void Renderer::InitializeGridVBOs() {
     if (!pGameController) return;
+
     int gridWidth = pGameController->getGridWidth();
     int gridHeight = pGameController->getGridHeight();
     float cellSize = pGameController->getCellSize();
@@ -105,30 +105,39 @@ void Renderer::InitializeGridVBOs() {
     int minorStep = 10;
     int majorStep = 100;
 
+    // Резервируем память для вершин (2 вершины на линию, 5 float на вершину)
+    gridVertices.reserve((gridWidth + 1) * (gridHeight + 1) * 10);
+
     for (int y = 0; y <= gridHeight; ++y) {
         for (int x = 0; x <= gridWidth; ++x) {
             float majorLine = (x % majorStep == 0 || y % majorStep == 0) ? 1.0f : 0.0f;
             float minorLine = (x % minorStep == 0 || y % minorStep == 0) ? 1.0f : 0.0f;
+            float xPos = x * cellSize;
+            float yPos = y * cellSize;
 
-            gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
-            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+            // Горизонтальная линия
+            if (x < gridWidth) {
+                gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
+                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+                gridVertices.push_back(xPos + cellSize); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
+                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+            }
 
-            gridVertices.push_back((x + 1) * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
-            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-
-            gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
-            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-
-            gridVertices.push_back(x * cellSize); gridVertices.push_back((y + 1) * cellSize); gridVertices.push_back(0.0f);
-            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+            // Вертикальная линия
+            if (y < gridHeight) {
+                gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
+                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+                gridVertices.push_back(xPos); gridVertices.push_back(yPos + cellSize); gridVertices.push_back(0.0f);
+                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+            }
         }
     }
 
+    // Настройка OpenGL буферов
     GL_CHECK(glGenVertexArrays(1, &gridVAO));
     GL_CHECK(glGenBuffers(1, &gridVBO));
     GL_CHECK(glBindVertexArray(gridVAO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gridVBO));
-    //GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_STATIC_DRAW));
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_DYNAMIC_DRAW));
 
     GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0));
@@ -266,52 +275,53 @@ void Renderer::LoadCellShaders() {
 }
 
 void Renderer::LoadGridShaders() {
-    GLuint gridVertexShader = glCreateShader(GL_VERTEX_SHADER);
-    GLuint gridFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
     const std::string gridVertexShaderSource = R"(
-#version 330 core
+#version 430 core
 layout(location = 0) in vec3 aPos;
-layout(location = 1) in float isMajorLine; // Флаг для главных линий (самый большой шаг)
-layout(location = 2) in float isMinorLine; // Флаг для средних линий (средний шаг)
+layout(location = 1) in float isMajorLine; // Флаг для главных линий (шаг 100)
+layout(location = 2) in float isMinorLine; // Флаг для средних линий (шаг 10)
+
 uniform mat4 projection;
 uniform mat4 view;
-uniform float cameraDistance; // Расстояние камеры для определения видимости линий
-out float majorLine; // Выходной параметр для главных линий
-out float minorLine; // Выходной параметр для средних линий
-out float drawMinor; // Определяет видимость самых мелких линий
-out float drawMedium; // Новая переменная для средних линий
+uniform float cameraDistance; // Расстояние камеры для управления видимостью
+
+out float majorLine; // Передаем флаг главных линий во фрагментный шейдер
+out float minorLine; // Передаем флаг средних линий во фрагментный шейдер
+out float drawMinor; // Определяет видимость обычных линий
+out float drawMedium; // Определяет видимость средних линий (шаг 10)
+out float drawMajor; // Определяет видимость главных линий (шаг 100)
 
 void main()
 {
     gl_Position = projection * view * vec4(aPos, 1.0);
-    majorLine = isMajorLine; // Передаем флаг главных линий во фрагментный шейдер
-    minorLine = isMinorLine; // Передаем флаг средних линий во фрагментный шейдер
+    majorLine = isMajorLine;
+    minorLine = isMinorLine;
     
-    // Устанавливаем видимость для самых мелких линий
-    drawMinor = (cameraDistance > 100.0) ? 0.0 : 1.0; // Самые мелкие линии видны, если камера ближе 100 единиц
-    
-    // Устанавливаем видимость для средних линий
-    drawMedium = (cameraDistance > 250.0) ? 0.0 : 1.0; // Средние линии видны, если камера ближе 150 единиц
+    // Видимость линий в зависимости от расстояния камеры
+    drawMinor = (cameraDistance > 100.0) ? 0.0 : 1.0;  // Обычные линии видны, если камера ближе 100 единиц
+    drawMedium = (cameraDistance > 250.0) ? 0.0 : 1.0; // Средние линии видны, если камера ближе 250 единиц
+    drawMajor = (cameraDistance > 500.0) ? 0.0 : 1.0;  // Главные линии видны, если камера ближе 500 единиц
 }
     )";
 
     const std::string gridFragmentShaderSource = R"(
-#version 330 core
-in float majorLine; // Входной параметр для определения главных линий
-in float minorLine; // Входной параметр для определения средних линий
-in float drawMinor; // Определяет отображение самых мелких линий
-in float drawMedium; // Определяет отображение средних линий
+#version 430 core
+in float majorLine; // Флаг для главных линий (шаг 100)
+in float minorLine; // Флаг для средних линий (шаг 10)
+in float drawMinor; // Определяет видимость обычных линий
+in float drawMedium; // Определяет видимость средних линий
+in float drawMajor; // Определяет видимость главных линий
+
 out vec4 FragColor;
 
 void main()
 {
-    if(majorLine > 0.5) {
-        FragColor = vec4(0.8, 0.8, 0.8, 1.0); // Цвет для главных линий, всегда видимые
-    } else if(minorLine > 0.5 && drawMedium > 0.5) {
-        FragColor = vec4(0.5, 0.5, 0.5, 1.0); // Цвет для средних линий, видны если drawMedium > 0.5
-    } else if(drawMinor > 0.5) {
-        FragColor = vec4(0.2, 0.2, 0.2, 1.0); // Цвет для самых мелких линий, видны если drawMinor > 0.5
+    if (majorLine > 0.5 && drawMajor > 0.5) {
+        FragColor = vec4(0.8, 0.8, 0.8, 1.0); // Цвет для главных линий (шаг 100)
+    } else if (minorLine > 0.5 && drawMedium > 0.5) {
+        FragColor = vec4(0.5, 0.5, 0.5, 1.0); // Цвет для средних линий (шаг 10)
+    } else if (drawMinor > 0.5) {
+        FragColor = vec4(0.2, 0.2, 0.2, 1.0); // Цвет для обычных линий
     } else {
         FragColor = vec4(0.0, 0.0, 0.0, 0.0); // Прозрачный цвет, если линия не видна
     }
@@ -321,7 +331,6 @@ void main()
     shaderManager.loadFragmentShader("gridFragmentShader", gridFragmentShaderSource.c_str());
     shaderManager.linkProgram("gridShaderProgram", "gridVertexShader", "gridFragmentShader");
     gridShaderProgram = shaderManager.getProgram("gridShaderProgram");
-
 }
 
 void Renderer::RebuildGameField() {
@@ -333,56 +342,62 @@ void Renderer::RebuildGameField() {
     int gridHeight = pGameController->getGridHeight();
     float cellSize = pGameController->getCellSize();
 
-    // Обновляем VBO для клеток
-    GL_CHECK(glBindVertexArray(cellsVAO));
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
-
+    // 1. Подготавливаем данные для клеток и сетки
     cellInstances.clear();
     cellInstances.reserve(gridWidth * gridHeight);
-    for (int y = 0; y < gridHeight; ++y) {
-        for (int x = 0; x < gridWidth; ++x) {
-            cellInstances.push_back({x * cellSize, y * cellSize});
-        }
-    }
-
-    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    GL_CHECK(glBindVertexArray(0));
-
-    // Обновляем VBO для сетки
-    GL_CHECK(glBindVertexArray(gridVAO));
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gridVBO));
 
     gridVertices.clear();
     int minorStep = 10;
     int majorStep = 100;
+    gridVertices.reserve((gridWidth + 1) * (gridHeight + 1) * 10); // Примерный размер для сетки
 
     for (int y = 0; y <= gridHeight; ++y) {
         for (int x = 0; x <= gridWidth; ++x) {
+            // Добавляем позицию клетки (если внутри границ)
+            if (x < gridWidth && y < gridHeight) {
+                cellInstances.push_back({ x * cellSize, y * cellSize });
+            }
+
+            // Добавляем данные для сетки
             float majorLine = (x % majorStep == 0 || y % majorStep == 0) ? 1.0f : 0.0f;
             float minorLine = (x % minorStep == 0 || y % minorStep == 0) ? 1.0f : 0.0f;
+            float xPos = x * cellSize;
+            float yPos = y * cellSize;
 
-            gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
-            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+            // Горизонтальная линия
+            if (x < gridWidth) {
+                gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
+                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+                gridVertices.push_back(xPos + cellSize); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
+                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+            }
 
-            gridVertices.push_back((x + 1) * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
-            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-
-            gridVertices.push_back(x * cellSize); gridVertices.push_back(y * cellSize); gridVertices.push_back(0.0f);
-            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-
-            gridVertices.push_back(x * cellSize); gridVertices.push_back((y + 1) * cellSize); gridVertices.push_back(0.0f);
-            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+            // Вертикальная линия
+            if (y < gridHeight) {
+                gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
+                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+                gridVertices.push_back(xPos); gridVertices.push_back(yPos + cellSize); gridVertices.push_back(0.0f);
+                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+            }
         }
     }
 
+    // 2. Обновляем VBO для клеток
+    GL_CHECK(glBindVertexArray(cellsVAO));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GL_CHECK(glBindVertexArray(0));
+
+    // 3. Обновляем VBO для сетки
+    GL_CHECK(glBindVertexArray(gridVAO));
+    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gridVBO));
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_STATIC_DRAW));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
     GL_CHECK(glBindVertexArray(0));
 
     std::cout << "Game field rebuilt." << std::endl;
 }
-
 
 
 void Renderer::InitializeDebugTexture() {
