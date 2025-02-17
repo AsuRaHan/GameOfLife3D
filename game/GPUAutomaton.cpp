@@ -8,6 +8,7 @@ GPUAutomaton::GPUAutomaton(int width, int height)
 
 GPUAutomaton::~GPUAutomaton() {
     GL_CHECK(glDeleteBuffers(2, cellsBuffer));
+    GL_CHECK(glDeleteBuffers(1, &colorsBuffer));
 }
 
 void GPUAutomaton::CreateComputeShader() {
@@ -181,8 +182,6 @@ void GPUAutomaton::Update() {
     glUniform1i(glGetUniformLocation(computeProgram, "survivalMax"), survivalMax);
     glUniform1i(glGetUniformLocation(computeProgram, "overpopulation"), overpopulation);
 
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[bufferIndex]);
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[(bufferIndex + 1) % 2]);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[currentBufferIndex]);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[(currentBufferIndex + 1) % 2]);
 
@@ -221,12 +220,94 @@ void GPUAutomaton::SetToroidal(bool toroidal) {
     isToroidal = toroidal;
 }
 
-void GPUAutomaton::setCellColor() {
-    // Удаляем явную запись для теста шейдера
-     // std::vector<float> testColors(gridWidth * gridHeight * 3, 0.0f);
-     // for (int i = 0; i < gridWidth * gridHeight; i++) {
-     //     testColors[i * 3] = 1.0f; // Красный цвет
-     // }
-     // glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer);
-     // glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, testColors.size() * sizeof(float), testColors.data());
+void GPUAutomaton::SetCellColor(int x,int y, float r, float g, float b) {
+    if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
+        std::cerr << "SetCellColor: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
+        return;
+    }
+    if (colorsBuffer == 0) {
+        std::cerr << "SetCellColor: colorsBuffer is not initialized!" << std::endl;
+        return;
+    }
+    // Вычисляем индекс в буфере
+    int index = y * gridWidth + x;
+
+    // Подготавливаем данные для записи (vec4)
+    float colorData[4] = { r, g, b, 1.0f };
+
+    // Привязываем colorsBuffer и записываем данные
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer));
+    GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER,
+        index * sizeof(float) * 4, // Смещение в байтах
+        sizeof(float) * 4,         // Размер данных (4 float = vec4)
+        colorData));
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+}
+
+void GPUAutomaton::GetCellColor(int x, int y, float& r, float& g, float& b, float& a) {
+    if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
+        std::cerr << "GetCellColor: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
+        r = g = b = a = 0.0f; // Возвращаем черный цвет с нулевой прозрачностью в случае ошибки
+        return;
+    }
+    if (colorsBuffer == 0) {
+        std::cerr << "GetCellColor: colorsBuffer is not initialized!" << std::endl;
+        r = g = b = a = 0.0f;
+        return;
+    }
+
+    int index = y * gridWidth + x;
+    float colorData[4];
+
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer));
+    GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER,
+        index * sizeof(float) * 4, // Смещение в байтах
+        sizeof(float) * 4,         // Размер данных (vec4)
+        colorData));
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+
+    r = colorData[0];
+    g = colorData[1];
+    b = colorData[2];
+    a = colorData[3];
+}
+
+void GPUAutomaton::SetCellState(int x, int y, int state) {
+    if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
+        std::cerr << "SetCellState: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
+        return;
+    }
+    if (state != 0 && state != 1) {
+        std::cerr << "SetCellState: Invalid state value (" << state << "). Use 0 (dead) or 1 (alive)." << std::endl;
+        return;
+    }
+
+    int index = y * gridWidth + x;
+    int stateData = state;
+
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
+    GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER,
+        index * sizeof(int), // Смещение в байтах
+        sizeof(int),         // Размер данных (1 int)
+        &stateData));
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+}
+
+int GPUAutomaton::GetCellState(int x, int y) {
+    if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
+        std::cerr << "GetCellState: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
+        return 0; // Возвращаем мертвое состояние в случае ошибки
+    }
+
+    int index = y * gridWidth + x;
+    int stateData;
+
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
+    GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER,
+        index * sizeof(int), // Смещение в байтах
+        sizeof(int),         // Размер данных (1 int)
+        &stateData));
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+
+    return stateData;
 }

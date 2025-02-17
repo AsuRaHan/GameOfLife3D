@@ -49,61 +49,6 @@ void Renderer::SetupOpenGL() {
     GL_CHECK(glViewport(0, 0, width, height));
 }
 
-//void Renderer::InitializeCellsVBOs() {
-//    if (!pGameController) return;
-//    int gridWidth = pGameController->getGridWidth();
-//    int gridHeight = pGameController->getGridHeight();
-//    float cellSize = pGameController->getCellSize();
-//
-//    GL_CHECK(glGenVertexArrays(1, &cellsVAO));
-//    GL_CHECK(glBindVertexArray(cellsVAO));
-//
-//    GL_CHECK(glGenBuffers(1, &cellsVBO));
-//    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellsVBO));
-//
-//    float vertices[] = {
-//        0.1f, 0.1f,
-//        0.9f, 0.1f,
-//        0.9f, 0.9f,
-//        0.1f, 0.9f
-//    };
-//
-//    //GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
-//    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW));
-//
-//    // Настраиваем атрибуты вершин один раз при инициализации
-//    GL_CHECK(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
-//    GL_CHECK(glEnableVertexAttribArray(0));
-//
-//    GL_CHECK(glGenBuffers(1, &cellInstanceVBO));
-//    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
-//
-//    cellInstances.clear();
-//    cellInstances.reserve(gridWidth * gridHeight);
-//    for (int y = 0; y < gridHeight; ++y) {
-//        for (int x = 0; x < gridWidth; ++x) {
-//            Cell cell = pGameController->getGrid().getCell(x, y);
-//            cellInstances.push_back({
-//                x * cellSize, y * cellSize,
-//                {cell.getColor().X(), cell.getColor().Y(), cell.getColor().Z()}
-//                });
-//        }
-//    }
-//
-//    //GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
-//    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_DYNAMIC_DRAW));
-//
-//    // Настраиваем атрибуты инстансинга один раз при инициализации
-//    GL_CHECK(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)0));
-//    GL_CHECK(glVertexAttribDivisor(1, 1));
-//    GL_CHECK(glEnableVertexAttribArray(1));
-//
-//    GL_CHECK(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)(offsetof(CellInstance, color))));
-//    GL_CHECK(glVertexAttribDivisor(3, 1));
-//    GL_CHECK(glEnableVertexAttribArray(3));
-//
-//    GL_CHECK(glBindVertexArray(0)); // Отвязываем VAO
-//}
 void Renderer::InitializeCellsVBOs() {
     if (!pGameController) return;
     int gridWidth = pGameController->getGridWidth();
@@ -236,32 +181,6 @@ void Renderer::DrawGrid() {
     GL_CHECK(glBindVertexArray(0));
 }
 
-//void Renderer::DrawCells() {
-//    if (!pGameController) return;
-//
-//    GL_CHECK(glBindVertexArray(cellsVAO));
-//
-//    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
-//    void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-//    if (ptr) {
-//        memcpy(ptr, cellInstances.data(), cellInstances.size() * sizeof(CellInstance));
-//        GL_CHECK(glUnmapBuffer(GL_ARRAY_BUFFER));
-//    }
-//
-//    GL_CHECK(glUseProgram(cellShaderProgram));
-//
-//    GLuint projectionLoc = glGetUniformLocation(cellShaderProgram, "projection");
-//    GLuint viewLoc = glGetUniformLocation(cellShaderProgram, "view");
-//    GLuint cellSizeLoc = glGetUniformLocation(cellShaderProgram, "cellSize");
-//
-//    GL_CHECK(glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, camera.GetProjectionMatrix()));
-//    GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
-//    GL_CHECK(glUniform1f(cellSizeLoc, pGameController->getCellSize()));
-//
-//    GL_CHECK(glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, static_cast<GLsizei>(cellInstances.size())));
-//
-//    GL_CHECK(glBindVertexArray(0)); // Отвязываем VAO
-//}
 void Renderer::DrawCells() {
     if (!pGameController) return;
 

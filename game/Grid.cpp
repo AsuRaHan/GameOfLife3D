@@ -25,19 +25,19 @@ int Grid::getHeight() const {
     return height;
 }
 
-Cell& Grid::getCell(int x, int y) {
-    if (x >= 0 && x < width && y >= 0 && y < height) {
-        return cells[y][x];
-    }
-    throw std::out_of_range("Grid::getCell: координаты за пределами сетки");
-}
-
-const Cell& Grid::getCell(int x, int y) const {
-    if (x >= 0 && x < width && y >= 0 && y < height) {
-        return cells[y][x];
-    }
-    throw std::out_of_range("Grid::getCell: координаты за пределами сетки");
-}
+//Cell& Grid::getCell(int x, int y) {
+//    if (x >= 0 && x < width && y >= 0 && y < height) {
+//        return cells[y][x];
+//    }
+//    throw std::out_of_range("Grid::getCell: координаты за пределами сетки");
+//}
+//
+//const Cell& Grid::getCell(int x, int y) const {
+//    if (x >= 0 && x < width && y >= 0 && y < height) {
+//        return cells[y][x];
+//    }
+//    throw std::out_of_range("Grid::getCell: координаты за пределами сетки");
+//}
 
 void Grid::setCell(int x, int y, const Cell& cell) {
     if (x >= 0 && x < width && y >= 0 && y < height) {

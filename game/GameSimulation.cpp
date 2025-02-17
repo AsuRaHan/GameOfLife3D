@@ -17,26 +17,29 @@ void GameSimulation::setWoldToroidal(bool wt) {
     isToroidal = wt;
     gpuAutomaton.SetToroidal(isToroidal); // Установка isToroidal в GPUAutomaton
 }
+void GameSimulation::updateStateInGPU() {
+    //auto future = std::async(std::launch::async, [&]() {
+        for (int y = 0; y < GH; ++y) {
+            for (int x = 0; x < GW; ++x) {
+                currentState[y * GW + x] = grid.getCellState(x, y) ? 1 : 0;
+                Cell& cell = grid.getCell(x, y);
+                //gpuAutomaton.SetCellColor(x, y, cell.getColor().X(), cell.getColor().Y(), cell.getColor().Z());
+            }
+        }
+        //});
+    // Другие операции пока данные загружаются
+    //future.wait(); // Ждем завершения загрузки
+    gpuAutomaton.SetGridState(currentState);
+
+}
 
 void GameSimulation::nextGeneration() {
 
-
     if (true) {
         if (isNideUpdate) {
-            auto future = std::async(std::launch::async, [&]() {
-                for (int y = 0; y < GH; ++y) {
-                    for (int x = 0; x < GW; ++x) {
-                        currentState[y * GW + x] = grid.getCellState(x, y) ? 1 : 0;
-                    }
-                }
-                });
-            // Другие операции пока данные загружаются
-            future.wait(); // Ждем завершения загрузки
-
+            updateStateInGPU();
             isNideUpdate = false;
-            gpuAutomaton.SetGridState(currentState);
         }
-
         //Выполняем обновление на GPU
         gpuAutomaton.Update();
         //Получаем новое состояние с GPU
@@ -147,7 +150,7 @@ void GameSimulation::updateGridReference(Grid& newGrid) {
     currentState.resize(GW * GH);
     nextState.resize(GW * GH);
     gpuAutomaton.SetNewGridSize(GW, GH);
-
+    updateStateInGPU();
 }
 
 void GameSimulation::SetCellColor(int x, int y, const Vector3d& color) {

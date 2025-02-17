@@ -31,7 +31,12 @@ public:
 
     GLint getColorsBuffer() { return colorsBuffer; };
 
-    void setCellColor();
+    void SetCellColor(int x, int y, float r, float g, float b);
+    void GetCellColor(int x, int y, float& r, float& g, float& b, float& a);
+
+    void SetCellState(int x, int y, int state);
+    int GetCellState(int x, int y);
+
 private:
     void CreateComputeShader();
     void SetupBuffers();

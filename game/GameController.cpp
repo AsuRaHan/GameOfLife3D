@@ -3,11 +3,12 @@
 GameController::GameController(int width, int height, float cellSize)
     : grid(width, height), GameSimulation(grid), cellSize(cellSize), 
     isRunning(false), showGrid(true), showUI(true),
-    currentPatternRotator(0),
+    currentPatternRotator(0), isSelectionActive(false),
     rendererProvider(nullptr)
 {
     currentPattern = glider;
     std::srand(static_cast<unsigned int>(std::time(nullptr))); // »нициализаци€ генератора случайных чисел
+    //GameSimulation.updateStateInGPU();
 }
 
 void GameController::randomizeGrid() {
@@ -27,6 +28,7 @@ void GameController::randomizeGrid() {
         // –азмещаем фигуру на сетке в случайном месте
         placePattern(startX, startY, gosperGliderGun);
     }
+    GameSimulation.updateStateInGPU();
 }
 
 void GameController::placePattern(int startX, int startY, const Pattern& pattern) {
@@ -51,6 +53,7 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
                 
             }
         }
+        GameSimulation.updateStateInGPU();
     }
 }
 
@@ -105,6 +108,7 @@ void GameController::randomizeGrid(float density) {
             //grid.getCell(x, y).setColor(Vector3d(0.0f, 0.6f, 0.0f));
         }
     }
+    GameSimulation.updateStateInGPU();
 }
 
 void GameController::clearGrid() {
@@ -116,6 +120,7 @@ void GameController::clearGrid() {
             GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
         }
     }
+    GameSimulation.updateStateInGPU();
 }
 
 void GameController::update(float deltaTime) {
@@ -141,11 +146,6 @@ void GameController::stepSimulation() {
     GameSimulation.nextGeneration();
 }
 
-//void GameController::previousGeneration() {
-//    if (isRunning) return;
-//    GameSimulation.previousGeneration();
-//}
-
 bool GameController::isSimulationRunning() const {
     return isRunning;
 }
@@ -162,7 +162,7 @@ void GameController::toggleCellState(int x, int y) {
         grid.getCell(x, y).setColor(Vector3d(0.0f, 0.0f, 0.0f));
         GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
     }
-    
+    GameSimulation.updateStateInGPU();
 }
 
 void GameController::setLiveCell(int x, int y, bool state) {
@@ -170,6 +170,7 @@ void GameController::setLiveCell(int x, int y, bool state) {
     grid.setCellState(x, y, state);
     grid.getCell(x, y).setColor(Vector3d(0.1f, 0.4f, 0.1f));
     GameSimulation.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
+    GameSimulation.updateStateInGPU();
 }
 
 bool GameController::getCellState(int x, int y) const {
@@ -417,6 +418,7 @@ void GameController::KillSelectedCells() {
         GameSimulation.SetCellColor(x, y, Vector3d(0.0f, 0.0f, 0.0f));
     }
     isSelectionActive = false;
+    GameSimulation.updateStateInGPU();
 }
 
 void GameController::ReviveSelectedCells() {
@@ -428,4 +430,5 @@ void GameController::ReviveSelectedCells() {
         GameSimulation.SetCellColor(x, y, Vector3d(0.1f, 0.4f, 0.1f));
     }
     isSelectionActive = false;
+    GameSimulation.updateStateInGPU();
 }

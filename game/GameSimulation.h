@@ -26,6 +26,7 @@ public:
     void SetCellColor(int x, int y, const Vector3d& color);
 
     GPUAutomaton& getGPUAutomaton() { return gpuAutomaton; }
+    void updateStateInGPU();
 private:
     Grid& grid;
     Grid nextGrid; // Добавляем nextGrid для двойного буфера
