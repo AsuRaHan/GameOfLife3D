@@ -6,6 +6,6 @@
 
 struct CellInstance {
     float x, y; // Позиция клетки
-    Vector3d color; // Цвет клетки
+    //Vector3d color; // Цвет клетки
 };
 #endif // CELLINSTANCE_H_

@@ -359,6 +359,22 @@
 #ifndef GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS
 #define GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS 0x8B4D
 #endif
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE 0x812F
+#endif
+#ifndef GL_MAX_IMAGE_UNITS
+#define GL_MAX_IMAGE_UNITS 0x8F38
+#endif
+#ifndef GL_IMAGE_BINDING_NAME
+#define GL_IMAGE_BINDING_NAME 0x8F3A
+#endif
+
+#ifndef GL_SHADER_STORAGE_BUFFER_BINDING
+#define GL_SHADER_STORAGE_BUFFER_BINDING 0x90D3
+#endif
+#ifndef GL_BUFFER_SIZE
+#define GL_BUFFER_SIZE 0x8764
+#endif
 
 #ifndef GLchar
 typedef char GLchar;
@@ -424,11 +440,12 @@ typedef void (APIENTRY* GLDEBUGPROC)(GLenum source, GLenum type, GLuint id, GLen
 typedef void (APIENTRY* PFNGLDEBUGMESSAGECALLBACKPROC)(GLDEBUGPROC callback, const void* userParam);
 typedef void (APIENTRY* PFNGLDEBUGMESSAGECONTROLPROC)(GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint* ids, GLboolean enabled);
 
-
-
 typedef void (APIENTRY* PFNGLBINDIMAGETEXTUREPROC)(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);
 typedef void (APIENTRY* PFNGLACTIVETEXTUREPROC)(GLenum texture);
 typedef void (APIENTRY* PFNGLTEXBUFFERPROC)(GLenum target, GLenum internalformat, GLuint buffer);
+
+typedef void (APIENTRY* PFNGLGETINTEGERI_VPROC)(GLenum target, GLuint index, GLint* data);
+typedef void (APIENTRY* PFNGLGETBUFFERPARAMETERIVPROC)(GLenum target, GLenum pname, GLint* params);
 
 // Объявление указателей на функции
 extern PFNGLGENBUFFERSPROC glGenBuffers;
@@ -481,6 +498,9 @@ extern PFNGLDEBUGMESSAGECONTROLPROC glDebugMessageControl;
 extern PFNGLBINDIMAGETEXTUREPROC glBindImageTexture;
 extern PFNGLACTIVETEXTUREPROC glActiveTexture;
 extern PFNGLTEXBUFFERPROC glTexBuffer;
+
+extern PFNGLGETINTEGERI_VPROC glGetIntegeri_v;
+extern PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv;
 
 // Функции для работы с OpenGL
 void LoadOpenGLFunctions();

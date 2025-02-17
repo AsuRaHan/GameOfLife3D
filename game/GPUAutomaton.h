@@ -30,9 +30,12 @@ public:
     void SetNewGridSize(int width, int height);
 
     GLint getColorsBuffer() { return colorsBuffer; };
+
+    void setCellColor();
 private:
     void CreateComputeShader();
     void SetupBuffers();
+    void SwapBuffers(); // Новый метод для переключения буферов
 
     ShaderManager shaderManager;
     GLuint computeProgram;
@@ -40,6 +43,7 @@ private:
     GLint bufferIndex;
 
     GLuint colorsBuffer; // Буфер для хранения цветов клеток
+    int currentBufferIndex; // Индекс текущего буфера
 
     int gridWidth, gridHeight;
     bool isToroidal;

@@ -76,8 +76,10 @@ private:
     GLuint debugTextureVAO;
     GLuint debugTextureVBO;
     GLuint debugTextureID; // ID текстуры
-    void DrawDebugTexture(); // Ќовый метод дл€ отрисовки текстуры
-    void LoadDebugTextureShaders(); // Ќовый метод дл€ загрузки шейдеров текстуры
+    float debugTextureOffsetX; // —мещение текстуры по X (справа от сетки)
+
     void InitializeDebugTexture();
+    void LoadDebugTextureShaders();
+    void DrawDebugTexture();
 };
 #endif // RENDERER_H_

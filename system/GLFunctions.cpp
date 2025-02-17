@@ -52,6 +52,9 @@ PFNGLBINDIMAGETEXTUREPROC glBindImageTexture = nullptr;
 PFNGLACTIVETEXTUREPROC glActiveTexture = nullptr;
 PFNGLTEXBUFFERPROC glTexBuffer = nullptr;
 
+PFNGLGETINTEGERI_VPROC glGetIntegeri_v = nullptr;
+PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv = nullptr;
+
 void LoadOpenGLFunctions() {
         // Загрузка функций для работы с буферами
     glGenBuffers = (PFNGLGENBUFFERSPROC)wglGetProcAddress("glGenBuffers");
@@ -151,10 +154,20 @@ void LoadOpenGLFunctions() {
 
     glBindImageTexture = (PFNGLBINDIMAGETEXTUREPROC)wglGetProcAddress("glBindImageTexture");
     CHECK_LOAD_FUNCTION(glBindImageTexture)
-    glActiveTexture = (PFNGLACTIVETEXTUREPROC)wglGetProcAddress("glBindImageTexture");
+    glActiveTexture = (PFNGLACTIVETEXTUREPROC)wglGetProcAddress("glActiveTexture");
     CHECK_LOAD_FUNCTION(glActiveTexture);    
-    glTexBuffer = (PFNGLTEXBUFFERPROC)wglGetProcAddress("glBindImageTexture");
-    CHECK_LOAD_FUNCTION(glTexBuffer);
+    glTexBuffer = (PFNGLTEXBUFFERPROC)wglGetProcAddress("glTexBuffer");
+    CHECK_LOAD_FUNCTION(glTexBuffer)    
+        
+    glGetIntegeri_v = (PFNGLGETINTEGERI_VPROC)wglGetProcAddress("glGetIntegeri_v");
+    CHECK_LOAD_FUNCTION(glGetIntegeri_v);    
+    
+    glGetBufferParameteriv = (PFNGLGETBUFFERPARAMETERIVPROC)wglGetProcAddress("glGetBufferParameteriv");
+    CHECK_LOAD_FUNCTION(glGetBufferParameteriv);
+
+
+
+
 }
 
 void CheckOpenGLError(const char* stmt, const char* fname, int line)

@@ -31,9 +31,9 @@ private:
     Grid nextGrid; // Добавляем nextGrid для двойного буфера
     GPUAutomaton gpuAutomaton; // член класса для вычислений на GPU
     bool gridReferenceIsUbdated;
-    std::vector<Grid> history;
     bool isToroidal;
     bool isGpuSimulated;
+    bool isNideUpdate;
     int GW;
     int GH;
     std::vector<CellInstance>* cellInstances;

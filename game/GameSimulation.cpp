@@ -2,7 +2,7 @@
 
 GameSimulation::GameSimulation(Grid& g) : grid(g), nextGrid(g.getWidth(), g.getHeight()),
 gpuAutomaton(g.getWidth(), g.getHeight()), isToroidal(true), isGpuSimulated(false),
-cellInstances(nullptr),cellProvider(nullptr), gridReferenceIsUbdated(true)
+cellInstances(nullptr),cellProvider(nullptr), gridReferenceIsUbdated(true), isNideUpdate(true)
 {
     GW = grid.getWidth();
     GH = grid.getHeight();
@@ -19,31 +19,40 @@ void GameSimulation::setWoldToroidal(bool wt) {
 }
 
 void GameSimulation::nextGeneration() {
-    auto future = std::async(std::launch::async, [&]() {
-        for (int y = 0; y < GH; ++y) {
-            for (int x = 0; x < GW; ++x) {
-                currentState[y * GW + x] = grid.getCellState(x, y) ? 1 : 0;
-            }
-        }
-        });
-
-    // Другие операции пока данные загружаются
-    future.wait(); // Ждем завершения загрузки
 
 
     if (true) {
-        gpuAutomaton.SetGridState(currentState);
+        if (isNideUpdate) {
+            auto future = std::async(std::launch::async, [&]() {
+                for (int y = 0; y < GH; ++y) {
+                    for (int x = 0; x < GW; ++x) {
+                        currentState[y * GW + x] = grid.getCellState(x, y) ? 1 : 0;
+                    }
+                }
+                });
+            // Другие операции пока данные загружаются
+            future.wait(); // Ждем завершения загрузки
+
+            isNideUpdate = false;
+            gpuAutomaton.SetGridState(currentState);
+        }
+
         //Выполняем обновление на GPU
         gpuAutomaton.Update();
         //Получаем новое состояние с GPU
-        gpuAutomaton.GetGridState(nextState);
+        //gpuAutomaton.GetGridState(nextState);
     }
     else {
-
+        auto future = std::async(std::launch::async, [&]() {
+            for (int y = 0; y < GH; ++y) {
+                for (int x = 0; x < GW; ++x) {
+                    currentState[y * GW + x] = grid.getCellState(x, y) ? 1 : 0;
+                }
+            }
+            });
+        // Другие операции пока данные загружаются
+        future.wait(); // Ждем завершения загрузки
         updateGridCpp(currentState.data(), nextState.data(), GW, GH);
-        //}
-
-
         for (int y = 0; y < GH; ++y) {
             for (int x = 0; x < GW; ++x) {
                 bool newState = nextState[y * GW + x] != 0;
@@ -72,6 +81,7 @@ void GameSimulation::nextGeneration() {
                 }
             }
         }
+
 
     }
 }
@@ -144,7 +154,7 @@ void GameSimulation::SetCellColor(int x, int y, const Vector3d& color) {
     if (cellProvider && cellInstances) {
         int index = y * GW + x;
         if (index < cellInstances->size()) {
-            (*cellInstances)[index].color = color;
+            //(*cellInstances)[index].color = color;
         }
     }
 }
