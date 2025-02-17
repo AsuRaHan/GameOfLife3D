@@ -278,50 +278,46 @@ void Renderer::LoadGridShaders() {
     const std::string gridVertexShaderSource = R"(
 #version 430 core
 layout(location = 0) in vec3 aPos;
-layout(location = 1) in float isMajorLine; // Флаг для главных линий (шаг 100)
-layout(location = 2) in float isMinorLine; // Флаг для средних линий (шаг 10)
-
+layout(location = 1) in float isMajorLine; // Флаг для главных линий (самый большой шаг)
+layout(location = 2) in float isMinorLine; // Флаг для средних линий (средний шаг)
 uniform mat4 projection;
 uniform mat4 view;
-uniform float cameraDistance; // Расстояние камеры для управления видимостью
-
-out float majorLine; // Передаем флаг главных линий во фрагментный шейдер
-out float minorLine; // Передаем флаг средних линий во фрагментный шейдер
-out float drawMinor; // Определяет видимость обычных линий
-out float drawMedium; // Определяет видимость средних линий (шаг 10)
-out float drawMajor; // Определяет видимость главных линий (шаг 100)
+uniform float cameraDistance; // Расстояние камеры для определения видимости линий
+out float majorLine; // Выходной параметр для главных линий
+out float minorLine; // Выходной параметр для средних линий
+out float drawMinor; // Определяет видимость самых мелких линий
+out float drawMedium; // Новая переменная для средних линий
 
 void main()
 {
     gl_Position = projection * view * vec4(aPos, 1.0);
-    majorLine = isMajorLine;
-    minorLine = isMinorLine;
+    majorLine = isMajorLine; // Передаем флаг главных линий во фрагментный шейдер
+    minorLine = isMinorLine; // Передаем флаг средних линий во фрагментный шейдер
     
-    // Видимость линий в зависимости от расстояния камеры
-    drawMinor = (cameraDistance > 100.0) ? 0.0 : 1.0;  // Обычные линии видны, если камера ближе 100 единиц
+    // Устанавливаем видимость для самых мелких линий
+    drawMinor = (cameraDistance > 100.0) ? 0.0 : 1.0; // Самые мелкие линии видны, если камера ближе 100 единиц
+    
+    // Устанавливаем видимость для средних линий
     drawMedium = (cameraDistance > 250.0) ? 0.0 : 1.0; // Средние линии видны, если камера ближе 250 единиц
-    drawMajor = (cameraDistance > 500.0) ? 0.0 : 1.0;  // Главные линии видны, если камера ближе 500 единиц
 }
     )";
 
     const std::string gridFragmentShaderSource = R"(
 #version 430 core
-in float majorLine; // Флаг для главных линий (шаг 100)
-in float minorLine; // Флаг для средних линий (шаг 10)
-in float drawMinor; // Определяет видимость обычных линий
-in float drawMedium; // Определяет видимость средних линий
-in float drawMajor; // Определяет видимость главных линий
-
+in float majorLine; // Входной параметр для определения главных линий
+in float minorLine; // Входной параметр для определения средних линий
+in float drawMinor; // Определяет отображение самых мелких линий
+in float drawMedium; // Определяет отображение средних линий
 out vec4 FragColor;
 
 void main()
 {
-    if (majorLine > 0.5 && drawMajor > 0.5) {
-        FragColor = vec4(0.8, 0.8, 0.8, 1.0); // Цвет для главных линий (шаг 100)
-    } else if (minorLine > 0.5 && drawMedium > 0.5) {
-        FragColor = vec4(0.5, 0.5, 0.5, 1.0); // Цвет для средних линий (шаг 10)
-    } else if (drawMinor > 0.5) {
-        FragColor = vec4(0.2, 0.2, 0.2, 1.0); // Цвет для обычных линий
+    if(majorLine > 0.5) {
+        FragColor = vec4(0.8, 0.8, 0.8, 1.0); // Цвет для главных линий, всегда видимые
+    } else if(minorLine > 0.5 && drawMedium > 0.5) {
+        FragColor = vec4(0.5, 0.5, 0.5, 1.0); // Цвет для средних линий, видны если drawMedium > 0.5
+    } else if(drawMinor > 0.5) {
+        FragColor = vec4(0.2, 0.2, 0.2, 1.0); // Цвет для самых мелких линий, видны если drawMinor > 0.5
     } else {
         FragColor = vec4(0.0, 0.0, 0.0, 0.0); // Прозрачный цвет, если линия не видна
     }

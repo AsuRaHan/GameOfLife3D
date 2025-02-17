@@ -11,6 +11,7 @@ GameController::GameController(int width, int height, float cellSize)
     currentPattern = glider;
     std::srand(static_cast<unsigned int>(std::time(nullptr))); // »нициализаци€ генератора случайных чисел
     grid.SetGPUAutomaton(&gpuAutomaton);
+    gpuAutomaton.SetToroidal(isWorldToroidal);
 }
 
 void GameController::randomizeGrid() {
