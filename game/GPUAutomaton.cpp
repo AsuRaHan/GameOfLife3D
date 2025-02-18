@@ -11,69 +11,17 @@ GPUAutomaton::~GPUAutomaton() {
     GL_CHECK(glDeleteBuffers(1, &colorsBuffer));
 }
 
+void GPUAutomaton::syncBufferOperations() {
+    //GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    //while (true) {
+    //    GLenum waitReturn = glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
+    //    if (waitReturn == GL_ALREADY_SIGNALED || waitReturn == GL_CONDITION_SATISFIED)
+    //        break;
+    //}
+    //glDeleteSync(sync);
+}
+
 void GPUAutomaton::CreateComputeShader() {
-    const char* computedRulesShaderSource = R"(
-#version 430 core
-
-//layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
-layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
-
-layout(std430, binding = 0) buffer CurrentCells {
-    int current[];
-};
-
-layout(std430, binding = 1) buffer NextCells {
-    int next[];
-};
-
-uniform ivec2 gridSize;
-uniform bool isToroidal; // тип мира
-uniform int birth; // Количество соседей для рождения
-uniform int survivalMin; // Минимальное количество соседей для выживания
-uniform int survivalMax; // Максимальное количество соседей для выживания
-uniform int overpopulation; // Количество соседей для смерти от перенаселения
-
-int countLiveNeighbors(ivec2 pos) {
-    int count = 0;
-    for(int dy = -1; dy <= 1; ++dy) {
-        for(int dx = -1; dx <= 1; ++dx) {
-            if(dx == 0 && dy == 0) continue;
-            ivec2 neighbor = pos + ivec2(dx, dy);
-            if (isToroidal) {
-                neighbor = (neighbor + gridSize) % gridSize;
-            } else {
-                if (neighbor.x < 0 || neighbor.x >= gridSize.x || neighbor.y < 0 || neighbor.y >= gridSize.y) continue;
-            }
-            count += current[neighbor.y * gridSize.x + neighbor.x] > 0 ? 1 : 0;
-        }
-    }
-    return count;
-}
-
-void main() {
-    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    if (pos.x >= gridSize.x || pos.y >= gridSize.y) return;
-
-    int currentState = current[pos.y * gridSize.x + pos.x];
-    int neighbors = countLiveNeighbors(pos);
-    
-    int nextState = 0;
-    if (currentState == 1) { // Живая клетка
-        // Выживание: кол-во соседей от survivalMin до survivalMax включительно
-        if (neighbors >= survivalMin && neighbors <= survivalMax) {
-            nextState = 1;
-        } else {
-            nextState = 0; // Смерть от одиночества или перенаселения
-        }
-    } else { // Мертвая клетка
-        if (neighbors == birth) {
-            nextState = 1; // Рождение
-        }
-    }
-    next[pos.y * gridSize.x + pos.x] = nextState;
-}
-)";
-
     const char* computedRulesColorsShaderSource = R"(
     #version 430 core
     layout(local_size_x = 32, local_size_y = 32) in;
@@ -114,36 +62,49 @@ void main() {
         return count;
     }
 
-    void main() {
-        ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-        if (pos.x >= gridSize.x || pos.y >= gridSize.y) return;
+void main() {
+    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+    if (pos.x >= gridSize.x || pos.y >= gridSize.y) return;
 
-        int index = pos.y * gridSize.x + pos.x;
-        int currentState = current[index];
-        int neighbors = countLiveNeighbors(pos);
-        
-        int nextState = 0;
-        if (currentState == 1) {
-            if (neighbors >= survivalMin && neighbors <= survivalMax) {
-                nextState = 1;
-            }
-        } else {
-            if (neighbors == birth) {
-                nextState = 1;
-            }
+    int index = pos.y * gridSize.x + pos.x;
+    int currentState = current[index];
+    int neighbors = countLiveNeighbors(pos);
+    
+    int nextState = 0;
+    if (currentState == 1) {
+        if (neighbors >= survivalMin && neighbors <= survivalMax) {
+            nextState = 1;
         }
-
-        next[index] = nextState;
-
-        if (nextState == 1) {
-            colors[index] = vec4(0.0, 0.5, 0.0, 1.0);
-        } else {
-            colors[index] = vec4(0.05, 0.05, 0.08, 1.0);
+    } else {
+        if (neighbors == birth) {
+            nextState = 1;
         }
     }
 
+    next[index] = nextState;
+
+    // Если клетка выжила, делаем её цвет светлее
+    if (nextState == 1) {
+        if (currentState == 1) {  // Если клетка была жива и остается живой
+            vec4 currentColor = colors[index];
+            // Увеличиваем яркость зеленого цвета, но ограничиваем максимум
+            colors[index] = vec4(
+                min(currentColor.r + 0.02, 0.5),  // Увеличиваем красный канал
+                min(currentColor.g + 0.02, 1.0),  // Здесь увеличиваем зелёный канал
+                min(currentColor.b + 0.02, 0.5),  // Увеличиваем синий канал
+                1.0
+            );
+        } else {
+            // Если клетка только что ожила, устанавливаем базовый цвет
+            colors[index] = vec4(0.0, 0.5, 0.0, 1.0);  // Начальный зеленый цвет
+        }
+    } else {
+        // Если клетка мертва, устанавливаем цвет мертвой клетки
+        colors[index] = vec4(0.05, 0.05, 0.08, 1.0);
+    }
+}
+
 )";
-    //shaderManager.loadComputeShader("computeShader", computedRulesShaderSource);
     shaderManager.loadComputeShader("computeShader", computedRulesColorsShaderSource);
     shaderManager.linkComputeProgram("computeProgram", "computeShader");
     computeProgram = shaderManager.getProgram("computeProgram");
@@ -164,6 +125,7 @@ void GPUAutomaton::SetupBuffers() {
 }
 
 void GPUAutomaton::SetNewGridSize(int width, int height) {
+    syncBufferOperations();
     gridWidth = width;
     gridHeight = height;
     GL_CHECK(glDeleteBuffers(2, cellsBuffer));
@@ -209,10 +171,50 @@ void GPUAutomaton::SetGridState(const std::vector<int>& inState) {
 
 void GPUAutomaton::GetGridState(std::vector<int>& outState) {
     outState.resize(gridWidth * gridHeight);
+    glFinish();
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
     GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(int) * gridWidth * gridHeight, outState.data()));
 }
 
+void GPUAutomaton::SetCellState(int x, int y, int state) {
+    if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
+        std::cerr << "SetCellState: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
+        return;
+    }
+    if (state != 0 && state != 1) {
+        std::cerr << "SetCellState: Invalid state value (" << state << "). Use 0 (dead) or 1 (alive)." << std::endl;
+        return;
+    }
+
+    int index = y * gridWidth + x;
+    int stateData = state;
+
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
+    GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER,
+        index * sizeof(int), // Смещение в байтах
+        sizeof(int),         // Размер данных (1 int)
+        &stateData));
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+}
+
+int GPUAutomaton::GetCellState(int x, int y) {
+    if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
+        std::cerr << "GetCellState: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
+        return 0; // Возвращаем мертвое состояние в случае ошибки
+    }
+
+    int index = y * gridWidth + x;
+    int stateData;
+
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
+    GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER,
+        index * sizeof(int), // Смещение в байтах
+        sizeof(int),         // Размер данных (1 int)
+        &stateData));
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+
+    return stateData;
+}
 
 void GPUAutomaton::SetToroidal(bool toroidal) {
     isToroidal = toroidal;
@@ -270,42 +272,29 @@ void GPUAutomaton::GetCellColor(int x, int y, float& r, float& g, float& b) {
     //a = colorData[3];
 }
 
-void GPUAutomaton::SetCellState(int x, int y, int state) {
-    if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
-        std::cerr << "SetCellState: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
+void GPUAutomaton::SetColorsBuf(const std::vector<float>& colors) {
+    if (colors.size() != gridWidth * gridHeight * 4) {
+        std::cerr << "SetColorsBuf: Invalid color data size!" << std::endl;
         return;
     }
-    if (state != 0 && state != 1) {
-        std::cerr << "SetCellState: Invalid state value (" << state << "). Use 0 (dead) or 1 (alive)." << std::endl;
+    if (colorsBuffer == 0) {
+        std::cerr << "SetColorsBuf: colorsBuffer is not initialized!" << std::endl;
         return;
     }
 
-    int index = y * gridWidth + x;
-    int stateData = state;
-
-    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
-    GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER,
-        index * sizeof(int), // Смещение в байтах
-        sizeof(int),         // Размер данных (1 int)
-        &stateData));
-    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer));
+    GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * colors.size(), colors.data()));
+    //GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 }
 
-int GPUAutomaton::GetCellState(int x, int y) {
-    if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
-        std::cerr << "GetCellState: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
-        return 0; // Возвращаем мертвое состояние в случае ошибки
+void GPUAutomaton::GetColorsBuf(std::vector<float>& colors) {
+    colors.resize(gridWidth * gridHeight * 4);
+    if (colorsBuffer == 0) {
+        std::cerr << "GetColorsBuf: colorsBuffer is not initialized!" << std::endl;
+        return;
     }
-
-    int index = y * gridWidth + x;
-    int stateData;
-
-    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
-    GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER,
-        index * sizeof(int), // Смещение в байтах
-        sizeof(int),         // Размер данных (1 int)
-        &stateData));
+    glFinish();
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer));
+    GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * colors.size(), colors.data()));
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
-
-    return stateData;
 }

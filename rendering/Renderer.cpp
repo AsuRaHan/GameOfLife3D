@@ -154,8 +154,6 @@ void Renderer::InitializeGridVBOs() {
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 
-
-
 void Renderer::Draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -198,9 +196,14 @@ void Renderer::DrawGrid() {
     GL_CHECK(glBindVertexArray(0));
 }
 
-
 void Renderer::DrawCells() {
     if (!pGameController) return;
+
+    GLuint colorsBuffer = pGameController->getGPUAutomaton().getColorsBuffer();
+    if (colorsBuffer == 0) {
+        std::cerr << "Error: Color buffer not initialized." << std::endl;
+        return; // Или выбросьте исключение, если это критическая ошибка
+    }
 
     GL_CHECK(glBindVertexArray(cellsVAO));
 
@@ -211,7 +214,7 @@ void Renderer::DrawCells() {
     GL_CHECK(glVertexAttribDivisor(1, 1));
 
     // Привязываем буфер цветов из GPUAutomaton
-    GLuint colorsBuffer = pGameController->getGPUAutomaton().getColorsBuffer();
+
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, colorsBuffer));
     GL_CHECK(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 0, nullptr)); // Исправлено: 3 -> 4 (vec3 -> vec4)
     GL_CHECK(glEnableVertexAttribArray(3));

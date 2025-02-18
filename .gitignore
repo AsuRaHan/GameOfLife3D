@@ -61,6 +61,7 @@ bldml.cpp
 bldml.exe
 bldml.obj
 *.ini
+*.golb
 life.exe
 external/
 patterns/

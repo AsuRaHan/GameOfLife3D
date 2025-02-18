@@ -11,6 +11,9 @@ private:
 public:
     Grid(int w, int h);
     void SetGPUAutomaton(GPUAutomaton* ga) { gpuAutomaton = ga; } // Добавляем сеттер
+    //GPUAutomaton GetGPUAutomaton() const { return *gpuAutomaton; } // Добавляем геттер
+    GPUAutomaton* GetGPUAutomaton() const { return gpuAutomaton; }
+
     void setCellColor(int x, int y, float r, float g, float b);
     void getCellColor(int x, int y, float& r, float& g, float& b);
     void setCellState(int x, int y, bool alive);

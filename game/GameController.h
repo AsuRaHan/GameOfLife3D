@@ -25,7 +25,6 @@ using Pattern = std::vector<std::vector<bool>>;
 class GameController {
 private:
     Grid grid;
-    //GameSimulation GameSimulation;
     GPUAutomaton gpuAutomaton; // член класса дл€ вычислений на GPU
     float cellSize; // –азмер каждой клетки в пиксел€х
     bool isRunning; // ‘лаг, показывает, запущена ли симул€ци€
@@ -105,9 +104,14 @@ private:
 
 public:
     GameController(int width, int height, float cellSize = 0.5f);
-    void randomizeGrid();
-    void placePattern(int startX, int startY, const Pattern& pattern);
+
     void randomizeGrid(float density);
+    void randomizeGrid();
+
+    void placePattern(int startX, int startY, const Pattern& pattern);
+    void PlacePattern(int startX, int startY);
+
+    
     void clearGrid();
     void update(float deltaTime);
     void startSimulation();
@@ -136,19 +140,15 @@ public:
     void setCurrentPattern(int patternNumber);
     void setCurrentPatternRotator(int patternNumber);
 
-    void PlacePattern(int startX, int startY);
-
     void setWoldToroidal(bool wt);
     bool getWoldToroidal() const { return isWorldToroidal; };
 
     void setSimulationSpeed(float speed);
 
     // Ќовые методы дл€ сохранени€ и загрузки состо€ни€ игры
-    bool saveGameState(const std::string& filename) const;
+    bool saveGameState(const std::string& filename);
     bool loadGameState(const std::string& filename);
-    bool saveGameStateCSV(const std::string& filename) const {
-        //return GameStateManager::saveGameStateCSV(grid, filename);
-    }
+
     Pattern rotateOrFlip(const Pattern& pattern, Rotation rotation);
 
     void SetCellInstanceProvider(IRendererProvider* provider);

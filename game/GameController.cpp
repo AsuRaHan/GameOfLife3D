@@ -12,6 +12,7 @@ GameController::GameController(int width, int height, float cellSize)
     std::srand(static_cast<unsigned int>(std::time(nullptr))); // »нициализаци€ генератора случайных чисел
     grid.SetGPUAutomaton(&gpuAutomaton);
     gpuAutomaton.SetToroidal(isWorldToroidal);
+    
 }
 
 void GameController::randomizeGrid() {
@@ -272,25 +273,12 @@ Pattern GameController::rotateOrFlip(const Pattern& pattern, Rotation rotation) 
     return result;
 }
 
-bool GameController::saveGameState(const std::string& filename) const {
-    return GameStateManager::saveGameState(grid, filename);
+bool GameController::saveGameState(const std::string& filename){
+    return GameStateManager::saveBinaryGameState(grid, filename);
 }
 
 bool GameController::loadGameState(const std::string& filename) {
-    bool gameIsSave = GameStateManager::loadGameState(grid, filename);
-    if (!gameIsSave) return gameIsSave;
-    for (int y = 0; y < grid.getHeight(); ++y) {
-        for (int x = 0; x < grid.getWidth(); ++x) {
-            if (grid.getCellState(x,y)) {
-                grid.setCellColor(x, y, 0.0f, 0.6f, 0.0f);
-            }
-            else {
-                grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
-            }
-
-        }
-    }
-    return gameIsSave;
+    return GameStateManager::loadBinaryGameState(grid, filename);
 }
 
 void GameController::loadPatternList(const std::string& patternFolder) {

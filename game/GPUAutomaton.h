@@ -11,22 +11,30 @@
 class GPUAutomaton {
 public:
     GPUAutomaton(int width, int height);
+    GPUAutomaton(const GPUAutomaton&) = delete; // Удаляем конструктор копирования
+    GPUAutomaton& operator=(const GPUAutomaton&) = delete; // Удаляем оператор присваивания
+
     ~GPUAutomaton();
 
     void Update();
     void GetGridState(std::vector<int>& outState);
     void SetGridState(const std::vector<int>& inState);
-    void SetToroidal(bool toroidal);
+    void SetCellState(int x, int y, int state);
+    int GetCellState(int x, int y);
+
+    
 
     int birth = 3; // По умолчанию 3 соседа для рождения
     int survivalMin = 2; // По умолчанию минимум 2 соседа для выживания
     int survivalMax = 3; // По умолчанию максимум 3 соседа для выживания
     int overpopulation = 4; // По умолчанию 4 или больше для смерти от перенаселения
+    bool isToroidal = true;
     void SetBirth(int b) { birth = b; }
     void SetSurvivalMin(int smin) { survivalMin = smin; }
     void SetSurvivalMax(int smax) { survivalMax = smax; }
     void SetOverpopulation(int o) { overpopulation = o; }
-    
+    void SetToroidal(bool toroidal);
+
     void SetNewGridSize(int width, int height);
 
     GLint getColorsBuffer() { return colorsBuffer; };
@@ -34,14 +42,15 @@ public:
     void SetCellColor(int x, int y, float r, float g, float b);
     void GetCellColor(int x, int y, float& r, float& g, float& b);
 
-    void SetCellState(int x, int y, int state);
-    int GetCellState(int x, int y);
+    void SetColorsBuf(const std::vector<float>& colors);
+    void GetColorsBuf(std::vector<float>& colors);
+
 
 private:
     void CreateComputeShader();
     void SetupBuffers();
     void SwapBuffers(); // Новый метод для переключения буферов
-
+    void syncBufferOperations();
     ShaderManager shaderManager;
     GLuint computeProgram;
     GLuint cellsBuffer[2];
@@ -51,7 +60,7 @@ private:
     int currentBufferIndex; // Индекс текущего буфера
 
     int gridWidth, gridHeight;
-    bool isToroidal;
+    
 };
 
 #endif // GPU_AUTOMATON_H

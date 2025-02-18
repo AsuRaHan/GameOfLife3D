@@ -31,7 +31,7 @@ private:
     int fieldWidth = 400;  // ѕример значений, которые можно измен€ть
     int fieldHeight = 300;
 
-    char saveFilename[128] = "state.txt";
+    char saveFilename[128] = "state.golb";
     std::string aboutText;
 
     ImVec2 buttonSize; // «адаем фиксированный размер дл€ кнопок
