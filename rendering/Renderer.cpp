@@ -38,8 +38,8 @@ void Renderer::SetGameController(GameController* gameController) {
     selectionRenderer.SetGameController(gameController);
 
     // Инициализация отладочной текстуры
-    LoadDebugTextureShaders();
-    InitializeDebugTexture();
+    //LoadDebugTextureShaders();
+    //InitializeDebugTexture();
 }
 
 void Renderer::SetupOpenGL() {
@@ -106,34 +106,28 @@ void Renderer::InitializeGridVBOs() {
 
     gridVertices.reserve((gridWidth + 1) * (gridHeight + 1) * 10);
 
-    // Горизонтальные линии
+    // Объединенный цикл для рисования горизонтальных и вертикальных линий
     for (int y = 0; y <= gridHeight; ++y) {
         for (int x = 0; x <= gridWidth; ++x) {
-            float majorLine = (y % majorStep == 0) ? 1.0f : 0.0f;
-            float minorLine = (y % minorStep == 0) ? 1.0f : 0.0f;
             float xPos = x * cellSize;
             float yPos = y * cellSize;
 
-            // Рисуем только горизонтальные линии
+            // Горизонтальные линии
             if (x < gridWidth) {
+                float majorLine = (y % majorStep == 0) ? 1.0f : 0.0f;
+                float minorLine = (y % minorStep == 0) ? 1.0f : 0.0f;
+
                 gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
                 gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
                 gridVertices.push_back(xPos + cellSize); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
                 gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
             }
-        }
-    }
 
-    // Вертикальные линии
-    for (int x = 0; x <= gridWidth; ++x) {
-        for (int y = 0; y <= gridHeight; ++y) {
-            float majorLine = (x % majorStep == 0) ? 1.0f : 0.0f;
-            float minorLine = (x % minorStep == 0) ? 1.0f : 0.0f;
-            float xPos = x * cellSize;
-            float yPos = y * cellSize;
-
-            // Рисуем только вертикальные линии
+            // Вертикальные линии
             if (y < gridHeight) {
+                float majorLine = (x % majorStep == 0) ? 1.0f : 0.0f;
+                float minorLine = (x % minorStep == 0) ? 1.0f : 0.0f;
+
                 gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
                 gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
                 gridVertices.push_back(xPos); gridVertices.push_back(yPos + cellSize); gridVertices.push_back(0.0f);
@@ -183,23 +177,6 @@ void Renderer::Draw() {
     SwapBuffers(wglGetCurrentDC());
 }
 
-//void Renderer::DrawGrid() {
-//    GL_CHECK(glUseProgram(gridShaderProgram));
-//
-//    GLuint projectionLoc = glGetUniformLocation(gridShaderProgram, "projection");
-//    GLuint viewLoc = glGetUniformLocation(gridShaderProgram, "view");
-//    GLuint cameraDistanceLoc = glGetUniformLocation(gridShaderProgram, "cameraDistance");
-//
-//    GL_CHECK(glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, camera.GetProjectionMatrix()));
-//    GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
-//
-//    float cameraDistance = camera.GetDistance();
-//    GL_CHECK(glUniform1f(cameraDistanceLoc, cameraDistance));
-//
-//    GL_CHECK(glBindVertexArray(gridVAO));
-//    GL_CHECK(glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(gridVertices.size() / 5)));
-//    GL_CHECK(glBindVertexArray(0));
-//}
 void Renderer::DrawGrid() {
     // Используем шейдерную программу для сетки
     GL_CHECK(glUseProgram(gridShaderProgram));
@@ -386,22 +363,24 @@ void Renderer::RebuildGameField() {
                 cellInstances.push_back({ x * cellSize, y * cellSize });
             }
 
-            // Добавляем данные для сетки
-            float majorLine = (x % majorStep == 0 || y % majorStep == 0) ? 1.0f : 0.0f;
-            float minorLine = (x % minorStep == 0 || y % minorStep == 0) ? 1.0f : 0.0f;
             float xPos = x * cellSize;
             float yPos = y * cellSize;
-
-            // Горизонтальная линия
+            // Горизонтальные линии
             if (x < gridWidth) {
+                float majorLine = (y % majorStep == 0) ? 1.0f : 0.0f;
+                float minorLine = (y % minorStep == 0) ? 1.0f : 0.0f;
+
                 gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
                 gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
                 gridVertices.push_back(xPos + cellSize); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
                 gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
             }
 
-            // Вертикальная линия
+            // Вертикальные линии
             if (y < gridHeight) {
+                float majorLine = (x % majorStep == 0) ? 1.0f : 0.0f;
+                float minorLine = (x % minorStep == 0) ? 1.0f : 0.0f;
+
                 gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
                 gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
                 gridVertices.push_back(xPos); gridVertices.push_back(yPos + cellSize); gridVertices.push_back(0.0f);
@@ -424,7 +403,7 @@ void Renderer::RebuildGameField() {
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
     GL_CHECK(glBindVertexArray(0));
 
-    std::cout << "Game field rebuilt." << std::endl;
+    std::cout << "Game field rebuilt. new size Width=" << gridWidth << " Height=" << gridHeight << std::endl;
 }
 
 
