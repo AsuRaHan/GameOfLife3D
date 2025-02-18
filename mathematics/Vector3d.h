@@ -16,14 +16,6 @@ public:
     Vector3d operator-(const Vector3d& other) const;
     Vector3d operator*(float scalar) const;
     Vector3d operator/(float scalar) const;
-    //Vector3d& operator=(const Vector3d& other) {
-    //    if (this != &other) { // защита от самоприсваивания
-    //        x = other.x;
-    //        y = other.y;
-    //        z = other.z;
-    //    }
-    //    return *this;
-    //}
     // Методы
     float length() const;
     Vector3d normalize() const;

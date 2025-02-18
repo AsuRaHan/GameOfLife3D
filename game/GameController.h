@@ -8,6 +8,7 @@
 #include "GPUAutomaton.h"
 #include "GameStateManager.h"
 #include "PatternManager.h"
+#include "../mathematics/Vector3d.h"
 #include "../rendering/IRendererProvider.h"
 
 #include <random> // Для генерации случайных чисел

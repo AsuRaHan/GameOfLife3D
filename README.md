@@ -154,7 +154,6 @@ git push origin v1.0.0
 
 - **./game**: Основная логика игры:
   - `Grid.h`, `Grid.cpp` - Управление сеткой
-  - `GameSimulation.h`, `GameSimulation.cpp` - Правила и логика игры (Кандидат на удаление)
   - `GameController.h`, `GameController.cpp` - Управление состоянием игры
   - `GPUAutomaton.h`, `GPUAutomaton.cpp` - Клеточный автомат, использующий для расчёта GPU
   - `GameStateManager.h`, `GameStateManager.cpp` - Управление загрузкой и сохранением мира

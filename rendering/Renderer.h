@@ -27,14 +27,6 @@ public:
     int getWindowHeight() const { return height; }
     void RebuildGameField() override; // метод для перестройки игрового поля. смотри интерфейс IRendererProvider
 
-    // Геттер для cellInstances
-    const std::vector<CellInstance>& GetCellInstances() const override {
-        return cellInstances;
-    }
-
-    // Сеттер для cellInstances
-    void SetCellInstances(const std::vector<CellInstance>& instances) { cellInstances = instances; }
-
 private:
     int width, height;
     Camera camera;
@@ -44,23 +36,25 @@ private:
     UIRenderer uiRenderer;
     ShaderManager shaderManager;
     SelectionRenderer selectionRenderer; // Добавляем экземпляр SelectionRenderer
+
     void InitializeGridVBOs();
     GLuint gridVBO;
     GLuint gridVAO;
+    // для шейдеров сетки
+    GLuint gridShaderProgram;
 
     void InitializeCellsVBOs();
     GLuint cellsVBO;
     GLuint cellsVAO;
-
     std::vector<GLfloat> gridVertices;
+
     GLuint cellInstanceVBO;
+    struct CellInstance {
+        float x, y; // Позиция клетки
+    };
     std::vector<CellInstance> cellInstances;
 
     GLuint cellShaderProgram;
-    // для шейдеров сетки
-    GLuint gridShaderProgram;
-
-    GLuint debugOverlayShaderProgram, debugOverlayVAO, debugOverlayVBO, debugOverlayTexture;
 
     void SetupOpenGL();
 

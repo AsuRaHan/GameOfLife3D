@@ -148,9 +148,6 @@
     <ClInclude Include="rendering\IRendererProvider.h">
       <Filter>rendering</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\CellInstance.h">
-      <Filter>rendering</Filter>
-    </ClInclude>
     <ClInclude Include="system\SettingsManager.h">
       <Filter>system</Filter>
     </ClInclude>

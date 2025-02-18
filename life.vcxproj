@@ -192,7 +192,6 @@
     <ClInclude Include="mathematics\Vector3d.h" />
     <ClInclude Include="rendering\Camera.h" />
     <ClInclude Include="rendering\CameraController.h" />
-    <ClInclude Include="rendering\CellInstance.h" />
     <ClInclude Include="rendering\IRendererProvider.h" />
     <ClInclude Include="rendering\Renderer.h" />
     <ClInclude Include="rendering\SelectionRenderer.h" />

@@ -12,9 +12,9 @@ Renderer::Renderer(int width, int height)
 Renderer::~Renderer() {
     glDeleteBuffers(1, &cellsVBO);
     glDeleteBuffers(1, &gridVBO);
+
     glDeleteBuffers(1, &cellInstanceVBO);
     glDeleteVertexArrays(1, &gridVAO);
-    glDeleteVertexArrays(1, &debugOverlayVAO);
 
     glDeleteVertexArrays(1, &debugTextureVAO);
     glDeleteBuffers(1, &debugTextureVBO);
@@ -35,7 +35,6 @@ void Renderer::SetGameController(GameController* gameController) {
     uiRenderer = UIRenderer(pGameController);
     uiRenderer.InitializeUI();
 
-    pGameController = gameController;
     selectionRenderer.SetGameController(gameController);
 
     // Инициализация отладочной текстуры
@@ -102,28 +101,38 @@ void Renderer::InitializeGridVBOs() {
 
     gridVertices.clear();
 
-    int minorStep = 10;
-    int majorStep = 100;
+    const int minorStep = 10;
+    const int majorStep = 100;
 
-    // Резервируем память для вершин (2 вершины на линию, 5 float на вершину)
     gridVertices.reserve((gridWidth + 1) * (gridHeight + 1) * 10);
 
+    // Горизонтальные линии
     for (int y = 0; y <= gridHeight; ++y) {
         for (int x = 0; x <= gridWidth; ++x) {
-            float majorLine = (x % majorStep == 0 || y % majorStep == 0) ? 1.0f : 0.0f;
-            float minorLine = (x % minorStep == 0 || y % minorStep == 0) ? 1.0f : 0.0f;
+            float majorLine = (y % majorStep == 0) ? 1.0f : 0.0f;
+            float minorLine = (y % minorStep == 0) ? 1.0f : 0.0f;
             float xPos = x * cellSize;
             float yPos = y * cellSize;
 
-            // Горизонтальная линия
+            // Рисуем только горизонтальные линии
             if (x < gridWidth) {
                 gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
                 gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
                 gridVertices.push_back(xPos + cellSize); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
                 gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
             }
+        }
+    }
 
-            // Вертикальная линия
+    // Вертикальные линии
+    for (int x = 0; x <= gridWidth; ++x) {
+        for (int y = 0; y <= gridHeight; ++y) {
+            float majorLine = (x % majorStep == 0) ? 1.0f : 0.0f;
+            float minorLine = (x % minorStep == 0) ? 1.0f : 0.0f;
+            float xPos = x * cellSize;
+            float yPos = y * cellSize;
+
+            // Рисуем только вертикальные линии
             if (y < gridHeight) {
                 gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
                 gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
@@ -133,7 +142,7 @@ void Renderer::InitializeGridVBOs() {
         }
     }
 
-    // Настройка OpenGL буферов
+    // Настройка OpenGL буферов (без изменений)
     GL_CHECK(glGenVertexArrays(1, &gridVAO));
     GL_CHECK(glGenBuffers(1, &gridVBO));
     GL_CHECK(glBindVertexArray(gridVAO));
@@ -150,6 +159,8 @@ void Renderer::InitializeGridVBOs() {
     GL_CHECK(glBindVertexArray(0));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
+
+
 
 void Renderer::Draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -172,23 +183,44 @@ void Renderer::Draw() {
     SwapBuffers(wglGetCurrentDC());
 }
 
+//void Renderer::DrawGrid() {
+//    GL_CHECK(glUseProgram(gridShaderProgram));
+//
+//    GLuint projectionLoc = glGetUniformLocation(gridShaderProgram, "projection");
+//    GLuint viewLoc = glGetUniformLocation(gridShaderProgram, "view");
+//    GLuint cameraDistanceLoc = glGetUniformLocation(gridShaderProgram, "cameraDistance");
+//
+//    GL_CHECK(glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, camera.GetProjectionMatrix()));
+//    GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
+//
+//    float cameraDistance = camera.GetDistance();
+//    GL_CHECK(glUniform1f(cameraDistanceLoc, cameraDistance));
+//
+//    GL_CHECK(glBindVertexArray(gridVAO));
+//    GL_CHECK(glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(gridVertices.size() / 5)));
+//    GL_CHECK(glBindVertexArray(0));
+//}
 void Renderer::DrawGrid() {
+    // Используем шейдерную программу для сетки
     GL_CHECK(glUseProgram(gridShaderProgram));
 
+    // Передаем матрицы проекции и вида в шейдеры
     GLuint projectionLoc = glGetUniformLocation(gridShaderProgram, "projection");
     GLuint viewLoc = glGetUniformLocation(gridShaderProgram, "view");
     GLuint cameraDistanceLoc = glGetUniformLocation(gridShaderProgram, "cameraDistance");
 
     GL_CHECK(glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, camera.GetProjectionMatrix()));
     GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
+    GL_CHECK(glUniform1f(cameraDistanceLoc, camera.GetDistance()));
 
-    float cameraDistance = camera.GetDistance();
-    GL_CHECK(glUniform1f(cameraDistanceLoc, cameraDistance));
-
+    // Связываем VAO сетки
     GL_CHECK(glBindVertexArray(gridVAO));
-    GL_CHECK(glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(gridVertices.size() / 5)));
+    // Рисуем линии сетки
+    GL_CHECK(glDrawArrays(GL_LINES, 0, gridVertices.size() / 5)); // gridVertices содержит координаты вершин для линий сетки
+    // Отвязываем VAO
     GL_CHECK(glBindVertexArray(0));
 }
+
 
 void Renderer::DrawCells() {
     if (!pGameController) return;
