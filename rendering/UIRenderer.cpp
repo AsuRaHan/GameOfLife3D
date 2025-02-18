@@ -84,7 +84,7 @@ void UIRenderer::DrawSimulationWindow() {
     if (!simulationWindowVisible) return;
 
     ImGui::Begin("Симуляция", &simulationWindowVisible, ImGuiWindowFlags_NoResize);
-    ImGui::SetWindowSize(ImVec2(0, 340), ImGuiCond_Once);
+    ImGui::SetWindowSize(ImVec2(0, 250), ImGuiCond_Once);
     // Управление симуляцией
     if (gameController->isSimulationRunning()) {
         if (ImGui::Button("Остановить симуляцию", buttonSize)) {
@@ -136,21 +136,14 @@ void UIRenderer::DrawSimulationWindow() {
     if (ImGui::Button("Случайные клетки", buttonSize)) {
         gameController->randomizeGrid(0.1f);
     }
-    ImGui::Separator();
-    // Выбор фигуры и поворот
-    ImGui::Text("Фигура для добавления");
-    static int selectedPattern = 0;
-    const char* patterns[] = { "Glider", "Blinker", "Toad", "Beacon", "Pentadecathlon", "Gosper Glider Gun" };
-    if (ImGui::Combo("##selectPattern", &selectedPattern, patterns, IM_ARRAYSIZE(patterns))) {
-        gameController->setCurrentPattern(selectedPattern + 1);
+    ImGui::Text("Задержка симуляции");
+    static int simulateTime = 0.0f;
+    ImGui::SetNextItemWidth(buttonSize.x);
+    if (ImGui::SliderInt("##simulateTime", &simulateTime, 0, 1000)) {
+        // Здесь код выполнится, если значение слайдера изменилось
+        gameController->setSimulationSpeed(simulateTime);
     }
-    ImGui::Separator();
-    ImGui::Text("Вращение фигуры");
-    static int selectedPatternRotator = 0;
-    const char* patternsRotator[] = { "None", "Rotate 90", "Rotate 180", "Rotate 270", "Flip Horizontal", "Flip Vertical" };
-    if (ImGui::Combo("##selectRotator", &selectedPatternRotator, patternsRotator, IM_ARRAYSIZE(patternsRotator))) {
-        gameController->setCurrentPatternRotator(selectedPatternRotator);
-    }
+
 
     ImGui::End();
 }
@@ -266,7 +259,22 @@ void UIRenderer::DrawPatternWindow() {
     if (!patternWindowVisible) return;
 
     ImGui::Begin("пользовательские паттерны", &patternWindowVisible, ImGuiWindowFlags_NoResize);
-    ImGui::SetWindowSize(ImVec2(0, 460), ImGuiCond_Once);
+    ImGui::SetWindowSize(ImVec2(0, 500), ImGuiCond_Once);
+    ImGui::Separator();
+    // Выбор фигуры и поворот
+    ImGui::Text("Фигура для добавления");
+    static int selectedPattern = 0;
+    const char* patterns[] = { "Glider", "Blinker", "Toad", "Beacon", "Pentadecathlon", "Gosper Glider Gun" };
+    if (ImGui::Combo("##selectPattern", &selectedPattern, patterns, IM_ARRAYSIZE(patterns))) {
+        gameController->setCurrentPattern(selectedPattern + 1);
+    }
+    ImGui::Separator();
+    ImGui::Text("Вращение фигуры");
+    static int selectedPatternRotator = 0;
+    const char* patternsRotator[] = { "None", "Rotate 90", "Rotate 180", "Rotate 270", "Flip Horizontal", "Flip Vertical" };
+    if (ImGui::Combo("##selectRotator", &selectedPatternRotator, patternsRotator, IM_ARRAYSIZE(patternsRotator))) {
+        gameController->setCurrentPatternRotator(selectedPatternRotator);
+    }
     // 1. Кнопка "Загрузить список"
     if (ImGui::Button("Загрузить список", buttonSize)) {
         gameController->loadPatternList();
@@ -291,10 +299,14 @@ void UIRenderer::DrawPatternWindow() {
         const auto& patterns = gameController->getPatternList();
         if (patterns.empty()) {
             ImGui::Text("Список паттернов пуст.");
+            if (ImGui::Button("Скачать паттерны", buttonSize)) {
+                const char* url = "https://conwaylife.com/patterns/all.zip";
+                ShellExecuteA(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
+            }
         }
         else {
             // Начинаем область с прокруткой
-            ImGui::BeginChild("PatternList", ImVec2(0, 295), true);
+            ImGui::BeginChild("PatternList", ImVec2(0, 270), true);
 
             for (size_t i = 0; i < patterns.size(); ++i) {
                 std::string itemName = std::filesystem::path(patterns[i]).filename().string();
@@ -315,15 +327,6 @@ void UIRenderer::DrawPatternWindow() {
 
             ImGui::EndChild(); // Заканчиваем область с прокруткой
         }
-    }
-
-    // 7. Сепаратор
-    //ImGui::Separator();
-
-    // 8. Кнопка "Выбрать паттерн"
-    if (ImGui::Button("Скачать паттерны", buttonSize)) {
-        const char* url = "https://conwaylife.com/patterns/all.zip";
-        ShellExecuteA(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
     }
 
     ImGui::End();

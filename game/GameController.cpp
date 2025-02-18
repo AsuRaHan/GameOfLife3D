@@ -121,11 +121,13 @@ void GameController::clearGrid() {
 
 void GameController::update(float deltaTime) {
     if (isRunning) {
-        //frameTimeAccumulator += deltaTime;
-        //if (frameTimeAccumulator >= simulationSpeed) {
-        gpuAutomaton.Update();
-        //    frameTimeAccumulator -= simulationSpeed;
-        //}
+        if (simulationSpeed!=0) {
+            DWORD elapsedTime = deltaTime - frameTimeAccumulator;
+            if (elapsedTime >= simulationSpeed) {
+                gpuAutomaton.Update();
+                frameTimeAccumulator = deltaTime;
+            }
+        }else gpuAutomaton.Update();
     }
 }
 
@@ -172,7 +174,6 @@ bool GameController::getCellState(int x, int y) const {
 
 void GameController::SetCellInstanceProvider(IRendererProvider* provider) {
     rendererProvider = provider;
-    //GameSimulation.SetCellProvider(provider); // ѕередаем провайдера в GameOfLife
 }
 
 void GameController::setFieldSize(int newWidth, int newHeight) {
@@ -217,7 +218,7 @@ void GameController::setCurrentPatternRotator(int patternRotator) {
      currentPatternRotator = patternRotator;
 }
 
-void GameController::setSimulationSpeed(float speed) {
+void GameController::setSimulationSpeed(int speed) {
     // speed - это количество секунд реального времени между обновлени€ми. ћеньше значение - быстрее симул€ци€.
     simulationSpeed = speed;
 }
@@ -278,7 +279,14 @@ bool GameController::saveGameState(const std::string& filename){
 }
 
 bool GameController::loadGameState(const std::string& filename) {
-    return GameStateManager::loadBinaryGameState(grid, filename);
+    int loadStatus = 0;
+    bool retLoadVal = GameStateManager::loadBinaryGameState(grid, filename, loadStatus);
+    if (retLoadVal) {
+        if (loadStatus == 2) {
+            rendererProvider->RebuildGameField();
+        }
+    }
+    return retLoadVal;
 }
 
 void GameController::loadPatternList(const std::string& patternFolder) {

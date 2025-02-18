@@ -11,16 +11,6 @@ GPUAutomaton::~GPUAutomaton() {
     GL_CHECK(glDeleteBuffers(1, &colorsBuffer));
 }
 
-void GPUAutomaton::syncBufferOperations() {
-    //GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-    //while (true) {
-    //    GLenum waitReturn = glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
-    //    if (waitReturn == GL_ALREADY_SIGNALED || waitReturn == GL_CONDITION_SATISFIED)
-    //        break;
-    //}
-    //glDeleteSync(sync);
-}
-
 void GPUAutomaton::CreateComputeShader() {
     const char* computedRulesColorsShaderSource = R"(
     #version 430 core
@@ -98,11 +88,13 @@ void main() {
             // Если клетка только что ожила, устанавливаем базовый цвет
             colors[index] = vec4(0.0, 0.5, 0.0, 1.0);  // Начальный зеленый цвет
         }
-    } else {
+    } else if(currentState == 1) {
         // Если клетка мертва, устанавливаем цвет мертвой клетки
         colors[index] = vec4(0.05, 0.05, 0.08, 1.0);
     }
 }
+
+
 
 )";
     shaderManager.loadComputeShader("computeShader", computedRulesColorsShaderSource);
@@ -125,7 +117,6 @@ void GPUAutomaton::SetupBuffers() {
 }
 
 void GPUAutomaton::SetNewGridSize(int width, int height) {
-    syncBufferOperations();
     gridWidth = width;
     gridHeight = height;
     GL_CHECK(glDeleteBuffers(2, cellsBuffer));
@@ -165,13 +156,14 @@ void GPUAutomaton::SwapBuffers() {
 }
 
 void GPUAutomaton::SetGridState(const std::vector<int>& inState) {
+    //glFinish();
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
     GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(int) * gridWidth * gridHeight, inState.data()));
 }
 
 void GPUAutomaton::GetGridState(std::vector<int>& outState) {
     outState.resize(gridWidth * gridHeight);
-    glFinish();
+    //glFinish();
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
     GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(int) * gridWidth * gridHeight, outState.data()));
 }
@@ -188,7 +180,7 @@ void GPUAutomaton::SetCellState(int x, int y, int state) {
 
     int index = y * gridWidth + x;
     int stateData = state;
-
+    //glFinish();
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
     GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER,
         index * sizeof(int), // Смещение в байтах
@@ -205,7 +197,7 @@ int GPUAutomaton::GetCellState(int x, int y) {
 
     int index = y * gridWidth + x;
     int stateData;
-
+    //glFinish();
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
     GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER,
         index * sizeof(int), // Смещение в байтах
@@ -234,7 +226,7 @@ void GPUAutomaton::SetCellColor(int x,int y, float r, float g, float b) {
 
     // Подготавливаем данные для записи (vec4)
     float colorData[4] = { r, g, b, 1.0f };
-
+    //glFinish();
     // Привязываем colorsBuffer и записываем данные
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer));
     GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER,
@@ -258,7 +250,7 @@ void GPUAutomaton::GetCellColor(int x, int y, float& r, float& g, float& b) {
 
     int index = y * gridWidth + x;
     float colorData[4];
-
+    //glFinish();
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer));
     GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER,
         index * sizeof(float) * 4, // Смещение в байтах
@@ -281,10 +273,10 @@ void GPUAutomaton::SetColorsBuf(const std::vector<float>& colors) {
         std::cerr << "SetColorsBuf: colorsBuffer is not initialized!" << std::endl;
         return;
     }
-
+    //glFinish();
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer));
     GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * colors.size(), colors.data()));
-    //GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 }
 
 void GPUAutomaton::GetColorsBuf(std::vector<float>& colors) {
@@ -293,7 +285,7 @@ void GPUAutomaton::GetColorsBuf(std::vector<float>& colors) {
         std::cerr << "GetColorsBuf: colorsBuffer is not initialized!" << std::endl;
         return;
     }
-    glFinish();
+    //glFinish();
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer));
     GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(float) * colors.size(), colors.data()));
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));

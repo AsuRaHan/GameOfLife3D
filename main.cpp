@@ -241,26 +241,17 @@ int wWinMain(
         // ===================================================================================
         MSG msg;
         bool MainLoop = true;
-        std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();
+        
         while (MainLoop) {
-            while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) { // PeekMessage(&msg, 0, 0, 0, PM_REMOVE) GetMessage(&msg, NULL, 0, 0)
+            while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) { 
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
                 if (msg.message == WM_QUIT) {
                     MainLoop = false; // Завершение приложения
                 }
-                //if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE) {
-                //    MainLoop = false; // Завершение приложения
-                //}
             }
-
-            // Вычисление времени для обновления
-            std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<float> deltaTime = std::chrono::duration_cast<std::chrono::duration<float>>(currentTime - lastTime);
-            lastTime = currentTime;
-
             // Здесь вызываем update с deltaTime
-            gameController.update(deltaTime.count()); // .count() возвращает значение в секундах как float
+            gameController.update(GetTickCount64());
             
             renderer.Draw();
         }

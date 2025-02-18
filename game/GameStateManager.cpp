@@ -290,7 +290,7 @@ bool GameStateManager::saveBinaryGameState(const Grid& grid, const std::string& 
     return true;
 }
 
-bool GameStateManager::loadBinaryGameState(Grid& grid, const std::string& filename) {
+bool GameStateManager::loadBinaryGameState(Grid& grid, const std::string& filename, int & loadStatus) {
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
         std::cerr << "Не удалось открыть файл для бинарного чтения: " << filename << std::endl;
@@ -312,8 +312,10 @@ bool GameStateManager::loadBinaryGameState(Grid& grid, const std::string& filena
     // Проверка соответствия размеров
     auto* automaton = grid.GetGPUAutomaton();
     if (width != grid.getWidth() || height != grid.getHeight()) {
-        std::cerr << "Размеры в загружаемом файле не совпадают с текущими размерами сетки." << std::endl;
-        return false;
+        std::cerr << "Размеры в загружаемом файле не совпадают с текущими размерами сетки. мир будет перестроен с новыми размерами. width=" << width << " height=" << height << std::endl;
+        grid.setSize(width, height);
+        automaton->SetNewGridSize(width, height);
+        loadStatus = 2;
     }
 
     while (file) {
@@ -333,6 +335,7 @@ bool GameStateManager::loadBinaryGameState(Grid& grid, const std::string& filena
             }
             else {
                 std::cerr << "Ошибка при распаковке данных состояния клеток!" << std::endl;
+                loadStatus = 0;
                 return false;
             }
         }
@@ -346,10 +349,10 @@ bool GameStateManager::loadBinaryGameState(Grid& grid, const std::string& filena
             }
             else {
                 std::cerr << "Ошибка при распаковке данных цветов!" << std::endl;
+                loadStatus = 0;
                 return false;
             }
         }
     }
-
     return true;
 }

@@ -22,7 +22,7 @@ public:
     static bool saveGameState(const Grid& grid, const std::string& filename);
     static bool loadGameState(Grid& grid, const std::string& filename);
 
-    static bool loadBinaryGameState(Grid& grid, const std::string& filename);
+    static bool loadBinaryGameState(Grid& grid, const std::string& filename, int& loadStatus);
     static bool saveBinaryGameState(const Grid& grid, const std::string& filename);
 private:
     struct SectionHeader {

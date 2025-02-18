@@ -27,13 +27,7 @@ HWND MainWindow::Create() {
         return 0;
     }
 
-    //// Создаем RECT для размеров окна
-    //RECT windowRect = { 0, 0, windowWidth, windowHeight };
-
-    //// Корректируем размеры с учетом рамки, заголовка и меню
-    //AdjustWindowRectEx(&windowRect, WS_OVERLAPPEDWINDOW | WS_VISIBLE, TRUE, 0);
-
-    // Создание окна с учетом скорректированных размеров
+    // Создание окна
     hWnd = CreateWindowEx(
         0,
         L"GameOfLife3DWindowClass",
@@ -47,6 +41,16 @@ HWND MainWindow::Create() {
         MessageBox(NULL, L"Window Creation Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
         return 0;
     }
+    RECT rcClient, rcWindow;
+    GetClientRect(hWnd, &rcClient);
+    GetWindowRect(hWnd, &rcWindow);
+
+    // Вычисляем размеры рамок и заголовка
+    int frameWidth = (rcWindow.right - rcWindow.left) - rcClient.right;
+    int frameHeight = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+
+    // Устанавливаем новые размеры, учитывая рамки и заголовок
+    SetWindowPos(hWnd, NULL, windowPosX, windowPosY, windowWidth + frameWidth, windowHeight + frameHeight, SWP_NOMOVE | SWP_NOZORDER);
 
     ShowWindow(hWnd, SW_SHOW);
     UpdateWindow(hWnd);

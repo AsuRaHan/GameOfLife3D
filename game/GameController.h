@@ -31,7 +31,7 @@ private:
     bool showGrid;
     bool showUI;
     bool isWorldToroidal;
-    float simulationSpeed = 0.01f; // «начение 1.0f может соответствовать одной секунде реального времени
+    int simulationSpeed = 0; // «начение 1000 может соответствовать одной секунде реального времени
     float frameTimeAccumulator = 0.0f;
 
     std::vector<std::string> patternList;
@@ -143,7 +143,7 @@ public:
     void setWoldToroidal(bool wt);
     bool getWoldToroidal() const { return isWorldToroidal; };
 
-    void setSimulationSpeed(float speed);
+    void setSimulationSpeed(int speed);
 
     // Ќовые методы дл€ сохранени€ и загрузки состо€ни€ игры
     bool saveGameState(const std::string& filename);

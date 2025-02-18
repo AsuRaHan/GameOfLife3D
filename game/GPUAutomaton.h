@@ -50,7 +50,7 @@ private:
     void CreateComputeShader();
     void SetupBuffers();
     void SwapBuffers(); // Новый метод для переключения буферов
-    void syncBufferOperations();
+
     ShaderManager shaderManager;
     GLuint computeProgram;
     GLuint cellsBuffer[2];
