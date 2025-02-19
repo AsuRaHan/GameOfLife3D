@@ -228,7 +228,7 @@ int wWinMain(
 
         Renderer renderer(width, height);
         renderer.SetGameController(&gameController);
-        gameController.SetCellInstanceProvider(&renderer);
+        gameController.SetRendererProvider(&renderer);
 
         // Передаем один и тот же экземпляр gameController в WindowController
         WindowController controller(&renderer, &gameController);

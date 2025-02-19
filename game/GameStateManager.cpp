@@ -25,7 +25,7 @@ bool GameStateManager::saveGameState(const Grid& grid, const std::string& filena
 
     // Добавляем комментарии
     file << "!Name: Saved world to Pattern\n";
-    file << "!Description: Just an example\n";
+    file << "!Description: Just an https://github.com/AsuRaHan/GameOfLife3D\n";
 
     // Сохранение паттерна
     for (int y = 0; y < grid.getHeight(); ++y) {

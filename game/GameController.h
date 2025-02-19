@@ -150,7 +150,7 @@ public:
 
     Pattern rotateOrFlip(const Pattern& pattern, Rotation rotation);
 
-    void SetCellInstanceProvider(IRendererProvider* provider);
+    void SetRendererProvider(IRendererProvider* provider);
 
     GPUAutomaton& getGPUAutomaton() { return gpuAutomaton; }
 
@@ -174,6 +174,8 @@ public:
     void KillSelectedCells();
     void ReviveSelectedCells();
     const std::vector<Vector3d>& GetSelectedCells() const { return selectedCells; }
+
+    void SaveSelectedCellsAsPattern();
 
 };
 #endif // GAMECONTROLLER_H_

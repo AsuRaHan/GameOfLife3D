@@ -137,7 +137,7 @@ bool GameController::getCellState(int x, int y) const {
     return grid.getCellState(x, y);
 }
 
-void GameController::SetCellInstanceProvider(IRendererProvider* provider) {
+void GameController::SetRendererProvider(IRendererProvider* provider) {
     rendererProvider = provider;
 }
 
@@ -285,7 +285,6 @@ void GameController::setCurrentPatternFromFile(const std::string& filename, int 
     PatternManager patternManager;
     try {
         currentPattern = patternManager.LoadPatternFromCells(filename);
-        //patternManager.LoadAndPlacePattern(*this, filename, startX, startY);
     }
     catch (const std::exception& e) {
         std::cerr << "Ошибка при выборе паттерна: " << e.what() << std::endl;
@@ -349,5 +348,37 @@ void GameController::ReviveSelectedCells() {
         grid.setCellState(x, y, true);
         grid.setCellColor(x, y, 0.1f, 0.4f, 0.1f); // Устанавливаем цвет для живой клетки
     }
+    isSelectionActive = false;
+}
+
+void GameController::SaveSelectedCellsAsPattern() {
+    if (!isSelectionActive) return;
+
+    // Определяем границы выделения
+    int minX = static_cast<int>(selectedCells[0].X()), maxX = minX, minY = static_cast<int>(selectedCells[0].Y()), maxY = minY;
+    for (size_t i = 1; i < selectedCells.size(); ++i) {
+        int x = static_cast<int>(selectedCells[i].X());
+        int y = static_cast<int>(selectedCells[i].Y());
+
+        // Обновляем минимальные значения
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+
+        // Обновляем максимальные значения
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+    }
+
+    // Создаем паттерн
+    Pattern newPattern(maxY - minY + 1, std::vector<bool>(maxX - minX + 1, false));
+    // Заполняем паттерн, учитывая правильную ориентацию
+    for (int y = minY; y <= maxY; ++y) {
+        for (int x = minX; x <= maxX; ++x) {
+            // Инвертируем оси Y и X
+            newPattern[maxY - y][maxX - x] = grid.getCellState(x, y);
+        }
+    }
+    // Сохраняем паттерн
+    currentPattern = newPattern;
     isSelectionActive = false;
 }
