@@ -55,6 +55,8 @@ PFNGLTEXBUFFERPROC glTexBuffer = nullptr;
 PFNGLGETINTEGERI_VPROC glGetIntegeri_v = nullptr;
 PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv = nullptr;
 
+PFNGLISBUFFERPROC glIsBuffer = nullptr;
+
 void LoadOpenGLFunctions() {
         // Загрузка функций для работы с буферами
     glGenBuffers = (PFNGLGENBUFFERSPROC)wglGetProcAddress("glGenBuffers");
@@ -163,7 +165,10 @@ void LoadOpenGLFunctions() {
     CHECK_LOAD_FUNCTION(glGetIntegeri_v);    
     
     glGetBufferParameteriv = (PFNGLGETBUFFERPARAMETERIVPROC)wglGetProcAddress("glGetBufferParameteriv");
-    CHECK_LOAD_FUNCTION(glGetBufferParameteriv);
+    CHECK_LOAD_FUNCTION(glGetBufferParameteriv);    
+    
+    glIsBuffer = (PFNGLISBUFFERPROC)wglGetProcAddress("glIsBuffer");
+    CHECK_LOAD_FUNCTION(glIsBuffer);
 
 
 

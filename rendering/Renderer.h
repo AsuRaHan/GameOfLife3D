@@ -77,8 +77,13 @@ private:
     void LoadDebugTextureShaders();
     void DrawDebugTexture();
 
-    GLuint computeShaderProgram;
+    GLuint computeCellShaderProgram;
+    GLuint computeGridShaderProgram;
+
     void LoadComputeShader();
-    void CreateOrUpdateFieldUsingComputeShader();
+
+    void CreateOrUpdateCellInstancesUsingComputeShader(std::vector<CellInstance>& cellInstances);
+
+    void CreateOrUpdateGridVerticesUsingComputeShader(std::vector<float>& gridVertices);
 };
 #endif // RENDERER_H_

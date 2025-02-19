@@ -29,9 +29,10 @@ void Renderer::SetGameController(GameController* gameController) {
     pGameController = gameController;
     LoadShaders();
 
-    //InitializeCellsVBOs();
-    //InitializeGridVBOs();
-    CreateOrUpdateFieldUsingComputeShader();
+    InitializeCellsVBOs();
+    InitializeGridVBOs();
+    //CreateOrUpdateCellInstancesUsingComputeShader();
+    //CreateOrUpdateGridVerticesUsingComputeShader();
 
     uiRenderer = UIRenderer(pGameController);
     uiRenderer.InitializeUI();
@@ -78,11 +79,13 @@ void Renderer::InitializeCellsVBOs() {
 
     cellInstances.clear();
     cellInstances.reserve(gridWidth * gridHeight);
-    for (int y = 0; y < gridHeight; ++y) {
-        for (int x = 0; x < gridWidth; ++x) {
-            cellInstances.push_back({ x * cellSize, y * cellSize }); // Удален instanceColor
-        }
-    }
+
+    CreateOrUpdateCellInstancesUsingComputeShader(cellInstances);
+    //for (int y = 0; y < gridHeight; ++y) {
+    //    for (int x = 0; x < gridWidth; ++x) {
+    //        cellInstances.push_back({ x * cellSize, y * cellSize }); // Удален instanceColor
+    //    }
+    //}
 
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
 
@@ -102,40 +105,39 @@ void Renderer::InitializeGridVBOs() {
 
     gridVertices.clear();
 
-    const int minorStep = 10;
-    const int majorStep = 100;
-
-    gridVertices.reserve((gridWidth + 1) * (gridHeight + 1) * 10);
-
+    //gridVertices.reserve((gridWidth + 1) * (gridHeight + 1) * 10);
+    CreateOrUpdateGridVerticesUsingComputeShader(gridVertices);
+    //const int minorStep = 10;
+    //const int majorStep = 100;
     // Объединенный цикл для рисования горизонтальных и вертикальных линий
-    for (int y = 0; y <= gridHeight; ++y) {
-        for (int x = 0; x <= gridWidth; ++x) {
-            float xPos = x * cellSize;
-            float yPos = y * cellSize;
+    //for (int y = 0; y <= gridHeight; ++y) {
+    //    for (int x = 0; x <= gridWidth; ++x) {
+    //        float xPos = x * cellSize;
+    //        float yPos = y * cellSize;
 
-            // Горизонтальные линии
-            if (x < gridWidth) {
-                float majorLine = (y % majorStep == 0) ? 1.0f : 0.0f;
-                float minorLine = (y % minorStep == 0) ? 1.0f : 0.0f;
+    //        // Горизонтальные линии
+    //        if (x < gridWidth) {
+    //            float majorLine = (y % majorStep == 0) ? 1.0f : 0.0f;
+    //            float minorLine = (y % minorStep == 0) ? 1.0f : 0.0f;
 
-                gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
-                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-                gridVertices.push_back(xPos + cellSize); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
-                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-            }
+    //            gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
+    //            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+    //            gridVertices.push_back(xPos + cellSize); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
+    //            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+    //        }
 
-            // Вертикальные линии
-            if (y < gridHeight) {
-                float majorLine = (x % majorStep == 0) ? 1.0f : 0.0f;
-                float minorLine = (x % minorStep == 0) ? 1.0f : 0.0f;
+    //        // Вертикальные линии
+    //        if (y < gridHeight) {
+    //            float majorLine = (x % majorStep == 0) ? 1.0f : 0.0f;
+    //            float minorLine = (x % minorStep == 0) ? 1.0f : 0.0f;
 
-                gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
-                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-                gridVertices.push_back(xPos); gridVertices.push_back(yPos + cellSize); gridVertices.push_back(0.0f);
-                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-            }
-        }
-    }
+    //            gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
+    //            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+    //            gridVertices.push_back(xPos); gridVertices.push_back(yPos + cellSize); gridVertices.push_back(0.0f);
+    //            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
+    //        }
+    //    }
+    //}
 
     // Настройка OpenGL буферов (без изменений)
     GL_CHECK(glGenVertexArrays(1, &gridVAO));
@@ -455,7 +457,6 @@ void Renderer::InitializeDebugTexture() {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-
 void Renderer::LoadDebugTextureShaders() {
     const char* vertexShaderSource = R"(
         #version 330 core
@@ -487,7 +488,6 @@ void Renderer::LoadDebugTextureShaders() {
     shaderManager.linkProgram("debugTextureShaderProgram", "debugTextureVertexShader", "debugTextureFragmentShader");
     debugTextureShaderProgram = shaderManager.getProgram("debugTextureShaderProgram");
 }
-
 
 void Renderer::DrawDebugTexture() {
     if (!pGameController) return;
@@ -530,132 +530,177 @@ void Renderer::DrawDebugTexture() {
 
 
 
-void Renderer::CreateOrUpdateFieldUsingComputeShader() {
-    if (!pGameController) return; // Проверяем, инициализирован ли GameController
-
-    int gridWidth = pGameController->getGridWidth(); // Получаем ширину игрового поля
-    int gridHeight = pGameController->getGridHeight(); // Получаем высоту игрового поля
-    float cellSize = pGameController->getCellSize(); // Получаем размер ячейки
-
-    GLuint cellsBuffer, gridVerticesBuffer; // Буферы для позиций клеток и вершин сетки
-
-    // Создаем или обновляем буфер для позиций клеток
-    glGenBuffers(1, &cellsBuffer); // Генерируем новый буфер для позиций клеток
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer); // Привязываем новый буфер как SSBO
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(CellInstance) * gridWidth * gridHeight, nullptr, GL_DYNAMIC_COPY); // Выделяем память для буфера
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer); // Устанавливаем точку привязки буфера для compute шейдера
-
-    // Создаем или обновляем буфер для вершин сетки
-    glGenBuffers(1, &gridVerticesBuffer); // Генерируем новый буфер для вершин сетки
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, gridVerticesBuffer); // Привязываем новый буфер как SSBO
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * 4 * (gridWidth + 1) * (gridHeight + 1) * 2, nullptr, GL_DYNAMIC_COPY); // Выделяем память для буфера
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, gridVerticesBuffer); // Устанавливаем точку привязки буфера для compute шейдера
-
-    // Используем Compute Shader для генерации данных
-    glUseProgram(computeShaderProgram); // Активируем программу compute шейдера
-
-    // Передаем параметры в шейдер
-    glUniform1i(glGetUniformLocation(computeShaderProgram, "gridWidth"), gridWidth);
-    glUniform1i(glGetUniformLocation(computeShaderProgram, "gridHeight"), gridHeight);
-    glUniform1f(glGetUniformLocation(computeShaderProgram, "cellSize"), cellSize);
-
-    // Запускаем вычисления на GPU
-    glDispatchCompute((gridWidth + 31) / 32, (gridHeight + 31) / 32, 1); // Запуск вычислений, 32 - размер work group
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT); // Убеждаемся, что все вычисления завершены
-
-    // Отличие: Создаем VAO для клеток здесь, а не в отдельном методе
-    glGenVertexArrays(1, &cellsVAO); // Генерируем VAO для клеток
-    glBindVertexArray(cellsVAO); // Привязываем VAO для клеток
-    glBindBuffer(GL_ARRAY_BUFFER, cellsBuffer); // Привязываем буфер с данными клеток к GL_ARRAY_BUFFER
-
-    // Предполагаем, что CellInstance определен как структура с 2 float для позиции
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(CellInstance), (void*)0); // Устанавливаем указатель на атрибут вершины
-    glEnableVertexAttribArray(1); // Включаем атрибут вершины
-    glVertexAttribDivisor(1, 1); // Для инстанцирования
-
-    // Отличие: Создаем VAO для сетки здесь, а не в отдельном методе
-    glGenVertexArrays(1, &gridVAO); // Генерируем VAO для сетки
-    glBindVertexArray(gridVAO); // Привязываем VAO для сетки
-    glBindBuffer(GL_ARRAY_BUFFER, gridVerticesBuffer); // Привязываем буфер с данными сетки к GL_ARRAY_BUFFER
-
-    // Обратите внимание на размер и структуру ваших данных для сетки
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0); // Устанавливаем указатель на атрибут вершины для позиции
-    glEnableVertexAttribArray(0); // Включаем атрибут вершины для позиции
-    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(3 * sizeof(float))); // Устанавливаем указатель на атрибут вершины для информации о линии
-    glEnableVertexAttribArray(1); // Включаем атрибут вершины для информации о линии
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // Сбрасываем привязку буфера
-    glBindVertexArray(0); // Сбрасываем привязку VAO
-
-    this->cellsVBO = cellsBuffer; // Сохраняем VBO для последующего использования
-    this->gridVBO = gridVerticesBuffer; // Сохраняем VBO для последующего использования
-}
 
 void Renderer::LoadComputeShader() {
-    shaderManager.loadComputeShader("computeShader", R"(
-    #version 430 core
+    shaderManager.loadComputeShader("computeCellShaderProgram", R"(
 
-    layout(local_size_x = 32, local_size_y = 32) in;
+#version 430 core
 
-    layout(std430, binding = 0) buffer Cells {
-        vec4 positions[];
-    };
+layout(local_size_x = 32, local_size_y = 32) in;
 
-    layout(std430, binding = 1) buffer GridVertices {
-        vec4 vertices[];
-    };
+layout(std430, binding = 0) buffer Cells {
+    vec2 positions[];
+};
 
-    // Uniform для хранения дополнительных данных сетки
-    uniform float gridData[(1 + 1) * (1 + 1) * 2]; // Предполагаем, что вы используете это для major и minor линий
+uniform int gridWidth;
+uniform int gridHeight;
+uniform float cellSize;
 
-    uniform int gridWidth;
-    uniform int gridHeight;
-    uniform float cellSize;
+void main() {
+    uint x = gl_GlobalInvocationID.x;
+    uint y = gl_GlobalInvocationID.y;
+    if (x >= gridWidth || y >= gridHeight) return;
 
-    void main() {
-        uint idx = gl_GlobalInvocationID.y * gridWidth + gl_GlobalInvocationID.x;
-        if (gl_GlobalInvocationID.x >= gridWidth || gl_GlobalInvocationID.y >= gridHeight) return;
-
-        // Генерация данных клетки
-        positions[idx] = vec4(gl_GlobalInvocationID.x * cellSize, gl_GlobalInvocationID.y * cellSize, 0.0, 1.0);
-
-        // Генерация вершин сетки
-        uint gridIndex = (gl_GlobalInvocationID.y * (gridWidth + 1) + gl_GlobalInvocationID.x) * 2;
-        
-        // Горизонтальная линия
-        vertices[gridIndex] = vec4(
-            gl_GlobalInvocationID.x * cellSize, 
-            gl_GlobalInvocationID.y * cellSize, 
-            0.0, 
-            ((gl_GlobalInvocationID.y % 100 == 0) ? 1.0 : 0.0) + ((gl_GlobalInvocationID.y % 10 == 0) ? 0.1 : 0.0) // Используем 4-й компонент для линий
-        );
-        vertices[gridIndex + 1] = vec4(
-            (gl_GlobalInvocationID.x + 1) * cellSize, 
-            gl_GlobalInvocationID.y * cellSize, 
-            0.0, 
-            ((gl_GlobalInvocationID.y % 100 == 0) ? 1.0 : 0.0) + ((gl_GlobalInvocationID.y % 10 == 0) ? 0.1 : 0.0)
-        );
-
-        // Если мы не на последней строке, добавляем вертикальную линию
-        if (gl_GlobalInvocationID.y < gridHeight - 1) {
-            uint verticalIndex = (gl_GlobalInvocationID.y * (gridWidth + 1) + gl_GlobalInvocationID.x) * 2 + (gridWidth + 1) * 2;
-            vertices[verticalIndex] = vec4(
-                gl_GlobalInvocationID.x * cellSize, 
-                gl_GlobalInvocationID.y * cellSize, 
-                0.0, 
-                ((gl_GlobalInvocationID.x % 100 == 0) ? 1.0 : 0.0) + ((gl_GlobalInvocationID.x % 10 == 0) ? 0.1 : 0.0)
-            );
-            vertices[verticalIndex + 1] = vec4(
-                gl_GlobalInvocationID.x * cellSize, 
-                (gl_GlobalInvocationID.y + 1) * cellSize, 
-                0.0, 
-                ((gl_GlobalInvocationID.x % 100 == 0) ? 1.0 : 0.0) + ((gl_GlobalInvocationID.x % 10 == 0) ? 0.1 : 0.0)
-            );
-        }
-    }
+    uint idx = y * gridWidth + x;
+    positions[idx] = vec2(x * cellSize, y * cellSize);
+}
 
 )");
 
-    shaderManager.linkComputeProgram("computeProgram", "computeShader");
-    computeShaderProgram = shaderManager.getProgram("computeProgram");
+    shaderManager.linkComputeProgram("computeCellProgram", "computeCellShaderProgram");
+    computeCellShaderProgram = shaderManager.getProgram("computeCellProgram");
+// ==========================================================================
+    shaderManager.loadComputeShader("computeGridShaderProgram", R"(
+
+#version 430 core
+
+layout(local_size_x = 32, local_size_y = 32) in; 
+
+layout(std430, binding = 0) buffer GridVertices {
+    float vertices[];
+};
+
+uniform int gridWidth;
+uniform int gridHeight;
+uniform float cellSize;
+uniform int majorStep;
+uniform int minorStep;
+
+void main() {
+    uint x = gl_GlobalInvocationID.x;
+    uint y = gl_GlobalInvocationID.y;
+
+    // Проверяем, что x и y находятся в пределах сетки
+    if (x > gridWidth || y > gridHeight) return;
+    
+    uint baseIndexForVertical = x * 10; // Начало для вертикальных линий
+    uint baseIndexForHorizontal = (gridWidth + 1) * 10 + y * 10; // Начало для горизонтальных линий после вертикальных, включая дополнительные линии
+
+    // Добавляем вертикальные линии
+    if (x <= gridWidth) { // Мы используем <=, чтобы включить дополнительную линию справа
+        float xPos = x * cellSize;
+        float majorLine = float(x % majorStep == 0);
+        float minorLine = float(x % minorStep == 0) * (1.0 - majorLine); // minorLine true только если не majorLine
+
+        // Вертикальные линии
+        vertices[baseIndexForVertical + 0] = xPos;
+        vertices[baseIndexForVertical + 1] = 0.0;
+        vertices[baseIndexForVertical + 2] = 0.0;
+        vertices[baseIndexForVertical + 3] = majorLine;
+        vertices[baseIndexForVertical + 4] = minorLine;
+
+        vertices[baseIndexForVertical + 5] = xPos;
+        vertices[baseIndexForVertical + 6] = gridHeight * cellSize;
+        vertices[baseIndexForVertical + 7] = 0.0;
+        vertices[baseIndexForVertical + 8] = majorLine;
+        vertices[baseIndexForVertical + 9] = minorLine;
+    }
+
+    // Добавляем горизонтальные линии
+    if (y <= gridHeight) { // Мы используем <=, чтобы включить дополнительную линию сверху
+        float yPos = y * cellSize;
+        float majorLine = float(y % majorStep == 0);
+        float minorLine = float(y % minorStep == 0) * (1.0 - majorLine); // minorLine true только если не majorLine
+
+        // Горизонтальные линии
+        vertices[baseIndexForHorizontal + 0] = 0.0;
+        vertices[baseIndexForHorizontal + 1] = yPos;
+        vertices[baseIndexForHorizontal + 2] = 0.0;
+        vertices[baseIndexForHorizontal + 3] = majorLine;
+        vertices[baseIndexForHorizontal + 4] = minorLine;
+
+        vertices[baseIndexForHorizontal + 5] = (gridWidth) * cellSize;
+        vertices[baseIndexForHorizontal + 6] = yPos;
+        vertices[baseIndexForHorizontal + 7] = 0.0;
+        vertices[baseIndexForHorizontal + 8] = majorLine;
+        vertices[baseIndexForHorizontal + 9] = minorLine;
+    }
+}
+
+)");
+
+    shaderManager.linkComputeProgram("computeGridProgram", "computeGridShaderProgram");
+    computeGridShaderProgram = shaderManager.getProgram("computeGridProgram");
+}
+
+
+void Renderer::CreateOrUpdateCellInstancesUsingComputeShader(std::vector<CellInstance>& cellInstances) {
+    if (!pGameController) return;
+
+    int gridWidth = pGameController->getGridWidth();
+    int gridHeight = pGameController->getGridHeight();
+    float cellSize = pGameController->getCellSize();
+
+    // Создаем буфер для инстанцирования клеток
+    GLuint cellInstanceBuffer;
+    glGenBuffers(1, &cellInstanceBuffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellInstanceBuffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(CellInstance) * gridWidth * gridHeight, nullptr, GL_DYNAMIC_COPY);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellInstanceBuffer); // Привязка для compute шейдера
+
+    // Используем compute шейдер для заполнения буфера
+    glUseProgram(computeCellShaderProgram);
+
+    // Передаем параметры в шейдер
+    glUniform1i(glGetUniformLocation(computeCellShaderProgram, "gridWidth"), gridWidth);
+    glUniform1i(glGetUniformLocation(computeCellShaderProgram, "gridHeight"), gridHeight);
+    glUniform1f(glGetUniformLocation(computeCellShaderProgram, "cellSize"), cellSize);
+
+    // Запускаем вычисления на GPU
+    glDispatchCompute((gridWidth + 31) / 32, (gridHeight + 31) / 32, 1); // 32 - размер work group
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+    // Читаем данные обратно на CPU
+    cellInstances.resize(gridWidth * gridHeight);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, cellInstances.size() * sizeof(CellInstance), cellInstances.data());
+
+    glDeleteBuffers(1, &cellInstanceBuffer); // Удаляем временный буфер
+}
+
+void Renderer::CreateOrUpdateGridVerticesUsingComputeShader(std::vector<float>& gridVertices) {
+    if (!pGameController) return;
+
+    int gridWidth = pGameController->getGridWidth();
+    int gridHeight = pGameController->getGridHeight();
+    float cellSize = pGameController->getCellSize();
+    const int majorStep = 100;
+    const int minorStep = 10;
+
+    // Создаем буфер для вершин сетки
+    GLuint gridBuffer;
+    glGenBuffers(1, &gridBuffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, gridBuffer);
+    // Корректировка размера буфера
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * 5 * gridWidth * gridHeight * 2, nullptr, GL_DYNAMIC_COPY);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, gridBuffer); // Привязка для compute шейдера
+
+    // Используем compute шейдер для сетки
+    glUseProgram(computeGridShaderProgram);
+
+    // Передаем параметры в шейдер
+    glUniform1i(glGetUniformLocation(computeGridShaderProgram, "gridWidth"), gridWidth);
+    glUniform1i(glGetUniformLocation(computeGridShaderProgram, "gridHeight"), gridHeight);
+    glUniform1f(glGetUniformLocation(computeGridShaderProgram, "cellSize"), cellSize);
+    glUniform1i(glGetUniformLocation(computeGridShaderProgram, "majorStep"), majorStep);
+    glUniform1i(glGetUniformLocation(computeGridShaderProgram, "minorStep"), minorStep);
+
+    // Запускаем вычисления на GPU
+    glDispatchCompute((gridWidth + 31) / 32, (gridHeight + 31) / 32, 1); // 32 - размер work group
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+    // Читаем данные обратно на CPU
+    gridVertices.resize(5 * gridWidth * gridHeight * 2); // Корректный размер вектора
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, gridVertices.size() * sizeof(float), gridVertices.data());
+
+    glDeleteBuffers(1, &gridBuffer); // Удаляем временный буфер
 }
