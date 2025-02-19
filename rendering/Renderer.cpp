@@ -548,7 +548,6 @@ void Renderer::CreateOrUpdateFieldUsingComputeShader() {
     // Создаем или обновляем буфер для вершин сетки
     glGenBuffers(1, &gridVerticesBuffer); // Генерируем новый буфер для вершин сетки
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, gridVerticesBuffer); // Привязываем новый буфер как SSBO
-    // Используем 4 float на вершину (x, y, z, major/minor line info)
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * 4 * (gridWidth + 1) * (gridHeight + 1) * 2, nullptr, GL_DYNAMIC_COPY); // Выделяем память для буфера
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, gridVerticesBuffer); // Устанавливаем точку привязки буфера для compute шейдера
 
@@ -564,7 +563,8 @@ void Renderer::CreateOrUpdateFieldUsingComputeShader() {
     glDispatchCompute((gridWidth + 31) / 32, (gridHeight + 31) / 32, 1); // Запуск вычислений, 32 - размер work group
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT); // Убеждаемся, что все вычисления завершены
 
-    // Настройка атрибутов вершин для клеток
+    // Отличие: Создаем VAO для клеток здесь, а не в отдельном методе
+    glGenVertexArrays(1, &cellsVAO); // Генерируем VAO для клеток
     glBindVertexArray(cellsVAO); // Привязываем VAO для клеток
     glBindBuffer(GL_ARRAY_BUFFER, cellsBuffer); // Привязываем буфер с данными клеток к GL_ARRAY_BUFFER
 
@@ -573,9 +573,11 @@ void Renderer::CreateOrUpdateFieldUsingComputeShader() {
     glEnableVertexAttribArray(1); // Включаем атрибут вершины
     glVertexAttribDivisor(1, 1); // Для инстанцирования
 
-    // Настройка атрибутов вершин для сетки
+    // Отличие: Создаем VAO для сетки здесь, а не в отдельном методе
+    glGenVertexArrays(1, &gridVAO); // Генерируем VAO для сетки
     glBindVertexArray(gridVAO); // Привязываем VAO для сетки
     glBindBuffer(GL_ARRAY_BUFFER, gridVerticesBuffer); // Привязываем буфер с данными сетки к GL_ARRAY_BUFFER
+
     // Обратите внимание на размер и структуру ваших данных для сетки
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0); // Устанавливаем указатель на атрибут вершины для позиции
     glEnableVertexAttribArray(0); // Включаем атрибут вершины для позиции
