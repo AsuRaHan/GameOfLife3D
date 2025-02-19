@@ -43,6 +43,8 @@ private:
     GLuint gridVAO;
     // для шейдеров сетки
     GLuint gridShaderProgram;
+    int gridVertexCount;
+    int gridBufferSize;
 
     void InitializeCellsVBOs();
     GLuint cellsVBO;
@@ -64,17 +66,6 @@ private:
     void LoadShaders();
 	void LoadCellShaders();
     void LoadGridShaders();
-
-    // Для отладочной текстуры
-    GLuint debugTextureShaderProgram;
-    GLuint debugTextureVAO;
-    GLuint debugTextureVBO;
-    GLuint debugTextureID; // ID текстуры
-    float debugTextureOffsetX; // Смещение текстуры по X (справа от сетки)
-
-    void InitializeDebugTexture();
-    void LoadDebugTextureShaders();
-    void DrawDebugTexture();
 
     GLuint computeCellShaderProgram;
     GLuint computeGridShaderProgram;

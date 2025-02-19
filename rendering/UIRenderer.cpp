@@ -214,7 +214,7 @@ void UIRenderer::DrawFieldSettingsWindow() {
     ImGui::InputInt("Ширина", &fieldWidth);
     ImGui::InputInt("Высота", &fieldHeight);
 
-    if (ImGui::Button("Применить", buttonSize)) {
+    if (ImGui::Button("Перестроить поле", buttonSize)) {
         // Здесь нужно вызвать метод для изменения размеров поля в вашем gameController
         gameController->setFieldSize(fieldWidth, fieldHeight);
     }

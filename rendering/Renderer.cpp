@@ -3,7 +3,6 @@
 Renderer::Renderer(int width, int height)
     : width(width), height(height), farPlane(999009000000.0f), camera(45.0f, static_cast<float>(width) / height, 0.1f, farPlane),
     pGameController(nullptr), uiRenderer(nullptr), selectionRenderer(camera, shaderManager)
-    , debugTextureShaderProgram(0), debugTextureVAO(0), debugTextureVBO(0), debugTextureID(0), debugTextureOffsetX(0.0f)
 {
     SetupOpenGL();
     OnWindowResize(width, height);
@@ -15,10 +14,6 @@ Renderer::~Renderer() {
 
     glDeleteBuffers(1, &cellInstanceVBO);
     glDeleteVertexArrays(1, &gridVAO);
-
-    glDeleteVertexArrays(1, &debugTextureVAO);
-    glDeleteBuffers(1, &debugTextureVBO);
-    glDeleteTextures(1, &debugTextureID);
 }
 
 void Renderer::SetCamera(const Camera& camera) {
@@ -31,17 +26,12 @@ void Renderer::SetGameController(GameController* gameController) {
 
     InitializeCellsVBOs();
     InitializeGridVBOs();
-    //CreateOrUpdateCellInstancesUsingComputeShader();
-    //CreateOrUpdateGridVerticesUsingComputeShader();
 
     uiRenderer = UIRenderer(pGameController);
     uiRenderer.InitializeUI();
 
     selectionRenderer.SetGameController(gameController);
 
-    // Инициализация отладочной текстуры
-    //LoadDebugTextureShaders();
-    //InitializeDebugTexture();
 }
 
 void Renderer::SetupOpenGL() {
@@ -81,11 +71,6 @@ void Renderer::InitializeCellsVBOs() {
     //cellInstances.reserve(gridWidth * gridHeight);
 
     CreateOrUpdateCellInstancesUsingComputeShader(cellInstances);
-    //for (int y = 0; y < gridHeight; ++y) {
-    //    for (int x = 0; x < gridWidth; ++x) {
-    //        cellInstances.push_back({ x * cellSize, y * cellSize }); // Удален instanceColor
-    //    }
-    //}
 
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
 
@@ -103,18 +88,22 @@ void Renderer::InitializeGridVBOs() {
     int gridHeight = pGameController->getGridHeight();
     float cellSize = pGameController->getCellSize();
 
+    // Вычисляем количество вершин для сетки
+    gridVertexCount = ((gridWidth + 1) * 2 + (gridHeight + 1) * 2) * 5;  // каждый элемент сетки имеет 5 float значений
+    gridBufferSize = gridVertexCount * sizeof(float);  // размер буфера в байтах
 
-
-    // Настройка OpenGL буферов (без изменений)
+    // Настройка OpenGL буферов
     GL_CHECK(glGenVertexArrays(1, &gridVAO));
     GL_CHECK(glGenBuffers(1, &gridVBO));
     GL_CHECK(glBindVertexArray(gridVAO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gridVBO));
 
     gridVertices.clear();
+    gridVertices.resize(gridVertexCount);  // Устанавливаем правильный размер
+
     CreateOrUpdateGridVerticesUsingComputeShader(gridVertices);
 
-    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_DYNAMIC_DRAW));
+    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridBufferSize, gridVertices.data(), GL_DYNAMIC_DRAW));
 
     GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0));
     GL_CHECK(glEnableVertexAttribArray(0));
@@ -129,24 +118,24 @@ void Renderer::InitializeGridVBOs() {
 
 void Renderer::Draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     DrawCells();
+
     if (pGameController->IsSelectionActive()) {
         selectionRenderer.SetIsSelecting(pGameController->IsSelectionActive());
         selectionRenderer.Draw();
     }
     // Отрисовка сетки
     if (pGameController->getShowGrid())DrawGrid();
-    //DrawDebugTexture();
     // используем UIRenderer для отрисовки UI
     if (pGameController->getShowUI())uiRenderer.DrawUI();
+
     SwapBuffers(wglGetCurrentDC());
 }
 
 void Renderer::DrawGrid() {
-    // Используем шейдерную программу для сетки
     GL_CHECK(glUseProgram(gridShaderProgram));
 
-    // Передаем матрицы проекции и вида в шейдеры
     GLuint projectionLoc = glGetUniformLocation(gridShaderProgram, "projection");
     GLuint viewLoc = glGetUniformLocation(gridShaderProgram, "view");
     GLuint cameraDistanceLoc = glGetUniformLocation(gridShaderProgram, "cameraDistance");
@@ -155,11 +144,8 @@ void Renderer::DrawGrid() {
     GL_CHECK(glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix()));
     GL_CHECK(glUniform1f(cameraDistanceLoc, camera.GetDistance()));
 
-    // Связываем VAO сетки
     GL_CHECK(glBindVertexArray(gridVAO));
-    // Рисуем линии сетки
-    GL_CHECK(glDrawArrays(GL_LINES, 0, gridVertices.size() / 5)); // gridVertices содержит координаты вершин для линий сетки
-    // Отвязываем VAO
+    GL_CHECK(glDrawArrays(GL_LINES, 0, gridVertexCount / 5));
     GL_CHECK(glBindVertexArray(0));
 }
 
@@ -311,126 +297,17 @@ void main()
 
 void Renderer::RebuildGameField() {
     if (!pGameController) return;
-    glDeleteBuffers(1, &cellsVBO);
-    glDeleteBuffers(1, &cellInstanceVBO);
-    glDeleteBuffers(1, &gridVBO);
-    glFlush();
+
+    // Удаляем старые буферы
+    GL_CHECK(glDeleteBuffers(1, &cellsVBO));
+    GL_CHECK(glDeleteBuffers(1, &cellInstanceVBO));
+
+    GL_CHECK(glDeleteVertexArrays(1, &gridVAO));
+    GL_CHECK(glDeleteBuffers(1, &gridVBO));
+
+    // Инициализируем новые буферы
     InitializeCellsVBOs();
     InitializeGridVBOs();
-}
-
-
-void Renderer::InitializeDebugTexture() {
-    if (!pGameController) return;
-
-    int gridWidth = pGameController->getGridWidth();
-    int gridHeight = pGameController->getGridHeight();
-    float cellSize = pGameController->getCellSize();
-
-    debugTextureOffsetX = gridWidth * cellSize;
-
-    glGenVertexArrays(1, &debugTextureVAO);
-    glGenBuffers(1, &debugTextureVBO);
-    glBindVertexArray(debugTextureVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, debugTextureVBO);
-
-    float vertices[] = {
-        0.0f, 0.0f,             0.0f, 1.0f,
-        gridWidth * cellSize, 0.0f,             1.0f, 1.0f,
-        0.0f, gridHeight * cellSize, 0.0f, 0.0f,
-        gridWidth * cellSize, gridHeight * cellSize, 1.0f, 0.0f
-    };
-
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glGenTextures(1, &debugTextureID);
-    glBindTexture(GL_TEXTURE_2D, debugTextureID);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gridWidth, gridHeight, 0, GL_RGBA, GL_FLOAT, nullptr); // Изменено на GL_RGBA
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void Renderer::LoadDebugTextureShaders() {
-    const char* vertexShaderSource = R"(
-        #version 330 core
-        layout(location = 0) in vec2 aPos;
-        layout(location = 1) in vec2 aTexCoord;
-        uniform mat4 projection;
-        uniform mat4 view;
-        uniform float offsetX; // Смещение по X
-        out vec2 TexCoord;
-        void main() {
-            vec2 pos = aPos + vec2(offsetX, 0.0); // Смещаем позицию текстуры
-            gl_Position = projection * view * vec4(pos, 0.0, 1.0);
-            TexCoord = aTexCoord;
-        }
-    )";
-
-    const char* fragmentShaderSource = R"(
-        #version 330 core
-        in vec2 TexCoord;
-        out vec4 FragColor;
-        uniform sampler2D textureSampler;
-        void main() {
-            FragColor = texture(textureSampler, TexCoord);
-        }
-    )";
-
-    shaderManager.loadVertexShader("debugTextureVertexShader", vertexShaderSource);
-    shaderManager.loadFragmentShader("debugTextureFragmentShader", fragmentShaderSource);
-    shaderManager.linkProgram("debugTextureShaderProgram", "debugTextureVertexShader", "debugTextureFragmentShader");
-    debugTextureShaderProgram = shaderManager.getProgram("debugTextureShaderProgram");
-}
-
-void Renderer::DrawDebugTexture() {
-    if (!pGameController) return;
-
-    int gridWidth = pGameController->getGridWidth();
-    int gridHeight = pGameController->getGridHeight();
-
-    GLuint colorsBuffer = pGameController->getGPUAutomaton().getColorsBuffer();
-    std::vector<float> textureData(gridWidth * gridHeight * 4); // Изменено на 4 компонента
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer);
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, textureData.size() * sizeof(float), textureData.data());
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-    glBindTexture(GL_TEXTURE_2D, debugTextureID);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, gridWidth, gridHeight, GL_RGBA, GL_FLOAT, textureData.data());
-
-    glUseProgram(debugTextureShaderProgram);
-
-    GLint projectionLoc = glGetUniformLocation(debugTextureShaderProgram, "projection");
-    GLint viewLoc = glGetUniformLocation(debugTextureShaderProgram, "view");
-    GLint offsetLoc = glGetUniformLocation(debugTextureShaderProgram, "offsetX");
-
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, camera.GetProjectionMatrix());
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix());
-    glUniform1f(offsetLoc, debugTextureOffsetX);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, debugTextureID);
-
-    GLint textureLoc = glGetUniformLocation(debugTextureShaderProgram, "textureSampler");
-    glUniform1i(textureLoc, 0);
-
-    glBindVertexArray(debugTextureVAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Renderer::LoadComputeShader() {
@@ -572,37 +449,28 @@ void Renderer::CreateOrUpdateCellInstancesUsingComputeShader(std::vector<CellIns
 void Renderer::CreateOrUpdateGridVerticesUsingComputeShader(std::vector<float>& gridVertices) {
     if (!pGameController) return;
 
-    int gridWidth = pGameController->getGridWidth();
-    int gridHeight = pGameController->getGridHeight();
-    float cellSize = pGameController->getCellSize();
+    // Используем уже сохраненные значения
     const int majorStep = 100;
     const int minorStep = 10;
 
-    // Создаем буфер для вершин сетки
     GLuint gridBuffer;
     glGenBuffers(1, &gridBuffer);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, gridBuffer);
-    // Корректировка размера буфера
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(float) * 5 * gridWidth * gridHeight * 2, nullptr, GL_DYNAMIC_COPY);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, gridBuffer); // Привязка для compute шейдера
+    glBufferData(GL_SHADER_STORAGE_BUFFER, gridBufferSize, nullptr, GL_DYNAMIC_COPY);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, gridBuffer);
 
-    // Используем compute шейдер для сетки
     glUseProgram(computeGridShaderProgram);
 
-    // Передаем параметры в шейдер
-    glUniform1i(glGetUniformLocation(computeGridShaderProgram, "gridWidth"), gridWidth);
-    glUniform1i(glGetUniformLocation(computeGridShaderProgram, "gridHeight"), gridHeight);
-    glUniform1f(glGetUniformLocation(computeGridShaderProgram, "cellSize"), cellSize);
+    glUniform1i(glGetUniformLocation(computeGridShaderProgram, "gridWidth"), pGameController->getGridWidth());
+    glUniform1i(glGetUniformLocation(computeGridShaderProgram, "gridHeight"), pGameController->getGridHeight());
+    glUniform1f(glGetUniformLocation(computeGridShaderProgram, "cellSize"), pGameController->getCellSize());
     glUniform1i(glGetUniformLocation(computeGridShaderProgram, "majorStep"), majorStep);
     glUniform1i(glGetUniformLocation(computeGridShaderProgram, "minorStep"), minorStep);
 
-    // Запускаем вычисления на GPU
-    glDispatchCompute((gridWidth + 31) / 32, (gridHeight + 31) / 32, 1); // 32 - размер work group
+    glDispatchCompute((pGameController->getGridWidth() + 31) / 32, (pGameController->getGridHeight() + 31) / 32, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-    // Читаем данные обратно на CPU
-    gridVertices.resize(5 * gridWidth * gridHeight * 2); // Корректный размер вектора
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, gridVertices.size() * sizeof(float), gridVertices.data());
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, gridBufferSize, gridVertices.data());
 
-    glDeleteBuffers(1, &gridBuffer); // Удаляем временный буфер
+    glDeleteBuffers(1, &gridBuffer);
 }

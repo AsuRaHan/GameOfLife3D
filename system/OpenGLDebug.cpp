@@ -28,6 +28,13 @@ bool OpenGLDebug::Initialize() {
 
 
     std::cout << "Отладка OpenGL успешно инициализирована" << std::endl;
+
+    // Инициализация работы с символами
+    if (!SymInitialize(GetCurrentProcess(), NULL, TRUE)) {
+        std::cout << "Ошибка инициализации символов" << std::endl;
+        return false;
+    }
+
     return true;
 }
 
@@ -91,8 +98,25 @@ void APIENTRY OpenGLDebug::DebugCallback(GLenum source, GLenum type, GLuint id, 
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 
     for (USHORT i = 0; i < frames; i++) {
-        SymFromAddr(process, (DWORD64)(stack[i]), 0, symbol);
-        std::cout << "    " << i << ": " << symbol->Name << " - 0x" << std::hex << symbol->Address << std::dec << std::endl;
+        DWORD64 displacement = 0;
+        if (SymFromAddr(process, (DWORD64)(stack[i]), &displacement, symbol)) {
+            std::cout << "    " << i << ": " << symbol->Name << " - 0x" << std::hex << symbol->Address << " + " << std::dec << displacement << std::endl;
+
+            // Получаем информацию о строке кода
+            IMAGEHLP_LINE64 lineInfo = { 0 };
+            lineInfo.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+            DWORD lineDisplacement = 0;
+            if (SymGetLineFromAddr64(process, symbol->Address, &lineDisplacement, &lineInfo)) {
+                std::cout << "        File: " << lineInfo.FileName << std::endl;
+                std::cout << "        Line: " << lineInfo.LineNumber << std::endl;
+            }
+            else {
+                std::cout << "        <Line info not available>" << std::endl;
+            }
+        }
+        else {
+            std::cout << "    " << i << ": <unknown symbol>" << std::endl;
+        }
     }
 
     free(symbol);
