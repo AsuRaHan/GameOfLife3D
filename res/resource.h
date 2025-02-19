@@ -1,10 +1,10 @@
 //{{NO_DEPENDENCIES}}
-// Включаемый файл, созданный в Microsoft Visual C++.
-// Используется life.rc
+// Р’РєР»СЋС‡Р°РµРјС‹Р№ С„Р°Р№Р», СЃРѕР·РґР°РЅРЅС‹Р№ РІ Microsoft Visual C++.
+// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ life.rc
 //
-#define IDI_ICON1                       101 // иконка приложения 
-#define IDR_FONT_CUSTOM					102 // шрифт для ImGui
-#define IDR_ABOUT_TEXT					103 // текст окна о программе в ImGui
+#define IDI_ICON1                       101 // РёРєРѕРЅРєР° РїСЂРёР»РѕР¶РµРЅРёСЏ 
+#define IDR_FONT_CUSTOM					102 // С€СЂРёС„С‚ РґР»СЏ ImGui
+#define IDR_ABOUT_TEXT					103 // С‚РµРєСЃС‚ РѕРєРЅР° Рѕ РїСЂРѕРіСЂР°РјРјРµ РІ ImGui
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

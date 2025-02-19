@@ -18,14 +18,15 @@ public:
     ~Renderer();
 
     void SetCamera(const Camera& camera);
-    Camera& GetCamera() override { return camera; } // смотри интерфейс IRendererProvider
+    Camera& GetCamera() override { return camera; } // СЃРјРѕС‚СЂРё РёРЅС‚РµСЂС„РµР№СЃ IRendererProvider
 
     void SetGameController(GameController* gameController);
     void Draw() override;
     void OnWindowResize(int newWidth, int newHeight) override;
     int getWindowWidth() const { return width; }
     int getWindowHeight() const { return height; }
-    void RebuildGameField() override; // метод для перестройки игрового поля. смотри интерфейс IRendererProvider
+    void RebuildGameField() override; // РјРµС‚РѕРґ РґР»СЏ РїРµСЂРµСЃС‚СЂРѕР№РєРё РёРіСЂРѕРІРѕРіРѕ РїРѕР»СЏ. СЃРјРѕС‚СЂРё РёРЅС‚РµСЂС„РµР№СЃ IRendererProvider
+    
 
 private:
     int width, height;
@@ -35,12 +36,12 @@ private:
     GameController* pGameController;
     UIRenderer uiRenderer;
     ShaderManager shaderManager;
-    SelectionRenderer selectionRenderer; // Добавляем экземпляр SelectionRenderer
+    SelectionRenderer selectionRenderer; // Р”РѕР±Р°РІР»СЏРµРј СЌРєР·РµРјРїР»СЏСЂ SelectionRenderer
 
     void InitializeGridVBOs();
     GLuint gridVBO;
     GLuint gridVAO;
-    // для шейдеров сетки
+    // РґР»СЏ С€РµР№РґРµСЂРѕРІ СЃРµС‚РєРё
     GLuint gridShaderProgram;
 
     void InitializeCellsVBOs();
@@ -50,7 +51,7 @@ private:
 
     GLuint cellInstanceVBO;
     struct CellInstance {
-        float x, y; // Позиция клетки
+        float x, y; // РџРѕР·РёС†РёСЏ РєР»РµС‚РєРё
     };
     std::vector<CellInstance> cellInstances;
 
@@ -65,15 +66,19 @@ private:
 	void LoadCellShaders();
     void LoadGridShaders();
 
-    // Для отладочной текстуры
+    // Р”Р»СЏ РѕС‚Р»Р°РґРѕС‡РЅРѕР№ С‚РµРєСЃС‚СѓСЂС‹
     GLuint debugTextureShaderProgram;
     GLuint debugTextureVAO;
     GLuint debugTextureVBO;
-    GLuint debugTextureID; // ID текстуры
-    float debugTextureOffsetX; // Смещение текстуры по X (справа от сетки)
+    GLuint debugTextureID; // ID С‚РµРєСЃС‚СѓСЂС‹
+    float debugTextureOffsetX; // РЎРјРµС‰РµРЅРёРµ С‚РµРєСЃС‚СѓСЂС‹ РїРѕ X (СЃРїСЂР°РІР° РѕС‚ СЃРµС‚РєРё)
 
     void InitializeDebugTexture();
     void LoadDebugTextureShaders();
     void DrawDebugTexture();
+
+    GLuint computeShaderProgram;
+    void LoadComputeShader();
+    void CreateOrUpdateFieldUsingComputeShader();
 };
 #endif // RENDERER_H_

@@ -10,7 +10,7 @@ WindowController::WindowController(IRendererProvider* renderer, GameController* 
     windowWidth(1024), windowHeight(768),
     pCameraController(renderer->GetCamera())
 {
-    // Регистрируем обработчики ввода для камеры
+    // Р РµРіРёСЃС‚СЂРёСЂСѓРµРј РѕР±СЂР°Р±РѕС‚С‡РёРєРё РІРІРѕРґР° РґР»СЏ РєР°РјРµСЂС‹
     inputHandler.RegisterHandler(InputEvent::InputType::MouseMove, [this](const InputEvent& event) {
         pCameraController.HandleInput(event);
         });
@@ -50,7 +50,7 @@ void WindowController::Resize(int width, int height) {
     }
 }
 
-// Изменяем HandleEvent для использования InputHandler
+// РР·РјРµРЅСЏРµРј HandleEvent РґР»СЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ InputHandler
 void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     InputEvent event;
     event.deltaX = 0;
@@ -65,12 +65,12 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
     case WM_SIZE:
         windowWidth = LOWORD(lParam);
         windowHeight = HIWORD(lParam);
-        Resize(windowWidth, windowHeight); // Обработка изменения размеров окна
+        Resize(windowWidth, windowHeight); // РћР±СЂР°Р±РѕС‚РєР° РёР·РјРµРЅРµРЅРёСЏ СЂР°Р·РјРµСЂРѕРІ РѕРєРЅР°
         break;
     case WM_MOUSEWHEEL:
         event.type = InputEvent::InputType::MouseWheel;
         if (GetKeyState(VK_CONTROL) & 0x8000) {
-            event.wheelDelta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA) * 10; // Увеличиваем скорость зума в 10 раз
+            event.wheelDelta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA) * 10; // РЈРІРµР»РёС‡РёРІР°РµРј СЃРєРѕСЂРѕСЃС‚СЊ Р·СѓРјР° РІ 10 СЂР°Р·
         }
         else {
             event.wheelDelta = static_cast<float>GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
@@ -79,7 +79,7 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         break;
     case WM_MOUSEMOVE:
         if (GetKeyState(VK_SHIFT) & 0x8000) {
-            if (wParam & MK_LBUTTON) { // Если левая кнопка мыши зажата
+            if (wParam & MK_LBUTTON) { // Р•СЃР»Рё Р»РµРІР°СЏ РєРЅРѕРїРєР° РјС‹С€Рё Р·Р°Р¶Р°С‚Р°
                 if (isLeftButtonDown) UpdateSelection(LOWORD(lParam), HIWORD(lParam));
             }
         }
@@ -94,7 +94,7 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             if (isLeftButtonDown) HandleMouse(LOWORD(lParam), HIWORD(lParam),true);
         }
         break;
-    case WM_LBUTTONDOWN: // Начало выделения
+    case WM_LBUTTONDOWN: // РќР°С‡Р°Р»Рѕ РІС‹РґРµР»РµРЅРёСЏ
         isLeftButtonDown = true;
         if (GetKeyState(VK_SHIFT) & 0x8000) {
             StartSelection(LOWORD(lParam), HIWORD(lParam));
@@ -107,7 +107,7 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         isLeftButtonDown = false;
         
         break;
-    case WM_MBUTTONDOWN: // Нажатие средней кнопки мыши
+    case WM_MBUTTONDOWN: // РќР°Р¶Р°С‚РёРµ СЃСЂРµРґРЅРµР№ РєРЅРѕРїРєРё РјС‹С€Рё
         PlacePattern(LOWORD(lParam), HIWORD(lParam));
         break;
     case WM_RBUTTONDOWN:
@@ -125,22 +125,22 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         event.type = InputEvent::InputType::KeyDown;
         event.key = static_cast<int>(wParam);
         inputHandler.ProcessEvent(event);
-        // Здесь может быть дополнительная обработка клавиш, не связанных с камерой
+        // Р—РґРµСЃСЊ РјРѕР¶РµС‚ Р±С‹С‚СЊ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° РєР»Р°РІРёС€, РЅРµ СЃРІСЏР·Р°РЅРЅС‹С… СЃ РєР°РјРµСЂРѕР№
         switch (wParam) {
         case VK_DELETE:
             if (!pGameController->isSimulationRunning() && pGameController->IsSelectionActive()) {
-                pGameController->KillSelectedCells(); // Убиваем выделенные клетки
+                pGameController->KillSelectedCells(); // РЈР±РёРІР°РµРј РІС‹РґРµР»РµРЅРЅС‹Рµ РєР»РµС‚РєРё
             }
             break;        
         case VK_ESCAPE:
-                pGameController->setlectionActive(false); // Убиваем выделение
+                pGameController->setlectionActive(false); // РЈР±РёРІР°РµРј РІС‹РґРµР»РµРЅРёРµ
             break;
         case VK_INSERT:
             if (!pGameController->isSimulationRunning() && pGameController->IsSelectionActive()) {
-                pGameController->ReviveSelectedCells(); // Оживляем выделенные клетки
+                pGameController->ReviveSelectedCells(); // РћР¶РёРІР»СЏРµРј РІС‹РґРµР»РµРЅРЅС‹Рµ РєР»РµС‚РєРё
             }
             break;
-        case VK_SPACE: // Пробел для запуска/остановки симуляции
+        case VK_SPACE: // РџСЂРѕР±РµР» РґР»СЏ Р·Р°РїСѓСЃРєР°/РѕСЃС‚Р°РЅРѕРІРєРё СЃРёРјСѓР»СЏС†РёРё
             if (pGameController->isSimulationRunning()) {
                 pGameController->stopSimulation();
             }
@@ -148,14 +148,14 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
                 pGameController->startSimulation();
             }
             break;
-        case VK_RETURN: // Стрелка вправо для следующего поколения
+        case VK_RETURN: // РЎС‚СЂРµР»РєР° РІРїСЂР°РІРѕ РґР»СЏ СЃР»РµРґСѓСЋС‰РµРіРѕ РїРѕРєРѕР»РµРЅРёСЏ
             if (!pGameController->isSimulationRunning()) {
-                pGameController->stepSimulation(); // Переход к следующему поколению
+                pGameController->stepSimulation(); // РџРµСЂРµС…РѕРґ Рє СЃР»РµРґСѓСЋС‰РµРјСѓ РїРѕРєРѕР»РµРЅРёСЋ
             }
             break;
         case 'R':
             if (!pGameController->isSimulationRunning()) {
-                pGameController->randomizeGrid(0.1f); // Случайное заполнение поля
+                pGameController->randomizeGrid(0.1f); // РЎР»СѓС‡Р°Р№РЅРѕРµ Р·Р°РїРѕР»РЅРµРЅРёРµ РїРѕР»СЏ
             }
             break;
         case 'T':
@@ -163,17 +163,17 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
         case 'C':
             if (!pGameController->isSimulationRunning()) {
-                pGameController->clearGrid(); // Очищение поля. убить всех
+                pGameController->clearGrid(); // РћС‡РёС‰РµРЅРёРµ РїРѕР»СЏ. СѓР±РёС‚СЊ РІСЃРµС…
             }
             break;
         case 'Y':
             if (!pGameController->isSimulationRunning()) {
-                pGameController->setWoldToroidal(!pGameController->getWoldToroidal()); // сделать мир безграничным или на оборот ограничеть его
+                pGameController->setWoldToroidal(!pGameController->getWoldToroidal()); // СЃРґРµР»Р°С‚СЊ РјРёСЂ Р±РµР·РіСЂР°РЅРёС‡РЅС‹Рј РёР»Рё РЅР° РѕР±РѕСЂРѕС‚ РѕРіСЂР°РЅРёС‡РµС‚СЊ РµРіРѕ
             }
             break;
         case 'I':
             if (!pGameController->isSimulationRunning()) {
-                pGameController->randomizeGrid(); // засеять поле рандомными фигурами
+                pGameController->randomizeGrid(); // Р·Р°СЃРµСЏС‚СЊ РїРѕР»Рµ СЂР°РЅРґРѕРјРЅС‹РјРё С„РёРіСѓСЂР°РјРё
             }
             break;
         case 'G':
@@ -184,7 +184,7 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
         //case 'O':
         //    if (!pGameController->isSimulationRunning()) {
-        //        pGameController->setGpuSimulated(!pGameController->getGpuSimulated()); // переключить метод симуляции с GPU на CPU
+        //        pGameController->setGpuSimulated(!pGameController->getGpuSimulated()); // РїРµСЂРµРєР»СЋС‡РёС‚СЊ РјРµС‚РѕРґ СЃРёРјСѓР»СЏС†РёРё СЃ GPU РЅР° CPU
         //    }
         //    break;
         }
@@ -226,31 +226,31 @@ void WindowController::MoveCamera(float dx, float dy) {
     if (pRenderer) {
         Camera& camera = const_cast<Camera&>(pRenderer->GetCamera());
 
-        // Получаем текущее направление и позицию камеры
+        // РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РµРµ РЅР°РїСЂР°РІР»РµРЅРёРµ Рё РїРѕР·РёС†РёСЋ РєР°РјРµСЂС‹
         float dirX, dirY, dirZ;
         camera.GetDirection(dirX, dirY, dirZ);
         float currentPosX, currentPosY, currentPosZ;
         camera.GetPosition(currentPosX, currentPosY, currentPosZ);
 
-        // Вычисляем движение камеры
+        // Р’С‹С‡РёСЃР»СЏРµРј РґРІРёР¶РµРЅРёРµ РєР°РјРµСЂС‹
         float moveX = dirX * dy;
         float moveZ = dirZ * dy;
 
-        // Двигаем камеру влево/вправо перпендикулярно направлению взгляда
+        // Р”РІРёРіР°РµРј РєР°РјРµСЂСѓ РІР»РµРІРѕ/РІРїСЂР°РІРѕ РїРµСЂРїРµРЅРґРёРєСѓР»СЏСЂРЅРѕ РЅР°РїСЂР°РІР»РµРЅРёСЋ РІР·РіР»СЏРґР°
         float rightX = dirZ;
         float rightZ = -dirX;
         moveX += rightX * dx;
         moveZ += rightZ * dx;
 
-        // Вычисляем новую позицию по Z
+        // Р’С‹С‡РёСЃР»СЏРµРј РЅРѕРІСѓСЋ РїРѕР·РёС†РёСЋ РїРѕ Z
         float newPosZ = currentPosZ + moveZ;
 
-        // Ограничиваем движение, чтобы камера не уходила за пределы z = 0
+        // РћРіСЂР°РЅРёС‡РёРІР°РµРј РґРІРёР¶РµРЅРёРµ, С‡С‚РѕР±С‹ РєР°РјРµСЂР° РЅРµ СѓС…РѕРґРёР»Р° Р·Р° РїСЂРµРґРµР»С‹ z = 0
         if (newPosZ < -10) {
-            moveZ = -currentPosZ;  // Двигаем ровно до нуля
+            moveZ = -currentPosZ;  // Р”РІРёРіР°РµРј СЂРѕРІРЅРѕ РґРѕ РЅСѓР»СЏ
         }
 
-        // Применяем движение
+        // РџСЂРёРјРµРЅСЏРµРј РґРІРёР¶РµРЅРёРµ
         camera.Move(moveX, 0.0f, moveZ);
     }
 }
@@ -263,11 +263,11 @@ void WindowController::PlacePattern(int screenX, int screenY) {
     int gridHeight = pGameController->getGridHeight();
     float cellSize = pGameController->getCellSize();
 
-    // Преобразуем мировые координаты в координаты сетки
+    // РџСЂРµРѕР±СЂР°Р·СѓРµРј РјРёСЂРѕРІС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ РєРѕРѕСЂРґРёРЅР°С‚С‹ СЃРµС‚РєРё
     int x = static_cast<int>(worldX / cellSize);
     int y = static_cast<int>(worldY / cellSize);
 
-    // При размещении шаблона, убедитесь, что он не выходит за границы сетки
+    // РџСЂРё СЂР°Р·РјРµС‰РµРЅРёРё С€Р°Р±Р»РѕРЅР°, СѓР±РµРґРёС‚РµСЃСЊ, С‡С‚Рѕ РѕРЅ РЅРµ РІС‹С…РѕРґРёС‚ Р·Р° РіСЂР°РЅРёС†С‹ СЃРµС‚РєРё
     if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight) {
         pGameController->PlacePattern(x, y);
     }
@@ -278,7 +278,7 @@ void WindowController::ResetCamera() {
         Camera& camera = const_cast<Camera&>(pRenderer->GetCamera());
         float width = pGameController->getGridWidth() * pGameController->getCellSize();
         float height = pGameController->getGridHeight() * pGameController->getCellSize();
-        // Определяем необходимый zoom, чтобы все поле было видно
+        // РћРїСЂРµРґРµР»СЏРµРј РЅРµРѕР±С…РѕРґРёРјС‹Р№ zoom, С‡С‚РѕР±С‹ РІСЃРµ РїРѕР»Рµ Р±С‹Р»Рѕ РІРёРґРЅРѕ
         float windowAspectRatio = static_cast<float>(windowWidth) / windowHeight;
         float fieldAspectRatio = width / height;
         float tanHalfFov = std::tan(camera.GetFOV() / 2.0f * 3.14159265358979323846f / 180.0f);
@@ -289,10 +289,10 @@ void WindowController::ResetCamera() {
         else {
             zoom = height / (2.0f * tanHalfFov);
         }
-        // Устанавливаем позицию камеры
+        // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕР·РёС†РёСЋ РєР°РјРµСЂС‹
         camera.SetPosition(width / 2.0f, height / 2.0f, zoom);
-        camera.SetDirection(0.0f, 0.0f, -1.0f); // Направление вдоль оси Z (назад)
-        camera.SetUpVector(0.0f, 1.0f, 0.0f); // Установка вектора "вверх"
+        camera.SetDirection(0.0f, 0.0f, -1.0f); // РќР°РїСЂР°РІР»РµРЅРёРµ РІРґРѕР»СЊ РѕСЃРё Z (РЅР°Р·Р°Рґ)
+        camera.SetUpVector(0.0f, 1.0f, 0.0f); // РЈСЃС‚Р°РЅРѕРІРєР° РІРµРєС‚РѕСЂР° "РІРІРµСЂС…"
     }
 }
 
@@ -307,7 +307,7 @@ void WindowController::StartSelection(int screenX, int screenY) {
     int x = static_cast<int>(worldX / cellSize);
     int y = static_cast<int>(worldY / cellSize);
 
-    // Ограничиваем координаты в пределах игрового поля
+    // РћРіСЂР°РЅРёС‡РёРІР°РµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ РїСЂРµРґРµР»Р°С… РёРіСЂРѕРІРѕРіРѕ РїРѕР»СЏ
     x = (x < 0) ? 0 : (x >= gridWidth) ? (gridWidth - 1) : x;
     y = (y < 0) ? 0 : (y >= gridHeight) ? (gridHeight - 1) : y;
 
@@ -325,7 +325,7 @@ void WindowController::UpdateSelection(int screenX, int screenY) {
     int x = static_cast<int>(worldX / cellSize);
     int y = static_cast<int>(worldY / cellSize);
 
-    // Ограничиваем координаты в пределах игрового поля
+    // РћРіСЂР°РЅРёС‡РёРІР°РµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ РїСЂРµРґРµР»Р°С… РёРіСЂРѕРІРѕРіРѕ РїРѕР»СЏ
     x = (x < 0) ? 0 : (x >= gridWidth) ? (gridWidth - 1) : x;
     y = (y < 0) ? 0 : (y >= gridHeight) ? (gridHeight - 1) : y;
 

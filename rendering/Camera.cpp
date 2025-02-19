@@ -96,7 +96,7 @@ void Camera::UpdateViewMatrix() {
     };
     NormalizeVector(newUp);
 
-    // Заполняем матрицу вида
+    // Р—Р°РїРѕР»РЅСЏРµРј РјР°С‚СЂРёС†Сѓ РІРёРґР°
     viewMatrix[0] = right[0];
     viewMatrix[1] = newUp[0];
     viewMatrix[2] = -direction[0];
@@ -143,7 +143,7 @@ void Camera::SetProjection(float fov, float aspectRatio, float nearPlane, float 
 }
 
 void Camera::LookAt(float targetX, float targetY, float targetZ, float upX, float upY, float upZ) {
-    // Вектор направления (forward)
+    // Р’РµРєС‚РѕСЂ РЅР°РїСЂР°РІР»РµРЅРёСЏ (forward)
     std::array<float, 3> forward = {
         targetX - position[0],
         targetY - position[1],
@@ -156,7 +156,7 @@ void Camera::LookAt(float targetX, float targetY, float targetZ, float upX, floa
         forward[2] /= length;
     }
 
-    // Вектор "вправо" (right)
+    // Р’РµРєС‚РѕСЂ "РІРїСЂР°РІРѕ" (right)
     std::array<float, 3> tempUp = { upX, upY, upZ };
     std::array<float, 3> right = {
         tempUp[1] * forward[2] - tempUp[2] * forward[1],
@@ -165,7 +165,7 @@ void Camera::LookAt(float targetX, float targetY, float targetZ, float upX, floa
     };
     NormalizeVector(right);
 
-    // Новый вектор "вверх" (up)
+    // РќРѕРІС‹Р№ РІРµРєС‚РѕСЂ "РІРІРµСЂС…" (up)
     std::array<float, 3> newUp = {
         forward[1] * right[2] - forward[2] * right[1],
         forward[2] * right[0] - forward[0] * right[2],
@@ -173,7 +173,7 @@ void Camera::LookAt(float targetX, float targetY, float targetZ, float upX, floa
     };
     NormalizeVector(newUp);
 
-    // Заполняем матрицу вида
+    // Р—Р°РїРѕР»РЅСЏРµРј РјР°С‚СЂРёС†Сѓ РІРёРґР°
     viewMatrix[0] = right[0];
     viewMatrix[1] = newUp[0];
     viewMatrix[2] = -forward[0];

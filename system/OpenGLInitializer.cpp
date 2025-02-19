@@ -19,19 +19,19 @@ OpenGLInitializer::~OpenGLInitializer() {
 }
 
 bool OpenGLInitializer::Initialize(bool fullScreen, int width, int height) {
-    std::cout << "Начинаю инициализацию OpenGL" << std::endl;
-    // Настройка полноэкранного режима, если требуется
+    std::cout << "РќР°С‡РёРЅР°СЋ РёРЅРёС†РёР°Р»РёР·Р°С†РёСЋ OpenGL" << std::endl;
+    // РќР°СЃС‚СЂРѕР№РєР° РїРѕР»РЅРѕСЌРєСЂР°РЅРЅРѕРіРѕ СЂРµР¶РёРјР°, РµСЃР»Рё С‚СЂРµР±СѓРµС‚СЃСЏ
     if (fullScreen) {
-        // Удаляем стиль окна с заголовком и рамкой
+        // РЈРґР°Р»СЏРµРј СЃС‚РёР»СЊ РѕРєРЅР° СЃ Р·Р°РіРѕР»РѕРІРєРѕРј Рё СЂР°РјРєРѕР№
         LONG_PTR style = GetWindowLongPtr(m_hWnd, GWL_STYLE);
-        style &= ~WS_CAPTION; // Убирает заголовок
-        style &= ~WS_THICKFRAME; // Убирает рамку (для изменяемых окон)
-        style &= ~WS_BORDER; // Убирает простую границу для неизменяемых окон
-        style &= ~WS_SIZEBOX; // Убирает размерную рамку
+        style &= ~WS_CAPTION; // РЈР±РёСЂР°РµС‚ Р·Р°РіРѕР»РѕРІРѕРє
+        style &= ~WS_THICKFRAME; // РЈР±РёСЂР°РµС‚ СЂР°РјРєСѓ (РґР»СЏ РёР·РјРµРЅСЏРµРјС‹С… РѕРєРѕРЅ)
+        style &= ~WS_BORDER; // РЈР±РёСЂР°РµС‚ РїСЂРѕСЃС‚СѓСЋ РіСЂР°РЅРёС†Сѓ РґР»СЏ РЅРµРёР·РјРµРЅСЏРµРјС‹С… РѕРєРѕРЅ
+        style &= ~WS_SIZEBOX; // РЈР±РёСЂР°РµС‚ СЂР°Р·РјРµСЂРЅСѓСЋ СЂР°РјРєСѓ
 
         SetWindowLongPtr(m_hWnd, GWL_STYLE, style);
 
-        // Изменяем расширенный стиль
+        // РР·РјРµРЅСЏРµРј СЂР°СЃС€РёСЂРµРЅРЅС‹Р№ СЃС‚РёР»СЊ
         LONG_PTR exStyle = GetWindowLongPtr(m_hWnd, GWL_EXSTYLE);
         exStyle &= ~WS_EX_WINDOWEDGE;
         exStyle &= ~WS_EX_CLIENTEDGE;
@@ -40,26 +40,26 @@ bool OpenGLInitializer::Initialize(bool fullScreen, int width, int height) {
         SetWindowLongPtr(m_hWnd, GWL_EXSTYLE, exStyle);
 
 
-        // Перерисовать окно
+        // РџРµСЂРµСЂРёСЃРѕРІР°С‚СЊ РѕРєРЅРѕ
         DEVMODE dmScreenSettings;
         memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
         dmScreenSettings.dmSize = sizeof(dmScreenSettings);
         //dmScreenSettings.dmPelsWidth = GetSystemMetrics(SM_CXSCREEN);
         //dmScreenSettings.dmPelsHeight = GetSystemMetrics(SM_CYSCREEN);
         
-        // Если width или height равны 0, получаем текущее разрешение экрана
+        // Р•СЃР»Рё width РёР»Рё height СЂР°РІРЅС‹ 0, РїРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РµРµ СЂР°Р·СЂРµС€РµРЅРёРµ СЌРєСЂР°РЅР°
         if (width == 0 || height == 0) {
             EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dmScreenSettings);
             if (width == 0) {
-                width = dmScreenSettings.dmPelsWidth; // Устанавливаем ширину
+                width = dmScreenSettings.dmPelsWidth; // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С€РёСЂРёРЅСѓ
             }
             if (height == 0) {
-                height = dmScreenSettings.dmPelsHeight; // Устанавливаем высоту
+                height = dmScreenSettings.dmPelsHeight; // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РІС‹СЃРѕС‚Сѓ
             }
         }
 
-        dmScreenSettings.dmPelsWidth = width; // Устанавливаем ширину
-        dmScreenSettings.dmPelsHeight = height; // Устанавливаем высоту
+        dmScreenSettings.dmPelsWidth = width; // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С€РёСЂРёРЅСѓ
+        dmScreenSettings.dmPelsHeight = height; // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РІС‹СЃРѕС‚Сѓ
 
         dmScreenSettings.dmBitsPerPel = 32;
         dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
@@ -68,7 +68,7 @@ bool OpenGLInitializer::Initialize(bool fullScreen, int width, int height) {
         //ShowWindow(m_hWnd, SW_SHOWMAXIMIZED);
 
         if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
-            std::cout << "Не удалось переключиться в полноэкранный режим" << std::endl;
+            std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ РїРµСЂРµРєР»СЋС‡РёС‚СЊСЃСЏ РІ РїРѕР»РЅРѕСЌРєСЂР°РЅРЅС‹Р№ СЂРµР¶РёРј" << std::endl;
             return false;
         }
 
@@ -76,29 +76,29 @@ bool OpenGLInitializer::Initialize(bool fullScreen, int width, int height) {
         ShowWindow(m_hWnd, SW_SHOWMAXIMIZED);
     }
 
-    // Регистрация класса окна
+    // Р РµРіРёСЃС‚СЂР°С†РёСЏ РєР»Р°СЃСЃР° РѕРєРЅР°
     WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW, DefWindowProc, 0, 0, GetModuleHandle(nullptr), nullptr, nullptr, (HBRUSH)(COLOR_WINDOW + 1), nullptr, L"OpenGLTempClass", nullptr };
     if (!RegisterClassEx(&wc)) {
-        std::cout << "Не удалось зарегистрировать класс временного окна: " << GetErrorMessage(GetLastError()) << std::endl;
+        std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°С‚СЊ РєР»Р°СЃСЃ РІСЂРµРјРµРЅРЅРѕРіРѕ РѕРєРЅР°: " << GetErrorMessage(GetLastError()) << std::endl;
         return false;
     }
 
-    // Создание временного окна
+    // РЎРѕР·РґР°РЅРёРµ РІСЂРµРјРµРЅРЅРѕРіРѕ РѕРєРЅР°
     HWND temporaryWindow = CreateWindowEx(WS_EX_APPWINDOW, L"OpenGLTempClass", L"Temp", WS_OVERLAPPEDWINDOW, 0, 0, 1, 1, NULL, NULL, GetModuleHandle(nullptr), NULL);
     if (temporaryWindow == nullptr) {
-        std::cout << "Не удалось создать временное окно: " << GetErrorMessage(GetLastError()) << std::endl;
+        std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ РІСЂРµРјРµРЅРЅРѕРµ РѕРєРЅРѕ: " << GetErrorMessage(GetLastError()) << std::endl;
         return false;
     }
 
     HDC temporaryDC = GetDC(temporaryWindow);
     if (temporaryDC == nullptr) {
-        std::cout << "Не удалось получить HDC для временного окна: " << GetErrorMessage(GetLastError()) << std::endl;
+        std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ HDC РґР»СЏ РІСЂРµРјРµРЅРЅРѕРіРѕ РѕРєРЅР°: " << GetErrorMessage(GetLastError()) << std::endl;
         DestroyWindow(temporaryWindow);
         return false;
     }
 
     if (!SetupPixelFormat(temporaryDC)) {
-        std::cout << "Не удалось установить формат пикселей для временного окна" << std::endl;
+        std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С„РѕСЂРјР°С‚ РїРёРєСЃРµР»РµР№ РґР»СЏ РІСЂРµРјРµРЅРЅРѕРіРѕ РѕРєРЅР°" << std::endl;
         ReleaseDC(temporaryWindow, temporaryDC);
         DestroyWindow(temporaryWindow);
         return false;
@@ -106,7 +106,7 @@ bool OpenGLInitializer::Initialize(bool fullScreen, int width, int height) {
 
     HGLRC temporaryRC = wglCreateContext(temporaryDC);
     if (temporaryRC == nullptr) {
-        std::cout << "Не удалось создать временный контекст OpenGL: " << GetErrorMessage(GetLastError()) << std::endl;
+        std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ РІСЂРµРјРµРЅРЅС‹Р№ РєРѕРЅС‚РµРєСЃС‚ OpenGL: " << GetErrorMessage(GetLastError()) << std::endl;
         ReleaseDC(temporaryWindow, temporaryDC);
         DestroyWindow(temporaryWindow);
         return false;
@@ -114,19 +114,19 @@ bool OpenGLInitializer::Initialize(bool fullScreen, int width, int height) {
 
     wglMakeCurrent(temporaryDC, temporaryRC);
 
-    // Загрузка расширений OpenGL
+    // Р—Р°РіСЂСѓР·РєР° СЂР°СЃС€РёСЂРµРЅРёР№ OpenGL
     wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
     wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
 
     if (!wglChoosePixelFormatARB || !wglCreateContextAttribsARB) {
-        std::cout << "Не удалось загрузить OpenGL расширения" << std::endl;
+        std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ OpenGL СЂР°СЃС€РёСЂРµРЅРёСЏ" << std::endl;
         wglDeleteContext(temporaryRC);
         ReleaseDC(temporaryWindow, temporaryDC);
         DestroyWindow(temporaryWindow);
         return false;
     }
 
-    // Выбор формата для основного окна
+    // Р’С‹Р±РѕСЂ С„РѕСЂРјР°С‚Р° РґР»СЏ РѕСЃРЅРѕРІРЅРѕРіРѕ РѕРєРЅР°
     const int formatAttributes[] = {
         WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
         WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
@@ -139,11 +139,11 @@ bool OpenGLInitializer::Initialize(bool fullScreen, int width, int height) {
     int major, minor;
     const GLubyte* version = glGetString(GL_VERSION);
     std::cout << "  OpenGL Version: " << version << std::endl;
-    // Извлекаем основные и минорные версии OpenGL
+    // РР·РІР»РµРєР°РµРј РѕСЃРЅРѕРІРЅС‹Рµ Рё РјРёРЅРѕСЂРЅС‹Рµ РІРµСЂСЃРёРё OpenGL
     std::istringstream versionStream(reinterpret_cast<const char*>(version));
-    versionStream >> major; // Основная версия
-    versionStream.ignore(1); // Игнорируем точку
-    versionStream >> minor; // Минорная версия
+    versionStream >> major; // РћСЃРЅРѕРІРЅР°СЏ РІРµСЂСЃРёСЏ
+    versionStream.ignore(1); // РРіРЅРѕСЂРёСЂСѓРµРј С‚РѕС‡РєСѓ
+    versionStream >> minor; // РњРёРЅРѕСЂРЅР°СЏ РІРµСЂСЃРёСЏ
 
     const int contextAttributes[] = {
         WGL_CONTEXT_MAJOR_VERSION_ARB, major,
@@ -154,19 +154,19 @@ bool OpenGLInitializer::Initialize(bool fullScreen, int width, int height) {
     };
     //====================================
     if (glGetString(GL_SHADING_LANGUAGE_VERSION) == nullptr) {
-        std::cout << "Не удалось получить версию GLSL" << std::endl;
+        std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ РІРµСЂСЃРёСЋ GLSL" << std::endl;
     }
     else {
         std::cout << "  GLSL Version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
     }
-    // Проверка поддержки теселяции
+    // РџСЂРѕРІРµСЂРєР° РїРѕРґРґРµСЂР¶РєРё С‚РµСЃРµР»СЏС†РёРё
     if (glGetString(GL_EXTENSIONS) != nullptr) {
         std::string extensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
         if (extensions.find("GL_ARB_tessellation_shader") != std::string::npos) {
-            std::cout << "  Теселяция поддерживается" << std::endl;
+            std::cout << "  РўРµСЃРµР»СЏС†РёСЏ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ" << std::endl;
         }
         else {
-            std::cout << "  Теселяция не поддерживается" << std::endl;
+            std::cout << "  РўРµСЃРµР»СЏС†РёСЏ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ" << std::endl;
         }
     }
     //====================================
@@ -176,10 +176,10 @@ bool OpenGLInitializer::Initialize(bool fullScreen, int width, int height) {
     DescribePixelFormat(hDC, format, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
     SetPixelFormat(hDC, format, &pfd);
 
-    // Создание современного контекста OpenGL
+    // РЎРѕР·РґР°РЅРёРµ СЃРѕРІСЂРµРјРµРЅРЅРѕРіРѕ РєРѕРЅС‚РµРєСЃС‚Р° OpenGL
     hRC = wglCreateContextAttribsARB(hDC, NULL, contextAttributes);
     if (!hRC) {
-        std::cout << "Не удалось создать контекст OpenGL" << std::endl;
+        std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ РєРѕРЅС‚РµРєСЃС‚ OpenGL" << std::endl;
         wglDeleteContext(temporaryRC);
         DestroyWindow(temporaryWindow);
         return false;
@@ -190,17 +190,17 @@ bool OpenGLInitializer::Initialize(bool fullScreen, int width, int height) {
     ReleaseDC(temporaryWindow, temporaryDC);
     DestroyWindow(temporaryWindow);
 
-    std::cout << "  wglCreateContext успешно" << std::endl;
-    std::cout << "  wglMakeCurrent успешно" << std::endl;
+    std::cout << "  wglCreateContext СѓСЃРїРµС€РЅРѕ" << std::endl;
+    std::cout << "  wglMakeCurrent СѓСЃРїРµС€РЅРѕ" << std::endl;
 
-    std::cout << "Начинаю ручную загрузку OpenGL функций" << std::endl;
+    std::cout << "РќР°С‡РёРЅР°СЋ СЂСѓС‡РЅСѓСЋ Р·Р°РіСЂСѓР·РєСѓ OpenGL С„СѓРЅРєС†РёР№" << std::endl;
     LoadOpenGLFunctions();
 
 #ifdef _DEBUG
     OpenGLDebug debugger;
     if (!debugger.Initialize()) {
-        std::cout << "Не удалось инициализировать отладку OpenGL" << std::endl;
-        // Не завершаем программу, так как отладка опциональна
+        std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ РѕС‚Р»Р°РґРєСѓ OpenGL" << std::endl;
+        // РќРµ Р·Р°РІРµСЂС€Р°РµРј РїСЂРѕРіСЂР°РјРјСѓ, С‚Р°Рє РєР°Рє РѕС‚Р»Р°РґРєР° РѕРїС†РёРѕРЅР°Р»СЊРЅР°
     }
 #endif
 
@@ -230,12 +230,12 @@ bool OpenGLInitializer::SetupPixelFormat(HDC hdc) {
 
     int pixelFormat = ChoosePixelFormat(hdc, &pfd);
     if (pixelFormat == 0) {
-        std::cout << "Не удалось выбрать pixel format: " << GetErrorMessage(GetLastError()) << std::endl;
+        std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ РІС‹Р±СЂР°С‚СЊ pixel format: " << GetErrorMessage(GetLastError()) << std::endl;
         return false;
     }
 
     if (!SetPixelFormat(hdc, pixelFormat, &pfd)) {
-        std::cout << "Не удалось установить pixel format: " << GetErrorMessage(GetLastError()) << std::endl;
+        std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ pixel format: " << GetErrorMessage(GetLastError()) << std::endl;
         return false;
     }
 
@@ -243,47 +243,47 @@ bool OpenGLInitializer::SetupPixelFormat(HDC hdc) {
 }
 
 bool OpenGLInitializer::checkForDepthIssues() {
-    // Получаем размер окна
-    int width = 800; // Замените на фактическую ширину вашего окна
-    int height = 600; // Замените на фактическую высоту вашего окна
+    // РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂ РѕРєРЅР°
+    int width = 800; // Р—Р°РјРµРЅРёС‚Рµ РЅР° С„Р°РєС‚РёС‡РµСЃРєСѓСЋ С€РёСЂРёРЅСѓ РІР°С€РµРіРѕ РѕРєРЅР°
+    int height = 600; // Р—Р°РјРµРЅРёС‚Рµ РЅР° С„Р°РєС‚РёС‡РµСЃРєСѓСЋ РІС‹СЃРѕС‚Сѓ РІР°С€РµРіРѕ РѕРєРЅР°
 
-    // Создаем буфер для хранения значений глубины
+    // РЎРѕР·РґР°РµРј Р±СѓС„РµСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ Р·РЅР°С‡РµРЅРёР№ РіР»СѓР±РёРЅС‹
     GLfloat* depthBuffer = new GLfloat[width * height];
 
-    // Читаем значения глубины из буфера
+    // Р§РёС‚Р°РµРј Р·РЅР°С‡РµРЅРёСЏ РіР»СѓР±РёРЅС‹ РёР· Р±СѓС„РµСЂР°
     glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, depthBuffer);
 
-    // Пример простой проверки: если значение глубины в центре экрана слишком близко к 1.0 (что соответствует farPlane)
-    // Это может указывать на проблемы с глубиной
+    // РџСЂРёРјРµСЂ РїСЂРѕСЃС‚РѕР№ РїСЂРѕРІРµСЂРєРё: РµСЃР»Рё Р·РЅР°С‡РµРЅРёРµ РіР»СѓР±РёРЅС‹ РІ С†РµРЅС‚СЂРµ СЌРєСЂР°РЅР° СЃР»РёС€РєРѕРј Р±Р»РёР·РєРѕ Рє 1.0 (С‡С‚Рѕ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ farPlane)
+    // Р­С‚Рѕ РјРѕР¶РµС‚ СѓРєР°Р·С‹РІР°С‚СЊ РЅР° РїСЂРѕР±Р»РµРјС‹ СЃ РіР»СѓР±РёРЅРѕР№
     GLfloat centerDepth = depthBuffer[(height / 2) * width + (width / 2)];
 
     delete[] depthBuffer;
 
-    // Если значение глубины слишком близко к farPlane, это может быть проблемой
+    // Р•СЃР»Рё Р·РЅР°С‡РµРЅРёРµ РіР»СѓР±РёРЅС‹ СЃР»РёС€РєРѕРј Р±Р»РёР·РєРѕ Рє farPlane, СЌС‚Рѕ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСЂРѕР±Р»РµРјРѕР№
     if (centerDepth > 0.9f) {
-        return true; // Проблема с глубиной
+        return true; // РџСЂРѕР±Р»РµРјР° СЃ РіР»СѓР±РёРЅРѕР№
     }
 
-    return false; // Проблем нет
+    return false; // РџСЂРѕР±Р»РµРј РЅРµС‚
 }
 
 void OpenGLInitializer::printSystemInfo() {
-    // Получаем информацию о видеокарте
-    const GLubyte* renderer = glGetString(GL_RENDERER); // Название видеокарты
-    const GLubyte* vendor = glGetString(GL_VENDOR);     // Производитель видеокарты
-    const GLubyte* version = glGetString(GL_VERSION);   // Версия OpenGL
-    const GLubyte* shadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION); // Версия шейдерного языка
+    // РџРѕР»СѓС‡Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІРёРґРµРѕРєР°СЂС‚Рµ
+    const GLubyte* renderer = glGetString(GL_RENDERER); // РќР°Р·РІР°РЅРёРµ РІРёРґРµРѕРєР°СЂС‚С‹
+    const GLubyte* vendor = glGetString(GL_VENDOR);     // РџСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ РІРёРґРµРѕРєР°СЂС‚С‹
+    const GLubyte* version = glGetString(GL_VERSION);   // Р’РµСЂСЃРёСЏ OpenGL
+    const GLubyte* shadingLanguageVersion = glGetString(GL_SHADING_LANGUAGE_VERSION); // Р’РµСЂСЃРёСЏ С€РµР№РґРµСЂРЅРѕРіРѕ СЏР·С‹РєР°
 
-    // Выводим информацию
-    std::cout << "Видеокарта:               " << renderer << std::endl;
-    std::cout << "Производитель:            " << vendor << std::endl;
-    std::cout << "Версия OpenGL:            " << version << std::endl;
-    std::cout << "Версия шейдерного языка:  " << shadingLanguageVersion << std::endl;
+    // Р’С‹РІРѕРґРёРј РёРЅС„РѕСЂРјР°С†РёСЋ
+    std::cout << "Р’РёРґРµРѕРєР°СЂС‚Р°:               " << renderer << std::endl;
+    std::cout << "РџСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ:            " << vendor << std::endl;
+    std::cout << "Р’РµСЂСЃРёСЏ OpenGL:            " << version << std::endl;
+    std::cout << "Р’РµСЂСЃРёСЏ С€РµР№РґРµСЂРЅРѕРіРѕ СЏР·С‹РєР°:  " << shadingLanguageVersion << std::endl;
 
-    // Получаем информацию о поддерживаемых расширениях
+    // РџРѕР»СѓС‡Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїРѕРґРґРµСЂР¶РёРІР°РµРјС‹С… СЂР°СЃС€РёСЂРµРЅРёСЏС…
     GLint numExtensions;
     glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
-    std::cout << "Поддерживаемые расширения: " << std::endl;
+    std::cout << "РџРѕРґРґРµСЂР¶РёРІР°РµРјС‹Рµ СЂР°СЃС€РёСЂРµРЅРёСЏ: " << std::endl;
     for (GLint i = 0; i < numExtensions; ++i) {
         std::cout << "      " << glGetStringi(GL_EXTENSIONS, i) << std::endl;
     }
@@ -293,29 +293,29 @@ std::string OpenGLInitializer::GetErrorMessage(DWORD errorCode) {
     LPVOID lpMsgBuf;
     DWORD bufLen;
 
-    // Получаем сообщение об ошибке
+    // РџРѕР»СѓС‡Р°РµРј СЃРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ
     bufLen = FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL,
         errorCode,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Используем язык по умолчанию
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // РСЃРїРѕР»СЊР·СѓРµРј СЏР·С‹Рє РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
         (LPWSTR)&lpMsgBuf,
         0,
         NULL);
 
     std::string message;
     if (bufLen > 0) {
-        // Преобразуем wide string в narrow string
+        // РџСЂРµРѕР±СЂР°Р·СѓРµРј wide string РІ narrow string
         wchar_t* wideMessage = (wchar_t*)lpMsgBuf;
         int size_needed = WideCharToMultiByte(CP_ACP, 0, wideMessage, -1, NULL, 0, NULL, NULL);
         message.resize(size_needed, 0);
         WideCharToMultiByte(CP_ACP, 0, wideMessage, -1, &message[0], size_needed, NULL, NULL);
-        LocalFree(lpMsgBuf); // Освобождаем память
+        LocalFree(lpMsgBuf); // РћСЃРІРѕР±РѕР¶РґР°РµРј РїР°РјСЏС‚СЊ
     }
     else {
-        // Если bufLen равно 0, значит произошла ошибка
+        // Р•СЃР»Рё bufLen СЂР°РІРЅРѕ 0, Р·РЅР°С‡РёС‚ РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°
         DWORD error = GetLastError();
-        message = "Не удалось получить сообщение об ошибке. Код ошибки: " + std::to_string(error);
+        message = "РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ. РљРѕРґ РѕС€РёР±РєРё: " + std::to_string(error);
     }
 
     return message;

@@ -11,7 +11,7 @@
 #include "../mathematics/Vector3d.h"
 #include "../rendering/IRendererProvider.h"
 
-#include <random> // Для генерации случайных чисел
+#include <random> // Р”Р»СЏ РіРµРЅРµСЂР°С†РёРё СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -19,46 +19,46 @@
 #include <array>
 #include <filesystem>
 
-// Определим тип фигуры как двумерный массив
+// РћРїСЂРµРґРµР»РёРј С‚РёРї С„РёРіСѓСЂС‹ РєР°Рє РґРІСѓРјРµСЂРЅС‹Р№ РјР°СЃСЃРёРІ
 using Pattern = std::vector<std::vector<bool>>;
 
 class GameController {
 private:
     Grid grid;
-    GPUAutomaton gpuAutomaton; // член класса для вычислений на GPU
-    float cellSize; // Размер каждой клетки в пикселях
-    bool isRunning; // Флаг, показывает, запущена ли симуляция
+    GPUAutomaton gpuAutomaton; // С‡Р»РµРЅ РєР»Р°СЃСЃР° РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёР№ РЅР° GPU
+    float cellSize; // Р Р°Р·РјРµСЂ РєР°Р¶РґРѕР№ РєР»РµС‚РєРё РІ РїРёРєСЃРµР»СЏС…
+    bool isRunning; // Р¤Р»Р°Рі, РїРѕРєР°Р·С‹РІР°РµС‚, Р·Р°РїСѓС‰РµРЅР° Р»Рё СЃРёРјСѓР»СЏС†РёСЏ
     bool showGrid;
     bool showUI;
     bool isWorldToroidal;
-    int simulationSpeed = 0; // Значение 1000 может соответствовать одной секунде реального времени
+    int simulationSpeed = 0; // Р—РЅР°С‡РµРЅРёРµ 1000 РјРѕР¶РµС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ РѕРґРЅРѕР№ СЃРµРєСѓРЅРґРµ СЂРµР°Р»СЊРЅРѕРіРѕ РІСЂРµРјРµРЅРё
     float frameTimeAccumulator = 0.0f;
 
     std::vector<std::string> patternList;
 
-    // Определяем шаблоны фигур
+    // РћРїСЂРµРґРµР»СЏРµРј С€Р°Р±Р»РѕРЅС‹ С„РёРіСѓСЂ
     Pattern glider = {
         { 0, 1, 0 },
         { 0, 0, 1 },
         { 1, 1, 1 }
     };
-    // Мигалка (Blinker) - Период 2
+    // РњРёРіР°Р»РєР° (Blinker) - РџРµСЂРёРѕРґ 2
     Pattern blinker = {
     {1, 1, 1}
     };
-    // Живок (Toad) - Период 2:
+    // Р–РёРІРѕРє (Toad) - РџРµСЂРёРѕРґ 2:
     Pattern toad = {
     {0, 1, 1, 1},
     {1, 1, 1, 0}
     };
-    // Баржа (Beacon) - Период 2:
+    // Р‘Р°СЂР¶Р° (Beacon) - РџРµСЂРёРѕРґ 2:
     Pattern beacon = {
     {1, 1, 0, 0},
     {1, 1, 0, 0},
     {0, 0, 1, 1},
     {0, 0, 1, 1}
     };
-    // Маятник (Pentadecathlon) - Период 15:
+    // РњР°СЏС‚РЅРёРє (Pentadecathlon) - РџРµСЂРёРѕРґ 15:
     Pattern pentadecathlon = {
     {0,1,0},
     {0,1,0},
@@ -71,7 +71,7 @@ private:
     {0,1,0},
     {0,1,0},
     };
-    // Gosper Glider Gun - Период 30:
+    // Gosper Glider Gun - РџРµСЂРёРѕРґ 30:
     Pattern gosperGliderGun = {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -84,23 +84,23 @@ private:
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     };
 
-    Pattern currentPattern; // Добавляем поле для хранения текущего паттерна
+    Pattern currentPattern; // Р”РѕР±Р°РІР»СЏРµРј РїРѕР»Рµ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С‚РµРєСѓС‰РµРіРѕ РїР°С‚С‚РµСЂРЅР°
     int currentPatternRotator;
     enum class Rotation {
-        Rotate90,      // Поворот на 90 градусов по часовой стрелке
-        Rotate180,     // Поворот на 180 градусов
-        Rotate270,     // Поворот на 270 градусов по часовой стрелке (или -90)
-        FlipHorizontal, // Отражение по горизонтали
-        FlipVertical    // Отражение по вертикали
+        Rotate90,      // РџРѕРІРѕСЂРѕС‚ РЅР° 90 РіСЂР°РґСѓСЃРѕРІ РїРѕ С‡Р°СЃРѕРІРѕР№ СЃС‚СЂРµР»РєРµ
+        Rotate180,     // РџРѕРІРѕСЂРѕС‚ РЅР° 180 РіСЂР°РґСѓСЃРѕРІ
+        Rotate270,     // РџРѕРІРѕСЂРѕС‚ РЅР° 270 РіСЂР°РґСѓСЃРѕРІ РїРѕ С‡Р°СЃРѕРІРѕР№ СЃС‚СЂРµР»РєРµ (РёР»Рё -90)
+        FlipHorizontal, // РћС‚СЂР°Р¶РµРЅРёРµ РїРѕ РіРѕСЂРёР·РѕРЅС‚Р°Р»Рё
+        FlipVertical    // РћС‚СЂР°Р¶РµРЅРёРµ РїРѕ РІРµСЂС‚РёРєР°Р»Рё
     };
 
     IRendererProvider* rendererProvider;
 
-    Vector3d selectionStart; // Начало выделяемой области
-    Vector3d selectionEnd;   // Конец выделяемой области
-    bool isSelectionActive;  // Флаг активности выделения
+    Vector3d selectionStart; // РќР°С‡Р°Р»Рѕ РІС‹РґРµР»СЏРµРјРѕР№ РѕР±Р»Р°СЃС‚Рё
+    Vector3d selectionEnd;   // РљРѕРЅРµС† РІС‹РґРµР»СЏРµРјРѕР№ РѕР±Р»Р°СЃС‚Рё
+    bool isSelectionActive;  // Р¤Р»Р°Рі Р°РєС‚РёРІРЅРѕСЃС‚Рё РІС‹РґРµР»РµРЅРёСЏ
 
-    std::vector<Vector3d> selectedCells; // Массив для хранения выделенных клеток
+    std::vector<Vector3d> selectedCells; // РњР°СЃСЃРёРІ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РІС‹РґРµР»РµРЅРЅС‹С… РєР»РµС‚РѕРє
 
 public:
     GameController(int width, int height, float cellSize = 0.5f);
@@ -134,7 +134,7 @@ public:
     bool getCellState(int x, int y) const;
     const Grid& getGrid() const { return grid; }
 
-    // метод для изменения размера сетки
+    // РјРµС‚РѕРґ РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ СЂР°Р·РјРµСЂР° СЃРµС‚РєРё
     void setFieldSize(int newWidth, int newHeight);
 
     void setCurrentPattern(int patternNumber);
@@ -145,7 +145,7 @@ public:
 
     void setSimulationSpeed(int speed);
 
-    // Новые методы для сохранения и загрузки состояния игры
+    // РќРѕРІС‹Рµ РјРµС‚РѕРґС‹ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ Рё Р·Р°РіСЂСѓР·РєРё СЃРѕСЃС‚РѕСЏРЅРёСЏ РёРіСЂС‹
     bool saveGameState(const std::string& filename);
     bool loadGameState(const std::string& filename);
 
@@ -155,7 +155,7 @@ public:
 
     GPUAutomaton& getGPUAutomaton() { return gpuAutomaton; }
 
-    // Новый метод для загрузки списка паттернов
+    // РќРѕРІС‹Р№ РјРµС‚РѕРґ РґР»СЏ Р·Р°РіСЂСѓР·РєРё СЃРїРёСЃРєР° РїР°С‚С‚РµСЂРЅРѕРІ
     void loadPatternList(const std::string& patternFolder = "patterns");
 
     const std::vector<std::string>& getPatternList() const { return patternList; }

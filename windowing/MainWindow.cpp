@@ -11,9 +11,9 @@ HWND MainWindow::Create() {
     WNDCLASSEX wc = { 0 };
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_HREDRAW | CS_VREDRAW;
-    wc.lpfnWndProc = WndProc; // Используем статический метод
+    wc.lpfnWndProc = WndProc; // РСЃРїРѕР»СЊР·СѓРµРј СЃС‚Р°С‚РёС‡РµСЃРєРёР№ РјРµС‚РѕРґ
     wc.cbClsExtra = 0;
-    wc.cbWndExtra = sizeof(MainWindow*); // Добавляем пространство для указателя на MainWindow
+    wc.cbWndExtra = sizeof(MainWindow*); // Р”РѕР±Р°РІР»СЏРµРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РґР»СЏ СѓРєР°Р·Р°С‚РµР»СЏ РЅР° MainWindow
     wc.hInstance = hInstance;
     wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1)); //LoadIcon(NULL, IDI_APPLICATION);
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -27,14 +27,14 @@ HWND MainWindow::Create() {
         return 0;
     }
 
-    // Создание окна
+    // РЎРѕР·РґР°РЅРёРµ РѕРєРЅР°
     hWnd = CreateWindowEx(
         0,
         L"GameOfLife3DWindowClass",
         L"Game of life 3D",
         WS_OVERLAPPEDWINDOW,
         windowPosX, windowPosY, windowWidth, windowHeight,
-        NULL, NULL, hInstance, this // Передаем this как lpParam
+        NULL, NULL, hInstance, this // РџРµСЂРµРґР°РµРј this РєР°Рє lpParam
     );
         
     if (!hWnd) {
@@ -45,11 +45,11 @@ HWND MainWindow::Create() {
     GetClientRect(hWnd, &rcClient);
     GetWindowRect(hWnd, &rcWindow);
 
-    // Вычисляем размеры рамок и заголовка
+    // Р’С‹С‡РёСЃР»СЏРµРј СЂР°Р·РјРµСЂС‹ СЂР°РјРѕРє Рё Р·Р°РіРѕР»РѕРІРєР°
     int frameWidth = (rcWindow.right - rcWindow.left) - rcClient.right;
     int frameHeight = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
 
-    // Устанавливаем новые размеры, учитывая рамки и заголовок
+    // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅРѕРІС‹Рµ СЂР°Р·РјРµСЂС‹, СѓС‡РёС‚С‹РІР°СЏ СЂР°РјРєРё Рё Р·Р°РіРѕР»РѕРІРѕРє
     SetWindowPos(hWnd, NULL, windowPosX, windowPosY, windowWidth + frameWidth, windowHeight + frameHeight, SWP_NOMOVE | SWP_NOZORDER);
 
     ShowWindow(hWnd, SW_SHOW);
@@ -65,7 +65,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     if (message == WM_NCCREATE) {
-        // Извлекаем указатель на MainWindow из lParam при создании окна
+        // РР·РІР»РµРєР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° MainWindow РёР· lParam РїСЂРё СЃРѕР·РґР°РЅРёРё РѕРєРЅР°
         CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
         MainWindow* pThis = static_cast<MainWindow*>(pCreate->lpCreateParams);
         SetWindowLongPtr(hWnd, 0, reinterpret_cast<LONG_PTR>(pThis));
@@ -76,20 +76,20 @@ LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
     if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
         return true;
 
-    // Если ImGui не перехватил ввод, передаем его контроллеру
+    // Р•СЃР»Рё ImGui РЅРµ РїРµСЂРµС…РІР°С‚РёР» РІРІРѕРґ, РїРµСЂРµРґР°РµРј РµРіРѕ РєРѕРЅС‚СЂРѕР»Р»РµСЂСѓ
     if (pThis && pThis->pController) {
-        // Проверка на активность любого элемента ImGui
+        // РџСЂРѕРІРµСЂРєР° РЅР° Р°РєС‚РёРІРЅРѕСЃС‚СЊ Р»СЋР±РѕРіРѕ СЌР»РµРјРµРЅС‚Р° ImGui
         bool isInputActive = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) || ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive();
-        // Обработка ввода для игры
+        // РћР±СЂР°Р±РѕС‚РєР° РІРІРѕРґР° РґР»СЏ РёРіСЂС‹
         if (!isInputActive)
         {
             pThis->pController->HandleEvent(message, wParam, lParam);
         }
     }
 
-    // Обработка оставшихся сообщений
+    // РћР±СЂР°Р±РѕС‚РєР° РѕСЃС‚Р°РІС€РёС…СЃСЏ СЃРѕРѕР±С‰РµРЅРёР№
     switch (message) {
-    case WM_SIZE: // Обработка изменения размера
+    case WM_SIZE: // РћР±СЂР°Р±РѕС‚РєР° РёР·РјРµРЅРµРЅРёСЏ СЂР°Р·РјРµСЂР°
         if (pThis) {
             pThis->windowWidth = LOWORD(lParam);
             pThis->windowHeight = HIWORD(lParam);

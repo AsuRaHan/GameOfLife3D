@@ -9,7 +9,7 @@
 #include <iostream>
 #include <cstdio> // For swprintf and swprintf_s
 
-// Определение идентификаторов, если они не определены
+// РћРїСЂРµРґРµР»РµРЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ, РµСЃР»Рё РѕРЅРё РЅРµ РѕРїСЂРµРґРµР»РµРЅС‹
 #ifndef GL_MULTISAMPLE
 #define GL_MULTISAMPLE 0x809D
 #endif
@@ -28,11 +28,11 @@
 #ifndef GL_ARRAY_BUFFER_BINDING
 #define GL_ARRAY_BUFFER_BINDING 0x8894
 #endif
-// Определение для инстансинга, если они не определены
+// РћРїСЂРµРґРµР»РµРЅРёРµ РґР»СЏ РёРЅСЃС‚Р°РЅСЃРёРЅРіР°, РµСЃР»Рё РѕРЅРё РЅРµ РѕРїСЂРµРґРµР»РµРЅС‹
 #ifndef GL_DRAW_INDIRECT_BUFFER
 #define GL_DRAW_INDIRECT_BUFFER 0x8F3F
 #endif
-// Определения для шейдеров, если они не определены
+// РћРїСЂРµРґРµР»РµРЅРёСЏ РґР»СЏ С€РµР№РґРµСЂРѕРІ, РµСЃР»Рё РѕРЅРё РЅРµ РѕРїСЂРµРґРµР»РµРЅС‹
 #ifndef GL_VERTEX_SHADER
 #define GL_VERTEX_SHADER 0x8B31
 #endif
@@ -380,11 +380,11 @@
 typedef char GLchar;
 #endif
 
-// Определение если он не определен
+// РћРїСЂРµРґРµР»РµРЅРёРµ РµСЃР»Рё РѕРЅ РЅРµ РѕРїСЂРµРґРµР»РµРЅ
 typedef ptrdiff_t GLsizeiptr;
 typedef ptrdiff_t GLintptr;
 
-// Определение типов для указателей на функции
+// РћРїСЂРµРґРµР»РµРЅРёРµ С‚РёРїРѕРІ РґР»СЏ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° С„СѓРЅРєС†РёРё
 typedef void (APIENTRY* PFNGLGENBUFFERSPROC)(GLsizei n, GLuint* buffers);
 typedef void (APIENTRY* PFNGLBINDBUFFERPROC)(GLenum target, GLuint buffer);
 typedef void (APIENTRY* PFNGLBUFFERDATAPROC)(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
@@ -435,7 +435,7 @@ typedef void (APIENTRY* PFNGLUNIFORM1IPROC)(GLint location, GLint v0);
 typedef const GLubyte* (APIENTRY* PFNGLGETSTRINGIPROC)(GLenum name, GLuint index);
 typedef void (APIENTRY* PFNGLDRAWELEMENTSINSTANCEDPROC)(GLenum mode, GLsizei count, GLenum type, const void* indices, GLsizei instancecount);
 
-// Определение типов для указателей на функции отладки
+// РћРїСЂРµРґРµР»РµРЅРёРµ С‚РёРїРѕРІ РґР»СЏ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° С„СѓРЅРєС†РёРё РѕС‚Р»Р°РґРєРё
 typedef void (APIENTRY* GLDEBUGPROC)(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
 typedef void (APIENTRY* PFNGLDEBUGMESSAGECALLBACKPROC)(GLDEBUGPROC callback, const void* userParam);
 typedef void (APIENTRY* PFNGLDEBUGMESSAGECONTROLPROC)(GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint* ids, GLboolean enabled);
@@ -447,7 +447,7 @@ typedef void (APIENTRY* PFNGLTEXBUFFERPROC)(GLenum target, GLenum internalformat
 typedef void (APIENTRY* PFNGLGETINTEGERI_VPROC)(GLenum target, GLuint index, GLint* data);
 typedef void (APIENTRY* PFNGLGETBUFFERPARAMETERIVPROC)(GLenum target, GLenum pname, GLint* params);
 
-// Объявление указателей на функции
+// РћР±СЉСЏРІР»РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° С„СѓРЅРєС†РёРё
 extern PFNGLGENBUFFERSPROC glGenBuffers;
 extern PFNGLBINDBUFFERPROC glBindBuffer;
 extern PFNGLBUFFERDATAPROC glBufferData;
@@ -502,7 +502,7 @@ extern PFNGLTEXBUFFERPROC glTexBuffer;
 extern PFNGLGETINTEGERI_VPROC glGetIntegeri_v;
 extern PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv;
 
-// Функции для работы с OpenGL
+// Р¤СѓРЅРєС†РёРё РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ OpenGL
 void LoadOpenGLFunctions();
 void CheckOpenGLError(const char* stmt, const char* fname, int line);
 
@@ -516,5 +516,5 @@ void CheckOpenGLError(const char* stmt, const char* fname, int line);
 #endif
 
 #define CHECK_LOAD_FUNCTION(func) \
-    std::cout << ((func) ? "            Успешно загружена функция " #func : "   Не удалось загрузить функцию " #func) << std::endl;
+    std::cout << ((func) ? "            РЈСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅР° С„СѓРЅРєС†РёСЏ " #func : "   РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ С„СѓРЅРєС†РёСЋ " #func) << std::endl;
 #endif //GLFUNC_H

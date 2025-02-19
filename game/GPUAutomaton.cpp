@@ -73,23 +73,23 @@ void main() {
 
     next[index] = nextState;
 
-    // Если клетка выжила, делаем её цвет светлее
+    // Р•СЃР»Рё РєР»РµС‚РєР° РІС‹Р¶РёР»Р°, РґРµР»Р°РµРј РµС‘ С†РІРµС‚ СЃРІРµС‚Р»РµРµ
     if (nextState == 1) {
-        if (currentState == 1) {  // Если клетка была жива и остается живой
+        if (currentState == 1) {  // Р•СЃР»Рё РєР»РµС‚РєР° Р±С‹Р»Р° Р¶РёРІР° Рё РѕСЃС‚Р°РµС‚СЃСЏ Р¶РёРІРѕР№
             vec4 currentColor = colors[index];
-            // Увеличиваем яркость зеленого цвета, но ограничиваем максимум
+            // РЈРІРµР»РёС‡РёРІР°РµРј СЏСЂРєРѕСЃС‚СЊ Р·РµР»РµРЅРѕРіРѕ С†РІРµС‚Р°, РЅРѕ РѕРіСЂР°РЅРёС‡РёРІР°РµРј РјР°РєСЃРёРјСѓРј
             colors[index] = vec4(
-                min(currentColor.r + 0.02, 0.5),  // Увеличиваем красный канал
-                min(currentColor.g + 0.02, 1.0),  // Здесь увеличиваем зелёный канал
-                min(currentColor.b + 0.02, 0.5),  // Увеличиваем синий канал
+                min(currentColor.r + 0.02, 0.5),  // РЈРІРµР»РёС‡РёРІР°РµРј РєСЂР°СЃРЅС‹Р№ РєР°РЅР°Р»
+                min(currentColor.g + 0.02, 1.0),  // Р—РґРµСЃСЊ СѓРІРµР»РёС‡РёРІР°РµРј Р·РµР»С‘РЅС‹Р№ РєР°РЅР°Р»
+                min(currentColor.b + 0.02, 0.5),  // РЈРІРµР»РёС‡РёРІР°РµРј СЃРёРЅРёР№ РєР°РЅР°Р»
                 1.0
             );
         } else {
-            // Если клетка только что ожила, устанавливаем базовый цвет
-            colors[index] = vec4(0.0, 0.5, 0.0, 1.0);  // Начальный зеленый цвет
+            // Р•СЃР»Рё РєР»РµС‚РєР° С‚РѕР»СЊРєРѕ С‡С‚Рѕ РѕР¶РёР»Р°, СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р±Р°Р·РѕРІС‹Р№ С†РІРµС‚
+            colors[index] = vec4(0.0, 0.5, 0.0, 1.0);  // РќР°С‡Р°Р»СЊРЅС‹Р№ Р·РµР»РµРЅС‹Р№ С†РІРµС‚
         }
     } else if(currentState == 1) {
-        // Если клетка мертва, устанавливаем цвет мертвой клетки
+        // Р•СЃР»Рё РєР»РµС‚РєР° РјРµСЂС‚РІР°, СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј С†РІРµС‚ РјРµСЂС‚РІРѕР№ РєР»РµС‚РєРё
         colors[index] = vec4(0.05, 0.05, 0.08, 1.0);
     }
 }
@@ -145,12 +145,12 @@ void GPUAutomaton::Update() {
 
     SwapBuffers();
 }
-//  Как это работает
-//  На каждом шаге Update() :
-//      cellsBuffer[currentBufferIndex] привязывается к binding = 0 как входной буфер(current).
-//      cellsBuffer[(currentBufferIndex + 1) % 2] привязывается к binding = 1 как выходной буфер(next).
-//      Шейдер выполняет вычисления, записывая новое состояние в next и цвета в colorsBuffer.
-//      После выполнения SwapBuffers() переключает currentBufferIndex, делая next новым current для следующего шага.
+//  РљР°Рє СЌС‚Рѕ СЂР°Р±РѕС‚Р°РµС‚
+//  РќР° РєР°Р¶РґРѕРј С€Р°РіРµ Update() :
+//      cellsBuffer[currentBufferIndex] РїСЂРёРІСЏР·С‹РІР°РµС‚СЃСЏ Рє binding = 0 РєР°Рє РІС…РѕРґРЅРѕР№ Р±СѓС„РµСЂ(current).
+//      cellsBuffer[(currentBufferIndex + 1) % 2] РїСЂРёРІСЏР·С‹РІР°РµС‚СЃСЏ Рє binding = 1 РєР°Рє РІС‹С…РѕРґРЅРѕР№ Р±СѓС„РµСЂ(next).
+//      РЁРµР№РґРµСЂ РІС‹РїРѕР»РЅСЏРµС‚ РІС‹С‡РёСЃР»РµРЅРёСЏ, Р·Р°РїРёСЃС‹РІР°СЏ РЅРѕРІРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РІ next Рё С†РІРµС‚Р° РІ colorsBuffer.
+//      РџРѕСЃР»Рµ РІС‹РїРѕР»РЅРµРЅРёСЏ SwapBuffers() РїРµСЂРµРєР»СЋС‡Р°РµС‚ currentBufferIndex, РґРµР»Р°СЏ next РЅРѕРІС‹Рј current РґР»СЏ СЃР»РµРґСѓСЋС‰РµРіРѕ С€Р°РіР°.
 void GPUAutomaton::SwapBuffers() {
     currentBufferIndex = (currentBufferIndex + 1) % 2;
 }
@@ -183,8 +183,8 @@ void GPUAutomaton::SetCellState(int x, int y, int state) {
     //glFinish();
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
     GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER,
-        index * sizeof(int), // Смещение в байтах
-        sizeof(int),         // Размер данных (1 int)
+        index * sizeof(int), // РЎРјРµС‰РµРЅРёРµ РІ Р±Р°Р№С‚Р°С…
+        sizeof(int),         // Р Р°Р·РјРµСЂ РґР°РЅРЅС‹С… (1 int)
         &stateData));
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 }
@@ -192,7 +192,7 @@ void GPUAutomaton::SetCellState(int x, int y, int state) {
 int GPUAutomaton::GetCellState(int x, int y) {
     if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
         std::cerr << "GetCellState: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
-        return 0; // Возвращаем мертвое состояние в случае ошибки
+        return 0; // Р’РѕР·РІСЂР°С‰Р°РµРј РјРµСЂС‚РІРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё
     }
 
     int index = y * gridWidth + x;
@@ -200,8 +200,8 @@ int GPUAutomaton::GetCellState(int x, int y) {
     //glFinish();
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
     GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER,
-        index * sizeof(int), // Смещение в байтах
-        sizeof(int),         // Размер данных (1 int)
+        index * sizeof(int), // РЎРјРµС‰РµРЅРёРµ РІ Р±Р°Р№С‚Р°С…
+        sizeof(int),         // Р Р°Р·РјРµСЂ РґР°РЅРЅС‹С… (1 int)
         &stateData));
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 
@@ -221,17 +221,17 @@ void GPUAutomaton::SetCellColor(int x,int y, float r, float g, float b) {
         std::cerr << "SetCellColor: colorsBuffer is not initialized!" << std::endl;
         return;
     }
-    // Вычисляем индекс в буфере
+    // Р’С‹С‡РёСЃР»СЏРµРј РёРЅРґРµРєСЃ РІ Р±СѓС„РµСЂРµ
     int index = y * gridWidth + x;
 
-    // Подготавливаем данные для записи (vec4)
+    // РџРѕРґРіРѕС‚Р°РІР»РёРІР°РµРј РґР°РЅРЅС‹Рµ РґР»СЏ Р·Р°РїРёСЃРё (vec4)
     float colorData[4] = { r, g, b, 1.0f };
     //glFinish();
-    // Привязываем colorsBuffer и записываем данные
+    // РџСЂРёРІСЏР·С‹РІР°РµРј colorsBuffer Рё Р·Р°РїРёСЃС‹РІР°РµРј РґР°РЅРЅС‹Рµ
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer));
     GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER,
-        index * sizeof(float) * 4, // Смещение в байтах
-        sizeof(float) * 4,         // Размер данных (4 float = vec4)
+        index * sizeof(float) * 4, // РЎРјРµС‰РµРЅРёРµ РІ Р±Р°Р№С‚Р°С…
+        sizeof(float) * 4,         // Р Р°Р·РјРµСЂ РґР°РЅРЅС‹С… (4 float = vec4)
         colorData));
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 }
@@ -239,7 +239,7 @@ void GPUAutomaton::SetCellColor(int x,int y, float r, float g, float b) {
 void GPUAutomaton::GetCellColor(int x, int y, float& r, float& g, float& b) {
     if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
         std::cerr << "GetCellColor: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
-        r = g = b = 0.0f; // Возвращаем черный цвет с нулевой прозрачностью в случае ошибки
+        r = g = b = 0.0f; // Р’РѕР·РІСЂР°С‰Р°РµРј С‡РµСЂРЅС‹Р№ С†РІРµС‚ СЃ РЅСѓР»РµРІРѕР№ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊСЋ РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё
         return;
     }
     if (colorsBuffer == 0) {
@@ -253,8 +253,8 @@ void GPUAutomaton::GetCellColor(int x, int y, float& r, float& g, float& b) {
     //glFinish();
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer));
     GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER,
-        index * sizeof(float) * 4, // Смещение в байтах
-        sizeof(float) * 4,         // Размер данных (vec4)
+        index * sizeof(float) * 4, // РЎРјРµС‰РµРЅРёРµ РІ Р±Р°Р№С‚Р°С…
+        sizeof(float) * 4,         // Р Р°Р·РјРµСЂ РґР°РЅРЅС‹С… (vec4)
         colorData));
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 

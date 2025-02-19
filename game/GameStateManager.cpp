@@ -3,11 +3,11 @@
 
 bool GameStateManager::validateDimensions(const Grid& grid, int width, int height) {
     if (width <= 0 || height <= 0) {
-        std::cerr << "Некорректные размеры в файле" << std::endl;
+        std::cerr << "РќРµРєРѕСЂСЂРµРєС‚РЅС‹Рµ СЂР°Р·РјРµСЂС‹ РІ С„Р°Р№Р»Рµ" << std::endl;
         return false;
     }
     if (width != grid.getWidth() || height != grid.getHeight()) {
-        std::cerr << "Размеры сетки в файле не совпадают с текущими размерами" << std::endl;
+        std::cerr << "Р Р°Р·РјРµСЂС‹ СЃРµС‚РєРё РІ С„Р°Р№Р»Рµ РЅРµ СЃРѕРІРїР°РґР°СЋС‚ СЃ С‚РµРєСѓС‰РёРјРё СЂР°Р·РјРµСЂР°РјРё" << std::endl;
         return false;
     }
     return true;
@@ -16,18 +16,18 @@ bool GameStateManager::validateDimensions(const Grid& grid, int width, int heigh
 bool GameStateManager::saveGameState(const Grid& grid, const std::string& filename) {
     std::ofstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "Не удалось открыть файл для записи: " << filename << std::endl;
+        std::cerr << "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё: " << filename << std::endl;
         return false;
     }
 
-    // Добавляем заголовок формата
-    //file << "x = " << grid.getWidth() << ", y = " << grid.getHeight() << ", rule = B3/S23\n"; // Это не обязательно, но может быть полезно
+    // Р”РѕР±Р°РІР»СЏРµРј Р·Р°РіРѕР»РѕРІРѕРє С„РѕСЂРјР°С‚Р°
+    //file << "x = " << grid.getWidth() << ", y = " << grid.getHeight() << ", rule = B3/S23\n"; // Р­С‚Рѕ РЅРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ, РЅРѕ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїРѕР»РµР·РЅРѕ
 
-    // Добавляем комментарии
+    // Р”РѕР±Р°РІР»СЏРµРј РєРѕРјРјРµРЅС‚Р°СЂРёРё
     file << "!Name: Saved world to Pattern\n";
     file << "!Description: Just an example\n";
 
-    // Сохранение паттерна
+    // РЎРѕС…СЂР°РЅРµРЅРёРµ РїР°С‚С‚РµСЂРЅР°
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
             file << (grid.getCellState(x, y) ? 'O' : '.');
@@ -41,32 +41,32 @@ bool GameStateManager::saveGameState(const Grid& grid, const std::string& filena
 bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "Не удалось открыть файл для чтения: " << filename << std::endl;
+        std::cerr << "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ С‡С‚РµРЅРёСЏ: " << filename << std::endl;
         return false;
     }
 
     std::string line;
     std::vector<std::string> patternLines;
 
-    // Пропускаем комментарии и заголовок, если они есть
+    // РџСЂРѕРїСѓСЃРєР°РµРј РєРѕРјРјРµРЅС‚Р°СЂРёРё Рё Р·Р°РіРѕР»РѕРІРѕРє, РµСЃР»Рё РѕРЅРё РµСЃС‚СЊ
     while (std::getline(file, line)) {
-        if (line.empty() || line[0] == '!') continue; // Пропускаем комментарии
-        if (line.find("x =") == 0) continue; // Пропускаем строку с размерами, если она есть
+        if (line.empty() || line[0] == '!') continue; // РџСЂРѕРїСѓСЃРєР°РµРј РєРѕРјРјРµРЅС‚Р°СЂРёРё
+        if (line.find("x =") == 0) continue; // РџСЂРѕРїСѓСЃРєР°РµРј СЃС‚СЂРѕРєСѓ СЃ СЂР°Р·РјРµСЂР°РјРё, РµСЃР»Рё РѕРЅР° РµСЃС‚СЊ
 
         patternLines.push_back(line);
     }
 
     if (patternLines.empty()) {
-        std::cerr << "Файл не содержит данных для паттерна." << std::endl;
+        std::cerr << "Р¤Р°Р№Р» РЅРµ СЃРѕРґРµСЂР¶РёС‚ РґР°РЅРЅС‹С… РґР»СЏ РїР°С‚С‚РµСЂРЅР°." << std::endl;
         return false;
     }
 
     int height = static_cast<int>(patternLines.size());
     int width = static_cast<int>(patternLines[0].length());
 
-    // Убедимся, что размеры сетки совпадают
+    // РЈР±РµРґРёРјСЃСЏ, С‡С‚Рѕ СЂР°Р·РјРµСЂС‹ СЃРµС‚РєРё СЃРѕРІРїР°РґР°СЋС‚
     if (width != grid.getWidth() || height != grid.getHeight()) {
-        std::cerr << "Размеры паттерна не совпадают с текущими размерами сетки." << std::endl;
+        std::cerr << "Р Р°Р·РјРµСЂС‹ РїР°С‚С‚РµСЂРЅР° РЅРµ СЃРѕРІРїР°РґР°СЋС‚ СЃ С‚РµРєСѓС‰РёРјРё СЂР°Р·РјРµСЂР°РјРё СЃРµС‚РєРё." << std::endl;
         return false;
     }
 
@@ -75,10 +75,10 @@ bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
             if (x < static_cast<int>(patternLines[y].length())) {
                 grid.setCellState(x, y, patternLines[y][x] == 'O');
                 if (patternLines[y][x] == 'O') {
-                    grid.setCellColor(x, y, 0.0f, 0.6f, 0.0f); // Зеленый для живой клетки
+                    grid.setCellColor(x, y, 0.0f, 0.6f, 0.0f); // Р—РµР»РµРЅС‹Р№ РґР»СЏ Р¶РёРІРѕР№ РєР»РµС‚РєРё
                 }
                 else {
-                    grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f); // Черный для мертвой клетки
+                    grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f); // Р§РµСЂРЅС‹Р№ РґР»СЏ РјРµСЂС‚РІРѕР№ РєР»РµС‚РєРё
                 }
             }
         }
@@ -90,7 +90,7 @@ bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
 //bool GameStateManager::saveBinaryGameState(const Grid& grid, const std::string& filename) {
 //    std::ofstream file(filename, std::ios::binary);
 //    if (!file.is_open()) {
-//        std::cerr << "Не удалось открыть файл для бинарной записи: " << filename << std::endl;
+//        std::cerr << "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р±РёРЅР°СЂРЅРѕР№ Р·Р°РїРёСЃРё: " << filename << std::endl;
 //        return false;
 //    }
 //
@@ -98,19 +98,19 @@ bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
 //    int width = grid.getWidth();
 //    int height = grid.getHeight();
 //
-//    // Записываем сигнатуру
+//    // Р—Р°РїРёСЃС‹РІР°РµРј СЃРёРіРЅР°С‚СѓСЂСѓ
 //    file.write(GAME_FILE_MAGIC_NUMBER, strlen(GAME_FILE_MAGIC_NUMBER));
 //
-//    // Записываем ширину и высоту
+//    // Р—Р°РїРёСЃС‹РІР°РµРј С€РёСЂРёРЅСѓ Рё РІС‹СЃРѕС‚Сѓ
 //    file.write(reinterpret_cast<const char*>(&width), sizeof(int));
 //    file.write(reinterpret_cast<const char*>(&height), sizeof(int));
 //
-//    // Сохраняем состояние клеток
+//    // РЎРѕС…СЂР°РЅСЏРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РєР»РµС‚РѕРє
 //    std::vector<int> states;
 //    automaton->GetGridState(states);
 //    file.write(reinterpret_cast<const char*>(states.data()), sizeof(int) * states.size());
 //
-//    // Сохраняем цвета
+//    // РЎРѕС…СЂР°РЅСЏРµРј С†РІРµС‚Р°
 //    std::vector<float> colors;
 //    automaton->GetColorsBuf(colors);
 //    file.write(reinterpret_cast<const char*>(colors.data()), sizeof(float) * colors.size());
@@ -121,15 +121,15 @@ bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
 //bool GameStateManager::loadBinaryGameState(Grid& grid, const std::string& filename) {
 //    std::ifstream file(filename, std::ios::binary);
 //    if (!file.is_open()) {
-//        std::cerr << "Не удалось открыть файл для бинарного чтения: " << filename << std::endl;
+//        std::cerr << "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р±РёРЅР°СЂРЅРѕРіРѕ С‡С‚РµРЅРёСЏ: " << filename << std::endl;
 //        return false;
 //    }
 //
-//    // Проверяем сигнатуру
-//    char magic[5] = { 0 }; // +1 для нулевого символа
+//    // РџСЂРѕРІРµСЂСЏРµРј СЃРёРіРЅР°С‚СѓСЂСѓ
+//    char magic[5] = { 0 }; // +1 РґР»СЏ РЅСѓР»РµРІРѕРіРѕ СЃРёРјРІРѕР»Р°
 //    file.read(magic, strlen(GAME_FILE_MAGIC_NUMBER));
 //    if (std::memcmp(magic, GAME_FILE_MAGIC_NUMBER, strlen(GAME_FILE_MAGIC_NUMBER)) != 0) {
-//        std::cerr << "Файл имеет неверный формат или поврежден." << std::endl;
+//        std::cerr << "Р¤Р°Р№Р» РёРјРµРµС‚ РЅРµРІРµСЂРЅС‹Р№ С„РѕСЂРјР°С‚ РёР»Рё РїРѕРІСЂРµР¶РґРµРЅ." << std::endl;
 //        return false;
 //    }
 //
@@ -137,31 +137,31 @@ bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
 //    file.read(reinterpret_cast<char*>(&width), sizeof(int));
 //    file.read(reinterpret_cast<char*>(&height), sizeof(int));
 //
-//    // Проверка соответствия размеров
+//    // РџСЂРѕРІРµСЂРєР° СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ СЂР°Р·РјРµСЂРѕРІ
 //    auto* automaton = grid.GetGPUAutomaton();
 //    if (width != grid.getWidth() || height != grid.getHeight()) {
-//        std::cerr << "Размеры в загружаемом файле не совпадают с текущими размерами сетки." << std::endl;
+//        std::cerr << "Р Р°Р·РјРµСЂС‹ РІ Р·Р°РіСЂСѓР¶Р°РµРјРѕРј С„Р°Р№Р»Рµ РЅРµ СЃРѕРІРїР°РґР°СЋС‚ СЃ С‚РµРєСѓС‰РёРјРё СЂР°Р·РјРµСЂР°РјРё СЃРµС‚РєРё." << std::endl;
 //        return false;
 //    }
 //
-//    // Чтение состояния клеток
+//    // Р§С‚РµРЅРёРµ СЃРѕСЃС‚РѕСЏРЅРёСЏ РєР»РµС‚РѕРє
 //    std::vector<int> states(width * height);
 //    file.read(reinterpret_cast<char*>(states.data()), sizeof(int) * states.size());
 //    automaton->SetGridState(states);
 //
-//    // Чтение цветов
+//    // Р§С‚РµРЅРёРµ С†РІРµС‚РѕРІ
 //    std::vector<float> colors(width * height * 4);
 //    file.read(reinterpret_cast<char*>(colors.data()), sizeof(float) * colors.size());
 //    automaton->SetColorsBuf(colors);
 //
-//    // Возвращаем true, предполагая, что цвета уже преобразуются в состояние клеток внутри GPUAutomaton
+//    // Р’РѕР·РІСЂР°С‰Р°РµРј true, РїСЂРµРґРїРѕР»Р°РіР°СЏ, С‡С‚Рѕ С†РІРµС‚Р° СѓР¶Рµ РїСЂРµРѕР±СЂР°Р·СѓСЋС‚СЃСЏ РІ СЃРѕСЃС‚РѕСЏРЅРёРµ РєР»РµС‚РѕРє РІРЅСѓС‚СЂРё GPUAutomaton
 //    return true;
 //}
 
 bool GameStateManager::CompressData(const BYTE* uncompressedData, SIZE_T uncompressedSize, BYTE** compressedData, SIZE_T* compressedSize) {
     COMPRESSOR_HANDLE compressor;
     if (!CreateCompressor(COMPRESS_ALGORITHM_XPRESS, NULL, &compressor)) {
-        // Обработка ошибки
+        // РћР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РєРё
         std::cerr << "Failed to create compressor: " << GetLastError() << std::endl;
         return false;
     }
@@ -171,13 +171,13 @@ bool GameStateManager::CompressData(const BYTE* uncompressedData, SIZE_T uncompr
         if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
             *compressedData = (BYTE*)malloc(estimatedSize);
             if (*compressedData == NULL) {
-                // Обработка ошибки выделения памяти
+                // РћР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РєРё РІС‹РґРµР»РµРЅРёСЏ РїР°РјСЏС‚Рё
                 std::cerr << "Memory allocation failed for compression buffer" << std::endl;
                 CloseCompressor(compressor);
                 return false;
             }
             if (!Compress(compressor, uncompressedData, uncompressedSize, *compressedData, estimatedSize, (SIZE_T*)compressedSize)) {
-                // Обработка ошибки
+                // РћР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РєРё
                 std::cerr << "Compression failed: " << GetLastError() << std::endl;
                 free(*compressedData);
                 *compressedData = NULL;
@@ -186,7 +186,7 @@ bool GameStateManager::CompressData(const BYTE* uncompressedData, SIZE_T uncompr
             }
         }
         else {
-            // Обработка других ошибок компрессии
+            // РћР±СЂР°Р±РѕС‚РєР° РґСЂСѓРіРёС… РѕС€РёР±РѕРє РєРѕРјРїСЂРµСЃСЃРёРё
             std::cerr << "Unexpected error during compression size estimation: " << GetLastError() << std::endl;
             CloseCompressor(compressor);
             return false;
@@ -200,7 +200,7 @@ bool GameStateManager::CompressData(const BYTE* uncompressedData, SIZE_T uncompr
 bool GameStateManager::DecompressData(const BYTE* compressedData, SIZE_T compressedSize, BYTE** decompressedData, SIZE_T* decompressedSize) {
     DECOMPRESSOR_HANDLE decompressor;
     if (!CreateDecompressor(COMPRESS_ALGORITHM_XPRESS, NULL, &decompressor)) {
-        // Обработка ошибки
+        // РћР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РєРё
         std::cerr << "Failed to create decompressor: " << GetLastError() << std::endl;
         return false;
     }
@@ -210,13 +210,13 @@ bool GameStateManager::DecompressData(const BYTE* compressedData, SIZE_T compres
         if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
             *decompressedData = (BYTE*)malloc(neededSize);
             if (*decompressedData == NULL) {
-                // Обработка ошибки выделения памяти
+                // РћР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РєРё РІС‹РґРµР»РµРЅРёСЏ РїР°РјСЏС‚Рё
                 std::cerr << "Memory allocation failed for decompression buffer" << std::endl;
                 CloseDecompressor(decompressor);
                 return false;
             }
             if (!Decompress(decompressor, compressedData, compressedSize, *decompressedData, neededSize, (SIZE_T*)decompressedSize)) {
-                // Обработка ошибки
+                // РћР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РєРё
                 std::cerr << "Decompression failed: " << GetLastError() << std::endl;
                 free(*decompressedData);
                 *decompressedData = NULL;
@@ -225,7 +225,7 @@ bool GameStateManager::DecompressData(const BYTE* compressedData, SIZE_T compres
             }
         }
         else {
-            // Обработка других ошибок декомпрессии
+            // РћР±СЂР°Р±РѕС‚РєР° РґСЂСѓРіРёС… РѕС€РёР±РѕРє РґРµРєРѕРјРїСЂРµСЃСЃРёРё
             std::cerr << "Unexpected error during decompression size estimation: " << GetLastError() << std::endl;
             CloseDecompressor(decompressor);
             return false;
@@ -240,7 +240,7 @@ bool GameStateManager::DecompressData(const BYTE* compressedData, SIZE_T compres
 bool GameStateManager::saveBinaryGameState(const Grid& grid, const std::string& filename) {
     std::ofstream file(filename, std::ios::binary);
     if (!file.is_open()) {
-        std::cerr << "Не удалось открыть файл для бинарной записи: " << filename << std::endl;
+        std::cerr << "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р±РёРЅР°СЂРЅРѕР№ Р·Р°РїРёСЃРё: " << filename << std::endl;
         return false;
     }
 
@@ -248,14 +248,14 @@ bool GameStateManager::saveBinaryGameState(const Grid& grid, const std::string& 
     int width = grid.getWidth();
     int height = grid.getHeight();
 
-    // Сохраняем сигнатуру
+    // РЎРѕС…СЂР°РЅСЏРµРј СЃРёРіРЅР°С‚СѓСЂСѓ
     file.write(GAME_FILE_MAGIC_NUMBER, strlen(GAME_FILE_MAGIC_NUMBER));
 
-    // Записываем ширину и высоту
+    // Р—Р°РїРёСЃС‹РІР°РµРј С€РёСЂРёРЅСѓ Рё РІС‹СЃРѕС‚Сѓ
     file.write(reinterpret_cast<const char*>(&width), sizeof(int));
     file.write(reinterpret_cast<const char*>(&height), sizeof(int));
 
-    // Секция для состояний клеток
+    // РЎРµРєС†РёСЏ РґР»СЏ СЃРѕСЃС‚РѕСЏРЅРёР№ РєР»РµС‚РѕРє
     std::vector<int> states;
     automaton->GetGridState(states);
     BYTE* compressedStates = NULL;
@@ -267,11 +267,11 @@ bool GameStateManager::saveBinaryGameState(const Grid& grid, const std::string& 
         free(compressedStates);
     }
     else {
-        std::cerr << "Ошибка при сжатии данных состояния клеток!" << std::endl;
+        std::cerr << "РћС€РёР±РєР° РїСЂРё СЃР¶Р°С‚РёРё РґР°РЅРЅС‹С… СЃРѕСЃС‚РѕСЏРЅРёСЏ РєР»РµС‚РѕРє!" << std::endl;
         return false;
     }
 
-    // Секция для цветов
+    // РЎРµРєС†РёСЏ РґР»СЏ С†РІРµС‚РѕРІ
     std::vector<float> colors;
     automaton->GetColorsBuf(colors);
     BYTE* compressedColors = NULL;
@@ -283,7 +283,7 @@ bool GameStateManager::saveBinaryGameState(const Grid& grid, const std::string& 
         free(compressedColors);
     }
     else {
-        std::cerr << "Ошибка при сжатии данных цветов!" << std::endl;
+        std::cerr << "РћС€РёР±РєР° РїСЂРё СЃР¶Р°С‚РёРё РґР°РЅРЅС‹С… С†РІРµС‚РѕРІ!" << std::endl;
         return false;
     }
 
@@ -293,15 +293,15 @@ bool GameStateManager::saveBinaryGameState(const Grid& grid, const std::string& 
 bool GameStateManager::loadBinaryGameState(Grid& grid, const std::string& filename, int & loadStatus) {
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {
-        std::cerr << "Не удалось открыть файл для бинарного чтения: " << filename << std::endl;
+        std::cerr << "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р±РёРЅР°СЂРЅРѕРіРѕ С‡С‚РµРЅРёСЏ: " << filename << std::endl;
         return false;
     }
 
-    // Проверка сигнатуры
+    // РџСЂРѕРІРµСЂРєР° СЃРёРіРЅР°С‚СѓСЂС‹
     char magic[5] = { 0 };
     file.read(magic, strlen(GAME_FILE_MAGIC_NUMBER));
     if (std::memcmp(magic, GAME_FILE_MAGIC_NUMBER, strlen(GAME_FILE_MAGIC_NUMBER)) != 0) {
-        std::cerr << "Файл имеет неверный формат или поврежден." << std::endl;
+        std::cerr << "Р¤Р°Р№Р» РёРјРµРµС‚ РЅРµРІРµСЂРЅС‹Р№ С„РѕСЂРјР°С‚ РёР»Рё РїРѕРІСЂРµР¶РґРµРЅ." << std::endl;
         return false;
     }
 
@@ -309,10 +309,10 @@ bool GameStateManager::loadBinaryGameState(Grid& grid, const std::string& filena
     file.read(reinterpret_cast<char*>(&width), sizeof(int));
     file.read(reinterpret_cast<char*>(&height), sizeof(int));
 
-    // Проверка соответствия размеров
+    // РџСЂРѕРІРµСЂРєР° СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ СЂР°Р·РјРµСЂРѕРІ
     auto* automaton = grid.GetGPUAutomaton();
     if (width != grid.getWidth() || height != grid.getHeight()) {
-        std::cerr << "Размеры в загружаемом файле не совпадают с текущими размерами сетки. мир будет перестроен с новыми размерами. width=" << width << " height=" << height << std::endl;
+        std::cerr << "Р Р°Р·РјРµСЂС‹ РІ Р·Р°РіСЂСѓР¶Р°РµРјРѕРј С„Р°Р№Р»Рµ РЅРµ СЃРѕРІРїР°РґР°СЋС‚ СЃ С‚РµРєСѓС‰РёРјРё СЂР°Р·РјРµСЂР°РјРё СЃРµС‚РєРё. РјРёСЂ Р±СѓРґРµС‚ РїРµСЂРµСЃС‚СЂРѕРµРЅ СЃ РЅРѕРІС‹РјРё СЂР°Р·РјРµСЂР°РјРё. width=" << width << " height=" << height << std::endl;
         grid.setSize(width, height);
         automaton->SetNewGridSize(width, height);
         loadStatus = 2;
@@ -334,7 +334,7 @@ bool GameStateManager::loadBinaryGameState(Grid& grid, const std::string& filena
                 free(decompressedStates);
             }
             else {
-                std::cerr << "Ошибка при распаковке данных состояния клеток!" << std::endl;
+                std::cerr << "РћС€РёР±РєР° РїСЂРё СЂР°СЃРїР°РєРѕРІРєРµ РґР°РЅРЅС‹С… СЃРѕСЃС‚РѕСЏРЅРёСЏ РєР»РµС‚РѕРє!" << std::endl;
                 loadStatus = 0;
                 return false;
             }
@@ -348,7 +348,7 @@ bool GameStateManager::loadBinaryGameState(Grid& grid, const std::string& filena
                 free(decompressedColors);
             }
             else {
-                std::cerr << "Ошибка при распаковке данных цветов!" << std::endl;
+                std::cerr << "РћС€РёР±РєР° РїСЂРё СЂР°СЃРїР°РєРѕРІРєРµ РґР°РЅРЅС‹С… С†РІРµС‚РѕРІ!" << std::endl;
                 loadStatus = 0;
                 return false;
             }

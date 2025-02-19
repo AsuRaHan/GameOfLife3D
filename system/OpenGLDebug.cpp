@@ -7,33 +7,33 @@ OpenGLDebug::~OpenGLDebug() {
 }
 
 bool OpenGLDebug::Initialize() {
-    std::cout << "Инициализация отладки OpenGL" << std::endl;
+    std::cout << "РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РѕС‚Р»Р°РґРєРё OpenGL" << std::endl;
 
-    // Проверяем, что функции загружены
+    // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ С„СѓРЅРєС†РёРё Р·Р°РіСЂСѓР¶РµРЅС‹
     if (!glDebugMessageCallback || !glDebugMessageControl) {
-        std::cout << "Не удалось загрузить функции отладки OpenGL" << std::endl;
+        std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ С„СѓРЅРєС†РёРё РѕС‚Р»Р°РґРєРё OpenGL" << std::endl;
         return false;
     }
 
-    // Устанавливаем коллбэк
+    // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РєРѕР»Р»Р±СЌРє
     GL_CHECK(glDebugMessageCallback(DebugCallback, nullptr));
 
-    // Включаем отладочный вывод
+    // Р’РєР»СЋС‡Р°РµРј РѕС‚Р»Р°РґРѕС‡РЅС‹Р№ РІС‹РІРѕРґ
     GL_CHECK(glEnable(GL_DEBUG_OUTPUT));
-    GL_CHECK(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS)); // Синхронный вывод для точного стека вызовов
+    GL_CHECK(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS)); // РЎРёРЅС…СЂРѕРЅРЅС‹Р№ РІС‹РІРѕРґ РґР»СЏ С‚РѕС‡РЅРѕРіРѕ СЃС‚РµРєР° РІС‹Р·РѕРІРѕРІ
 
-    // Фильтрация сообщений (опционально)
-    // Отключаем сообщения низкой серьезности
+    // Р¤РёР»СЊС‚СЂР°С†РёСЏ СЃРѕРѕР±С‰РµРЅРёР№ (РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ)
+    // РћС‚РєР»СЋС‡Р°РµРј СЃРѕРѕР±С‰РµРЅРёСЏ РЅРёР·РєРѕР№ СЃРµСЂСЊРµР·РЅРѕСЃС‚Рё
     GL_CHECK(glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE));
 
 
-    std::cout << "Отладка OpenGL успешно инициализирована" << std::endl;
+    std::cout << "РћС‚Р»Р°РґРєР° OpenGL СѓСЃРїРµС€РЅРѕ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅР°" << std::endl;
     return true;
 }
 
 void APIENTRY OpenGLDebug::DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
     GLsizei length, const GLchar* message, const void* userParam) {
-    // Преобразуем перечисления в читаемые строки
+    // РџСЂРµРѕР±СЂР°Р·СѓРµРј РїРµСЂРµС‡РёСЃР»РµРЅРёСЏ РІ С‡РёС‚Р°РµРјС‹Рµ СЃС‚СЂРѕРєРё
     const char* sourceStr;
     switch (source) {
     case GL_DEBUG_SOURCE_API:             sourceStr = "API"; break;
@@ -68,12 +68,12 @@ void APIENTRY OpenGLDebug::DebugCallback(GLenum source, GLenum type, GLuint id, 
     default:                             severityStr = "Unknown"; break;
     }
 
-    // Захватываем стек вызовов
+    // Р—Р°С…РІР°С‚С‹РІР°РµРј СЃС‚РµРє РІС‹Р·РѕРІРѕРІ
     const int maxFrames = 16;
     void* stack[maxFrames];
     USHORT frames = CaptureStackBackTrace(0, maxFrames, stack, NULL);
 
-    // Инициализируем символы для трассировки
+    // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃРёРјРІРѕР»С‹ РґР»СЏ С‚СЂР°СЃСЃРёСЂРѕРІРєРё
     HANDLE process = GetCurrentProcess();
     SymInitialize(process, NULL, TRUE);
 
@@ -85,7 +85,7 @@ void APIENTRY OpenGLDebug::DebugCallback(GLenum source, GLenum type, GLuint id, 
         << "  Message: " << message << std::endl
         << "  Stack Trace:" << std::endl;
 
-    // Выводим трассировку стека
+    // Р’С‹РІРѕРґРёРј С‚СЂР°СЃСЃРёСЂРѕРІРєСѓ СЃС‚РµРєР°
     SYMBOL_INFO* symbol = (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + 256 * sizeof(char), 1);
     symbol->MaxNameLen = 255;
     symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
@@ -98,7 +98,7 @@ void APIENTRY OpenGLDebug::DebugCallback(GLenum source, GLenum type, GLuint id, 
     free(symbol);
     SymCleanup(process);
 
-    // Если ошибка критическая, вызываем MessageBox и завершаем программу
+    // Р•СЃР»Рё РѕС€РёР±РєР° РєСЂРёС‚РёС‡РµСЃРєР°СЏ, РІС‹Р·С‹РІР°РµРј MessageBox Рё Р·Р°РІРµСЂС€Р°РµРј РїСЂРѕРіСЂР°РјРјСѓ
     if (severity == GL_DEBUG_SEVERITY_HIGH) {
         WCHAR wMessage[1024];
         swprintf_s(wMessage, L"[OpenGLDebug] OpenGL Error:\nSource: %S\nType: %S\nID: %u\nSeverity: %S\nMessage: %S",

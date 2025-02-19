@@ -12,7 +12,7 @@ void GridPicker::MultiplyMatrixVector(const float* matrix, const float* vector, 
 }
 
 void GridPicker::InvertMatrix(const float* m, float* out) const {
-    // Простое инвертирование матрицы 4x4 - не самый эффективный метод, но рабочий
+    // РџСЂРѕСЃС‚РѕРµ РёРЅРІРµСЂС‚РёСЂРѕРІР°РЅРёРµ РјР°С‚СЂРёС†С‹ 4x4 - РЅРµ СЃР°РјС‹Р№ СЌС„С„РµРєС‚РёРІРЅС‹Р№ РјРµС‚РѕРґ, РЅРѕ СЂР°Р±РѕС‡РёР№
     float inv[16], det;
     int i;
 
@@ -58,27 +58,27 @@ void GridPicker::Normalize(float* v) const {
 }
 
 void GridPicker::ScreenToWorld(float screenX, float screenY, float screenWidth, float screenHeight, float& worldX, float& worldY) {
-    // Преобразование экранных координат в нормализованные устройственные координаты (NDC)
+    // РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ СЌРєСЂР°РЅРЅС‹С… РєРѕРѕСЂРґРёРЅР°С‚ РІ РЅРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅС‹Рµ СѓСЃС‚СЂРѕР№СЃС‚РІРµРЅРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ (NDC)
     float x = (2.0f * screenX / screenWidth) - 1.0f;
     float y = 1.0f - (2.0f * screenY / screenHeight);
-    float z = 1.0f; // Для ближней плоскости отсечения
+    float z = 1.0f; // Р”Р»СЏ Р±Р»РёР¶РЅРµР№ РїР»РѕСЃРєРѕСЃС‚Рё РѕС‚СЃРµС‡РµРЅРёСЏ
 
-    float ndcRay[4] = { x, y, -1.0f, 1.0f }; // Отрицательное z для направления луча вперед
+    float ndcRay[4] = { x, y, -1.0f, 1.0f }; // РћС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРµ z РґР»СЏ РЅР°РїСЂР°РІР»РµРЅРёСЏ Р»СѓС‡Р° РІРїРµСЂРµРґ
 
     float invProjection[16], invView[16], out[4];
     InvertMatrix(camera.GetProjectionMatrix(), invProjection);
     InvertMatrix(camera.GetViewMatrix(), invView);
 
-    // Преобразуем NDC в мировые координаты
+    // РџСЂРµРѕР±СЂР°Р·СѓРµРј NDC РІ РјРёСЂРѕРІС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹
     MultiplyMatrixVector(invProjection, ndcRay, out);
-    float worldRay[4] = { out[0], out[1], -1.0f, 0.0f }; // Четвертый элемент 0 для вектора направления
+    float worldRay[4] = { out[0], out[1], -1.0f, 0.0f }; // Р§РµС‚РІРµСЂС‚С‹Р№ СЌР»РµРјРµРЅС‚ 0 РґР»СЏ РІРµРєС‚РѕСЂР° РЅР°РїСЂР°РІР»РµРЅРёСЏ
 
     MultiplyMatrixVector(invView, worldRay, out);
 
     float direction[3] = { out[0], out[1], out[2] };
     Normalize(direction);
 
-    // Находим точку пересечения с плоскостью z=0 (плоскость сетки)
+    // РќР°С…РѕРґРёРј С‚РѕС‡РєСѓ РїРµСЂРµСЃРµС‡РµРЅРёСЏ СЃ РїР»РѕСЃРєРѕСЃС‚СЊСЋ z=0 (РїР»РѕСЃРєРѕСЃС‚СЊ СЃРµС‚РєРё)
     float camPos[3];
     camera.GetPosition(camPos[0], camPos[1], camPos[2]);
     float t = -camPos[2] / direction[2];

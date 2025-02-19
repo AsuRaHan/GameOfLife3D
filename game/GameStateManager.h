@@ -10,7 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <cstring> // для memcmp
+#include <cstring> // РґР»СЏ memcmp
 
 #pragma comment(lib, "Cabinet.lib")
 
@@ -18,7 +18,7 @@
 
 class GameStateManager {
 public:
-    // Базовое сохранение/загрузка (только состояния клеток)
+    // Р‘Р°Р·РѕРІРѕРµ СЃРѕС…СЂР°РЅРµРЅРёРµ/Р·Р°РіСЂСѓР·РєР° (С‚РѕР»СЊРєРѕ СЃРѕСЃС‚РѕСЏРЅРёСЏ РєР»РµС‚РѕРє)
     static bool saveGameState(const Grid& grid, const std::string& filename);
     static bool loadGameState(Grid& grid, const std::string& filename);
 
@@ -26,10 +26,10 @@ public:
     static bool saveBinaryGameState(const Grid& grid, const std::string& filename);
 private:
     struct SectionHeader {
-        char type[4]; // 4 символа для типа (например, "STAT" для состояний, "COLR" для цветов)
-        SIZE_T size;  // Размер данных в байтах
+        char type[4]; // 4 СЃРёРјРІРѕР»Р° РґР»СЏ С‚РёРїР° (РЅР°РїСЂРёРјРµСЂ, "STAT" РґР»СЏ СЃРѕСЃС‚РѕСЏРЅРёР№, "COLR" РґР»СЏ С†РІРµС‚РѕРІ)
+        SIZE_T size;  // Р Р°Р·РјРµСЂ РґР°РЅРЅС‹С… РІ Р±Р°Р№С‚Р°С…
     };
-    // Вспомогательные методы
+    // Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ РјРµС‚РѕРґС‹
     static bool validateDimensions(const Grid& grid, int width, int height);
 
     static bool CompressData(const BYTE* uncompressedData, SIZE_T uncompressedSize, BYTE** compressedData, SIZE_T* compressedSize);

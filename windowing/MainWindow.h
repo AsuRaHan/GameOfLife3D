@@ -15,16 +15,16 @@ private:
     HWND hWnd;
     HINSTANCE hInstance;
     WindowController* pController;
-    int windowWidth; // поле для ширины
-    int windowHeight; // поле для высоты
-    int windowPosX; // X-координата
-    int windowPosY; // Y-координата
+    int windowWidth; // РїРѕР»Рµ РґР»СЏ С€РёСЂРёРЅС‹
+    int windowHeight; // РїРѕР»Рµ РґР»СЏ РІС‹СЃРѕС‚С‹
+    int windowPosX; // X-РєРѕРѕСЂРґРёРЅР°С‚Р°
+    int windowPosY; // Y-РєРѕРѕСЂРґРёРЅР°С‚Р°
 public:
     MainWindow(HINSTANCE hInstance, int width = 1000, int height = 1000, int xPos = 0, int yPos = 0);
     HWND Create();
     void SetController(WindowController* controller);
     HWND GetHwnd() const;
-    // Геттеры для размеров окна
+    // Р“РµС‚С‚РµСЂС‹ РґР»СЏ СЂР°Р·РјРµСЂРѕРІ РѕРєРЅР°
     int GetWidth() const { return windowWidth; }
     int GetHeight() const { return windowHeight; }
     int GetPosX() const { return windowPosX; }

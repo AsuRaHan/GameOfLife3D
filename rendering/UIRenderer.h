@@ -28,20 +28,20 @@ private:
 
     bool showExitDialog;
 
-    int fieldWidth = 400;  // Пример значений, которые можно изменять
+    int fieldWidth = 400;  // РџСЂРёРјРµСЂ Р·РЅР°С‡РµРЅРёР№, РєРѕС‚РѕСЂС‹Рµ РјРѕР¶РЅРѕ РёР·РјРµРЅСЏС‚СЊ
     int fieldHeight = 300;
 
     char saveFilename[128] = "state.golb";
     std::string aboutText;
 
-    ImVec2 buttonSize; // Задаем фиксированный размер для кнопок
+    ImVec2 buttonSize; // Р—Р°РґР°РµРј С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№ СЂР°Р·РјРµСЂ РґР»СЏ РєРЅРѕРїРѕРє
 
-    // Новые переменные для окна паттернов
+    // РќРѕРІС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ РѕРєРЅР° РїР°С‚С‚РµСЂРЅРѕРІ
     bool patternWindowVisible = false;
     bool patternListLoaded = false;
     std::string currentPatternName = "None";
-    int selectedPatternIndex = -1; // Индекс выбранного паттерна
-    char searchFilter[128] = ""; // переменная для фильтра поиска паттерна
+    int selectedPatternIndex = -1; // РРЅРґРµРєСЃ РІС‹Р±СЂР°РЅРЅРѕРіРѕ РїР°С‚С‚РµСЂРЅР°
+    char searchFilter[128] = ""; // РїРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ С„РёР»СЊС‚СЂР° РїРѕРёСЃРєР° РїР°С‚С‚РµСЂРЅР°
 
     std::string LoadTextFromResource(HINSTANCE hInstance, int resourceId);
 
@@ -57,7 +57,7 @@ private:
 public:
     UIRenderer(GameController* gc);
 
-    void SetGPUAutomaton(GPUAutomaton* ga) { gpuAutomaton = ga; } // Добавляем сеттер
+    void SetGPUAutomaton(GPUAutomaton* ga) { gpuAutomaton = ga; } // Р”РѕР±Р°РІР»СЏРµРј СЃРµС‚С‚РµСЂ
     void InitializeUI();
     void DrawUI();
     void UpdateUIState();

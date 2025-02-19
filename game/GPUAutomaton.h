@@ -11,8 +11,8 @@
 class GPUAutomaton {
 public:
     GPUAutomaton(int width, int height);
-    GPUAutomaton(const GPUAutomaton&) = delete; // Удаляем конструктор копирования
-    GPUAutomaton& operator=(const GPUAutomaton&) = delete; // Удаляем оператор присваивания
+    GPUAutomaton(const GPUAutomaton&) = delete; // РЈРґР°Р»СЏРµРј РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
+    GPUAutomaton& operator=(const GPUAutomaton&) = delete; // РЈРґР°Р»СЏРµРј РѕРїРµСЂР°С‚РѕСЂ РїСЂРёСЃРІР°РёРІР°РЅРёСЏ
 
     ~GPUAutomaton();
 
@@ -24,10 +24,10 @@ public:
 
     
 
-    int birth = 3; // По умолчанию 3 соседа для рождения
-    int survivalMin = 2; // По умолчанию минимум 2 соседа для выживания
-    int survivalMax = 3; // По умолчанию максимум 3 соседа для выживания
-    int overpopulation = 4; // По умолчанию 4 или больше для смерти от перенаселения
+    int birth = 3; // РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 3 СЃРѕСЃРµРґР° РґР»СЏ СЂРѕР¶РґРµРЅРёСЏ
+    int survivalMin = 2; // РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РјРёРЅРёРјСѓРј 2 СЃРѕСЃРµРґР° РґР»СЏ РІС‹Р¶РёРІР°РЅРёСЏ
+    int survivalMax = 3; // РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РјР°РєСЃРёРјСѓРј 3 СЃРѕСЃРµРґР° РґР»СЏ РІС‹Р¶РёРІР°РЅРёСЏ
+    int overpopulation = 4; // РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 4 РёР»Рё Р±РѕР»СЊС€Рµ РґР»СЏ СЃРјРµСЂС‚Рё РѕС‚ РїРµСЂРµРЅР°СЃРµР»РµРЅРёСЏ
     bool isToroidal = true;
     void SetBirth(int b) { birth = b; }
     void SetSurvivalMin(int smin) { survivalMin = smin; }
@@ -49,15 +49,15 @@ public:
 private:
     void CreateComputeShader();
     void SetupBuffers();
-    void SwapBuffers(); // Новый метод для переключения буферов
+    void SwapBuffers(); // РќРѕРІС‹Р№ РјРµС‚РѕРґ РґР»СЏ РїРµСЂРµРєР»СЋС‡РµРЅРёСЏ Р±СѓС„РµСЂРѕРІ
 
     ShaderManager shaderManager;
     GLuint computeProgram;
     GLuint cellsBuffer[2];
     GLint bufferIndex;
 
-    GLuint colorsBuffer; // Буфер для хранения цветов клеток
-    int currentBufferIndex; // Индекс текущего буфера
+    GLuint colorsBuffer; // Р‘СѓС„РµСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С†РІРµС‚РѕРІ РєР»РµС‚РѕРє
+    int currentBufferIndex; // РРЅРґРµРєСЃ С‚РµРєСѓС‰РµРіРѕ Р±СѓС„РµСЂР°
 
     int gridWidth, gridHeight;
     

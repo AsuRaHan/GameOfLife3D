@@ -17,7 +17,7 @@ private:
     HGLRC hRC;
     HDC hDC;
     HWND m_hWnd;
-    // Указатели на функции расширений
+    // РЈРєР°Р·Р°С‚РµР»Рё РЅР° С„СѓРЅРєС†РёРё СЂР°СЃС€РёСЂРµРЅРёР№
     typedef BOOL(APIENTRY* PFNWGLCHOOSEPIXELFORMATARBPROC)(HDC, const int*, const FLOAT*, UINT, int*, UINT*);
     typedef HGLRC(APIENTRY* PFNWGLCREATECONTEXTATTRIBSARBPROC)(HDC, HGLRC, const int*);
 

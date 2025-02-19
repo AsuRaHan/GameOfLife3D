@@ -18,14 +18,14 @@ public:
     void SetSelectionEnd(const Vector3d& end);
     void SetIsSelecting(bool isSelecting);
     void Draw();
-    void SetGameController(GameController* gameController); // Добавляем сеттер
+    void SetGameController(GameController* gameController); // Р”РѕР±Р°РІР»СЏРµРј СЃРµС‚С‚РµСЂ
 private:
     void SetupLineData();
     void LoadShaders();
 
     const Camera& camera;
     ShaderManager& shaderManager;
-    GameController* pGameController = nullptr; // Инициализируем как nullptr
+    GameController* pGameController = nullptr; // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РєР°Рє nullptr
 
     GLuint VAO, VBO;
     Vector3d selectionStart;

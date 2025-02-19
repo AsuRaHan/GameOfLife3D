@@ -28,7 +28,7 @@ bool Grid::getCellState(int x, int y) const {
     if (x >= 0 && x < width && y >= 0 && y < height) {
         return gpuAutomaton->GetCellState(x, y);
     }
-    return false; // Возвращаем false для несуществующих координат
+    return false; // Р’РѕР·РІСЂР°С‰Р°РµРј false РґР»СЏ РЅРµСЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС… РєРѕРѕСЂРґРёРЅР°С‚
 }
 
 int Grid::getWidth() const {

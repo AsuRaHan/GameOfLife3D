@@ -2,23 +2,23 @@
 #ifndef OPENGL_DEBUG_H
 #define OPENGL_DEBUG_H
 
-#include "GLFunctions.h" // Подключаем существующий заголовок для OpenGL функций
+#include "GLFunctions.h" // РџРѕРґРєР»СЋС‡Р°РµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ Р·Р°РіРѕР»РѕРІРѕРє РґР»СЏ OpenGL С„СѓРЅРєС†РёР№
 #include <windows.h>
 #include <DbgHelp.h>
 #include <iostream>
 
-#pragma comment(lib, "DbgHelp.lib") // Подключаем библиотеку DbgHelp
+#pragma comment(lib, "DbgHelp.lib") // РџРѕРґРєР»СЋС‡Р°РµРј Р±РёР±Р»РёРѕС‚РµРєСѓ DbgHelp
 
 class OpenGLDebug {
 public:
     OpenGLDebug();
     ~OpenGLDebug();
 
-    // Инициализация отладочного вывода
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РѕС‚Р»Р°РґРѕС‡РЅРѕРіРѕ РІС‹РІРѕРґР°
     bool Initialize();
 
 private:
-    // Коллбэк-функция для обработки сообщений OpenGL
+    // РљРѕР»Р»Р±СЌРє-С„СѓРЅРєС†РёСЏ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№ OpenGL
     static void APIENTRY DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
         GLsizei length, const GLchar* message, const void* userParam);
 };

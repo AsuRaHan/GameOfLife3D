@@ -9,7 +9,7 @@ GameController::GameController(int width, int height, float cellSize)
     rendererProvider(nullptr)
 {
     currentPattern = glider;
-    std::srand(static_cast<unsigned int>(std::time(nullptr))); // Инициализация генератора случайных чисел
+    std::srand(static_cast<unsigned int>(std::time(nullptr))); // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РіРµРЅРµСЂР°С‚РѕСЂР° СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»
     grid.SetGPUAutomaton(&gpuAutomaton);
     gpuAutomaton.SetToroidal(isWorldToroidal);
     
@@ -17,19 +17,19 @@ GameController::GameController(int width, int height, float cellSize)
 
 void GameController::randomizeGrid() {
     if (isRunning) return;
-    std::random_device rd;  // Только для инициализации генератора
-    std::mt19937 gen(rd()); // Стандартный мерсенновский твистер
-    std::uniform_int_distribution<> disGliders(3, 15); // Генерация количества глайдеров
-    std::uniform_int_distribution<> disX(0, grid.getWidth() - 3); // Генерация X-координаты
-    std::uniform_int_distribution<> disY(0, grid.getHeight() - 3); // Генерация Y-координаты
-    std::uniform_int_distribution<> disTipe(0, 3); // Генерация чисел от 0 до 3
+    std::random_device rd;  // РўРѕР»СЊРєРѕ РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РіРµРЅРµСЂР°С‚РѕСЂР°
+    std::mt19937 gen(rd()); // РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РјРµСЂСЃРµРЅРЅРѕРІСЃРєРёР№ С‚РІРёСЃС‚РµСЂ
+    std::uniform_int_distribution<> disGliders(3, 15); // Р“РµРЅРµСЂР°С†РёСЏ РєРѕР»РёС‡РµСЃС‚РІР° РіР»Р°Р№РґРµСЂРѕРІ
+    std::uniform_int_distribution<> disX(0, grid.getWidth() - 3); // Р“РµРЅРµСЂР°С†РёСЏ X-РєРѕРѕСЂРґРёРЅР°С‚С‹
+    std::uniform_int_distribution<> disY(0, grid.getHeight() - 3); // Р“РµРЅРµСЂР°С†РёСЏ Y-РєРѕРѕСЂРґРёРЅР°С‚С‹
+    std::uniform_int_distribution<> disTipe(0, 3); // Р“РµРЅРµСЂР°С†РёСЏ С‡РёСЃРµР» РѕС‚ 0 РґРѕ 3
 
-    int numberOfGliders = disGliders(gen); // Случайное количество глайдеров
+    int numberOfGliders = disGliders(gen); // РЎР»СѓС‡Р°Р№РЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РіР»Р°Р№РґРµСЂРѕРІ
 
     for (auto i = 0; i < numberOfGliders; ++i) {
         int startX = disX(gen);
         int startY = disY(gen);
-        // Размещаем фигуру на сетке в случайном месте
+        // Р Р°Р·РјРµС‰Р°РµРј С„РёРіСѓСЂСѓ РЅР° СЃРµС‚РєРµ РІ СЃР»СѓС‡Р°Р№РЅРѕРј РјРµСЃС‚Рµ
         placePattern(startX, startY, gosperGliderGun);
     }
 }
@@ -39,11 +39,11 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
     int patternHeight = static_cast<int>(pattern.size());
     int patternWidth = static_cast<int>(pattern[0].size());
 
-    // Проверяем, помещается ли фигура в пределах сетки
+    // РџСЂРѕРІРµСЂСЏРµРј, РїРѕРјРµС‰Р°РµС‚СЃСЏ Р»Рё С„РёРіСѓСЂР° РІ РїСЂРµРґРµР»Р°С… СЃРµС‚РєРё
     if (startX + patternWidth <= grid.getWidth() && startY + patternHeight <= grid.getHeight()) {
-        for (auto y = patternHeight - 1; y >= 0; --y) { // Итерируемся снизу вверх
+        for (auto y = patternHeight - 1; y >= 0; --y) { // РС‚РµСЂРёСЂСѓРµРјСЃСЏ СЃРЅРёР·Сѓ РІРІРµСЂС…
             for (auto x = 0; x < patternWidth; ++x) {
-                // Инвертируем x, чтобы перевернуть паттерн по горизонтали
+                // РРЅРІРµСЂС‚РёСЂСѓРµРј x, С‡С‚РѕР±С‹ РїРµСЂРµРІРµСЂРЅСѓС‚СЊ РїР°С‚С‚РµСЂРЅ РїРѕ РіРѕСЂРёР·РѕРЅС‚Р°Р»Рё
                 grid.setCellState(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), pattern[y][x]);
                 if (pattern[y][x]) {
                     grid.setCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), 0.5f, 0.9f, 0.5f);
@@ -69,15 +69,15 @@ void GameController::PlacePattern(int startX, int startY) {
 
     Pattern newPattern = currentPattern;
 
-    if (currentPatternRotator > 0) { // наш комбобокс имеет 6 значений. а ротатор всего 5. первый индекс это отсутствие вращения
-        if (currentPatternRotator >= 1 && currentPatternRotator < 6) { // Проверка на допустимость индекса
-            Rotation rotation = rotationByIndex[currentPatternRotator - 1]; // текущий индекс вращение - индекс отсутствия вращения
+    if (currentPatternRotator > 0) { // РЅР°С€ РєРѕРјР±РѕР±РѕРєСЃ РёРјРµРµС‚ 6 Р·РЅР°С‡РµРЅРёР№. Р° СЂРѕС‚Р°С‚РѕСЂ РІСЃРµРіРѕ 5. РїРµСЂРІС‹Р№ РёРЅРґРµРєСЃ СЌС‚Рѕ РѕС‚СЃСѓС‚СЃС‚РІРёРµ РІСЂР°С‰РµРЅРёСЏ
+        if (currentPatternRotator >= 1 && currentPatternRotator < 6) { // РџСЂРѕРІРµСЂРєР° РЅР° РґРѕРїСѓСЃС‚РёРјРѕСЃС‚СЊ РёРЅРґРµРєСЃР°
+            Rotation rotation = rotationByIndex[currentPatternRotator - 1]; // С‚РµРєСѓС‰РёР№ РёРЅРґРµРєСЃ РІСЂР°С‰РµРЅРёРµ - РёРЅРґРµРєСЃ РѕС‚СЃСѓС‚СЃС‚РІРёСЏ РІСЂР°С‰РµРЅРёСЏ
             newPattern = rotateOrFlip(currentPattern, rotation);
         }
     }
 
     if (!currentPattern.empty()) {
-        placePattern(startX, startY, newPattern); // Используем уже существующий метод
+        placePattern(startX, startY, newPattern); // РСЃРїРѕР»СЊР·СѓРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ РјРµС‚РѕРґ
     }
 }
 
@@ -89,14 +89,14 @@ void GameController::setWoldToroidal(bool wt)
 
 void GameController::randomizeGrid(float density) {
     if (isRunning) return;
-    // Генератор случайных чисел
-    std::random_device rd;  // Только для инициализации генератора
-    std::mt19937 gen(rd()); // Стандартный мерсенновский твистер
-    std::uniform_real_distribution<> dis(0.0, 1.0); // Равномерное распределение
+    // Р“РµРЅРµСЂР°С‚РѕСЂ СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»
+    std::random_device rd;  // РўРѕР»СЊРєРѕ РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РіРµРЅРµСЂР°С‚РѕСЂР°
+    std::mt19937 gen(rd()); // РЎС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РјРµСЂСЃРµРЅРЅРѕРІСЃРєРёР№ С‚РІРёСЃС‚РµСЂ
+    std::uniform_real_distribution<> dis(0.0, 1.0); // Р Р°РІРЅРѕРјРµСЂРЅРѕРµ СЂР°СЃРїСЂРµРґРµР»РµРЅРёРµ
 
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
-            // Если случайное число меньше density, клетка становится живой
+            // Р•СЃР»Рё СЃР»СѓС‡Р°Р№РЅРѕРµ С‡РёСЃР»Рѕ РјРµРЅСЊС€Рµ density, РєР»РµС‚РєР° СЃС‚Р°РЅРѕРІРёС‚СЃСЏ Р¶РёРІРѕР№
             if (dis(gen) < density) {
                 grid.setCellState(x, y, true);
                 grid.setCellColor(x, y, 0.0f, 0.6f, 0.0f);
@@ -113,7 +113,7 @@ void GameController::clearGrid() {
     if (isRunning) return;
     for (int y = 0; y < grid.getHeight(); ++y) {
         for (int x = 0; x < grid.getWidth(); ++x) {
-            grid.setCellState(x, y, false); // Устанавливаем каждую клетку в мертвое состояние
+            grid.setCellState(x, y, false); // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РєР°Р¶РґСѓСЋ РєР»РµС‚РєСѓ РІ РјРµСЂС‚РІРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ
             grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
         }
     }
@@ -177,15 +177,15 @@ void GameController::SetCellInstanceProvider(IRendererProvider* provider) {
 }
 
 void GameController::setFieldSize(int newWidth, int newHeight) {
-    // Если симуляция работает, сбросим ее, чтобы избежать некорректной работы с новыми размерами
+    // Р•СЃР»Рё СЃРёРјСѓР»СЏС†РёСЏ СЂР°Р±РѕС‚Р°РµС‚, СЃР±СЂРѕСЃРёРј РµРµ, С‡С‚РѕР±С‹ РёР·Р±РµР¶Р°С‚СЊ РЅРµРєРѕСЂСЂРµРєС‚РЅРѕР№ СЂР°Р±РѕС‚С‹ СЃ РЅРѕРІС‹РјРё СЂР°Р·РјРµСЂР°РјРё
     if (isRunning) {
         stopSimulation();
     }
-    if (newWidth <= 0 || newHeight <= 0) return; // Проверка на положительный размер
+    if (newWidth <= 0 || newHeight <= 0) return; // РџСЂРѕРІРµСЂРєР° РЅР° РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ
 
     grid.setSize(newWidth, newHeight);
     gpuAutomaton.SetNewGridSize(newWidth, newHeight);
-    // Перед перестройкой буферов, уведомляем рендер о необходимости обновлений
+    // РџРµСЂРµРґ РїРµСЂРµСЃС‚СЂРѕР№РєРѕР№ Р±СѓС„РµСЂРѕРІ, СѓРІРµРґРѕРјР»СЏРµРј СЂРµРЅРґРµСЂ Рѕ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РѕР±РЅРѕРІР»РµРЅРёР№
     rendererProvider->RebuildGameField();
 }
 
@@ -219,7 +219,7 @@ void GameController::setCurrentPatternRotator(int patternRotator) {
 }
 
 void GameController::setSimulationSpeed(int speed) {
-    // speed - это количество секунд реального времени между обновлениями. Меньше значение - быстрее симуляция.
+    // speed - СЌС‚Рѕ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРµРєСѓРЅРґ СЂРµР°Р»СЊРЅРѕРіРѕ РІСЂРµРјРµРЅРё РјРµР¶РґСѓ РѕР±РЅРѕРІР»РµРЅРёСЏРјРё. РњРµРЅСЊС€Рµ Р·РЅР°С‡РµРЅРёРµ - Р±С‹СЃС‚СЂРµРµ СЃРёРјСѓР»СЏС†РёСЏ.
     simulationSpeed = speed;
 }
 
@@ -290,29 +290,29 @@ bool GameController::loadGameState(const std::string& filename) {
 }
 
 void GameController::loadPatternList(const std::string& patternFolder) {
-    patternList.clear(); // Очищаем существующий список
+    patternList.clear(); // РћС‡РёС‰Р°РµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ СЃРїРёСЃРѕРє
 
     try {
-        // Проверяем, существует ли папка
+        // РџСЂРѕРІРµСЂСЏРµРј, СЃСѓС‰РµСЃС‚РІСѓРµС‚ Р»Рё РїР°РїРєР°
         if (!std::filesystem::exists(patternFolder)) {
-            std::cerr << "Папка " << patternFolder << " не существует!" << std::endl;
+            std::cerr << "РџР°РїРєР° " << patternFolder << " РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!" << std::endl;
             return;
         }
 
-        // Перебираем все файлы в папке
+        // РџРµСЂРµР±РёСЂР°РµРј РІСЃРµ С„Р°Р№Р»С‹ РІ РїР°РїРєРµ
         for (const auto& entry : std::filesystem::directory_iterator(patternFolder)) {
             if (entry.path().extension() == ".cells") {
                 patternList.push_back(entry.path().string());
             }
         }
 
-        // Сортируем список для удобства (опционально)
+        // РЎРѕСЂС‚РёСЂСѓРµРј СЃРїРёСЃРѕРє РґР»СЏ СѓРґРѕР±СЃС‚РІР° (РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ)
         std::sort(patternList.begin(), patternList.end());
 
-        std::cout << "Найдено " << patternList.size() << " файлов .cells в папке " << patternFolder << std::endl;
+        std::cout << "РќР°Р№РґРµРЅРѕ " << patternList.size() << " С„Р°Р№Р»РѕРІ .cells РІ РїР°РїРєРµ " << patternFolder << std::endl;
     }
     catch (const std::filesystem::filesystem_error& e) {
-        std::cerr << "Ошибка при сканировании папки: " << e.what() << std::endl;
+        std::cerr << "РћС€РёР±РєР° РїСЂРё СЃРєР°РЅРёСЂРѕРІР°РЅРёРё РїР°РїРєРё: " << e.what() << std::endl;
     }
 }
 
@@ -323,19 +323,19 @@ void GameController::setCurrentPatternFromFile(const std::string& filename, int 
         //patternManager.LoadAndPlacePattern(*this, filename, startX, startY);
     }
     catch (const std::exception& e) {
-        std::cerr << "Ошибка при выборе паттерна: " << e.what() << std::endl;
+        std::cerr << "РћС€РёР±РєР° РїСЂРё РІС‹Р±РѕСЂРµ РїР°С‚С‚РµСЂРЅР°: " << e.what() << std::endl;
     }
 }
 
 void GameController::SetSelectionStart(int x, int y) {
-    selectionStart = Vector3d(x, y, 0.0f); // Z-координату устанавливаем в 0, так как работаем в 2D
-    selectionEnd = Vector3d(x, y, 0.0f); // Аналогично для конца выделения
+    selectionStart = Vector3d(x, y, 0.0f); // Z-РєРѕРѕСЂРґРёРЅР°С‚Сѓ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РІ 0, С‚Р°Рє РєР°Рє СЂР°Р±РѕС‚Р°РµРј РІ 2D
+    selectionEnd = Vector3d(x, y, 0.0f); // РђРЅР°Р»РѕРіРёС‡РЅРѕ РґР»СЏ РєРѕРЅС†Р° РІС‹РґРµР»РµРЅРёСЏ
     isSelectionActive = true;
 }
 
 void GameController::SetSelectionEnd(int x, int y) {
-    selectionEnd = Vector3d(x, y, 0.0f); // Аналогично для конца выделения
-    // Очищаем список выделенных клеток перед добавлением новых
+    selectionEnd = Vector3d(x, y, 0.0f); // РђРЅР°Р»РѕРіРёС‡РЅРѕ РґР»СЏ РєРѕРЅС†Р° РІС‹РґРµР»РµРЅРёСЏ
+    // РћС‡РёС‰Р°РµРј СЃРїРёСЃРѕРє РІС‹РґРµР»РµРЅРЅС‹С… РєР»РµС‚РѕРє РїРµСЂРµРґ РґРѕР±Р°РІР»РµРЅРёРµРј РЅРѕРІС‹С…
     ClearSelectedCells();
 
     int startX = static_cast<int>(selectionStart.X());
@@ -343,16 +343,16 @@ void GameController::SetSelectionEnd(int x, int y) {
     int endX = static_cast<int>(selectionEnd.X());
     int endY = static_cast<int>(selectionEnd.Y());
 
-    // Определяем минимальные и максимальные координаты для правильного выделения
+    // РћРїСЂРµРґРµР»СЏРµРј РјРёРЅРёРјР°Р»СЊРЅС‹Рµ Рё РјР°РєСЃРёРјР°Р»СЊРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕРіРѕ РІС‹РґРµР»РµРЅРёСЏ
     int minX = (startX < endX) ? startX : endX;
     int maxX = (startX > endX) ? startX : endX;
     int minY = (startY < endY) ? startY : endY;
     int maxY = (startY > endY) ? startY : endY;
 
-    // Добавляем все клетки в пределах выделенного прямоугольника
+    // Р”РѕР±Р°РІР»СЏРµРј РІСЃРµ РєР»РµС‚РєРё РІ РїСЂРµРґРµР»Р°С… РІС‹РґРµР»РµРЅРЅРѕРіРѕ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°
     for (int y = minY; y <= maxY; ++y) {
         for (int x = minX; x <= maxX; ++x) {
-            if (x >= 0 && y >= 0 && x < grid.getWidth() && y < grid.getHeight()) { // Проверка границ сетки
+            if (x >= 0 && y >= 0 && x < grid.getWidth() && y < grid.getHeight()) { // РџСЂРѕРІРµСЂРєР° РіСЂР°РЅРёС† СЃРµС‚РєРё
                 AddSelectedCell(x, y);
             }
         }
@@ -360,11 +360,11 @@ void GameController::SetSelectionEnd(int x, int y) {
 }
 
 void GameController::AddSelectedCell(int x, int y) {
-    selectedCells.push_back(Vector3d(x, y, 0.0f)); // Добавляем клетку в список выделенных, z всегда 0 в 2D
+    selectedCells.push_back(Vector3d(x, y, 0.0f)); // Р”РѕР±Р°РІР»СЏРµРј РєР»РµС‚РєСѓ РІ СЃРїРёСЃРѕРє РІС‹РґРµР»РµРЅРЅС‹С…, z РІСЃРµРіРґР° 0 РІ 2D
 }
 
 void GameController::ClearSelectedCells() {
-    selectedCells.clear(); // Очищаем список выделенных клеток
+    selectedCells.clear(); // РћС‡РёС‰Р°РµРј СЃРїРёСЃРѕРє РІС‹РґРµР»РµРЅРЅС‹С… РєР»РµС‚РѕРє
 }
 
 void GameController::KillSelectedCells() {
@@ -372,7 +372,7 @@ void GameController::KillSelectedCells() {
         int x = static_cast<int>(cell.X());
         int y = static_cast<int>(cell.Y());
         grid.setCellState(x, y, false);
-        grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f); // Устанавливаем цвет для мертвой клетки
+        grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f); // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С†РІРµС‚ РґР»СЏ РјРµСЂС‚РІРѕР№ РєР»РµС‚РєРё
     }
     isSelectionActive = false;
 }
@@ -382,7 +382,7 @@ void GameController::ReviveSelectedCells() {
         int x = static_cast<int>(cell.X());
         int y = static_cast<int>(cell.Y());
         grid.setCellState(x, y, true);
-        grid.setCellColor(x, y, 0.1f, 0.4f, 0.1f); // Устанавливаем цвет для живой клетки
+        grid.setCellColor(x, y, 0.1f, 0.4f, 0.1f); // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С†РІРµС‚ РґР»СЏ Р¶РёРІРѕР№ РєР»РµС‚РєРё
     }
     isSelectionActive = false;
 }

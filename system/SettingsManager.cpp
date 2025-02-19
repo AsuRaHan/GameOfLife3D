@@ -12,7 +12,7 @@ void SettingsManager::saveToFile() {
             for (const auto& [key, value] : sectionSettings) {
                 file << key << "=" << value << std::endl;
             }
-            file << std::endl; // Äîáàâëÿåì ïóñòóþ ñòðîêó äëÿ ðàçäåëåíèÿ ñåêöèé
+            file << std::endl; // Ð”Ð¾Ð±Ð°Ð²Ð»ÑÐµÐ¼ Ð¿ÑƒÑÑ‚ÑƒÑŽ ÑÑ‚Ñ€Ð¾ÐºÑƒ Ð´Ð»Ñ Ñ€Ð°Ð·Ð´ÐµÐ»ÐµÐ½Ð¸Ñ ÑÐµÐºÑ†Ð¸Ð¹
         }
         file.close();
     }
@@ -23,11 +23,11 @@ void SettingsManager::loadFromFile() {
     if (file.is_open()) {
         std::string line, currentSection;
         while (std::getline(file, line)) {
-            if (line.empty()) continue; // Ïðîïóñêàåì ïóñòûå ñòðîêè
-            if (line[0] == '[' && line[line.length() - 1] == ']') { // Íà÷àëî íîâîé ñåêöèè
+            if (line.empty()) continue; // ÐŸÑ€Ð¾Ð¿ÑƒÑÐºÐ°ÐµÐ¼ Ð¿ÑƒÑÑ‚Ñ‹Ðµ ÑÑ‚Ñ€Ð¾ÐºÐ¸
+            if (line[0] == '[' && line[line.length() - 1] == ']') { // ÐÐ°Ñ‡Ð°Ð»Ð¾ Ð½Ð¾Ð²Ð¾Ð¹ ÑÐµÐºÑ†Ð¸Ð¸
                 currentSection = line.substr(1, line.length() - 2);
             }
-            else if (!currentSection.empty()) { // Çàïîëíåíèå òåêóùåé ñåêöèè
+            else if (!currentSection.empty()) { // Ð—Ð°Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ðµ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ¹ ÑÐµÐºÑ†Ð¸Ð¸
                 std::istringstream iss(line);
                 std::string key, value;
                 if (std::getline(iss, key, '=') && std::getline(iss, value)) {
@@ -112,7 +112,7 @@ bool SettingsManager::getBoolSetting(const std::string& section, const std::stri
 void SettingsManager::loadImGuiSettings() {
     ImGuiIO& io = ImGui::GetIO();
     if (io.IniFilename == NULL) {
-        io.IniFilename = settingsFile.c_str(); // Óáåäèòåñü, ÷òî èñïîëüçóåòñÿ îäèí ôàéë
+        io.IniFilename = settingsFile.c_str(); // Ð£Ð±ÐµÐ´Ð¸Ñ‚ÐµÑÑŒ, Ñ‡Ñ‚Ð¾ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÑ‚ÑÑ Ð¾Ð´Ð¸Ð½ Ñ„Ð°Ð¹Ð»
     }
     ImGui::LoadIniSettingsFromDisk(io.IniFilename);
 }
@@ -124,14 +124,14 @@ void SettingsManager::saveImGuiSettings() {
     }
 
     size_t out_size = 0;
-    char* data = (char*)ImGui::SaveIniSettingsToMemory(&out_size); // Ïðèâîäèì ê char*
+    char* data = (char*)ImGui::SaveIniSettingsToMemory(&out_size); // ÐŸÑ€Ð¸Ð²Ð¾Ð´Ð¸Ð¼ Ðº char*
 
     if (data != NULL) {
         std::ofstream out(settingsFile, std::ios::out | std::ios::trunc);
         if (out.is_open()) {
             out.write(data, out_size);
 
-            // Çàòåì ñîõðàíÿåì âàøè íàñòðîéêè
+            // Ð—Ð°Ñ‚ÐµÐ¼ ÑÐ¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ Ð²Ð°ÑˆÐ¸ Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸
             for (const auto& [section, sectionSettings] : settings) {
                 out << "[" << section << "]" << std::endl;
                 for (const auto& [key, value] : sectionSettings) {
@@ -142,6 +142,6 @@ void SettingsManager::saveImGuiSettings() {
         }
         out.close();
 
-        ImGui::MemFree(data); // Îñâîáîæäàåì ïàìÿòü
+        ImGui::MemFree(data); // ÐžÑÐ²Ð¾Ð±Ð¾Ð¶Ð´Ð°ÐµÐ¼ Ð¿Ð°Ð¼ÑÑ‚ÑŒ
     }
 }

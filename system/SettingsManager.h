@@ -10,7 +10,7 @@
 
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
-#include "imgui_impl_win32.h" // Если вы работаете под Windows
+#include "imgui_impl_win32.h" // Р•СЃР»Рё РІС‹ СЂР°Р±РѕС‚Р°РµС‚Рµ РїРѕРґ Windows
 
 class SettingsManager {
 private:

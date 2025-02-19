@@ -24,22 +24,22 @@ private:
 
     InputHandler inputHandler;
     CameraController pCameraController; 
-    int windowWidth; // поле для ширины
-    int windowHeight; // поле для высоты
+    int windowWidth; // РїРѕР»Рµ РґР»СЏ С€РёСЂРёРЅС‹
+    int windowHeight; // РїРѕР»Рµ РґР»СЏ РІС‹СЃРѕС‚С‹
 
-    bool mouseCaptured; // Флаг для отслеживания захвата мыши
-    int lastMouseX, lastMouseY; // Последние координаты мыши
-    bool isMiddleButtonDown; // Флаг для отслеживания нажатия средней кнопки мыши
+    bool mouseCaptured; // Р¤Р»Р°Рі РґР»СЏ РѕС‚СЃР»РµР¶РёРІР°РЅРёСЏ Р·Р°С…РІР°С‚Р° РјС‹С€Рё
+    int lastMouseX, lastMouseY; // РџРѕСЃР»РµРґРЅРёРµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РјС‹С€Рё
+    bool isMiddleButtonDown; // Р¤Р»Р°Рі РґР»СЏ РѕС‚СЃР»РµР¶РёРІР°РЅРёСЏ РЅР°Р¶Р°С‚РёСЏ СЃСЂРµРґРЅРµР№ РєРЅРѕРїРєРё РјС‹С€Рё
 
-    //UINT_PTR timerId; // Идентификатор таймера
-    float simulationSpeedMultiplier = 0.01f; // Начальная скорость (100 мс)
+    //UINT_PTR timerId; // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚Р°Р№РјРµСЂР°
+    float simulationSpeedMultiplier = 0.01f; // РќР°С‡Р°Р»СЊРЅР°СЏ СЃРєРѕСЂРѕСЃС‚СЊ (100 РјСЃ)
     
-    bool isLeftButtonDown; // Флаг для отслеживания нажатия средней кнопки мыши
-    void StartSelection(int screenX, int screenY); // Новый метод для начала выделения
-    void UpdateSelection(int screenX, int screenY); // Новый метод для обновления выделения
+    bool isLeftButtonDown; // Р¤Р»Р°Рі РґР»СЏ РѕС‚СЃР»РµР¶РёРІР°РЅРёСЏ РЅР°Р¶Р°С‚РёСЏ СЃСЂРµРґРЅРµР№ РєРЅРѕРїРєРё РјС‹С€Рё
+    void StartSelection(int screenX, int screenY); // РќРѕРІС‹Р№ РјРµС‚РѕРґ РґР»СЏ РЅР°С‡Р°Р»Р° РІС‹РґРµР»РµРЅРёСЏ
+    void UpdateSelection(int screenX, int screenY); // РќРѕРІС‹Р№ РјРµС‚РѕРґ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ РІС‹РґРµР»РµРЅРёСЏ
 
     void HandleMouse(int screenX, int screenY, bool isMove = false);
-    void PlacePattern(int screenX, int screenY); // метод для размещения шаблона
+    void PlacePattern(int screenX, int screenY); // РјРµС‚РѕРґ РґР»СЏ СЂР°Р·РјРµС‰РµРЅРёСЏ С€Р°Р±Р»РѕРЅР°
     void RotateCamera(float yaw, float pitch);
     void MoveCamera(float dx, float dy);
     void ResetCamera();

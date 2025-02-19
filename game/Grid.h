@@ -7,11 +7,11 @@
 class Grid {
 private:
     int width, height;
-    GPUAutomaton* gpuAutomaton = nullptr; // член класса для вычислений на GPU
+    GPUAutomaton* gpuAutomaton = nullptr; // С‡Р»РµРЅ РєР»Р°СЃСЃР° РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёР№ РЅР° GPU
 public:
     Grid(int w, int h);
-    void SetGPUAutomaton(GPUAutomaton* ga) { gpuAutomaton = ga; } // Добавляем сеттер
-    //GPUAutomaton GetGPUAutomaton() const { return *gpuAutomaton; } // Добавляем геттер
+    void SetGPUAutomaton(GPUAutomaton* ga) { gpuAutomaton = ga; } // Р”РѕР±Р°РІР»СЏРµРј СЃРµС‚С‚РµСЂ
+    //GPUAutomaton GetGPUAutomaton() const { return *gpuAutomaton; } // Р”РѕР±Р°РІР»СЏРµРј РіРµС‚С‚РµСЂ
     GPUAutomaton* GetGPUAutomaton() const { return gpuAutomaton; }
 
     void setCellColor(int x, int y, float r, float g, float b);
