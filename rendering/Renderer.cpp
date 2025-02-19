@@ -78,7 +78,7 @@ void Renderer::InitializeCellsVBOs() {
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
 
     cellInstances.clear();
-    cellInstances.reserve(gridWidth * gridHeight);
+    //cellInstances.reserve(gridWidth * gridHeight);
 
     CreateOrUpdateCellInstancesUsingComputeShader(cellInstances);
     //for (int y = 0; y < gridHeight; ++y) {
@@ -103,47 +103,17 @@ void Renderer::InitializeGridVBOs() {
     int gridHeight = pGameController->getGridHeight();
     float cellSize = pGameController->getCellSize();
 
-    gridVertices.clear();
 
-    //gridVertices.reserve((gridWidth + 1) * (gridHeight + 1) * 10);
-    CreateOrUpdateGridVerticesUsingComputeShader(gridVertices);
-    //const int minorStep = 10;
-    //const int majorStep = 100;
-    // Объединенный цикл для рисования горизонтальных и вертикальных линий
-    //for (int y = 0; y <= gridHeight; ++y) {
-    //    for (int x = 0; x <= gridWidth; ++x) {
-    //        float xPos = x * cellSize;
-    //        float yPos = y * cellSize;
-
-    //        // Горизонтальные линии
-    //        if (x < gridWidth) {
-    //            float majorLine = (y % majorStep == 0) ? 1.0f : 0.0f;
-    //            float minorLine = (y % minorStep == 0) ? 1.0f : 0.0f;
-
-    //            gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
-    //            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-    //            gridVertices.push_back(xPos + cellSize); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
-    //            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-    //        }
-
-    //        // Вертикальные линии
-    //        if (y < gridHeight) {
-    //            float majorLine = (x % majorStep == 0) ? 1.0f : 0.0f;
-    //            float minorLine = (x % minorStep == 0) ? 1.0f : 0.0f;
-
-    //            gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
-    //            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-    //            gridVertices.push_back(xPos); gridVertices.push_back(yPos + cellSize); gridVertices.push_back(0.0f);
-    //            gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-    //        }
-    //    }
-    //}
 
     // Настройка OpenGL буферов (без изменений)
     GL_CHECK(glGenVertexArrays(1, &gridVAO));
     GL_CHECK(glGenBuffers(1, &gridVBO));
     GL_CHECK(glBindVertexArray(gridVAO));
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gridVBO));
+
+    gridVertices.clear();
+    CreateOrUpdateGridVerticesUsingComputeShader(gridVertices);
+
     GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_DYNAMIC_DRAW));
 
     GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0));
@@ -159,9 +129,6 @@ void Renderer::InitializeGridVBOs() {
 
 void Renderer::Draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Отрисовка отладочной текстуры
-
     DrawCells();
     if (pGameController->IsSelectionActive()) {
         selectionRenderer.SetIsSelecting(pGameController->IsSelectionActive());
@@ -172,9 +139,6 @@ void Renderer::Draw() {
     //DrawDebugTexture();
     // используем UIRenderer для отрисовки UI
     if (pGameController->getShowUI())uiRenderer.DrawUI();
-
-
-
     SwapBuffers(wglGetCurrentDC());
 }
 
@@ -347,70 +311,12 @@ void main()
 
 void Renderer::RebuildGameField() {
     if (!pGameController) return;
-
-    std::cout << "Rebuilding game field..." << std::endl;
-
-    int gridWidth = pGameController->getGridWidth();
-    int gridHeight = pGameController->getGridHeight();
-    float cellSize = pGameController->getCellSize();
-
-    // 1. Подготавливаем данные для клеток и сетки
-    cellInstances.clear();
-    cellInstances.reserve(gridWidth * gridHeight);
-
-    gridVertices.clear();
-    int minorStep = 10;
-    int majorStep = 100;
-    gridVertices.reserve((gridWidth + 1) * (gridHeight + 1) * 10); // Примерный размер для сетки
-
-    for (int y = 0; y <= gridHeight; ++y) {
-        for (int x = 0; x <= gridWidth; ++x) {
-            // Добавляем позицию клетки (если внутри границ)
-            if (x < gridWidth && y < gridHeight) {
-                cellInstances.push_back({ x * cellSize, y * cellSize });
-            }
-
-            float xPos = x * cellSize;
-            float yPos = y * cellSize;
-            // Горизонтальные линии
-            if (x < gridWidth) {
-                float majorLine = (y % majorStep == 0) ? 1.0f : 0.0f;
-                float minorLine = (y % minorStep == 0) ? 1.0f : 0.0f;
-
-                gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
-                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-                gridVertices.push_back(xPos + cellSize); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
-                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-            }
-
-            // Вертикальные линии
-            if (y < gridHeight) {
-                float majorLine = (x % majorStep == 0) ? 1.0f : 0.0f;
-                float minorLine = (x % minorStep == 0) ? 1.0f : 0.0f;
-
-                gridVertices.push_back(xPos); gridVertices.push_back(yPos); gridVertices.push_back(0.0f);
-                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-                gridVertices.push_back(xPos); gridVertices.push_back(yPos + cellSize); gridVertices.push_back(0.0f);
-                gridVertices.push_back(majorLine); gridVertices.push_back(minorLine);
-            }
-        }
-    }
-
-    // 2. Обновляем VBO для клеток
-    GL_CHECK(glBindVertexArray(cellsVAO));
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, cellInstanceVBO));
-    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, cellInstances.size() * sizeof(CellInstance), cellInstances.data(), GL_STATIC_DRAW));
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    GL_CHECK(glBindVertexArray(0));
-
-    // 3. Обновляем VBO для сетки
-    GL_CHECK(glBindVertexArray(gridVAO));
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gridVBO));
-    GL_CHECK(glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_STATIC_DRAW));
-    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    GL_CHECK(glBindVertexArray(0));
-
-    std::cout << "Game field rebuilt. new size Width=" << gridWidth << " Height=" << gridHeight << std::endl;
+    glDeleteBuffers(1, &cellsVBO);
+    glDeleteBuffers(1, &cellInstanceVBO);
+    glDeleteBuffers(1, &gridVBO);
+    glFlush();
+    InitializeCellsVBOs();
+    InitializeGridVBOs();
 }
 
 
@@ -526,10 +432,6 @@ void Renderer::DrawDebugTexture() {
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
-
-
-
-
 
 void Renderer::LoadComputeShader() {
     shaderManager.loadComputeShader("computeCellShaderProgram", R"(

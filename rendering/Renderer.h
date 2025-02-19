@@ -54,7 +54,6 @@ private:
         float x, y; // Позиция клетки
     };
     std::vector<CellInstance> cellInstances;
-
     GLuint cellShaderProgram;
 
     void SetupOpenGL();
