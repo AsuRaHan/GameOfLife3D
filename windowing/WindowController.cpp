@@ -171,11 +171,6 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
                 pGameController->setWoldToroidal(!pGameController->getWoldToroidal()); // сделать мир безграничным или на оборот ограничеть его
             }
             break;
-        case 'I':
-            if (!pGameController->isSimulationRunning()) {
-                pGameController->randomizeGrid(); // засеять поле рандомными фигурами
-            }
-            break;
         case 'G':
             pGameController->setShowGrid(!pGameController->getShowGrid());
             break;        

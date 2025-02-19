@@ -45,11 +45,12 @@ public:
     void SetColorsBuf(const std::vector<float>& colors);
     void GetColorsBuf(std::vector<float>& colors);
 
-
+    void ClearGrid(); // метод для очистки
+    void RandomizeGrid(float density, unsigned int seed); // метод для рандомизации
 private:
     void CreateComputeShader();
     void SetupBuffers();
-    void SwapBuffers(); // Новый метод для переключения буферов
+    void SwapBuffers(); // метод для переключения буферов
 
     ShaderManager shaderManager;
     GLuint computeProgram;
@@ -61,6 +62,11 @@ private:
 
     int gridWidth, gridHeight;
     
+    GLuint clearProgram; // свойство для программы очистки
+    void LoadClearShader(); // приватный метод для загрузки шейдера очистки
+
+    GLuint randomizeProgram; // свойство для программы рандомизации
+    void LoadRandomizeShader(); // метод для загрузки шейдера рандомизации
 };
 
 #endif // GPU_AUTOMATON_H

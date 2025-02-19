@@ -3,6 +3,8 @@
 GPUAutomaton::GPUAutomaton(int width, int height)
     : gridWidth(width), gridHeight(height), bufferIndex(0) {
     CreateComputeShader();
+    LoadClearShader();
+    LoadRandomizeShader();
     SetupBuffers();
 }
 
@@ -103,6 +105,82 @@ void main() {
 
 }
 
+void GPUAutomaton::LoadClearShader() {
+    const char* clearShaderSource = R"(
+    #version 430 core
+    layout(local_size_x = 32, local_size_y = 32) in;
+    
+    layout(std430, binding = 0) buffer CellBuffer {
+        int cells[];
+    };
+    
+    layout(std430, binding = 1) buffer ColorBuffer {
+        vec4 colors[];
+    };
+    
+    uniform ivec2 gridSize;
+
+    void main() {
+        ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+        if (pos.x >= gridSize.x || pos.y >= gridSize.y) return;
+        
+        uint index = pos.y * gridSize.x + pos.x;
+        cells[index] = 0; // Мертвая клетка
+        colors[index] = vec4(0.0, 0.0, 0.0, 1.0); // Черный цвет
+    }
+    )";
+
+    shaderManager.loadComputeShader("clearShader", clearShaderSource);
+    shaderManager.linkComputeProgram("clearProgram", "clearShader");
+    clearProgram = shaderManager.getProgram("clearProgram");
+}
+
+void GPUAutomaton::LoadRandomizeShader() {
+    const char* randomizeShaderSource = R"(
+    #version 430 core
+    layout(local_size_x = 32, local_size_y = 32) in;
+    
+    layout(std430, binding = 0) buffer CellBuffer {
+        int cells[];
+    };
+    
+    layout(std430, binding = 1) buffer ColorBuffer {
+        vec4 colors[];
+    };
+    
+    uniform ivec2 gridSize;
+    uniform float density;
+    uniform unsigned int seed;
+
+unsigned int pcg_hash(unsigned int input) {
+    unsigned int state = input * 747796405u + 2891336453u; // Используйте 'u' для литералов беззнаковых чисел
+    unsigned int word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    return (word >> 22u) ^ word;
+}
+
+    void main() {
+        ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+        if (pos.x >= gridSize.x || pos.y >= gridSize.y) return;
+        
+        uint index = pos.y * gridSize.x + pos.x;
+        uint random = pcg_hash(index + seed);
+        float randomFloat = float(random & 0x00FFFFFF) / float(0x01000000); // Преобразование в float [0, 1)
+        
+        if (randomFloat < density) {
+            cells[index] = 1; // Живая клетка
+            colors[index] = vec4(0.0, 0.6, 0.0, 1.0); // Зеленый цвет
+        } else {
+            cells[index] = 0; // Мертвая клетка
+            colors[index] = vec4(0.0, 0.0, 0.0, 1.0); // Черный цвет
+        }
+    }
+    )";
+
+    shaderManager.loadComputeShader("randomizeShader", randomizeShaderSource);
+    shaderManager.linkComputeProgram("randomizeProgram", "randomizeShader");
+    randomizeProgram = shaderManager.getProgram("randomizeProgram");
+}
+
 void GPUAutomaton::SetupBuffers() {
     GL_CHECK(glGenBuffers(2, cellsBuffer));
     GL_CHECK(glGenBuffers(1, &colorsBuffer));
@@ -145,27 +223,54 @@ void GPUAutomaton::Update() {
 
     SwapBuffers();
 }
-//  Как это работает
-//  На каждом шаге Update() :
-//      cellsBuffer[currentBufferIndex] привязывается к binding = 0 как входной буфер(current).
-//      cellsBuffer[(currentBufferIndex + 1) % 2] привязывается к binding = 1 как выходной буфер(next).
-//      Шейдер выполняет вычисления, записывая новое состояние в next и цвета в colorsBuffer.
-//      После выполнения SwapBuffers() переключает currentBufferIndex, делая next новым current для следующего шага.
+
+/**
+* Как это работает
+* На каждом шаге Update() :
+*      cellsBuffer[currentBufferIndex] привязывается к binding = 0 как входной буфер(current).
+*      cellsBuffer[(currentBufferIndex + 1) % 2] привязывается к binding = 1 как выходной буфер(next).
+*      Шейдер выполняет вычисления, записывая новое состояние в next и цвета в colorsBuffer.
+*      После выполнения SwapBuffers() переключает currentBufferIndex, делая next новым current для следующего шага
+*/
 void GPUAutomaton::SwapBuffers() {
     currentBufferIndex = (currentBufferIndex + 1) % 2;
 }
 
 void GPUAutomaton::SetGridState(const std::vector<int>& inState) {
-    //glFinish();
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
     GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(int) * gridWidth * gridHeight, inState.data()));
 }
 
 void GPUAutomaton::GetGridState(std::vector<int>& outState) {
     outState.resize(gridWidth * gridHeight);
-    //glFinish();
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
     GL_CHECK(glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(int) * gridWidth * gridHeight, outState.data()));
+}
+
+void GPUAutomaton::ClearGrid() {
+    glUseProgram(clearProgram);
+
+    glUniform2i(glGetUniformLocation(clearProgram, "gridSize"), gridWidth, gridHeight);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[currentBufferIndex]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, colorsBuffer);
+
+    glDispatchCompute((gridWidth + 31) / 32, (gridHeight + 31) / 32, 1);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+}
+
+void GPUAutomaton::RandomizeGrid(float density, unsigned int seed) {
+    glUseProgram(randomizeProgram);
+
+    glUniform2i(glGetUniformLocation(randomizeProgram, "gridSize"), gridWidth, gridHeight);
+    glUniform1f(glGetUniformLocation(randomizeProgram, "density"), density);
+    glUniform1ui(glGetUniformLocation(randomizeProgram, "seed"), seed);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[currentBufferIndex]);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, colorsBuffer);
+
+    glDispatchCompute((gridWidth + 31) / 32, (gridHeight + 31) / 32, 1);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void GPUAutomaton::SetCellState(int x, int y, int state) {

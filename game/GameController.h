@@ -106,7 +106,6 @@ public:
     GameController(int width, int height, float cellSize = 0.5f);
 
     void randomizeGrid(float density);
-    void randomizeGrid();
 
     void placePattern(int startX, int startY, const Pattern& pattern);
     void PlacePattern(int startX, int startY);

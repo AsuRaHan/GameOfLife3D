@@ -449,6 +449,8 @@ typedef void (APIENTRY* PFNGLGETBUFFERPARAMETERIVPROC)(GLenum target, GLenum pna
 
 typedef GLboolean(APIENTRY* PFNGLISBUFFERPROC)(GLuint buffer);
 
+typedef void (APIENTRY* PFNGLUNIFORM1UIPROC)(GLint location, GLuint v0);
+
 // Объявление указателей на функции
 extern PFNGLGENBUFFERSPROC glGenBuffers;
 extern PFNGLBINDBUFFERPROC glBindBuffer;
@@ -505,6 +507,7 @@ extern PFNGLGETINTEGERI_VPROC glGetIntegeri_v;
 extern PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv;
 
 extern PFNGLISBUFFERPROC glIsBuffer;
+extern PFNGLUNIFORM1UIPROC glUniform1ui;
 
 // Функции для работы с OpenGL
 void LoadOpenGLFunctions();

@@ -15,25 +15,6 @@ GameController::GameController(int width, int height, float cellSize)
     
 }
 
-void GameController::randomizeGrid() {
-    if (isRunning) return;
-    std::random_device rd;  // Только для инициализации генератора
-    std::mt19937 gen(rd()); // Стандартный мерсенновский твистер
-    std::uniform_int_distribution<> disGliders(3, 15); // Генерация количества глайдеров
-    std::uniform_int_distribution<> disX(0, grid.getWidth() - 3); // Генерация X-координаты
-    std::uniform_int_distribution<> disY(0, grid.getHeight() - 3); // Генерация Y-координаты
-    std::uniform_int_distribution<> disTipe(0, 3); // Генерация чисел от 0 до 3
-
-    int numberOfGliders = disGliders(gen); // Случайное количество глайдеров
-
-    for (auto i = 0; i < numberOfGliders; ++i) {
-        int startX = disX(gen);
-        int startY = disY(gen);
-        // Размещаем фигуру на сетке в случайном месте
-        placePattern(startX, startY, gosperGliderGun);
-    }
-}
-
 void GameController::placePattern(int startX, int startY, const Pattern& pattern) {
     if (isRunning) return;
     int patternHeight = static_cast<int>(pattern.size());
@@ -90,33 +71,36 @@ void GameController::setWoldToroidal(bool wt)
 void GameController::randomizeGrid(float density) {
     if (isRunning) return;
     // Генератор случайных чисел
-    std::random_device rd;  // Только для инициализации генератора
-    std::mt19937 gen(rd()); // Стандартный мерсенновский твистер
-    std::uniform_real_distribution<> dis(0.0, 1.0); // Равномерное распределение
+    //std::random_device rd;  // Только для инициализации генератора
+    //std::mt19937 gen(rd()); // Стандартный мерсенновский твистер
+    //std::uniform_real_distribution<> dis(0.0, 1.0); // Равномерное распределение
 
-    for (int y = 0; y < grid.getHeight(); ++y) {
-        for (int x = 0; x < grid.getWidth(); ++x) {
-            // Если случайное число меньше density, клетка становится живой
-            if (dis(gen) < density) {
-                grid.setCellState(x, y, true);
-                grid.setCellColor(x, y, 0.0f, 0.6f, 0.0f);
-            }
-            else {
-                grid.setCellState(x, y, false);
-                grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
-            }
-        }
-    }
+    //for (int y = 0; y < grid.getHeight(); ++y) {
+    //    for (int x = 0; x < grid.getWidth(); ++x) {
+    //        // Если случайное число меньше density, клетка становится живой
+    //        if (dis(gen) < density) {
+    //            grid.setCellState(x, y, true);
+    //            grid.setCellColor(x, y, 0.0f, 0.6f, 0.0f);
+    //        }
+    //        else {
+    //            grid.setCellState(x, y, false);
+    //            grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
+    //        }
+    //    }
+    //}
+
+        // Генерация случайного seed
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    unsigned int seed = gen(); // Генерируем случайное число для seed
+
+    // Вызов метода RandomizeGrid с density и seed
+    gpuAutomaton.RandomizeGrid(density, seed);
 }
 
 void GameController::clearGrid() {
     if (isRunning) return;
-    for (int y = 0; y < grid.getHeight(); ++y) {
-        for (int x = 0; x < grid.getWidth(); ++x) {
-            grid.setCellState(x, y, false); // Устанавливаем каждую клетку в мертвое состояние
-            grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
-        }
-    }
+    gpuAutomaton.ClearGrid();
 }
 
 void GameController::update(float deltaTime) {
