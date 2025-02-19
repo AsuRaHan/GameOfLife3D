@@ -70,25 +70,6 @@ void GameController::setWoldToroidal(bool wt)
 
 void GameController::randomizeGrid(float density) {
     if (isRunning) return;
-    // Генератор случайных чисел
-    //std::random_device rd;  // Только для инициализации генератора
-    //std::mt19937 gen(rd()); // Стандартный мерсенновский твистер
-    //std::uniform_real_distribution<> dis(0.0, 1.0); // Равномерное распределение
-
-    //for (int y = 0; y < grid.getHeight(); ++y) {
-    //    for (int x = 0; x < grid.getWidth(); ++x) {
-    //        // Если случайное число меньше density, клетка становится живой
-    //        if (dis(gen) < density) {
-    //            grid.setCellState(x, y, true);
-    //            grid.setCellColor(x, y, 0.0f, 0.6f, 0.0f);
-    //        }
-    //        else {
-    //            grid.setCellState(x, y, false);
-    //            grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
-    //        }
-    //    }
-    //}
-
         // Генерация случайного seed
     std::random_device rd;
     std::mt19937 gen(rd());
