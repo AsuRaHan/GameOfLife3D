@@ -224,7 +224,7 @@ int wWinMain(
         int height = mainWindow.GetHeight();
 
         GameController gameController(gridWidth, gridHeight); // Создаем GameController и задаем размер игрового поля
-        //gameController.randomizeGrid(0.1f); // заполняем игровое поле случайными живыми клетками
+        gameController.randomizeGrid(0.05f); // заполняем игровое поле случайными живыми клетками
 
         Renderer renderer(width, height);
         renderer.SetGameController(&gameController);

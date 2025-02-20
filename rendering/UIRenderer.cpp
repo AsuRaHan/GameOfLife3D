@@ -209,12 +209,12 @@ void UIRenderer::DrawFieldSettingsWindow() {
 
 void UIRenderer::DrawAboutWindow() {
     if (!aboutWindowVisible) return;
-    ImGui::SetNextWindowSize(ImVec2(600.0f, 0.0f), ImGuiCond_Appearing); // Ширина 500 пикселей, высота автоматическая
-    ImGui::Begin("О программе", &aboutWindowVisible, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::SetNextWindowSize(ImVec2(700.0f, 0.0f), ImGuiCond_Appearing); // Ширина 600 пикселей, высота автоматическая
+    ImGui::Begin("О программе", &aboutWindowVisible);
     ImGui::TextWrapped("%s", aboutText.c_str());
-    if (ImGui::Button("Закрыть", buttonSize)) {
-        aboutWindowVisible = false;
-    }
+    //if (ImGui::Button("Закрыть", buttonSize)) {
+    //    aboutWindowVisible = false;
+    //}
     ImGui::End();
 }
 
