@@ -74,7 +74,9 @@ void APIENTRY OpenGLDebug::DebugCallback(GLenum source, GLenum type, GLuint id, 
     case GL_DEBUG_SEVERITY_NOTIFICATION: severityStr = "Notification"; break;
     default:                             severityStr = "Unknown"; break;
     }
-
+    if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) {
+        return;
+    }
     // Захватываем стек вызовов
     const int maxFrames = 16;
     void* stack[maxFrames];

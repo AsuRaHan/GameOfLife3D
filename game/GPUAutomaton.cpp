@@ -92,7 +92,7 @@ void main() {
         }
     } else if(currentState == 1) {
         // Если клетка мертва, устанавливаем цвет мертвой клетки
-        colors[index] = vec4(0.05, 0.05, 0.08, 1.0);
+        colors[index] = vec4(0.05, 0.05, 0.08, 0.0);
     }
 }
 
@@ -126,7 +126,7 @@ void GPUAutomaton::LoadClearShader() {
         
         uint index = pos.y * gridSize.x + pos.x;
         cells[index] = 0; // Мертвая клетка
-        colors[index] = vec4(0.0, 0.0, 0.0, 1.0); // Черный цвет
+        colors[index] = vec4(0.0, 0.0, 0.0, 0.0); // Черный цвет
     }
     )";
 
@@ -171,7 +171,7 @@ unsigned int pcg_hash(unsigned int input) {
             colors[index] = vec4(0.0, 0.6, 0.0, 1.0); // Зеленый цвет
         } else {
             cells[index] = 0; // Мертвая клетка
-            colors[index] = vec4(0.0, 0.0, 0.0, 1.0); // Черный цвет
+            colors[index] = vec4(0.0, 0.0, 0.0, 0.0); // Черный цвет
         }
     }
     )";
@@ -200,6 +200,7 @@ void GPUAutomaton::SetNewGridSize(int width, int height) {
     GL_CHECK(glDeleteBuffers(2, cellsBuffer));
     GL_CHECK(glDeleteBuffers(1, &colorsBuffer));
     SetupBuffers();
+    ClearGrid();
 }
 
 
@@ -330,7 +331,7 @@ void GPUAutomaton::SetCellColor(int x,int y, float r, float g, float b) {
     int index = y * gridWidth + x;
 
     // Подготавливаем данные для записи (vec4)
-    float colorData[4] = { r, g, b, 1.0f };
+    float colorData[4] = { r, g, b, 0.0f };
     //glFinish();
     // Привязываем colorsBuffer и записываем данные
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer));

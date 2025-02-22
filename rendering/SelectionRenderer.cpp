@@ -1,21 +1,16 @@
 #include "SelectionRenderer.h"
 
 SelectionRenderer::SelectionRenderer(const Camera& camera, ShaderManager& shaderManager)
-    : camera(camera), shaderManager(shaderManager), isSelecting(false)
-{
-    SetupLineData();
+    : BaseRenderer(camera, shaderManager), // Передаем параметры в базовый класс
+    VAO(0), VBO(0), selectionShaderProgram(0), isSelecting(false) {
     LoadShaders();
 }
 
 SelectionRenderer::~SelectionRenderer() {
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    //glDeleteProgram(selectionShaderProgram);
+    DeleteBuffers(VAO, VBO);
 }
 
-void SelectionRenderer::SetGameController(GameController* gameController) {
-    pGameController = gameController;
-}
+
 
 void SelectionRenderer::SetSelectionStart(const Vector3d& start) {
     selectionStart = start;
@@ -30,39 +25,30 @@ void SelectionRenderer::SetIsSelecting(bool isSelecting) {
 }
 
 void SelectionRenderer::Draw() {
-    //if (!isSelecting) return; // Не рисуем, если выделение не активно
-    if (!isSelecting || pGameController == nullptr) return;
+    if (!pGameController || !pGameController->IsSelectionActive()) return;
 
     glUseProgram(selectionShaderProgram);
+    SetCommonUniforms(selectionShaderProgram);
 
-    // Получаем координаты клеток из GameController
     Vector3d selectionStartCell = pGameController->GetSelectionStart();
     Vector3d selectionEndCell = pGameController->GetSelectionEnd();
-
-    // Преобразуем координаты клеток в мировые координаты
     float cellSize = pGameController->getCellSize();
     Vector3d selectionStartWorld = selectionStartCell * cellSize;
     Vector3d selectionEndWorld = selectionEndCell * cellSize;
 
-    // Устанавливаем uniform переменные для шейдера
-    GLint projectionLoc = glGetUniformLocation(selectionShaderProgram, "projection");
-    GLint viewLoc = glGetUniformLocation(selectionShaderProgram, "view");
-    GLint startLoc = glGetUniformLocation(selectionShaderProgram, "selectionStart");
-    GLint endLoc = glGetUniformLocation(selectionShaderProgram, "selectionEnd");
-    GLint cellSizeLoc = glGetUniformLocation(selectionShaderProgram, "cellSize");
-
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, camera.GetProjectionMatrix());
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, camera.GetViewMatrix());
+    GLint startLoc = GetUniformLocation(selectionShaderProgram, "selectionStart");
+    GLint endLoc = GetUniformLocation(selectionShaderProgram, "selectionEnd");
+    GLint cellSizeLoc = GetUniformLocation(selectionShaderProgram, "cellSize");
     glUniform2f(startLoc, selectionStartWorld.X(), selectionStartWorld.Y());
     glUniform2f(endLoc, selectionEndWorld.X(), selectionEndWorld.Y());
-    glUniform1f(cellSizeLoc, cellSize); // Передаем размер клетки в шейдер
+    glUniform1f(cellSizeLoc, cellSize);
 
     glBindVertexArray(VAO);
-    glDrawArrays(GL_LINES, 0, 8); // 4 линии = 8 вершин
+    glDrawArrays(GL_LINES, 0, 8);
     glBindVertexArray(0);
 }
 
-void SelectionRenderer::SetupLineData() {
+void SelectionRenderer::Initialize() {
     static float vertices[] = {
         0.0f, 0.0f, 0.0f, // Начало первой линии
         1.0f, 0.0f, 0.0f, // Конец первой линии
@@ -89,7 +75,8 @@ void SelectionRenderer::SetupLineData() {
 }
 
 void SelectionRenderer::LoadShaders() {
-    shaderManager.loadVertexShader("selectionVertexShader", R"(
+    // ===================================================================================================================
+    const char* vertexShaderSource = R"(
 #version 330 core
 layout (location = 0) in vec3 aPos;
 uniform mat4 projection;
@@ -109,17 +96,17 @@ void main()
     FragPos = vec3(pos2d.x, pos2d.y, 0.0);
     gl_Position = projection * view * vec4(FragPos, 1.0);
 }
-    )");
+    )";
 
-    shaderManager.loadFragmentShader("selectionFragmentShader", R"(
+    // ===================================================================================================================
+    const char* fragmentShaderSource = R"(
     #version 330 core
     out vec4 FragColor;
     void main()
     {
         FragColor = vec4(1.0, 0.0, 0.0, 1.0); // Красный цвет для селектора
     }
-    )");
+    )";
 
-    shaderManager.linkProgram("selectionShaderProgram", "selectionVertexShader", "selectionFragmentShader");
-    selectionShaderProgram = shaderManager.getProgram("selectionShaderProgram");
+    selectionShaderProgram = LoadShaderProgram("selectionShaderProgram", vertexShaderSource, fragmentShaderSource);
 }

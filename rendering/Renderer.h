@@ -3,11 +3,19 @@
 #define RENDERER_H_
 
 #include "../system/GLFunctions.h"
-#include "Camera.h"
-#include "UIRenderer.h"
-#include "SelectionRenderer.h"
+
+
 #include "../game/GameController.h"
 #include "IRendererProvider.h"
+#include "Camera.h"
+
+#include "UIRenderer.h"
+#include "SelectionRenderer.h"
+#include "GridRenderer.h"
+#include "CellsRenderer.h"
+#include "TextureFieldRenderer.h"
+#include "CubeRenderer.h"
+
 
 #include <vector>
 #include <memory>
@@ -34,46 +42,15 @@ private:
     float farPlane;
 
     GameController* pGameController;
-    UIRenderer uiRenderer;
     ShaderManager shaderManager;
+    UIRenderer uiRenderer;
     SelectionRenderer selectionRenderer; // Добавляем экземпляр SelectionRenderer
-
-    void InitializeGridVBOs();
-    GLuint gridVBO;
-    GLuint gridVAO;
-    // для шейдеров сетки
-    GLuint gridShaderProgram;
-    int gridVertexCount;
-    int gridBufferSize;
-
-    void InitializeCellsVBOs();
-    GLuint cellsVBO;
-    GLuint cellsVAO;
-    std::vector<GLfloat> gridVertices;
-
-    GLuint cellInstanceVBO;
-    struct CellInstance {
-        float x, y; // Позиция клетки
-    };
-    std::vector<CellInstance> cellInstances;
-    GLuint cellShaderProgram;
+    GridRenderer gridRenderer;
+    CellsRenderer cellsRenderer;
+    TextureFieldRenderer textureFieldRenderer;
+    CubeRenderer cubeRenderer;
 
     void SetupOpenGL();
 
-    void DrawGrid();
-    void DrawCells();
-
-    void LoadShaders();
-	void LoadCellShaders();
-    void LoadGridShaders();
-
-    GLuint computeCellShaderProgram;
-    GLuint computeGridShaderProgram;
-
-    void LoadComputeShader();
-
-    void CreateOrUpdateCellInstancesUsingComputeShader(std::vector<CellInstance>& cellInstances);
-
-    void CreateOrUpdateGridVerticesUsingComputeShader(std::vector<float>& gridVertices);
 };
 #endif // RENDERER_H_

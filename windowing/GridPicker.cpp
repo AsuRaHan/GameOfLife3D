@@ -12,7 +12,7 @@ void GridPicker::MultiplyMatrixVector(const float* matrix, const float* vector, 
 }
 
 void GridPicker::InvertMatrix(const float* m, float* out) const {
-    // Простое инвертирование матрицы 4x4 - не самый эффективный метод, но рабочий
+    // Твой код инверсии матрицы остаётся без изменений
     float inv[16], det;
     int i;
 
@@ -34,14 +34,10 @@ void GridPicker::InvertMatrix(const float* m, float* out) const {
     inv[15] = m[0] * m[5] * m[10] - m[0] * m[6] * m[9] - m[4] * m[1] * m[10] + m[4] * m[2] * m[9] + m[8] * m[1] * m[6] - m[8] * m[2] * m[5];
 
     det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
-
-    if (det == 0)
-        throw "Determinant is zero!";
+    if (det == 0) throw std::runtime_error("Determinant is zero!");
 
     det = 1.0f / det;
-
-    for (i = 0; i < 16; i++)
-        out[i] = inv[i] * det;
+    for (i = 0; i < 16; i++) out[i] = inv[i] * det;
 }
 
 float GridPicker::DotProduct(const float* a, const float* b) const {
@@ -49,7 +45,7 @@ float GridPicker::DotProduct(const float* a, const float* b) const {
 }
 
 void GridPicker::Normalize(float* v) const {
-    float length = std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    float length = std::sqrt(DotProduct(v, v));
     if (length != 0) {
         v[0] /= length;
         v[1] /= length;
@@ -58,30 +54,47 @@ void GridPicker::Normalize(float* v) const {
 }
 
 void GridPicker::ScreenToWorld(float screenX, float screenY, float screenWidth, float screenHeight, float& worldX, float& worldY) {
-    // Преобразование экранных координат в нормализованные устройственные координаты (NDC)
+    // Преобразование экранных координат в NDC
     float x = (2.0f * screenX / screenWidth) - 1.0f;
     float y = 1.0f - (2.0f * screenY / screenHeight);
-    float z = 1.0f; // Для ближней плоскости отсечения
 
-    float ndcRay[4] = { x, y, -1.0f, 1.0f }; // Отрицательное z для направления луча вперед
+    // Точка в NDC для ближней плоскости
+    float ndcRay[4] = { x, y, -1.0f, 1.0f };
 
     float invProjection[16], invView[16], out[4];
     InvertMatrix(camera.GetProjectionMatrix(), invProjection);
     InvertMatrix(camera.GetViewMatrix(), invView);
 
-    // Преобразуем NDC в мировые координаты
+    // Преобразуем из NDC в пространство камеры
     MultiplyMatrixVector(invProjection, ndcRay, out);
-    float worldRay[4] = { out[0], out[1], -1.0f, 0.0f }; // Четвертый элемент 0 для вектора направления
+    float eyeRay[4] = { out[0], out[1], -1.0f, 0.0f }; // w = 0 для направления
 
-    MultiplyMatrixVector(invView, worldRay, out);
-
+    // Преобразуем в мировые координаты
+    MultiplyMatrixVector(invView, eyeRay, out);
     float direction[3] = { out[0], out[1], out[2] };
     Normalize(direction);
 
-    // Находим точку пересечения с плоскостью z=0 (плоскость сетки)
+    // Начало луча — позиция камеры
     float camPos[3];
     camera.GetPosition(camPos[0], camPos[1], camPos[2]);
-    float t = -camPos[2] / direction[2];
+
+    // Пересечение с плоскостью z=0
+    float planeNormal[3] = { 0.0f, 0.0f, 1.0f }; // Нормаль плоскости сетки
+    float planePoint[3] = { 0.0f, 0.0f, 0.0f };  // Точка на плоскости
+    float denom = DotProduct(planeNormal, direction);
+
+    if (std::abs(denom) < 1e-6f) { // Луч параллелен плоскости
+        worldX = camPos[0];
+        worldY = camPos[1];
+        return; // Или можно выбросить исключение
+    }
+
+    float t = DotProduct(planeNormal, planePoint) - DotProduct(planeNormal, camPos) / denom;
+    if (t < 0) { // Пересечение позади камеры
+        worldX = camPos[0];
+        worldY = camPos[1];
+        return;
+    }
 
     worldX = camPos[0] + t * direction[0];
     worldY = camPos[1] + t * direction[1];
