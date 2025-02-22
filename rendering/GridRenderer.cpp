@@ -81,8 +81,8 @@ void main()
     gl_Position = projection * view * vec4(aPos, 1.0);
     majorLine = isMajorLine;
     minorLine = isMinorLine;
-    drawMinor = (cameraDistance > 57.0) ? 0.0 : 1.0;
-    drawMedium = (cameraDistance > 130.0) ? 0.0 : 1.0;
+    drawMinor = (cameraDistance > 70.0) ? 0.0 : 1.0;
+    drawMedium = (cameraDistance > 140.0) ? 0.0 : 1.0;
 }
     )";
 

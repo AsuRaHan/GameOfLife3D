@@ -14,7 +14,7 @@
 #include "GridRenderer.h"
 #include "CellsRenderer.h"
 #include "TextureFieldRenderer.h"
-#include "CubeRenderer.h"
+//#include "CubeRenderer.h"
 
 
 #include <vector>
@@ -48,7 +48,7 @@ private:
     GridRenderer gridRenderer;
     CellsRenderer cellsRenderer;
     TextureFieldRenderer textureFieldRenderer;
-    CubeRenderer cubeRenderer;
+    //CubeRenderer cubeRenderer;
 
     void SetupOpenGL();
 

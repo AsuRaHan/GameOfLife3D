@@ -6,8 +6,8 @@ Renderer::Renderer(int width, int height)
     selectionRenderer(camera, shaderManager), 
     gridRenderer(camera, shaderManager),
     cellsRenderer(camera, shaderManager),
-    textureFieldRenderer(camera, shaderManager),
-    cubeRenderer(camera, shaderManager)
+    textureFieldRenderer(camera, shaderManager)
+    //,cubeRenderer(camera, shaderManager)
 {
     SetupOpenGL();
     OnWindowResize(width, height);
@@ -19,7 +19,7 @@ Renderer::~Renderer() {
 
 
 void Renderer::SetupOpenGL() {
-    GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 1.0f)); // Черный фон
+    GL_CHECK(glClearColor(0.06f, 0.0f, 0.06f, 1.0f)); // Черный фон
     GL_CHECK(glEnable(GL_DEPTH_TEST)); // Включаем тест глубины
     GL_CHECK(glViewport(0, 0, width, height));
 }
@@ -47,14 +47,14 @@ void Renderer::SetGameController(GameController* gameController) {
     gridRenderer.SetGameController(gameController);
     cellsRenderer.SetGameController(gameController);
     textureFieldRenderer.SetGameController(gameController);
-    cubeRenderer.SetGameController(gameController);
+    //cubeRenderer.SetGameController(gameController);
 
     // Инициализируем буферы после установки GameController
     selectionRenderer.Initialize();
     gridRenderer.Initialize();
     cellsRenderer.Initialize();
     textureFieldRenderer.Initialize();
-    cubeRenderer.Initialize();
+    //cubeRenderer.Initialize();
 
 }
 
@@ -65,19 +65,18 @@ void Renderer::Draw() {
     float cameraDistance = camera.GetDistance();
     // Всегда рисуем выделение, если активно
     selectionRenderer.Draw();
-    if (cameraDistance < 200.0f) {
+    if (cameraDistance < 300.0f) {
         // Камера ближе 300: рисуем сетку и ячейки
-        
         cellsRenderer.Draw();
-        gridRenderer.Draw();
     }
     else {
         // Камера дальше 300: рисуем поле как текстуру
         textureFieldRenderer.Draw();
     }
-    if (cameraDistance < 40.0f) {
-        cubeRenderer.Draw(); // Кубы рисуются всегда поверх всего
-    }
+    gridRenderer.Draw();
+    //if (cameraDistance < 40.0f) {
+    //    cubeRenderer.Draw(); // Кубы рисуются всегда поверх всего
+    //}
 
 
     // Отрисовка UI, если включено
@@ -93,5 +92,5 @@ void Renderer::RebuildGameField() {
     cellsRenderer.Initialize();
     gridRenderer.Initialize();
     textureFieldRenderer.Initialize();
-    cubeRenderer.Initialize();
+    //cubeRenderer.Initialize();
 }
