@@ -36,6 +36,18 @@ WindowController::WindowController(IRendererProvider* renderer, GameController* 
             pCameraController.HandleInput(event);
         }
         });
+
+    inputHandler.RegisterHandler(InputEvent::InputType::MouseButtonDown, [this](const InputEvent& event) {
+        if (event.button == InputEvent::MouseButton::Middle) {
+            pCameraController.HandleInput(event);
+        }
+        });
+
+    inputHandler.RegisterHandler(InputEvent::InputType::MouseButtonUp, [this](const InputEvent& event) {
+        if (event.button == InputEvent::MouseButton::Middle) {
+            pCameraController.HandleInput(event);
+        }
+        });
     ResetCamera();
 }
 
@@ -81,18 +93,22 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         if (GetKeyState(VK_SHIFT) & 0x8000) {
             if (wParam & MK_LBUTTON) { // Если левая кнопка мыши зажата
                 if (isLeftButtonDown) UpdateSelection(LOWORD(lParam), HIWORD(lParam));
+                //break;
             }
         }
         else {
-            event.type = InputEvent::InputType::MouseMove;
-            event.deltaX = static_cast<float>(LOWORD(lParam) - lastMouseX) / 10.0f;
-            event.deltaY = static_cast<float>(HIWORD(lParam) - lastMouseY) / 10.0f;
-            lastMouseX = LOWORD(lParam);
-            lastMouseY = HIWORD(lParam);
-            inputHandler.ProcessEvent(event);
-
-            if (isLeftButtonDown) HandleMouse(LOWORD(lParam), HIWORD(lParam),true);
+            if (isLeftButtonDown)
+            {
+                HandleMouse(LOWORD(lParam), HIWORD(lParam), true);
+                //break;
+            }
         }
+        event.type = InputEvent::InputType::MouseMove;
+        event.deltaX = static_cast<float>(LOWORD(lParam) - lastMouseX) / 10.0f;
+        event.deltaY = static_cast<float>(HIWORD(lParam) - lastMouseY) / 10.0f;
+        lastMouseX = LOWORD(lParam);
+        lastMouseY = HIWORD(lParam);
+        inputHandler.ProcessEvent(event);
         break;
     case WM_LBUTTONDOWN: // Начало выделения
         isLeftButtonDown = true;
@@ -105,11 +121,24 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         break;
     case WM_LBUTTONUP:
         isLeftButtonDown = false;
-        
         break;
+
     case WM_MBUTTONDOWN: // Нажатие средней кнопки мыши
-        PlacePattern(LOWORD(lParam), HIWORD(lParam));
+        //if (GetKeyState(VK_SHIFT) & 0x8000) {
+        //    event.type = message == WM_MBUTTONDOWN ? InputEvent::InputType::MouseButtonDown : InputEvent::InputType::MouseButtonDown;
+        //    event.button = message == WM_MBUTTONDOWN ? InputEvent::MouseButton::Middle : InputEvent::MouseButton::Middle;
+        //    inputHandler.ProcessEvent(event);
+        //}
+        //else {
+            PlacePattern(LOWORD(lParam), HIWORD(lParam));
+        //}
         break;
+    //case WM_MBUTTONUP:
+    //    event.type = message == WM_MBUTTONUP ? InputEvent::InputType::MouseButtonUp : InputEvent::InputType::MouseButtonUp;
+    //    event.button = message == WM_MBUTTONUP ? InputEvent::MouseButton::Middle : InputEvent::MouseButton::Middle;
+    //    inputHandler.ProcessEvent(event);
+    //    break;
+
     case WM_RBUTTONDOWN:
         event.type = message == WM_LBUTTONDOWN ? InputEvent::InputType::MouseButtonDown : InputEvent::InputType::MouseButtonDown;
         event.button = message == WM_LBUTTONDOWN ? InputEvent::MouseButton::Left : InputEvent::MouseButton::Right;
