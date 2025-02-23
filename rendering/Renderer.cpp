@@ -8,6 +8,7 @@ Renderer::Renderer(int width, int height)
     cellsRenderer(camera, shaderManager),
     textureFieldRenderer(camera, shaderManager)
     //,cubeRenderer(camera, shaderManager)
+    //, chunkedCellsRenderer(camera, shaderManager)
 {
     SetupOpenGL();
     OnWindowResize(width, height);
@@ -16,7 +17,6 @@ Renderer::Renderer(int width, int height)
 Renderer::~Renderer() {
 
 }
-
 
 void Renderer::SetupOpenGL() {
     GL_CHECK(glClearColor(0.03f, 0.0f, 0.03f, 1.0f)); // Черный фон
@@ -32,11 +32,6 @@ void Renderer::OnWindowResize(int newWidth, int newHeight) {
     camera.SetProjection(45.0f, static_cast<float>(width) / height, 0.1f, farPlane);
 }
 
-
-void Renderer::SetCamera(const Camera& camera) {
-    this->camera = camera;    
-}
-
 void Renderer::SetGameController(GameController* gameController) {
     pGameController = gameController;
 
@@ -48,6 +43,7 @@ void Renderer::SetGameController(GameController* gameController) {
     cellsRenderer.SetGameController(gameController);
     textureFieldRenderer.SetGameController(gameController);
     //cubeRenderer.SetGameController(gameController);
+    //chunkedCellsRenderer.SetGameController(gameController);
 
     // Инициализируем буферы после установки GameController
     selectionRenderer.Initialize();
@@ -55,7 +51,7 @@ void Renderer::SetGameController(GameController* gameController) {
     cellsRenderer.Initialize();
     textureFieldRenderer.Initialize();
     //cubeRenderer.Initialize();
-
+    //chunkedCellsRenderer.Initialize();
 }
 
 void Renderer::Draw() {
@@ -68,6 +64,7 @@ void Renderer::Draw() {
     if (cameraDistance < 300.0f) {
         // Камера ближе 300: рисуем сетку и ячейки
         cellsRenderer.Draw();
+        //chunkedCellsRenderer.Draw();
     }
     else {
         // Камера дальше 300: рисуем поле как текстуру
@@ -93,4 +90,5 @@ void Renderer::RebuildGameField() {
     gridRenderer.Initialize();
     textureFieldRenderer.Initialize();
     //cubeRenderer.Initialize();
+    //chunkedCellsRenderer.Initialize();
 }

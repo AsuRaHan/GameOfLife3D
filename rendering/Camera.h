@@ -28,12 +28,11 @@ public:
                 float upX = 0.0f, float upY = 1.0f, float upZ = 0.0f);
 
     float GetFOV() const { return fov; }
-
+    float GetFarPlane() const { return fPlane; }
     const float* GetViewMatrix() const { return viewMatrix.data(); }
     const float* GetProjectionMatrix() const { return projectionMatrix.data(); }
 
     float GetDistance() const;
-    //void SetFOV(float newFov);
 
     static constexpr float PI = 3.14159265358979323846f;
     static constexpr float MAX_PITCH = 89.0f * PI / 180.0f;
@@ -43,7 +42,7 @@ private:
     std::array<float, 3> direction;
     std::array<float, 3> up;
     float fov; // Угол обзора (FOV)
-
+    float fPlane;
     std::array<float, 16> viewMatrix;
     std::array<float, 16> projectionMatrix;
 

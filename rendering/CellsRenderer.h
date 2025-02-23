@@ -20,12 +20,9 @@ private:
     GLuint cellShaderProgram, computeCellShaderProgram;
     std::vector<CellInstance> cellInstances;
 
-    //std::vector<CellInstance> visibleCellInstances; // Только видимые экземпляры
-    //int visibleCellsCount; // Количество видимых клеток
-
     void LoadCellShaders();
     void CreateOrUpdateCellInstancesUsingComputeShader(std::vector<CellInstance>& cellInstances);
-    //void UpdateVisibleCells(); // метод для фильтрации видимых клеток
+
 };
 
 #endif

@@ -112,9 +112,9 @@ void main() {
         if (currentState == 1) {
             vec4 currentColor = colors[index];
             colors[index] = vec4(
-                min(currentColor.r + 0.02, 0.5),
+                min(currentColor.r + 0.02, 0.02),
                 min(currentColor.g + 0.02, 1.0),
-                min(currentColor.b + 0.02, 0.5),
+                min(currentColor.b + 0.02, 0.02),
                 1.0
             );
         } else {
@@ -125,8 +125,8 @@ void main() {
             vec4 currentColor = colors[index];
             colors[index] = vec4(
                 min(currentColor.r + 0.02, 1.0),
-                min(currentColor.g + 0.02, 0.5),
-                min(currentColor.b + 0.02, 0.5),
+                min(currentColor.g + 0.02, 0.02),
+                min(currentColor.b + 0.02, 0.02),
                 1.0
             );
         } else {
@@ -136,8 +136,8 @@ void main() {
         if (currentState == 3) {
             vec4 currentColor = colors[index];
             colors[index] = vec4(
-                min(currentColor.r + 0.02, 0.5),
-                min(currentColor.g + 0.02, 0.5),
+                min(currentColor.r + 0.02, 0.02),
+                min(currentColor.g + 0.02, 0.02),
                 min(currentColor.b + 0.02, 1.0),
                 1.0
             );
@@ -150,7 +150,7 @@ void main() {
             colors[index] = vec4(
                 min(currentColor.r + 0.02, 1.0),
                 min(currentColor.g + 0.02, 1.0),
-                min(currentColor.b + 0.02, 0.5),
+                min(currentColor.b + 0.02, 0.02),
                 1.0
             );
         } else {
@@ -161,24 +161,24 @@ void main() {
             vec4 currentColor = colors[index];
             colors[index] = vec4(
                 min(currentColor.r + 0.02, 1.0),
-                min(currentColor.g + 0.02, 0.5),
+                min(currentColor.g + 0.02, 0.02),
                 min(currentColor.b + 0.02, 1.0),
                 1.0
             );
         } else {
-            colors[index] = vec4(0.5, 0.25, 0.5, 1.0); // Начальный оранжевый
+            colors[index] = vec4(0.5, 0.0, 0.5, 1.0); // Начальный оранжевый
         }
     } else if (nextState == 6) { // Фиолетовый (красный = синий)
         if (currentState == 6) {
             vec4 currentColor = colors[index];
             colors[index] = vec4(
                 min(currentColor.r + 0.02, 1.0),
-                min(currentColor.g + 0.02, 0.5),
+                min(currentColor.g + 0.02, 0.02),
                 min(currentColor.b + 0.02, 1.0),
                 1.0
             );
         } else {
-            colors[index] = vec4(0.5, 0.0, 0.5, 1.0); // Начальный фиолетовый
+            colors[index] = vec4(0.0, 0.5, 0.5, 1.0); // Начальный фиолетовый
         }
     } else if (nextState == 7) { // Белый (зелёный = красный = синий)
         if (currentState == 7) {
@@ -190,7 +190,7 @@ void main() {
                 1.0
             );
         } else {
-            colors[index] = vec4(0.75, 0.75, 0.75, 1.0); // Начальный белый
+            colors[index] = vec4(1.0, 1.0, 1.0, 1.0); // Начальный белый
         }
     } else if (currentState > 0) { // Клетка умерла
         colors[index] = vec4(0.05, 0.05, 0.08, 0.0);
@@ -288,25 +288,25 @@ void main() {
         float typeFloat = randomFloat / density; // [0, 1)
         if (typeFloat < 0.142) { // 1/7
             cells[index] = 1; // Зелёный
-            colors[index] = vec4(0.0, 0.6, 0.0, 1.0);
+            colors[index] = vec4(0.0, 0.9, 0.0, 1.0);
         } else if (typeFloat < 0.285) { // 2/7
             cells[index] = 2; // Красный
-            colors[index] = vec4(0.5, 0.0, 0.0, 1.0);
+            colors[index] = vec4(0.9, 0.0, 0.0, 1.0);
         } else if (typeFloat < 0.428) { // 3/7
             cells[index] = 3; // Синий
-            colors[index] = vec4(0.0, 0.0, 0.5, 1.0);
+            colors[index] = vec4(0.0, 0.0, 0.9, 1.0);
         } else if (typeFloat < 0.571) { // 4/7
             cells[index] = 4; // Жёлтый
-            colors[index] = vec4(0.5, 0.5, 0.0, 1.0);
+            colors[index] = vec4(0.9, 0.9, 0.0, 1.0);
         } else if (typeFloat < 0.714) { // 5/7
             cells[index] = 5; // Оранжевый
-            colors[index] = vec4(0.5, 0.25, 0.5, 1.0);
+            colors[index] = vec4(0.9, 0.0, 0.9, 1.0);
         } else if (typeFloat < 0.857) { // 6/7
             cells[index] = 6; // Фиолетовый
-            colors[index] = vec4(0.5, 0.0, 0.5, 1.0);
+            colors[index] = vec4(0.0, 0.9, 0.9, 1.0);
         } else { // 7/7
             cells[index] = 7; // Белый
-            colors[index] = vec4(0.75, 0.75, 0.75, 1.0);
+            colors[index] = vec4(0.9, 0.9, 0.9, 1.0);
         }
     } else {
         cells[index] = 0; // Мёртвая клетка

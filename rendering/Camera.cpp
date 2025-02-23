@@ -1,7 +1,7 @@
 #include "Camera.h"
 
 Camera::Camera(float fov, float aspectRatio, float nearPlane, float farPlane)
-    : fov(fov),
+    : fov(fov), fPlane(farPlane),
       position{0.0f, 0.0f, 0.0f},
       direction{0.0f, 0.0f, -1.0f},
       up{0.0f, 1.0f, 0.0f} {
@@ -82,6 +82,11 @@ void Camera::Rotate(float yaw, float pitch) {
 }
 
 void Camera::UpdateViewMatrix() {
+    // Нормализуем direction и up
+    NormalizeVector(direction);
+    NormalizeVector(up);
+
+    // Вычисляем right как векторное произведение direction и up
     std::array<float, 3> right = {
         up[1] * direction[2] - up[2] * direction[1],
         up[2] * direction[0] - up[0] * direction[2],
@@ -89,6 +94,7 @@ void Camera::UpdateViewMatrix() {
     };
     NormalizeVector(right);
 
+    // Пересчитываем up как векторное произведение direction и right
     std::array<float, 3> newUp = {
         direction[1] * right[2] - direction[2] * right[1],
         direction[2] * right[0] - direction[0] * right[2],
@@ -112,13 +118,16 @@ void Camera::UpdateViewMatrix() {
     viewMatrix[10] = -direction[2];
     viewMatrix[11] = 0.0f;
 
+    // Вычисляем компоненты переноса
     viewMatrix[12] = -(right[0] * position[0] + right[1] * position[1] + right[2] * position[2]);
     viewMatrix[13] = -(newUp[0] * position[0] + newUp[1] * position[1] + newUp[2] * position[2]);
-    viewMatrix[14] = (direction[0] * position[0] + direction[1] * position[1] + direction[2] * position[2]);
+    viewMatrix[14] = (direction[0] * position[0] + direction[1] * position[1] + direction[2] * position[2]); // Исправлен знак
     viewMatrix[15] = 1.0f;
 }
 
+
 void Camera::SetProjection(float fov, float aspectRatio, float nearPlane, float farPlane) {
+    fPlane = farPlane;
     float f = 1.0f / std::tan(fov * 0.5f * PI / 180.0f);
 
     projectionMatrix[0] = f / aspectRatio;
@@ -133,12 +142,12 @@ void Camera::SetProjection(float fov, float aspectRatio, float nearPlane, float 
 
     projectionMatrix[8] = 0.0f;
     projectionMatrix[9] = 0.0f;
-    projectionMatrix[10] = (farPlane + nearPlane) / (nearPlane - farPlane);
+    projectionMatrix[10] = (fPlane + nearPlane) / (nearPlane - fPlane);
     projectionMatrix[11] = -1.0f;
 
     projectionMatrix[12] = 0.0f;
     projectionMatrix[13] = 0.0f;
-    projectionMatrix[14] = (2.0f * farPlane * nearPlane) / (nearPlane - farPlane);
+    projectionMatrix[14] = (2.0f * fPlane * nearPlane) / (nearPlane - fPlane);
     projectionMatrix[15] = 0.0f;
 }
 
@@ -207,8 +216,3 @@ void Camera::NormalizeVector(std::array<float, 3>& vector) {
 float Camera::GetDistance() const {
     return std::abs(position[2]);
 }
-
-//void Camera::SetFOV(float newFov) {
-//    fov = newFov;
-//    SetProjection(fov, aspectRatio, nearPlane, farPlane);
-//}

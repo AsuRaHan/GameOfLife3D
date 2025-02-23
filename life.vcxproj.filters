@@ -101,6 +101,9 @@
     <ClCompile Include="rendering\CubeRenderer.cpp">
       <Filter>rendering</Filter>
     </ClCompile>
+    <ClCompile Include="rendering\ChunkedCellsRenderer.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rendering\Camera.h">
@@ -200,6 +203,9 @@
       <Filter>rendering</Filter>
     </ClInclude>
     <ClInclude Include="rendering\CubeRenderer.h">
+      <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\ChunkedCellsRenderer.h">
       <Filter>rendering</Filter>
     </ClInclude>
   </ItemGroup>

@@ -15,7 +15,7 @@
 #include "CellsRenderer.h"
 #include "TextureFieldRenderer.h"
 //#include "CubeRenderer.h"
-
+//#include "ChunkedCellsRenderer.h"
 
 #include <vector>
 #include <memory>
@@ -25,7 +25,7 @@ public:
     Renderer(int width, int height);
     ~Renderer();
 
-    void SetCamera(const Camera& camera);
+    //void SetCamera(const Camera& camera);
     Camera& GetCamera() override { return camera; } // смотри интерфейс IRendererProvider
 
     void SetGameController(GameController* gameController);
@@ -49,6 +49,7 @@ private:
     CellsRenderer cellsRenderer;
     TextureFieldRenderer textureFieldRenderer;
     //CubeRenderer cubeRenderer;
+    //ChunkedCellsRenderer chunkedCellsRenderer;
 
     void SetupOpenGL();
 

@@ -74,7 +74,7 @@ void APIENTRY OpenGLDebug::DebugCallback(GLenum source, GLenum type, GLuint id, 
     case GL_DEBUG_SEVERITY_NOTIFICATION: severityStr = "Notification"; break;
     default:                             severityStr = "Unknown"; break;
     }
-    if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) {
+    if (type == GL_DEBUG_TYPE_PERFORMANCE) {
         return;
     }
     // Захватываем стек вызовов

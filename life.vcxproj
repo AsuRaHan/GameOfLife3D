@@ -167,6 +167,7 @@
     <ClCompile Include="rendering\Camera.cpp" />
     <ClCompile Include="rendering\CameraController.cpp" />
     <ClCompile Include="rendering\CellsRenderer.cpp" />
+    <ClCompile Include="rendering\ChunkedCellsRenderer.cpp" />
     <ClCompile Include="rendering\CubeRenderer.cpp" />
     <ClCompile Include="rendering\GridRenderer.cpp" />
     <ClCompile Include="rendering\Renderer.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="rendering\Camera.h" />
     <ClInclude Include="rendering\CameraController.h" />
     <ClInclude Include="rendering\CellsRenderer.h" />
+    <ClInclude Include="rendering\ChunkedCellsRenderer.h" />
     <ClInclude Include="rendering\CubeRenderer.h" />
     <ClInclude Include="rendering\GridRenderer.h" />
     <ClInclude Include="rendering\IRendererProvider.h" />
