@@ -16,12 +16,14 @@ public:
 
     void setCellColor(int x, int y, float r, float g, float b);
     void getCellColor(int x, int y, float& r, float& g, float& b);
-    void setCellState(int x, int y, bool alive);
-    bool getCellState(int x, int y) const;
+    void setCellState(int x, int y, int alive);
+    int getCellState(int x, int y) const;
     int getWidth() const;
     void setWidth(int w) { width = w; };
     int getHeight() const;
     void setHeight(int h) { height = h; };
     void setSize(int w, int h);
+
+    void SetCellType(int x, int y, int type); // метод для установки типа клетки
 };
 #endif // GRID_H_

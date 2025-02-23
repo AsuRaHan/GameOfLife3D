@@ -19,7 +19,7 @@ Renderer::~Renderer() {
 
 
 void Renderer::SetupOpenGL() {
-    GL_CHECK(glClearColor(0.06f, 0.0f, 0.06f, 1.0f)); // Черный фон
+    GL_CHECK(glClearColor(0.03f, 0.0f, 0.03f, 1.0f)); // Черный фон
     GL_CHECK(glEnable(GL_DEPTH_TEST)); // Включаем тест глубины
     GL_CHECK(glViewport(0, 0, width, height));
 }

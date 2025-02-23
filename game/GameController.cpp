@@ -25,11 +25,13 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
         for (auto y = patternHeight - 1; y >= 0; --y) { // Итерируемся снизу вверх
             for (auto x = 0; x < patternWidth; ++x) {
                 // Инвертируем x, чтобы перевернуть паттерн по горизонтали
-                grid.setCellState(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), pattern[y][x]);
+                /*grid.setCellState(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), pattern[y][x]);*/
                 if (pattern[y][x]) {
-                    grid.setCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), 0.5f, 0.9f, 0.5f);
+                    //grid.setCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), 0.5f, 0.9f, 0.5f);
+                    grid.SetCellType(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), cellType);
                 }
                 else {
+                    grid.setCellState(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), 0);
                     grid.setCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), 0.1f, 0.1f, 0.2f);
                 }
             }
@@ -115,21 +117,24 @@ bool GameController::isSimulationRunning() const {
 
 void GameController::toggleCellState(int x, int y) {
     if (isRunning) return;
-    bool currentState = grid.getCellState(x, y);
-    grid.setCellState(x, y, !currentState);
-    if (!currentState) {
-        grid.setCellColor(x, y, 0.1f, 0.4f, 0.1f);
+    int currentState = grid.getCellState(x, y);
+    //grid.setCellState(x, y, !currentState);
+    if (currentState == 0) {
+        grid.SetCellType(x, y, cellType);
+        //grid.setCellColor(x, y, 0.1f, 0.4f, 0.1f);
     }
     else {
-        grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
+        grid.SetCellType(x, y, 0);
+        //grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
     }
 
 }
 
 void GameController::setLiveCell(int x, int y, bool state) {
     if (isRunning) return;
-    grid.setCellState(x, y, state);
-    grid.setCellColor(x, y, 0.1f, 0.4f, 0.1f);
+    //grid.setCellState(x, y, state);
+    grid.SetCellType(x, y, cellType);
+    //grid.setCellColor(x, y, 0.1f, 0.4f, 0.1f);
 
 }
 
@@ -381,4 +386,9 @@ void GameController::SaveSelectedCellsAsPattern() {
     // Сохраняем паттерн
     currentPattern = newPattern;
     isSelectionActive = false;
+}
+
+void GameController::SetCellType(int type)
+{
+    cellType = type - 6;
 }

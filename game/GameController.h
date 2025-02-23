@@ -101,7 +101,7 @@ private:
     bool isSelectionActive;  // Флаг активности выделения
 
     std::vector<Vector3d> selectedCells; // Массив для хранения выделенных клеток
-
+    int cellType = 1;
 public:
     GameController(int width, int height, float cellSize = 0.5f);
 
@@ -176,6 +176,6 @@ public:
     const std::vector<Vector3d>& GetSelectedCells() const { return selectedCells; }
 
     void SaveSelectedCellsAsPattern();
-
+    void SetCellType(int type); // метод для установки типа клетки
 };
 #endif // GAMECONTROLLER_H_

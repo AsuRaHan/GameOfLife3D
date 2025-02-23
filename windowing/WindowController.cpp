@@ -155,6 +155,12 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         event.key = static_cast<int>(wParam);
         inputHandler.ProcessEvent(event);
         // Здесь может быть дополнительная обработка клавиш, не связанных с камерой
+        if (wParam >= '1' && wParam <= '6') {
+            pGameController->setCurrentPattern(wParam - '0');
+        }
+        if (wParam >= '7' && wParam <= '9') {
+            pGameController->SetCellType(wParam - '0');
+        }
         switch (wParam) {
         case VK_DELETE:
             if (!pGameController->isSimulationRunning() && pGameController->IsSelectionActive()) {
@@ -177,14 +183,14 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
                 pGameController->startSimulation();
             }
             break;
-        case VK_RETURN: // Стрелка вправо для следующего поколения
+        case VK_RETURN: // enter для следующего поколения
             if (!pGameController->isSimulationRunning()) {
                 pGameController->stepSimulation(); // Переход к следующему поколению
             }
             break;
         case 'R':
             if (!pGameController->isSimulationRunning()) {
-                pGameController->randomizeGrid(0.1f); // Случайное заполнение поля
+                pGameController->randomizeGrid(0.04f); // Случайное заполнение поля
             }
             break;
         case 'T':

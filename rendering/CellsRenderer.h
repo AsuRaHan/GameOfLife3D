@@ -3,12 +3,6 @@
 
 #include "BaseRenderer.h"
 
-//#include "../system/GLFunctions.h"
-//#include "../system/ShaderManager.h"
-//
-//#include <vector>
-//#include <iostream>
-
 struct CellInstance {
     float x, y;
 };
@@ -26,8 +20,12 @@ private:
     GLuint cellShaderProgram, computeCellShaderProgram;
     std::vector<CellInstance> cellInstances;
 
+    //std::vector<CellInstance> visibleCellInstances; // Только видимые экземпляры
+    //int visibleCellsCount; // Количество видимых клеток
+
     void LoadCellShaders();
     void CreateOrUpdateCellInstancesUsingComputeShader(std::vector<CellInstance>& cellInstances);
+    //void UpdateVisibleCells(); // метод для фильтрации видимых клеток
 };
 
 #endif

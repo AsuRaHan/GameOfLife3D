@@ -16,19 +16,19 @@ void Grid::getCellColor(int x, int y, float& r, float& g, float& b)
     gpuAutomaton->GetCellColor( x,  y, r, g, b);
 }
 
-void Grid::setCellState(int x, int y, bool alive) {
+void Grid::setCellState(int x, int y, int alive) {
     if (!gpuAutomaton) return;
     if (x >= 0 && x < width && y >= 0 && y < height) {
         gpuAutomaton->SetCellState(x, y, alive);
     }
 }
 
-bool Grid::getCellState(int x, int y) const {
+int Grid::getCellState(int x, int y) const {
     if (!gpuAutomaton) return false;
     if (x >= 0 && x < width && y >= 0 && y < height) {
         return gpuAutomaton->GetCellState(x, y);
     }
-    return false; // Возвращаем false для несуществующих координат
+    return 0; // Возвращаем false для несуществующих координат
 }
 
 int Grid::getWidth() const {
@@ -43,4 +43,11 @@ void Grid::setSize(int w, int h)
 {
     width = w;
     height = h;
+}
+
+void Grid::SetCellType(int x, int y, int type) {
+    if (!gpuAutomaton) return;
+    if (x >= 0 && x < width && y >= 0 && y < height) {
+        gpuAutomaton->SetCellType(x, y, type);
+    }
 }

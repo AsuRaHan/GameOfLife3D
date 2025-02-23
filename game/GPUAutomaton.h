@@ -47,6 +47,8 @@ public:
 
     void ClearGrid(); // метод для очистки
     void RandomizeGrid(float density, unsigned int seed); // метод для рандомизации
+
+    void SetCellType(int x, int y, int type); // метод для установки типа клетки
 private:
     void CreateComputeShader();
     void SetupBuffers();
@@ -67,6 +69,15 @@ private:
 
     GLuint randomizeProgram; // свойство для программы рандомизации
     void LoadRandomizeShader(); // метод для загрузки шейдера рандомизации
+
+    // Новый метод для проверки лимитов
+    void CheckComputeLimits();
+    // Переменные для лимитов видеокарты
+    GLint maxSharedMemorySize;      // Максимальный размер общей памяти (в байтах)
+    GLint maxWorkGroupSizeX;        // Максимальный размер группы по X
+    GLint maxWorkGroupSizeY;        // Максимальный размер группы по Y
+    GLint groupSizeX;               // Текущий размер группы по X
+    GLint groupSizeY;               // Текущий размер группы по Y
 };
 
 #endif // GPU_AUTOMATON_H
