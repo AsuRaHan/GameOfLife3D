@@ -168,7 +168,6 @@
     <ClCompile Include="rendering\CameraController.cpp" />
     <ClCompile Include="rendering\CellsRenderer.cpp" />
     <ClCompile Include="rendering\CellsViewportRenderer.cpp" />
-    <ClCompile Include="rendering\CubeRenderer.cpp" />
     <ClCompile Include="rendering\GridRenderer.cpp" />
     <ClCompile Include="rendering\Renderer.cpp" />
     <ClCompile Include="rendering\SelectionRenderer.cpp" />
@@ -178,6 +177,7 @@
     <ClCompile Include="system\InputHandler.cpp" />
     <ClCompile Include="system\OpenGLDebug.cpp" />
     <ClCompile Include="system\OpenGLInitializer.cpp" />
+    <ClCompile Include="system\PerformanceStats.cpp" />
     <ClCompile Include="system\SettingsManager.cpp" />
     <ClCompile Include="system\ShaderManager.cpp" />
     <ClCompile Include="windowing\GridPicker.cpp" />
@@ -201,7 +201,6 @@
     <ClInclude Include="rendering\CameraController.h" />
     <ClInclude Include="rendering\CellsRenderer.h" />
     <ClInclude Include="rendering\CellsViewportRenderer.h" />
-    <ClInclude Include="rendering\CubeRenderer.h" />
     <ClInclude Include="rendering\GridRenderer.h" />
     <ClInclude Include="rendering\IRendererProvider.h" />
     <ClInclude Include="rendering\Renderer.h" />
@@ -214,6 +213,7 @@
     <ClInclude Include="system\InputHandler.h" />
     <ClInclude Include="system\OpenGLDebug.h" />
     <ClInclude Include="system\OpenGLInitializer.h" />
+    <ClInclude Include="system\PerformanceStats.h" />
     <ClInclude Include="system\SettingsManager.h" />
     <ClInclude Include="system\ShaderManager.h" />
     <ClInclude Include="windowing\GridPicker.h" />

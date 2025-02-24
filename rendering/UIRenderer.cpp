@@ -50,27 +50,35 @@ void UIRenderer::DrawUI() {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-
 void UIRenderer::DrawMenuBar() {
     if (ImGui::BeginMainMenuBar()) {
-        // Сначала добавляем меню "Окна" слева
+        // Меню "Окна" слева
         if (ImGui::BeginMenu("Окна")) {
             ImGui::MenuItem("Управление симуляцией", NULL, &simulationWindowVisible);
-            //if (ImGui::BeginMenu("Настройки")) {
-                ImGui::MenuItem("Настройки игры", NULL, &gameSettingsWindowVisible);
-                ImGui::MenuItem("Сохранения и загрузка", NULL, &saveSettingsWindowVisible);
-                ImGui::MenuItem("Настройки поля", NULL, &fieldSettingsWindowVisible);
-            //    ImGui::EndMenu();
-            //}
-            ImGui::MenuItem("Паттерны", NULL, &patternWindowVisible); // Новый пункт меню
+            ImGui::MenuItem("Настройки игры", NULL, &gameSettingsWindowVisible);
+            ImGui::MenuItem("Сохранения и загрузка", NULL, &saveSettingsWindowVisible);
+            ImGui::MenuItem("Настройки поля", NULL, &fieldSettingsWindowVisible);
+            ImGui::MenuItem("Паттерны", NULL, &patternWindowVisible);
             ImGui::MenuItem("О программе", NULL, &aboutWindowVisible);
             ImGui::EndMenu();
         }
 
-        // Перемещаем курсор в крайнее правое положение
-        float menuBarWidth = ImGui::GetWindowWidth(); // Получаем ширину меню-бара
-        ImGui::SetCursorPosX(menuBarWidth - ImGui::CalcTextSize("Выход").x - ImGui::GetStyle().ItemSpacing.x - 10.0f); // Учитываем отступы и ширину текста
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.3f, 1.0f)); // Красный цвет текста для "Выход"
+        // Получаем статистику
+        std::string statsText = PerformanceStats::getInstance().getStatsString();
+
+        // Вычисляем ширину меню-бара и текста
+        float menuBarWidth = ImGui::GetWindowWidth();
+        float exitTextWidth = ImGui::CalcTextSize("Выход").x;
+        float statsTextWidth = ImGui::CalcTextSize(statsText.c_str()).x;
+        float spacing = ImGui::GetStyle().ItemSpacing.x;
+
+        // Устанавливаем позицию для статистики (перед "Выход")
+        ImGui::SetCursorPosX(menuBarWidth - exitTextWidth - statsTextWidth - 2 * spacing - 10.0f);
+        ImGui::Text("%s", statsText.c_str()); // Выводим статистику
+
+        // Кнопка "Выход" справа
+        ImGui::SetCursorPosX(menuBarWidth - exitTextWidth - spacing - 10.0f);
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.3f, 1.0f)); // Красный цвет для "Выход"
         if (ImGui::MenuItem("Выход")) {
             exitDialogVisible = true;
         }
@@ -243,7 +251,7 @@ void UIRenderer::DrawExitDialog() {
 void UIRenderer::DrawPatternWindow() {
     if (!patternWindowVisible) return;
 
-    ImGui::Begin("пользовательские паттерны", &patternWindowVisible, ImGuiWindowFlags_NoResize);
+    ImGui::Begin("паттерны", &patternWindowVisible, ImGuiWindowFlags_NoResize);
     ImGui::SetWindowSize(ImVec2(0, 500), ImGuiCond_Once);
     ImGui::Separator();
     // Выбор фигуры и поворот

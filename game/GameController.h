@@ -10,8 +10,9 @@
 #include "PatternManager.h"
 #include "../mathematics/Vector3d.h"
 #include "../rendering/IRendererProvider.h"
+#include "../system/PerformanceStats.h"
 
-#include <random> // Для генерации случайных чисел
+#include <random>
 #include <string>
 #include <fstream>
 #include <sstream>

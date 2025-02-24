@@ -98,11 +98,11 @@
     <ClCompile Include="rendering\TextureFieldRenderer.cpp">
       <Filter>rendering</Filter>
     </ClCompile>
-    <ClCompile Include="rendering\CubeRenderer.cpp">
-      <Filter>rendering</Filter>
-    </ClCompile>
     <ClCompile Include="rendering\CellsViewportRenderer.cpp">
       <Filter>rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="system\PerformanceStats.cpp">
+      <Filter>system</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -202,11 +202,11 @@
     <ClInclude Include="rendering\TextureFieldRenderer.h">
       <Filter>rendering</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\CubeRenderer.h">
-      <Filter>rendering</Filter>
-    </ClInclude>
     <ClInclude Include="rendering\CellsViewportRenderer.h">
       <Filter>rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="system\PerformanceStats.h">
+      <Filter>system</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

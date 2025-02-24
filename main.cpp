@@ -4,6 +4,7 @@
 #include "game/GameController.h"
 #include "system/OpenGLInitializer.h"
 #include "system/SettingsManager.h"
+#include "system/PerformanceStats.h"
 
 #include <iostream>
 #include <chrono>
@@ -252,7 +253,7 @@ int wWinMain(
             }
             // Здесь вызываем update с deltaTime
             gameController.update(GetTickCount64());
-            
+            PerformanceStats::getInstance().recordFrame();
             renderer.Draw();
         }
 

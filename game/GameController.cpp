@@ -12,6 +12,10 @@ GameController::GameController(int width, int height, float cellSize)
     std::srand(static_cast<unsigned int>(std::time(nullptr))); // Инициализация генератора случайных чисел
     grid.SetGPUAutomaton(&gpuAutomaton);
     gpuAutomaton.SetToroidal(isWorldToroidal);
+
+    frameTimeAccumulator = GetTickCount64(); // Инициализация
+    isRunning = false;
+    simulationSpeed = 0;
     
 }
 
@@ -88,13 +92,21 @@ void GameController::clearGrid() {
 
 void GameController::update(float deltaTime) {
     if (isRunning) {
-        if (simulationSpeed!=0) {
+        if (simulationSpeed != 0) {
+            // Вычисляем прошедшее время с последнего обновления
             DWORD elapsedTime = deltaTime - frameTimeAccumulator;
             if (elapsedTime >= simulationSpeed) {
                 gpuAutomaton.Update();
-                frameTimeAccumulator = deltaTime;
+                // Увеличиваем аккумулятор на simulationSpeed, а не сбрасываем на deltaTime
+                frameTimeAccumulator += simulationSpeed;
+                PerformanceStats::getInstance().recordSimulation();
             }
-        }else gpuAutomaton.Update();
+        }
+        else {
+            // Без задержки — каждый кадр
+            gpuAutomaton.Update();
+            PerformanceStats::getInstance().recordSimulation();
+        }
     }
 }
 
@@ -340,8 +352,7 @@ void GameController::KillSelectedCells() {
     for (const auto& cell : selectedCells) {
         int x = static_cast<int>(cell.X());
         int y = static_cast<int>(cell.Y());
-        grid.setCellState(x, y, false);
-        grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f); // Устанавливаем цвет для мертвой клетки
+        grid.SetCellType(x, y, 0);
     }
     isSelectionActive = false;
 }
@@ -350,8 +361,7 @@ void GameController::ReviveSelectedCells() {
     for (const auto& cell : selectedCells) {
         int x = static_cast<int>(cell.X());
         int y = static_cast<int>(cell.Y());
-        grid.setCellState(x, y, true);
-        grid.setCellColor(x, y, 0.1f, 0.4f, 0.1f); // Устанавливаем цвет для живой клетки
+        grid.SetCellType(x, y, cellType);
     }
     isSelectionActive = false;
 }
