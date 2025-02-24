@@ -466,13 +466,12 @@ typedef void (APIENTRY* PFNGLDEBUGMESSAGECONTROLPROC)(GLenum source, GLenum type
 typedef void (APIENTRY* PFNGLBINDIMAGETEXTUREPROC)(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);
 typedef void (APIENTRY* PFNGLACTIVETEXTUREPROC)(GLenum texture);
 typedef void (APIENTRY* PFNGLTEXBUFFERPROC)(GLenum target, GLenum internalformat, GLuint buffer);
-
 typedef void (APIENTRY* PFNGLGETINTEGERI_VPROC)(GLenum target, GLuint index, GLint* data);
 typedef void (APIENTRY* PFNGLGETBUFFERPARAMETERIVPROC)(GLenum target, GLenum pname, GLint* params);
-
 typedef GLboolean(APIENTRY* PFNGLISBUFFERPROC)(GLuint buffer);
-
 typedef void (APIENTRY* PFNGLUNIFORM1UIPROC)(GLint location, GLuint v0);
+
+typedef void (APIENTRY* PFNGLUNIFORM1IVPROC)(GLint location, GLsizei count, const GLint* value);
 
 // Объявление указателей на функции
 extern PFNGLGENBUFFERSPROC glGenBuffers;
@@ -530,7 +529,9 @@ extern PFNGLGETINTEGERI_VPROC glGetIntegeri_v;
 extern PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv;
 
 extern PFNGLISBUFFERPROC glIsBuffer;
+
 extern PFNGLUNIFORM1UIPROC glUniform1ui;
+extern PFNGLUNIFORM1IVPROC glUniform1iv;
 
 // Функции для работы с OpenGL
 void LoadOpenGLFunctions();

@@ -49,6 +49,27 @@ public:
     void RandomizeGrid(float density, unsigned int seed); // метод для рандомизации
 
     void SetCellType(int x, int y, int type); // метод для установки типа клетки
+    // ========== Другие правила игры устанавливаются тут
+    void setBirthRules(bool rules[9]) {
+        for (int i = 0; i < 9; i++) birthRules[i] = rules[i] ? 1 : 0;
+        glUseProgram(computeProgram);
+        glUniform1iv(glGetUniformLocation(computeProgram, "birthCounts"), 9, birthRules);
+    }
+    void setSurviveRules(bool rules[9]) {
+        for (int i = 0; i < 9; i++) surviveRules[i] = rules[i] ? 1 : 0;
+        glUseProgram(computeProgram);
+        glUniform1iv(glGetUniformLocation(computeProgram, "surviveCounts"), 9, surviveRules);
+    }
+    void setUseAdvancedRules(bool enabled) {
+        useAdvancedRules = enabled ? 1 : 0;
+        glUseProgram(computeProgram);
+        glUniform1i(glGetUniformLocation(computeProgram, "useAdvancedRules"), useAdvancedRules);
+    }
+    void setOverpopulationRules(bool rules[9]) {
+        for (int i = 0; i < 9; i++) overpopulationRules[i] = rules[i] ? 1 : 0;
+        glUseProgram(computeProgram);
+        glUniform1iv(glGetUniformLocation(computeProgram, "overpopulationCounts"), 9, overpopulationRules);
+    }
 private:
     void CreateComputeShader();
     void SetupBuffers();
@@ -78,6 +99,11 @@ private:
     GLint maxWorkGroupSizeY;        // Максимальный размер группы по Y
     GLint groupSizeX;               // Текущий размер группы по X
     GLint groupSizeY;               // Текущий размер группы по Y
+    //============ Другие правила игры
+    int birthRules[9];  // 0 или 1 для каждого числа соседей
+    int surviveRules[9];
+    int useAdvancedRules; // 0 - стандартный, 1 - расширенный ==== режимы правил
+    int overpopulationRules[9];
 };
 
 #endif // GPU_AUTOMATON_H

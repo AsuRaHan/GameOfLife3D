@@ -39,6 +39,22 @@ uniform int birth;
 uniform int survivalMin;
 uniform int survivalMax;
 uniform int overpopulation;
+uniform int birthCounts[9];
+uniform int surviveCounts[9];
+uniform int useAdvancedRules; // 0 - стадартный режим, 1 - расширенный
+uniform int overpopulationCounts[9];
+
+bool canBeBorn(int neighbors) {
+    return neighbors >= 0 && neighbors <= 8 && birthCounts[neighbors] == 1;
+}
+
+bool canSurvive(int neighbors) {
+    return neighbors >= 0 && neighbors <= 8 && surviveCounts[neighbors] == 1;
+}
+
+bool isOverpopulated(int neighbors) {
+    return neighbors >= 0 && neighbors <= 8 && overpopulationCounts[neighbors] == 1;
+}
 
 int countLiveNeighbors(ivec2 pos, int targetType) {
     int count = 0;
@@ -93,15 +109,28 @@ void main() {
     int neighbors = countLiveNeighbors(pos, 0); // Все живые соседи
     int nextState = currentState;
 
-    if (currentState > 0) { // Живая клетка
-        if (neighbors >= survivalMin && neighbors <= survivalMax) {
-            nextState = currentState; // Сохраняем тип
-        } else {
-            nextState = 0; // Умирает
+    if (useAdvancedRules == 1) {
+        // Расширенный режим (B/S)
+        if (currentState > 0) {
+            if (currentState > 0) {
+            if (canSurvive(neighbors) && !isOverpopulated(neighbors)) nextState = currentState;
+                else nextState = 0;
+            } nextState = 0;
+        } else if (canBeBorn(neighbors)) {
+            nextState = determineNewType(pos);
         }
-    } else if (currentState == 0) { // Мёртвая клетка
-        if (neighbors == birth) {
-            nextState = determineNewType(pos); // Оживает с типом по большинству или равенству
+    } else {
+        // Старый режим
+        if (currentState > 0) { // Живая клетка
+            if (neighbors >= survivalMin && neighbors <= survivalMax && neighbors < overpopulation) {
+                nextState = currentState; // Сохраняем тип
+            } else {
+                nextState = 0; // Умирает
+            }
+        } else if (currentState == 0) { // Мёртвая клетка
+            if (neighbors == birth) {
+                nextState = determineNewType(pos); // Оживает с типом
+            }
         }
     }
 
@@ -352,13 +381,17 @@ void GPUAutomaton::Update() {
     glUniform1i(glGetUniformLocation(computeProgram, "survivalMin"), survivalMin);
     glUniform1i(glGetUniformLocation(computeProgram, "survivalMax"), survivalMax);
     glUniform1i(glGetUniformLocation(computeProgram, "overpopulation"), overpopulation);
+    // переменные для расширенного режима правил
+    glUniform1i(glGetUniformLocation(computeProgram, "useAdvancedRules"), useAdvancedRules);
+    glUniform1iv(glGetUniformLocation(computeProgram, "birthCounts"), 9, birthRules);
+    glUniform1iv(glGetUniformLocation(computeProgram, "surviveCounts"), 9, surviveRules);
+    glUniform1iv(glGetUniformLocation(computeProgram, "overpopulationCounts"), 9, overpopulationRules);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[currentBufferIndex]);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[(currentBufferIndex + 1) % 2]);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, colorsBuffer);
 
-    //glDispatchCompute((gridWidth + 31) / 32, (gridHeight + 31) / 32, 1);
     glDispatchCompute((gridWidth + groupSizeX - 1) / groupSizeX,
         (gridHeight + groupSizeY - 1) / groupSizeY, 1);
 

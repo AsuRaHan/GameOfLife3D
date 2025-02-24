@@ -55,7 +55,7 @@ void UIRenderer::DrawMenuBar() {
         // Меню "Окна" слева
         if (ImGui::BeginMenu("Окна")) {
             ImGui::MenuItem("Управление симуляцией", NULL, &simulationWindowVisible);
-            ImGui::MenuItem("Настройки игры", NULL, &gameSettingsWindowVisible);
+            ImGui::MenuItem("Правила жизни/смерти", NULL, &gameSettingsWindowVisible);
             ImGui::MenuItem("Сохранения и загрузка", NULL, &saveSettingsWindowVisible);
             ImGui::MenuItem("Настройки поля", NULL, &fieldSettingsWindowVisible);
             ImGui::MenuItem("Паттерны", NULL, &patternWindowVisible);
@@ -141,35 +141,111 @@ void UIRenderer::DrawSimulationWindow() {
     ImGui::End();
 }
 
+
 void UIRenderer::DrawGameSettingsWindow() {
     if (!gameSettingsWindowVisible) return;
 
-    ImGui::Begin("Игра", &gameSettingsWindowVisible, ImGuiWindowFlags_NoResize);
-    //ImGui::SetWindowSize(ImVec2(300, 0), ImGuiCond_Once);
-
+    ImGui::Begin("Правила жизни/смерти", &gameSettingsWindowVisible, ImGuiWindowFlags_NoResize);
+    ImGui::SetWindowSize(ImVec2(250, 0), ImGuiCond_Once);
     if (gpuAutomaton) {
         ImGui::Text("Правила игры:");
         ImGui::Separator();
+
+        // Чекбокс для расширенного режима
+        static bool advancedRules = false;
+        if (ImGui::Checkbox("Расширенные правила (B/S)", &advancedRules)) {
+            gpuAutomaton->setUseAdvancedRules(advancedRules);
+        }
+
+        // Если расширенный режим включен, отключаем старые комбобоксы
+        if (advancedRules) {
+            ImGui::BeginDisabled();
+        }
+
+        // Старые настройки
         ImGui::Text("Рождение");
         int selectedBirth = gpuAutomaton->birth - 1;
         const char* birthOptions[] = { "1", "2", "3", "4", "5", "6", "7", "8" };
+        ImGui::SetNextItemWidth(buttonSize.x);
         if (ImGui::Combo("##birth", &selectedBirth, birthOptions, IM_ARRAYSIZE(birthOptions))) {
             gpuAutomaton->birth = selectedBirth + 1;
         }
         ImGui::Separator();
         ImGui::Text("Выживание (мин)");
         const char* survivalMinOptions[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8" };
+        ImGui::SetNextItemWidth(buttonSize.x);
         ImGui::Combo("##survivalMin", &gpuAutomaton->survivalMin, survivalMinOptions, IM_ARRAYSIZE(survivalMinOptions));
         ImGui::Separator();
         ImGui::Text("Выживание (макс)");
         const char* survivalMaxOptions[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8" };
+        ImGui::SetNextItemWidth(buttonSize.x);
         ImGui::Combo("##survivalMax", &gpuAutomaton->survivalMax, survivalMaxOptions, IM_ARRAYSIZE(survivalMaxOptions));
         ImGui::Separator();
         ImGui::Text("Перенаселение");
         int selectedOverPopulation = gpuAutomaton->overpopulation - 1;
         const char* overpopulationOptions[] = { "1", "2", "3", "4", "5", "6", "7", "8" };
+        ImGui::SetNextItemWidth(buttonSize.x);
         if (ImGui::Combo("##overpopulation", &selectedOverPopulation, overpopulationOptions, IM_ARRAYSIZE(overpopulationOptions))) {
             gpuAutomaton->overpopulation = selectedOverPopulation + 1;
+        }
+
+        if (advancedRules) {
+            ImGui::EndDisabled();
+        }
+
+        // Окно для расширенных правил
+        if (advancedRules) {
+            ImGui::Begin("Расширенные правила", nullptr, ImGuiWindowFlags_NoResize);
+            ImGui::SetWindowSize(ImVec2(250, 0), ImGuiCond_Once);
+            static bool birthRules[9] = { false };
+            static bool surviveRules[9] = { false };
+
+            // Рождение
+            ImGui::Text("Рождение (B):");
+            ImGui::Separator();
+            for (int i = 0; i <= 8; i++) {
+                ImGui::BeginGroup(); // Группа для каждого чекбокса
+                ImGui::Text("%d соседей", i);
+                ImGui::Checkbox(("##birth" + std::to_string(i)).c_str(), &birthRules[i]);
+                ImGui::EndGroup();
+                if (i % 3 != 2) ImGui::SameLine(); // 3 чекбокса в ряд
+            }
+
+            ImGui::Spacing(); // Отступ между секциями
+            ImGui::Separator();
+
+            // Выживание
+            ImGui::Text("Выживание (S):");
+            ImGui::Separator();
+            for (int i = 0; i <= 8; i++) {
+                ImGui::BeginGroup();
+                ImGui::Text("%d соседей", i);
+                ImGui::Checkbox(("##survive" + std::to_string(i)).c_str(), &surviveRules[i]);
+                ImGui::EndGroup();
+                if (i % 3 != 2) ImGui::SameLine(); // 3 чекбокса в ряд
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Text("Перенаселение (O):");
+            ImGui::Separator();
+            static bool overpopulationRules[9] = { false };
+            for (int i = 0; i <= 8; i++) {
+                ImGui::BeginGroup();
+                ImGui::Text("%d соседей", i);
+                ImGui::Checkbox(("##overpop" + std::to_string(i)).c_str(), &overpopulationRules[i]);
+                ImGui::EndGroup();
+                if (i % 3 != 2) ImGui::SameLine();
+            }
+
+            // Кнопка применения
+            if (ImGui::Button("Применить")) {
+                gpuAutomaton->setBirthRules(birthRules);
+                gpuAutomaton->setSurviveRules(surviveRules);
+                gpuAutomaton->setOverpopulationRules(overpopulationRules);
+            }
+
+            ImGui::End();
         }
     }
     else {
@@ -178,6 +254,7 @@ void UIRenderer::DrawGameSettingsWindow() {
 
     ImGui::End();
 }
+
 
 void UIRenderer::DrawSaveSettingsWindow() {
     if (!saveSettingsWindowVisible) return;

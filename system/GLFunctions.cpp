@@ -57,6 +57,8 @@ PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv = nullptr;
 
 PFNGLISBUFFERPROC glIsBuffer = nullptr;
 PFNGLUNIFORM1UIPROC glUniform1ui = nullptr;
+PFNGLUNIFORM1IVPROC glUniform1iv = nullptr;
+
 
 void LoadOpenGLFunctions() {
         // Загрузка функций для работы с буферами
@@ -172,7 +174,9 @@ void LoadOpenGLFunctions() {
     CHECK_LOAD_FUNCTION(glIsBuffer);
     
     glUniform1ui = (PFNGLUNIFORM1UIPROC)wglGetProcAddress("glUniform1ui");
-    CHECK_LOAD_FUNCTION(glUniform1ui);
+    CHECK_LOAD_FUNCTION(glUniform1ui);    
+    glUniform1iv = (PFNGLUNIFORM1IVPROC)wglGetProcAddress("glUniform1iv");
+    CHECK_LOAD_FUNCTION(glUniform1iv);
 
 
 
