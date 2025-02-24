@@ -184,7 +184,9 @@ git push origin v1.0.0
   - `Renderer.h`, `Renderer.cpp` - Логика рендеринга в OpenGL.
   - `UIRenderer.h`, `UIRenderer.cpp` - Отрисовка и работа с GUI окна и меню.
   - `SelectionRenderer.h`, `SelectionRenderer.cpp` - Отрисовка линий выделения поля мышкой.
-  - `CellInstance.h` - Структура для хранения инстанса дивых и мертвых клеток для оптимальной отрисовки в OpenGL.
+  - `GridRenderer.h`, `GridRenderer.cpp` - Отрисовка навигационной координатной сетки.
+  - `TextureFieldRenderer.h`, `TextureFieldRenderer.cpp` - Отрисовка игрового поля на дальних расстояниях от самого поля, улучшает производительность не влияя на визуальное отображение.
+  - `CellsViewportRenderer.h`, `CellsViewportRenderer.cpp` - Отрисовка игрового поля на ближних расстояниях от игрового поля, улучшает визуальное отображение.
   - `IRendererProvider.h` - Проводник обеспечивающий обмен данными между разными классами. Это простой интерфейс, паттерн провайдер.
 
 - **./mathematics**: Математические утилиты:

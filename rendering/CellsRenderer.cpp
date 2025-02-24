@@ -2,7 +2,7 @@
 
 
 CellsRenderer::CellsRenderer(const Camera& camera, ShaderManager& shaderManager)
-    : BaseRenderer(camera, shaderManager), // Передаем параметры в базовый класс
+    : BaseRenderer(camera, shaderManager), // РџРµСЂРµРґР°РµРј РїР°СЂР°РјРµС‚СЂС‹ РІ Р±Р°Р·РѕРІС‹Р№ РєР»Р°СЃСЃ
     cellsVAO(0), cellsVBO(0), cellInstanceVBO(0), cellShaderProgram(0), computeCellShaderProgram(0) {
     LoadCellShaders();
 }

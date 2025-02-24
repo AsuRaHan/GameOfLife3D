@@ -1,11 +1,11 @@
 #include "Camera.h"
 
 Camera::Camera(float fov, float aspectRatio, float nearPlane, float farPlane)
-    : fov(fov), fPlane(farPlane),
+    : fov(fov), aspectRatio(aspectRatio), fPlane(farPlane),
       position{0.0f, 0.0f, 0.0f},
       direction{0.0f, 0.0f, -1.0f},
       up{0.0f, 1.0f, 0.0f} {
-    SetProjection(fov, aspectRatio, nearPlane, farPlane);
+    UpdateProjectionMatrix();
     UpdateViewMatrix();
 }
 
@@ -125,9 +125,7 @@ void Camera::UpdateViewMatrix() {
     viewMatrix[15] = 1.0f;
 }
 
-
-void Camera::SetProjection(float fov, float aspectRatio, float nearPlane, float farPlane) {
-    fPlane = farPlane;
+void Camera::UpdateProjectionMatrix() {
     float f = 1.0f / std::tan(fov * 0.5f * PI / 180.0f);
 
     projectionMatrix[0] = f / aspectRatio;
@@ -142,13 +140,20 @@ void Camera::SetProjection(float fov, float aspectRatio, float nearPlane, float 
 
     projectionMatrix[8] = 0.0f;
     projectionMatrix[9] = 0.0f;
-    projectionMatrix[10] = (fPlane + nearPlane) / (nearPlane - fPlane);
+    projectionMatrix[10] = (fPlane + 0.1f) / (0.1f - fPlane);
     projectionMatrix[11] = -1.0f;
 
     projectionMatrix[12] = 0.0f;
     projectionMatrix[13] = 0.0f;
-    projectionMatrix[14] = (2.0f * fPlane * nearPlane) / (nearPlane - fPlane);
+    projectionMatrix[14] = (2.0f * fPlane * 0.1f) / (0.1f - fPlane);
     projectionMatrix[15] = 0.0f;
+}
+
+void Camera::SetProjection(float fov, float aspectRatio, float nearPlane, float farPlane) {
+    this->fov = fov;
+    this->aspectRatio = aspectRatio;
+    this->fPlane = farPlane;
+    UpdateProjectionMatrix();
 }
 
 void Camera::LookAt(float targetX, float targetY, float targetZ, float upX, float upY, float upZ) {

@@ -3,9 +3,7 @@
 
 #include "BaseRenderer.h"
 
-struct CellInstance {
-    float x, y;
-};
+
 
 class CellsRenderer : public BaseRenderer {
 public:
@@ -16,6 +14,9 @@ public:
     void Draw();
 
 private:
+    struct CellInstance {
+        float x, y;
+    };
     GLuint cellsVAO, cellsVBO, cellInstanceVBO;
     GLuint cellShaderProgram, computeCellShaderProgram;
     std::vector<CellInstance> cellInstances;

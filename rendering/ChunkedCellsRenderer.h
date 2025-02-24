@@ -15,7 +15,7 @@ private:
     struct Chunk {
         int gridX, gridY; // Позиция чанка в сетке (в клетках)
         int width, height; // Размер чанка в клетках
-        GLuint vao, vbo, instanceVBO, colorVBO; // Буферы OpenGL
+        GLuint vao, vbo, instanceVBO; // Буферы OpenGL
     };
 
     int chunkSize; // Размер чанка в клетках (например, 100)

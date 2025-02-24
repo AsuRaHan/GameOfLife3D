@@ -3,19 +3,16 @@
 #define RENDERER_H_
 
 #include "../system/GLFunctions.h"
-
-
 #include "../game/GameController.h"
 #include "IRendererProvider.h"
 #include "Camera.h"
 
 #include "UIRenderer.h"
 #include "SelectionRenderer.h"
+
 #include "GridRenderer.h"
-#include "CellsRenderer.h"
 #include "TextureFieldRenderer.h"
-//#include "CubeRenderer.h"
-//#include "ChunkedCellsRenderer.h"
+#include "CellsViewportRenderer.h"
 
 #include <vector>
 #include <memory>
@@ -43,13 +40,13 @@ private:
 
     GameController* pGameController;
     ShaderManager shaderManager;
+
     UIRenderer uiRenderer;
-    SelectionRenderer selectionRenderer; // Добавляем экземпляр SelectionRenderer
+
+    SelectionRenderer selectionRenderer; // экземпляр SelectionRenderer
     GridRenderer gridRenderer;
-    CellsRenderer cellsRenderer;
     TextureFieldRenderer textureFieldRenderer;
-    //CubeRenderer cubeRenderer;
-    //ChunkedCellsRenderer chunkedCellsRenderer;
+    CellsViewportRenderer cellsViewportRenderer;
 
     void SetupOpenGL();
 

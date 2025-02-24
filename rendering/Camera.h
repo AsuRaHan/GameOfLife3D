@@ -21,7 +21,7 @@ public:
     void Move(float dx, float dy, float dz); // Перемещение камеры
     void Rotate(float yaw, float pitch); // Вращение камеры (рыскание и тангаж)
 
-    void UpdateViewMatrix(); // Обновляем матрицу вида
+    //void UpdateViewMatrix(); // Обновляем матрицу вида
     void SetProjection(float fov, float aspectRatio, float nearPlane, float farPlane); // Устанавливаем проекцию
 
     void LookAt(float targetX, float targetY, float targetZ, 
@@ -37,6 +37,14 @@ public:
     static constexpr float PI = 3.14159265358979323846f;
     static constexpr float MAX_PITCH = 89.0f * PI / 180.0f;
 
+    // Добавляем новые методы
+    void SetAspectRatio(float ratio) {
+        aspectRatio = ratio;
+        UpdateProjectionMatrix();
+    }
+    
+    float GetAspectRatio() const { return aspectRatio; }
+
 private:
     std::array<float, 3> position;
     std::array<float, 3> direction;
@@ -45,7 +53,12 @@ private:
     float fPlane;
     std::array<float, 16> viewMatrix;
     std::array<float, 16> projectionMatrix;
+    float aspectRatio;
 
     void NormalizeVector(std::array<float, 3>& vector); // Изменено с float* на std::array
+    
+    // Разделяем обновление матриц
+    void UpdateProjectionMatrix();
+    void UpdateViewMatrix();
 };
 #endif // CAMERA_H_

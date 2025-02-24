@@ -5,10 +5,8 @@ Renderer::Renderer(int width, int height)
     pGameController(nullptr), uiRenderer(nullptr), 
     selectionRenderer(camera, shaderManager), 
     gridRenderer(camera, shaderManager),
-    cellsRenderer(camera, shaderManager),
     textureFieldRenderer(camera, shaderManager)
-    //,cubeRenderer(camera, shaderManager)
-    //, chunkedCellsRenderer(camera, shaderManager)
+    , cellsViewportRenderer(camera, shaderManager)
 {
     SetupOpenGL();
     OnWindowResize(width, height);
@@ -40,18 +38,14 @@ void Renderer::SetGameController(GameController* gameController) {
 
     selectionRenderer.SetGameController(gameController);
     gridRenderer.SetGameController(gameController);
-    cellsRenderer.SetGameController(gameController);
     textureFieldRenderer.SetGameController(gameController);
-    //cubeRenderer.SetGameController(gameController);
-    //chunkedCellsRenderer.SetGameController(gameController);
+    cellsViewportRenderer.SetGameController(gameController);
 
     // Инициализируем буферы после установки GameController
     selectionRenderer.Initialize();
     gridRenderer.Initialize();
-    cellsRenderer.Initialize();
     textureFieldRenderer.Initialize();
-    //cubeRenderer.Initialize();
-    //chunkedCellsRenderer.Initialize();
+    cellsViewportRenderer.Initialize();
 }
 
 void Renderer::Draw() {
@@ -62,19 +56,14 @@ void Renderer::Draw() {
     // Всегда рисуем выделение, если активно
     selectionRenderer.Draw();
     if (cameraDistance < 300.0f) {
-        // Камера ближе 300: рисуем сетку и ячейки
-        cellsRenderer.Draw();
-        //chunkedCellsRenderer.Draw();
+        // Камера ближе 300: рисуем ячейки
+        cellsViewportRenderer.Draw();
     }
     else {
         // Камера дальше 300: рисуем поле как текстуру
         textureFieldRenderer.Draw();
     }
     gridRenderer.Draw();
-    //if (cameraDistance < 40.0f) {
-    //    cubeRenderer.Draw(); // Кубы рисуются всегда поверх всего
-    //}
-
 
     // Отрисовка UI, если включено
     if (pGameController && pGameController->getShowUI()) {
@@ -86,9 +75,7 @@ void Renderer::Draw() {
 
 void Renderer::RebuildGameField() {
     if (!pGameController) return;
-    cellsRenderer.Initialize();
     gridRenderer.Initialize();
     textureFieldRenderer.Initialize();
-    //cubeRenderer.Initialize();
-    //chunkedCellsRenderer.Initialize();
+    cellsViewportRenderer.Initialize();
 }

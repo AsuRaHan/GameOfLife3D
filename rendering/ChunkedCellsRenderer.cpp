@@ -10,7 +10,6 @@ ChunkedCellsRenderer::~ChunkedCellsRenderer() {
         glDeleteVertexArrays(1, &chunk.vao);
         glDeleteBuffers(1, &chunk.vbo);
         glDeleteBuffers(1, &chunk.instanceVBO);
-        glDeleteBuffers(1, &chunk.colorVBO);
     }
 }
 
@@ -33,14 +32,16 @@ void ChunkedCellsRenderer::SetupShaders() {
         #version 330 core
         layout(location = 0) in vec2 vertexPos;
         layout(location = 1) in vec2 instancePos;
-        layout(location = 2) in vec4 instanceColor;
+        layout(location = 3) in vec4 instanceColor;
+        
         uniform mat4 projection;
         uniform mat4 view;
         uniform float cellSize;
+        
         out vec4 fragColor;
+        
         void main() {
-            vec2 scaledPos = vertexPos * cellSize;
-            vec2 worldPos = scaledPos + instancePos;
+            vec2 worldPos = (vertexPos * cellSize) + instancePos;
             gl_Position = projection * view * vec4(worldPos, 0.0, 1.0);
             fragColor = instanceColor;
         }
@@ -58,6 +59,7 @@ void ChunkedCellsRenderer::SetupShaders() {
     cellShaderProgram = LoadShaderProgram("cellShader", vertexShaderSource, fragmentShaderSource);
 }
 
+
 void ChunkedCellsRenderer::CreateChunk(int gridX, int gridY) {
     Chunk chunk;
     chunk.gridX = gridX;
@@ -66,6 +68,7 @@ void ChunkedCellsRenderer::CreateChunk(int gridX, int gridY) {
     int gridWidth = pGameController->getGridWidth();
     int gridHeight = pGameController->getGridHeight();
     float cellSize = pGameController->getCellSize();
+
 
     chunk.width = chunkSize;
     chunk.height = chunkSize;
@@ -79,11 +82,10 @@ void ChunkedCellsRenderer::CreateChunk(int gridX, int gridY) {
     glGenVertexArrays(1, &chunk.vao);
     glGenBuffers(1, &chunk.vbo);
     glGenBuffers(1, &chunk.instanceVBO);
-    glGenBuffers(1, &chunk.colorVBO); // Новый буфер для цветов
 
     glBindVertexArray(chunk.vao);
 
-    // VBO: базовая форма клетки (как у тебя)
+    // VBO: базовая форма клетки
     glBindBuffer(GL_ARRAY_BUFFER, chunk.vbo);
     float vertices[] = {
         0.1f, 0.1f,
@@ -95,93 +97,38 @@ void ChunkedCellsRenderer::CreateChunk(int gridX, int gridY) {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // instanceVBO: позиции клеток
+    // instanceVBO: позиции клеток в мировых координатах
     glBindBuffer(GL_ARRAY_BUFFER, chunk.instanceVBO);
-    std::vector<float> instancePositions;
-    instancePositions.reserve(chunk.width * chunk.height * 2);
+    std::vector<float> instanceData;
+    instanceData.reserve(chunk.width * chunk.height * 2);
     for (int y = 0; y < chunk.height; y++) {
         for (int x = 0; x < chunk.width; x++) {
             float worldX = (gridX + x) * cellSize;
             float worldY = (gridY + y) * cellSize;
-            instancePositions.push_back(worldX);
-            instancePositions.push_back(worldY);
+            instanceData.push_back(worldX);
+            instanceData.push_back(worldY);
         }
     }
-    glBufferData(GL_ARRAY_BUFFER, instancePositions.size() * sizeof(float), instancePositions.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, instanceData.size() * sizeof(float), instanceData.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribDivisor(1, 1);
 
-    // colorVBO: цвета из colorsBuffer для каждой клетки
-    glBindBuffer(GL_ARRAY_BUFFER, chunk.colorVBO);
-    std::vector<float> colorData;
-    colorData.reserve(chunk.width * chunk.height * 4); // 4 float на цвет (RGBA)
+    // Добавляем атрибут для цветов (location = 3)
     GLuint colorsBuffer = pGameController->getGPUAutomaton().getColorsBuffer();
-    if (colorsBuffer != 0) {
-        // Проверка состояния буфера
-        GLint bufferSize;
-        glBindBuffer(GL_COPY_READ_BUFFER, colorsBuffer);
-        glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &bufferSize);
-        std::cout << "colorsBuffer size: " << bufferSize << " bytes" << std::endl;
-
-        // Сильная синхронизация
-        glFinish(); // Ждем завершения всех операций OpenGL
-        glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT | GL_BUFFER_READ_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-
-        // Проверка, что буфер содержит данные
-        bool bufferHasData = false;
-        for (int y = 0; y < chunk.height && !bufferHasData; y++) {
-            for (int x = 0; x < chunk.width && !bufferHasData; x++) {
-                int bufferIndex = ((gridY + y) * gridWidth + (gridX + x)) * 4;
-                if (bufferIndex + 3 < bufferSize / sizeof(float)) { // Убедимся, что индекс в пределах
-                    float color[4];
-                    glGetBufferSubData(GL_COPY_READ_BUFFER, bufferIndex, 4 * sizeof(float), color);
-                    if (color[0] != 0.0f || color[1] != 0.0f || color[2] != 0.0f || color[3] != 0.0f) {
-                        bufferHasData = true;
-                    }
-                }
-            }
-        }
-
-        if (bufferHasData) {
-            glBindBuffer(GL_COPY_READ_BUFFER, colorsBuffer);
-            for (int y = 0; y < chunk.height; y++) {
-                for (int x = 0; x < chunk.width; x++) {
-                    int bufferIndex = ((gridY + y) * gridWidth + (gridX + x)) * 4; // Индекс в colorsBuffer
-                    float color[4];
-                    glGetBufferSubData(GL_COPY_READ_BUFFER, bufferIndex, 4 * sizeof(float), color);
-                    // Отладка
-                    if (gridX == 0 && gridY == 0 && x < 2 && y < 2) {
-                        std::cout << "Color at (" << x << ", " << y << "): R=" << std::fixed << std::setprecision(2)
-                            << color[0] << ", G=" << color[1] << ", B=" << color[2] << ", A=" << color[3] << std::endl;
-                    }
-                    colorData.push_back(color[0]); // R
-                    colorData.push_back(color[1]); // G
-                    colorData.push_back(color[2]); // B
-                    colorData.push_back(color[3]); // A
-                }
-            }
-            glBindBuffer(GL_COPY_READ_BUFFER, 0);
-        }
-        else {
-            // Если буфер пуст, заполняем черным цветом
-            std::cout << "Warning: colorsBuffer contains no data, filling with black" << std::endl;
-            colorData.resize(chunk.width * chunk.height * 4, 0.0f); // Черный цвет
-        }
-    }
-    else {
-        // Если colorsBuffer не инициализирован, заполняем черным цветом
-        std::cout << "Warning: colorsBuffer is not initialized, filling with black" << std::endl;
-        colorData.resize(chunk.width * chunk.height * 4, 0.0f); // Черный цвет
-    }
-    glBufferData(GL_ARRAY_BUFFER, colorData.size() * sizeof(float), colorData.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(2);
-    glVertexAttribDivisor(2, 1);
+    glBindBuffer(GL_ARRAY_BUFFER, colorsBuffer);
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(3);
+    glVertexAttribDivisor(3, 1);
 
     glBindVertexArray(0);
     chunks.push_back(chunk);
 }
+
+
+
+
+
 
 void ChunkedCellsRenderer::Draw() {
     if (!pGameController) return;
@@ -189,7 +136,6 @@ void ChunkedCellsRenderer::Draw() {
     glUseProgram(cellShaderProgram);
     SetCommonUniforms(cellShaderProgram);
 
-    // Устанавливаем cellSize
     GLint cellSizeLoc = GetUniformLocation(cellShaderProgram, "cellSize");
     glUniform1f(cellSizeLoc, pGameController->getCellSize());
 
@@ -202,6 +148,20 @@ void ChunkedCellsRenderer::Draw() {
 
 void ChunkedCellsRenderer::RenderChunk(const Chunk& chunk) {
     glBindVertexArray(chunk.vao);
+    
+    GLuint colorsBuffer = pGameController->getGPUAutomaton().getColorsBuffer();
+    if (colorsBuffer != 0) {
+        glBindBuffer(GL_ARRAY_BUFFER, colorsBuffer);
+        int gridWidth = pGameController->getGridWidth();
+        
+        // Исправляем расчёт смещения и настройку атрибута
+        size_t offset = (chunk.gridY * gridWidth + chunk.gridX) * sizeof(float) * 4;
+        
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 0, (void*)offset);
+        glEnableVertexAttribArray(3);
+        glVertexAttribDivisor(3, 1);
+    }
+    
     glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, chunk.width * chunk.height);
     glBindVertexArray(0);
 }
@@ -216,12 +176,11 @@ bool ChunkedCellsRenderer::IsChunkInView(const Chunk& chunk) const {
     const float* projection = camera.GetProjectionMatrix();
     const float* view = camera.GetViewMatrix();
 
-    // Проверяем углы bounding box чанка
-    float corners[8][4] = {
-        {minX, minY, 0.0f, 1.0f}, {maxX, minY, 0.0f, 1.0f},
-        {minX, maxY, 0.0f, 1.0f}, {maxX, maxY, 0.0f, 1.0f},
-        {minX, minY, 0.0f, 1.0f}, {maxX, minY, 0.0f, 1.0f},
-        {minX, maxY, 0.0f, 1.0f}, {maxX, maxY, 0.0f, 1.0f}
+    float corners[4][4] = {
+        {minX, minY, 0.0f, 1.0f},
+        {maxX, minY, 0.0f, 1.0f},
+        {minX, maxY, 0.0f, 1.0f},
+        {maxX, maxY, 0.0f, 1.0f}
     };
 
     for (int i = 0; i < 4; i++) {

@@ -17,25 +17,25 @@ public:
     virtual ~BaseRenderer();
 
     void SetGameController(GameController* gameController);
-    virtual void Initialize() = 0; // Чисто виртуальный метод для инициализации
-    virtual void Draw() = 0;       // Чисто виртуальный метод для отрисовки
+    virtual void Initialize() = 0; // Р§РёСЃС‚Рѕ РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ РјРµС‚РѕРґ РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё
+    virtual void Draw() = 0;       // Р§РёСЃС‚Рѕ РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ РјРµС‚РѕРґ РґР»СЏ РѕС‚СЂРёСЃРѕРІРєРё
 
 protected:
     const Camera& camera;
     ShaderManager& shaderManager;
     GameController* pGameController;
 
-    // Методы для работы с VAO/VBO
+    // РњРµС‚РѕРґС‹ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ VAO/VBO
     void CreateBuffers(GLuint& vao, GLuint& vbo, const float* vertices, size_t size, const std::vector<std::pair<GLint, GLint>>& attribs);
     void DeleteBuffers(GLuint& vao, GLuint& vbo);
 
-    // Методы для работы с шейдерами
+    // РњРµС‚РѕРґС‹ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С€РµР№РґРµСЂР°РјРё
     GLuint LoadShaderProgram(const std::string& programName, const std::string& vertexSource, const std::string& fragmentSource);
     GLint GetUniformLocation(GLuint program, const std::string& name);
-    void SetCommonUniforms(GLuint program); // Установка projection и view
+    void SetCommonUniforms(GLuint program); // РЈСЃС‚Р°РЅРѕРІРєР° projection Рё view
 
 private:
-    std::unordered_map<std::string, GLint> uniformCache; // Кэш униформов для каждого шейдера
+    std::unordered_map<std::string, GLint> uniformCache; // РљСЌС€ СѓРЅРёС„РѕСЂРјРѕРІ РґР»СЏ РєР°Р¶РґРѕРіРѕ С€РµР№РґРµСЂР°
 };
 
 #endif
