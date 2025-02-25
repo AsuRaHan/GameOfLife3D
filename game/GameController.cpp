@@ -25,6 +25,12 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
     int patternHeight = static_cast<int>(pattern.size());
     int patternWidth = static_cast<int>(pattern[0].size());
 
+    if (startX < 0 || startY < 0 ||
+        startX + patternWidth > grid.getWidth() ||
+        startY + patternHeight > grid.getHeight()) {
+        return; // Паттерн не помещается
+    }
+
     // Проверяем, помещается ли фигура в пределах сетки
     if (startX + patternWidth <= grid.getWidth() && startY + patternHeight <= grid.getHeight()) {
         for (auto y = patternHeight - 1; y >= 0; --y) { // Итерируемся снизу вверх
@@ -73,19 +79,17 @@ void GameController::clearGrid() {
 }
 
 void GameController::update(float deltaTime) {
+    static auto lastUpdate = std::chrono::steady_clock::now();
     if (isRunning) {
-        if (simulationSpeed != 0) {
-            // Вычисляем прошедшее время с последнего обновления
-            DWORD elapsedTime = deltaTime - frameTimeAccumulator;
-            if (elapsedTime >= simulationSpeed) {
-                gpuAutomaton.Update();
-                // Увеличиваем аккумулятор на simulationSpeed, а не сбрасываем на deltaTime
-                frameTimeAccumulator += simulationSpeed;
-                PerformanceStats::getInstance().recordSimulation();
-            }
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastUpdate).count();
+
+        if (simulationSpeed != 0 && elapsed >= simulationSpeed) {
+            gpuAutomaton.Update();
+            lastUpdate = now;
+            PerformanceStats::getInstance().recordSimulation();
         }
-        else {
-            // Без задержки — каждый кадр
+        else if (simulationSpeed == 0) {
             gpuAutomaton.Update();
             PerformanceStats::getInstance().recordSimulation();
         }

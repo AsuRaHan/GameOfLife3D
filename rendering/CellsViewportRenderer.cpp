@@ -203,20 +203,41 @@ void CellsViewportRenderer::LoadShaders() {
     cellShaderProgram = LoadShaderProgram("viewportCellShader", vertexShaderSource, fragmentShaderSource);
 }
 
+//void CellsViewportRenderer::UpdateVisibleCells() {
+//    int minX, minY, maxX, maxY;
+//    GetVisibleGridBounds(minX, minY, maxX, maxY);
+//
+//    float cellSize = pGameController->getCellSize();
+//    int gridWidth = pGameController->getGridWidth();
+//    visibleCellInstances.clear();
+//
+//    // Сохраняем информацию о каждой клетке
+//    for (int y = minY; y <= maxY; ++y) {
+//        for (int x = minX; x <= maxX; ++x) {
+//            float worldX = x * cellSize;
+//            float worldY = y * cellSize;
+//            visibleCellInstances.push_back({worldX, worldY});
+//        }
+//    }
+//}
+
 void CellsViewportRenderer::UpdateVisibleCells() {
     int minX, minY, maxX, maxY;
     GetVisibleGridBounds(minX, minY, maxX, maxY);
-
     float cellSize = pGameController->getCellSize();
-    int gridWidth = pGameController->getGridWidth();
     visibleCellInstances.clear();
 
-    // Сохраняем информацию о каждой клетке
+    std::vector<int> gridState;
+    pGameController->getGPUAutomaton().GetGridState(gridState);
+
     for (int y = minY; y <= maxY; ++y) {
         for (int x = minX; x <= maxX; ++x) {
-            float worldX = x * cellSize;
-            float worldY = y * cellSize;
-            visibleCellInstances.push_back({worldX, worldY});
+            int index = y * pGameController->getGridWidth() + x;
+            if (gridState[index] > 0) { // Только живые клетки
+                float worldX = x * cellSize;
+                float worldY = y * cellSize;
+                visibleCellInstances.push_back({ worldX, worldY });
+            }
         }
     }
 }

@@ -1,5 +1,21 @@
 #include "MainWindow.h"
 
+
+//// Динамическая загрузка RtlGetVersion
+typedef LONG(NTAPI* RtlGetVersionFunc)(RTL_OSVERSIONINFOW*);
+
+bool GetOSVersion(RTL_OSVERSIONINFOW& osvi) {
+    HMODULE hMod = GetModuleHandleW(L"ntdll.dll");
+    if (!hMod) return false;
+
+    RtlGetVersionFunc RtlGetVersion = (RtlGetVersionFunc)GetProcAddress(hMod, "RtlGetVersion");
+    if (!RtlGetVersion) return false;
+
+    osvi.dwOSVersionInfoSize = sizeof(osvi);
+    return RtlGetVersion(&osvi) == 0; // Успех, если возвращается STATUS_SUCCESS (0)
+}
+
+
 MainWindow::MainWindow(HINSTANCE hInstance, int width, int height, int xPos, int yPos) :
     hInstance(hInstance), hWnd(NULL), pController(nullptr),
     windowWidth(width), windowHeight(height),
@@ -10,21 +26,23 @@ MainWindow::MainWindow(HINSTANCE hInstance, int width, int height, int xPos, int
 HWND MainWindow::Create() {
 
     // Проверка версии Windows
-    OSVERSIONINFOEX osvi;
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    GetVersionEx((LPOSVERSIONINFO)&osvi);
-
-    // Windows 8.1 = Major 6, Minor 3
-    if (osvi.dwMajorVersion < 6 || (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion < 3)) {
-        int result = MessageBox(NULL,
-            L"Извините, но ваша версия Windows ниже 8.1. Это слишком мало для меня!\nХотите посетить сайт разработчика для поддержки?",
-            L"Ошибка версии Windows",
-            MB_YESNO | MB_ICONERROR);
-        if (result == IDYES) {
-            ShellExecute(NULL, L"open", L"https://yourwebsite.com", NULL, NULL, SW_SHOWNORMAL);
+    RTL_OSVERSIONINFOW osvi = { 0 };
+    if (GetOSVersion(osvi)) {
+        // Пример проверки: требуется Windows 7 или новее (Major Version >= 6, Minor Version >= 1)
+        if (osvi.dwMajorVersion < 8 || (osvi.dwMajorVersion == 1 && osvi.dwMinorVersion < 0)) {
+            int result = MessageBox(NULL,
+                L"Извините, но ваша версия Windows ниже 8.1. Это слишком мало для меня!\nХотите посетить сайт разработчика для поддержки?",
+                L"Ошибка версии Windows",
+                MB_YESNO | MB_ICONERROR);
+            if (result == IDYES) {
+                ShellExecute(NULL, L"open", L"https://support.microsoft.com/ru-ru/windows", NULL, NULL, SW_SHOWNORMAL);
+            }
+            exit(1); // Завершаем создание окна
         }
-        exit(1); // Завершаем создание окна
+
+    }
+    else {
+        MessageBox(nullptr, L"Я не смог определить версию windows, но попробую запустится, надеюсь получится.", L"Error", MB_OK | MB_ICONERROR);
     }
 
     WNDCLASSEX wc = { 0 };

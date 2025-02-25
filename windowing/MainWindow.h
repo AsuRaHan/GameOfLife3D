@@ -3,6 +3,8 @@
 #define MAINWINDOW_H_
 
 #include <Windows.h>
+#include <ntverp.h>
+
 #include "../res/resource.h"
 #include "WindowController.h"
 

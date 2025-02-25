@@ -9,8 +9,12 @@ GPUAutomaton::GPUAutomaton(int width, int height)
 }
 
 GPUAutomaton::~GPUAutomaton() {
-    GL_CHECK(glDeleteBuffers(2, cellsBuffer));
-    GL_CHECK(glDeleteBuffers(1, &colorsBuffer));
+    if (cellsBuffer[0] && cellsBuffer[1]) {
+        GL_CHECK(glDeleteBuffers(2, cellsBuffer));
+    }
+    if (colorsBuffer) {
+        GL_CHECK(glDeleteBuffers(1, &colorsBuffer));
+    }
 }
 
 void GPUAutomaton::CreateComputeShader() {
