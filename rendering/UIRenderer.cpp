@@ -137,7 +137,6 @@ void UIRenderer::DrawSimulationWindow() {
     ImGui::End();
 }
 
-
 void UIRenderer::DrawGameSettingsWindow() {
     if (!gameSettingsWindowVisible) return;
 
@@ -250,22 +249,38 @@ void UIRenderer::DrawGameSettingsWindow() {
     ImGui::End();
 }
 
-
 void UIRenderer::DrawSaveSettingsWindow() {
     if (!saveSettingsWindowVisible) return;
 
     ImGui::Begin("Сохранения", &saveSettingsWindowVisible, ImGuiWindowFlags_NoResize);
-    //ImGui::SetWindowSize(ImVec2(300, 0), ImGuiCond_Once);
+    ImGui::SetWindowSize(ImVec2(0, 300), ImGuiCond_Once);
 
     ImGui::Text("Имя файла");
-    ImGui::InputText("##fileName", saveFilename, IM_ARRAYSIZE(saveFilename));
+    ImGui::InputText("##fileName", saveFileName, IM_ARRAYSIZE(saveFileName));
     
     if (ImGui::Button("Сохранить", buttonSize)) {
-        gameController->saveGameState(saveFilename);
+        gameController->saveGameState(saveFileName);
     }
     if (ImGui::Button("Загрузить", buttonSize)) {
-        gameController->loadGameState(saveFilename);
+        gameController->loadGameState(saveFileName);
     }
+    if (gameController->IsSelectionActive()) {
+        ImGui::Separator();
+        ImGui::Text("Имя файла паттерна");
+        ImGui::InputText("##patternFileName", savePatternFileName, IM_ARRAYSIZE(savePatternFileName));
+        ImGui::Separator();
+        ImGui::Text("Название паттерна");
+        ImGui::InputText("##patternName", patterName, IM_ARRAYSIZE(patterName));
+        ImGui::Separator();
+        if (ImGui::Button("Сохранить паттерн", buttonSize)) {
+            gameController->SaveSelectedPatternToFile(savePatternFileName, patterName);
+        }
+    }
+    else {
+        ImGui::Text("Выделите облать поля");
+        ImGui::Text("Что бы сохранить паттерн");
+    }
+
 
     ImGui::End();
 }

@@ -287,6 +287,18 @@ bool GameController::loadGameState(const std::string& filename) {
     return retLoadVal;
 }
 
+void GameController::SaveSelectedPatternToFile(const std::string& filename, const std::string& patternName) {
+    if (!isSelectionActive || selectedCells.empty()) return;
+
+    // Сначала создаём паттерн из выделения
+    InsertSelectedCellsAsPattern();
+
+    // Сохраняем паттерн в файл
+    if (!insertablePattern.empty()) {
+        GameStateManager::SavePatternToCellsFile(filename, insertablePattern, patternName);
+    }
+}
+
 void GameController::loadPatternList(const std::string& patternFolder) {
     patternList.clear(); // Очищаем существующий список
 

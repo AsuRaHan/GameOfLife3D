@@ -1,162 +1,30 @@
 #include "GameStateManager.h"
 
 
-bool GameStateManager::validateDimensions(const Grid& grid, int width, int height) {
-    if (width <= 0 || height <= 0) {
-        std::cerr << "Некорректные размеры в файле" << std::endl;
-        return false;
-    }
-    if (width != grid.getWidth() || height != grid.getHeight()) {
-        std::cerr << "Размеры сетки в файле не совпадают с текущими размерами" << std::endl;
-        return false;
-    }
-    return true;
-} 
+bool GameStateManager::SavePatternToCellsFile(const std::string& filename, const std::vector<std::vector<bool>>& pattern, const std::string& patternName) {
+    if (pattern.empty() || pattern[0].empty()) return false;
 
-bool GameStateManager::saveGameState(const Grid& grid, const std::string& filename) {
-    std::ofstream file(filename);
+    std::ofstream file("./patterns/"+filename);
     if (!file.is_open()) {
-        std::cerr << "Не удалось открыть файл для записи: " << filename << std::endl;
-        return false;
+        return false; // Ошибка открытия файла
     }
 
-    // Добавляем заголовок формата
-    //file << "x = " << grid.getWidth() << ", y = " << grid.getHeight() << ", rule = B3/S23\n"; // Это не обязательно, но может быть полезно
+    // Записываем метаданные
+    file << "!Name: " << patternName << "\n";
+    file << "!Created by Game of Life 3D\n";
+    file << "!Welcom to https://github.com/AsuRaHan/GameOfLife3D\n";
 
-    // Добавляем комментарии
-    file << "!Name: Saved world to Pattern\n";
-    file << "!Description: Just an https://github.com/AsuRaHan/GameOfLife3D\n";
-
-    // Сохранение паттерна
-    for (int y = 0; y < grid.getHeight(); ++y) {
-        for (int x = 0; x < grid.getWidth(); ++x) {
-            file << (grid.getCellState(x, y) ? 'O' : '.');
+    // Записываем паттерн
+    for (size_t y = 0; y < pattern.size(); ++y) {
+        for (size_t x = 0; x < pattern[y].size(); ++x) {
+            file << (pattern[y][x] ? "O" : ".");
         }
-        file << '\n';
+        file << "\n";
     }
 
+    file.close();
     return true;
 }
-
-bool GameStateManager::loadGameState(Grid& grid, const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Не удалось открыть файл для чтения: " << filename << std::endl;
-        return false;
-    }
-
-    std::string line;
-    std::vector<std::string> patternLines;
-
-    // Пропускаем комментарии и заголовок, если они есть
-    while (std::getline(file, line)) {
-        if (line.empty() || line[0] == '!') continue; // Пропускаем комментарии
-        if (line.find("x =") == 0) continue; // Пропускаем строку с размерами, если она есть
-
-        patternLines.push_back(line);
-    }
-
-    if (patternLines.empty()) {
-        std::cerr << "Файл не содержит данных для паттерна." << std::endl;
-        return false;
-    }
-
-    int height = static_cast<int>(patternLines.size());
-    int width = static_cast<int>(patternLines[0].length());
-
-    // Убедимся, что размеры сетки совпадают
-    if (width != grid.getWidth() || height != grid.getHeight()) {
-        std::cerr << "Размеры паттерна не совпадают с текущими размерами сетки." << std::endl;
-        return false;
-    }
-
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            if (x < static_cast<int>(patternLines[y].length())) {
-                grid.setCellState(x, y, patternLines[y][x] == 'O');
-                if (patternLines[y][x] == 'O') {
-                    grid.setCellColor(x, y, 0.0f, 0.6f, 0.0f); // Зеленый для живой клетки
-                }
-                else {
-                    grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f); // Черный для мертвой клетки
-                }
-            }
-        }
-    }
-
-    return true;
-}
-
-//bool GameStateManager::saveBinaryGameState(const Grid& grid, const std::string& filename) {
-//    std::ofstream file(filename, std::ios::binary);
-//    if (!file.is_open()) {
-//        std::cerr << "Не удалось открыть файл для бинарной записи: " << filename << std::endl;
-//        return false;
-//    }
-//
-//    auto* automaton = grid.GetGPUAutomaton();
-//    int width = grid.getWidth();
-//    int height = grid.getHeight();
-//
-//    // Записываем сигнатуру
-//    file.write(GAME_FILE_MAGIC_NUMBER, strlen(GAME_FILE_MAGIC_NUMBER));
-//
-//    // Записываем ширину и высоту
-//    file.write(reinterpret_cast<const char*>(&width), sizeof(int));
-//    file.write(reinterpret_cast<const char*>(&height), sizeof(int));
-//
-//    // Сохраняем состояние клеток
-//    std::vector<int> states;
-//    automaton->GetGridState(states);
-//    file.write(reinterpret_cast<const char*>(states.data()), sizeof(int) * states.size());
-//
-//    // Сохраняем цвета
-//    std::vector<float> colors;
-//    automaton->GetColorsBuf(colors);
-//    file.write(reinterpret_cast<const char*>(colors.data()), sizeof(float) * colors.size());
-//
-//    return true;
-//}
-
-//bool GameStateManager::loadBinaryGameState(Grid& grid, const std::string& filename) {
-//    std::ifstream file(filename, std::ios::binary);
-//    if (!file.is_open()) {
-//        std::cerr << "Не удалось открыть файл для бинарного чтения: " << filename << std::endl;
-//        return false;
-//    }
-//
-//    // Проверяем сигнатуру
-//    char magic[5] = { 0 }; // +1 для нулевого символа
-//    file.read(magic, strlen(GAME_FILE_MAGIC_NUMBER));
-//    if (std::memcmp(magic, GAME_FILE_MAGIC_NUMBER, strlen(GAME_FILE_MAGIC_NUMBER)) != 0) {
-//        std::cerr << "Файл имеет неверный формат или поврежден." << std::endl;
-//        return false;
-//    }
-//
-//    int width, height;
-//    file.read(reinterpret_cast<char*>(&width), sizeof(int));
-//    file.read(reinterpret_cast<char*>(&height), sizeof(int));
-//
-//    // Проверка соответствия размеров
-//    auto* automaton = grid.GetGPUAutomaton();
-//    if (width != grid.getWidth() || height != grid.getHeight()) {
-//        std::cerr << "Размеры в загружаемом файле не совпадают с текущими размерами сетки." << std::endl;
-//        return false;
-//    }
-//
-//    // Чтение состояния клеток
-//    std::vector<int> states(width * height);
-//    file.read(reinterpret_cast<char*>(states.data()), sizeof(int) * states.size());
-//    automaton->SetGridState(states);
-//
-//    // Чтение цветов
-//    std::vector<float> colors(width * height * 4);
-//    file.read(reinterpret_cast<char*>(colors.data()), sizeof(float) * colors.size());
-//    automaton->SetColorsBuf(colors);
-//
-//    // Возвращаем true, предполагая, что цвета уже преобразуются в состояние клеток внутри GPUAutomaton
-//    return true;
-//}
 
 bool GameStateManager::CompressData(const BYTE* uncompressedData, SIZE_T uncompressedSize, BYTE** compressedData, SIZE_T* compressedSize) {
     COMPRESSOR_HANDLE compressor;

@@ -32,7 +32,9 @@ private:
     int fieldWidth = 400;  // Пример значений, которые можно изменять
     int fieldHeight = 300;
 
-    char saveFilename[128] = "state.golb";
+    char saveFileName[128] = "state.golb";
+    char savePatternFileName[128] = "new_pattern.cells";
+    char patterName[128] = "My new pattern";
     std::string aboutText;
 
     ImVec2 buttonSize; // Задаем фиксированный размер для кнопок

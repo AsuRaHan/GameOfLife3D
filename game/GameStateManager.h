@@ -18,19 +18,18 @@
 
 class GameStateManager {
 public:
-    // Базовое сохранение/загрузка (только состояния клеток)
-    static bool saveGameState(const Grid& grid, const std::string& filename);
-    static bool loadGameState(Grid& grid, const std::string& filename);
-
+    // Базовое сохранение/загрузка
     static bool loadBinaryGameState(Grid& grid, const std::string& filename, int& loadStatus);
     static bool saveBinaryGameState(const Grid& grid, const std::string& filename);
+
+    // сохранение выделенной области игрового поля как петтерна
+    static bool SavePatternToCellsFile(const std::string& filename, const std::vector<std::vector<bool>>& pattern, const std::string& patternName);
 private:
     struct SectionHeader {
-        char type[4]; // 4 символа для типа (например, "STAT" для состояний, "COLR" для цветов)
+        char type[4]; // 4 символа для типа ("STAT" для состояний, "COLR" для цветов)
         SIZE_T size;  // Размер данных в байтах
     };
     // Вспомогательные методы
-    static bool validateDimensions(const Grid& grid, int width, int height);
 
     static bool CompressData(const BYTE* uncompressedData, SIZE_T uncompressedSize, BYTE** compressedData, SIZE_T* compressedSize);
     static bool DecompressData(const BYTE* compressedData, SIZE_T compressedSize, BYTE** decompressedData, SIZE_T* decompressedSize);

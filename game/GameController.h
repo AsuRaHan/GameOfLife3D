@@ -152,9 +152,9 @@ public:
     // Новые методы для сохранения и загрузки состояния игры
     bool saveGameState(const std::string& filename);
     bool loadGameState(const std::string& filename);
+    void SaveSelectedPatternToFile(const std::string& filename, const std::string& patternName);
 
     Pattern rotateOrFlip(const Pattern& pattern, Rotation rotation);
-
     void SetRendererProvider(IRendererProvider* provider);
 
     GPUAutomaton& getGPUAutomaton() { return gpuAutomaton; }
