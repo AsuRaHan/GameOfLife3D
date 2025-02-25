@@ -13,6 +13,7 @@
 #include "GridRenderer.h"
 #include "TextureFieldRenderer.h"
 #include "CellsViewportRenderer.h"
+#include "PatternInserterRenderer.h"
 
 #include <vector>
 #include <memory>
@@ -47,6 +48,7 @@ private:
     GridRenderer gridRenderer;
     TextureFieldRenderer textureFieldRenderer;
     CellsViewportRenderer cellsViewportRenderer;
+    PatternInserterRenderer patternInserterRenderer;
 
     void SetupOpenGL();
 

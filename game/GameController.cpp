@@ -4,11 +4,12 @@ GameController::GameController(int width, int height, float cellSize)
     : grid(width, height), 
     gpuAutomaton(grid.getWidth(), grid.getHeight()),
     cellSize(cellSize), 
-    isRunning(false), showGrid(true), showUI(true), isWorldToroidal(true),
+    isRunning(false), showGrid(true), showUI(true), isWorldToroidal(true), isPatternPlacementMode(false),
     currentPatternRotator(0), isSelectionActive(false),
     rendererProvider(nullptr)
 {
-    currentPattern = glider;
+    //currentPattern = glider;
+    //insertablePattern = currentPattern;
     std::srand(static_cast<unsigned int>(std::time(nullptr))); // Инициализация генератора случайных чисел
     grid.SetGPUAutomaton(&gpuAutomaton);
     gpuAutomaton.SetToroidal(isWorldToroidal);
@@ -29,9 +30,7 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
         for (auto y = patternHeight - 1; y >= 0; --y) { // Итерируемся снизу вверх
             for (auto x = 0; x < patternWidth; ++x) {
                 // Инвертируем x, чтобы перевернуть паттерн по горизонтали
-                /*grid.setCellState(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), pattern[y][x]);*/
                 if (pattern[y][x]) {
-                    //grid.setCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), 0.5f, 0.9f, 0.5f);
                     grid.SetCellType(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), cellType);
                 }
                 else {
@@ -40,31 +39,15 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
                 }
             }
         }
+        SetPatternPlacementMode(false);
     }
 }
 
 void GameController::PlacePattern(int startX, int startY) {
     if (isRunning) return;
 
-    static const Rotation rotationByIndex[] = {
-        Rotation::Rotate90,
-        Rotation::Rotate180,
-        Rotation::Rotate270,
-        Rotation::FlipHorizontal,
-        Rotation::FlipVertical
-    };
-
-    Pattern newPattern = currentPattern;
-
-    if (currentPatternRotator > 0) { // наш комбобокс имеет 6 значений. а ротатор всего 5. первый индекс это отсутствие вращения
-        if (currentPatternRotator >= 1 && currentPatternRotator < 6) { // Проверка на допустимость индекса
-            Rotation rotation = rotationByIndex[currentPatternRotator - 1]; // текущий индекс вращение - индекс отсутствия вращения
-            newPattern = rotateOrFlip(currentPattern, rotation);
-        }
-    }
-
-    if (!currentPattern.empty()) {
-        placePattern(startX, startY, newPattern); // Используем уже существующий метод
+    if (!insertablePattern.empty()) {
+        placePattern(startX, startY, insertablePattern); // Используем уже существующий метод
     }
 }
 
@@ -80,7 +63,6 @@ void GameController::randomizeGrid(float density) {
     std::random_device rd;
     std::mt19937 gen(rd());
     unsigned int seed = gen(); // Генерируем случайное число для seed
-
     // Вызов метода RandomizeGrid с density и seed
     gpuAutomaton.RandomizeGrid(density, seed);
 }
@@ -128,26 +110,20 @@ bool GameController::isSimulationRunning() const {
 }
 
 void GameController::toggleCellState(int x, int y) {
-    if (isRunning) return;
+    if (isRunning || isPatternPlacementMode) return;
     int currentState = grid.getCellState(x, y);
-    //grid.setCellState(x, y, !currentState);
     if (currentState == 0) {
         grid.SetCellType(x, y, cellType);
-        //grid.setCellColor(x, y, 0.1f, 0.4f, 0.1f);
     }
     else {
         grid.SetCellType(x, y, 0);
-        //grid.setCellColor(x, y, 0.0f, 0.0f, 0.0f);
     }
 
 }
 
 void GameController::setLiveCell(int x, int y, bool state) {
-    if (isRunning) return;
-    //grid.setCellState(x, y, state);
+    if (isRunning || isPatternPlacementMode) return;
     grid.SetCellType(x, y, cellType);
-    //grid.setCellColor(x, y, 0.1f, 0.4f, 0.1f);
-
 }
 
 bool GameController::getCellState(int x, int y) const {
@@ -194,10 +170,50 @@ void GameController::setCurrentPattern(int patternNumber) {
     default:
         break;
     }
+    insertablePattern = currentPattern;
+    SetPatternPlacementMode(true);
 }
 
 void GameController::setCurrentPatternRotator(int patternRotator) {
      currentPatternRotator = patternRotator;
+
+     static const Rotation rotationByIndex[] = {
+    Rotation::Rotate90,
+    Rotation::Rotate180,
+    Rotation::Rotate270,
+    Rotation::FlipHorizontal,
+    Rotation::FlipVertical
+     };
+
+     insertablePattern = currentPattern;
+
+     if (currentPatternRotator > 0) { // наш комбобокс имеет 6 значений. а ротатор всего 5. первый индекс это отсутствие вращения
+         if (currentPatternRotator >= 1 && currentPatternRotator < 6) { // Проверка на допустимость индекса
+             Rotation rotation = rotationByIndex[currentPatternRotator - 1]; // текущий индекс вращение - индекс отсутствия вращения
+             insertablePattern = rotateOrFlip(currentPattern, rotation);
+         }
+     }
+     SetPatternPlacementMode(true);
+}
+
+void GameController::flipOrRotateInsertablePattern(int patternRotator) {
+    currentPatternRotator = patternRotator;
+
+    static const Rotation rotationByIndex[] = {
+   Rotation::Rotate90,
+   Rotation::Rotate180,
+   Rotation::Rotate270,
+   Rotation::FlipHorizontal,
+   Rotation::FlipVertical
+    };
+
+    if (currentPatternRotator > 0) { // наш комбобокс имеет 6 значений. а ротатор всего 5. первый индекс это отсутствие вращения
+        if (currentPatternRotator >= 1 && currentPatternRotator < 6) { // Проверка на допустимость индекса
+            Rotation rotation = rotationByIndex[currentPatternRotator - 1]; // текущий индекс вращение - индекс отсутствия вращения
+            insertablePattern = rotateOrFlip(insertablePattern, rotation);
+        }
+    }
+    SetPatternPlacementMode(true);
 }
 
 void GameController::setSimulationSpeed(int speed) {
@@ -301,7 +317,8 @@ void GameController::loadPatternList(const std::string& patternFolder) {
 void GameController::setCurrentPatternFromFile(const std::string& filename, int startX, int startY) {
     PatternManager patternManager;
     try {
-        currentPattern = patternManager.LoadPatternFromCells(filename);
+        insertablePattern = patternManager.LoadPatternFromCells(filename);
+        SetPatternPlacementMode(true);
     }
     catch (const std::exception& e) {
         std::cerr << "Ошибка при выборе паттерна: " << e.what() << std::endl;
@@ -366,7 +383,7 @@ void GameController::ReviveSelectedCells() {
     isSelectionActive = false;
 }
 
-void GameController::SaveSelectedCellsAsPattern() {
+void GameController::InsertSelectedCellsAsPattern() {
     if (!isSelectionActive) return;
 
     // Определяем границы выделения
@@ -395,10 +412,37 @@ void GameController::SaveSelectedCellsAsPattern() {
     }
     // Сохраняем паттерн
     currentPattern = newPattern;
+    insertablePattern = currentPattern;
     isSelectionActive = false;
 }
 
 void GameController::SetCellType(int type)
 {
-    cellType = type - 6;
+    cellType = type;
+}
+
+void GameController::SetPatternPlacementMode(bool enabled)
+{
+    if (isRunning) return;
+
+    if (!insertablePattern.empty()) {
+        isPatternPlacementMode = enabled;
+    }
+    
+}
+
+void GameController::UpdatePatternPreviewPosition(int x, int y) {
+    int gridWidth = grid.getWidth();
+    int gridHeight = grid.getHeight();
+
+    int patternWidth = currentPattern.empty() ? 0 : currentPattern[0].size();
+    int patternHeight = currentPattern.empty() ? 0 : currentPattern.size();
+
+    // Ограничиваем координаты, чтобы паттерн не выходил за пределы сетки
+    if (x < 0) x = 0;
+    else if (x + patternWidth > gridWidth) x = gridWidth - patternWidth;
+    if (y < 0) y = 0;
+    else if (y + patternHeight > gridHeight) y = gridHeight - patternHeight;
+
+    patternPreviewPosition = Vector3d(x, y, 0.0f);
 }

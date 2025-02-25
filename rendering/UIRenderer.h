@@ -57,11 +57,8 @@ private:
 
 public:
     UIRenderer(GameController* gc);
-
     void SetGPUAutomaton(GPUAutomaton* ga) { gpuAutomaton = ga; } // Добавляем сеттер
-    void InitializeUI();
     void DrawUI();
-    void UpdateUIState();
 };
 
 #endif // UIRenderer_H_

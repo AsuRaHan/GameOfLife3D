@@ -7,6 +7,7 @@ Renderer::Renderer(int width, int height)
     gridRenderer(camera, shaderManager),
     textureFieldRenderer(camera, shaderManager)
     , cellsViewportRenderer(camera, shaderManager)
+    , patternInserterRenderer(camera, shaderManager)
 {
     SetupOpenGL();
     OnWindowResize(width, height);
@@ -34,18 +35,19 @@ void Renderer::SetGameController(GameController* gameController) {
     pGameController = gameController;
 
     uiRenderer = UIRenderer(pGameController);
-    uiRenderer.InitializeUI();
 
     selectionRenderer.SetGameController(gameController);
     gridRenderer.SetGameController(gameController);
     textureFieldRenderer.SetGameController(gameController);
     cellsViewportRenderer.SetGameController(gameController);
+    patternInserterRenderer.SetGameController(gameController);
 
     // Инициализируем буферы после установки GameController
     selectionRenderer.Initialize();
     gridRenderer.Initialize();
     textureFieldRenderer.Initialize();
     cellsViewportRenderer.Initialize();
+    patternInserterRenderer.Initialize();
 }
 
 void Renderer::Draw() {
@@ -55,6 +57,10 @@ void Renderer::Draw() {
     float cameraDistance = camera.GetDistance();
     // Всегда рисуем выделение, если активно
     selectionRenderer.Draw();
+    if (pGameController && pGameController->IsPatternPlacementMode()) {
+        patternInserterRenderer.Draw();
+    }
+    
     if (cameraDistance < 300.0f) {
         // Камера ближе 300: рисуем ячейки
         cellsViewportRenderer.Draw();

@@ -104,6 +104,9 @@
     <ClCompile Include="system\PerformanceStats.cpp">
       <Filter>system</Filter>
     </ClCompile>
+    <ClCompile Include="rendering\PatternInserterRenderer.cpp">
+      <Filter>rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rendering\Camera.h">
@@ -207,6 +210,9 @@
     </ClInclude>
     <ClInclude Include="system\PerformanceStats.h">
       <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\PatternInserterRenderer.h">
+      <Filter>rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

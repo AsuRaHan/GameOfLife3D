@@ -90,6 +90,13 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         inputHandler.ProcessEvent(event);
         break;
     case WM_MOUSEMOVE:
+        if (pGameController->IsPatternPlacementMode()) {
+            float worldX, worldY;
+            gridPicker.ScreenToWorld(LOWORD(lParam), HIWORD(lParam), windowWidth, windowHeight, worldX, worldY);
+            int x = static_cast<int>(worldX / pGameController->getCellSize());
+            int y = static_cast<int>(worldY / pGameController->getCellSize());
+            pGameController->UpdatePatternPreviewPosition(x, y);
+        }
         if (GetKeyState(VK_SHIFT) & 0x8000) {
             if (wParam & MK_LBUTTON) { // Если левая кнопка мыши зажата
                 if (isLeftButtonDown) UpdateSelection(LOWORD(lParam), HIWORD(lParam));
@@ -155,12 +162,15 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         event.key = static_cast<int>(wParam);
         inputHandler.ProcessEvent(event);
         // Здесь может быть дополнительная обработка клавиш, не связанных с камерой
-        if (wParam >= '1' && wParam <= '6') {
-            pGameController->setCurrentPattern(wParam - '0');
+        if (!pGameController->isSimulationRunning()) {
+            if (wParam >= '1' && wParam <= '6') {
+                pGameController->setCurrentPattern(wParam - '0');
+            }
+            if (wParam >= '7' && wParam <= '9') {
+                pGameController->SetCellType((wParam - '0') - 6);
+            }
         }
-        if (wParam >= '7' && wParam <= '9') {
-            pGameController->SetCellType(wParam - '0');
-        }
+
         switch (wParam) {
         case VK_DELETE:
             if (!pGameController->isSimulationRunning() && pGameController->IsSelectionActive()) {
@@ -169,6 +179,7 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             break;        
         case VK_ESCAPE:
                 pGameController->setlectionActive(false); // Убиваем выделение
+                pGameController->SetPatternPlacementMode(false); // Убиваем паттерн вставлялку
             break;
         case VK_INSERT:
             if (!pGameController->isSimulationRunning() && pGameController->IsSelectionActive()) {
@@ -214,7 +225,32 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
         case 'I':
             if (!pGameController->isSimulationRunning()) {
-                pGameController->SaveSelectedCellsAsPattern();
+                pGameController->InsertSelectedCellsAsPattern();
+            }
+            break;        
+        case 'P':
+            if (!pGameController->isSimulationRunning()) {
+                pGameController->SetPatternPlacementMode(true); // включаем паттерн вставлялку
+            }
+            break;
+        case VK_LEFT:
+            if (!pGameController->isSimulationRunning()) {
+                pGameController->flipOrRotateInsertablePattern(4);
+            }
+            break;
+        case VK_RIGHT:
+            if (!pGameController->isSimulationRunning()) {
+                pGameController->flipOrRotateInsertablePattern(4);
+            }
+            break;
+        case VK_UP:
+            if (!pGameController->isSimulationRunning()) {
+                pGameController->flipOrRotateInsertablePattern(5);
+            }
+            break;
+        case VK_DOWN:
+            if (!pGameController->isSimulationRunning()) {
+                pGameController->flipOrRotateInsertablePattern(5);
             }
             break;
         }

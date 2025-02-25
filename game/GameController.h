@@ -85,7 +85,8 @@ private:
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     };
 
-    Pattern currentPattern; // Добавляем поле для хранения текущего паттерна
+    Pattern currentPattern; // поле для хранения текущего паттерна
+    Pattern insertablePattern; // поле для хранения вставляемого паттерна
     int currentPatternRotator;
     enum class Rotation {
         Rotate90,      // Поворот на 90 градусов по часовой стрелке
@@ -103,6 +104,9 @@ private:
 
     std::vector<Vector3d> selectedCells; // Массив для хранения выделенных клеток
     int cellType = 1;
+
+    bool isPatternPlacementMode; // Флаг режима вставки паттерна
+    Vector3d patternPreviewPosition; // Позиция предпросмотра паттерна
 public:
     GameController(int width, int height, float cellSize = 0.5f);
 
@@ -139,7 +143,7 @@ public:
 
     void setCurrentPattern(int patternNumber);
     void setCurrentPatternRotator(int patternNumber);
-
+    void flipOrRotateInsertablePattern(int patternRotator);
     void setWoldToroidal(bool wt);
     bool getWoldToroidal() const { return isWorldToroidal; };
 
@@ -176,7 +180,14 @@ public:
     void ReviveSelectedCells();
     const std::vector<Vector3d>& GetSelectedCells() const { return selectedCells; }
 
-    void SaveSelectedCellsAsPattern();
+    void InsertSelectedCellsAsPattern();
     void SetCellType(int type); // метод для установки типа клетки
+
+    void SetPatternPlacementMode(bool enabled);
+    bool IsPatternPlacementMode() const { return isPatternPlacementMode; }
+    void UpdatePatternPreviewPosition(int x, int y); // Обновление позиции предпросмотра
+    Vector3d GetPatternPreviewPosition() const { return patternPreviewPosition; }
+    const Pattern& getCurrentPattern() const { return insertablePattern; } // Доступ к паттерну
+    int getCellType() const { return cellType; } // Доступ к типу клеток
 };
 #endif // GAMECONTROLLER_H_

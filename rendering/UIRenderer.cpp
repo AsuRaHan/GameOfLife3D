@@ -6,10 +6,6 @@ UIRenderer::UIRenderer(GameController* gc) : gameController(gc), showExitDialog(
     buttonSize = ImVec2(200, 30);
 }
 
-void UIRenderer::InitializeUI() {
-    // Вы можете добавить здесь инициализацию или настройку UI, если это необходимо
-}
-
 std::string UIRenderer::LoadTextFromResource(HINSTANCE hInstance, int resourceId) {
     HRSRC hResource = FindResource(hInstance, MAKEINTRESOURCE(resourceId), RT_RCDATA);
     if (!hResource) {
@@ -230,21 +226,20 @@ void UIRenderer::DrawGameSettingsWindow() {
             ImGui::Text("Перенаселение (O):");
             ImGui::Separator();
             static bool overpopulationRules[9] = { false };
-            for (int i = 0; i <= 8; i++) {
+            for (int i = 1; i <= 8; i++) { // Начинаем с 1, пропускаем 0
                 ImGui::BeginGroup();
                 ImGui::Text("%d соседей", i);
                 ImGui::Checkbox(("##overpop" + std::to_string(i)).c_str(), &overpopulationRules[i]);
                 ImGui::EndGroup();
-                if (i % 3 != 2) ImGui::SameLine();
+                if (i % 3 != 0) ImGui::SameLine(); // 3 в ряд, но учитываем, что начинаем с 1
             }
-
+            ImGui::NewLine();
             // Кнопка применения
             if (ImGui::Button("Применить")) {
                 gpuAutomaton->setBirthRules(birthRules);
                 gpuAutomaton->setSurviveRules(surviveRules);
                 gpuAutomaton->setOverpopulationRules(overpopulationRules);
             }
-
             ImGui::End();
         }
     }
@@ -345,26 +340,15 @@ void UIRenderer::DrawPatternWindow() {
     if (ImGui::Combo("##selectRotator", &selectedPatternRotator, patternsRotator, IM_ARRAYSIZE(patternsRotator))) {
         gameController->setCurrentPatternRotator(selectedPatternRotator);
     }
-    // 1. Кнопка "Загрузить список"
     if (ImGui::Button("Загрузить список", buttonSize)) {
         gameController->loadPatternList();
         patternListLoaded = true;
         selectedPatternIndex = -1; // Сбрасываем выбор при новой загрузке
     }
-
-    // 2. Сепаратор
     ImGui::Separator();
-
-    // 3. Лейбл с текущим паттерном
     ImGui::Text("Текущий паттерн: %s", currentPatternName.c_str());
-
-    // 4. Сепаратор
     ImGui::Separator();
-
-    // 5. Поле для поиска
     ImGui::InputText("Поиск", searchFilter, IM_ARRAYSIZE(searchFilter));
-
-    // 6. Список загруженных паттернов с прокруткой и фильтром
     if (patternListLoaded) {
         const auto& patterns = gameController->getPatternList();
         if (patterns.empty()) {
@@ -375,9 +359,9 @@ void UIRenderer::DrawPatternWindow() {
             }
         }
         else {
-            // Начинаем область с прокруткой
-            ImGui::BeginChild("PatternList", ImVec2(0, 270), true);
 
+            // Начинаем область с прокруткой
+            ImGui::BeginChild("PatternList", ImVec2(0, 270), false);
             for (size_t i = 0; i < patterns.size(); ++i) {
                 std::string itemName = std::filesystem::path(patterns[i]).filename().string();
                 // Фильтруем по имени файла
@@ -390,18 +374,15 @@ void UIRenderer::DrawPatternWindow() {
                     if (ImGui::Selectable(itemName.c_str(), selectedPatternIndex == static_cast<int>(i))) {
                         selectedPatternIndex = static_cast<int>(i);
                         currentPatternName = itemName;
+                        ImGui::SetWindowFocus(nullptr);
                         gameController->setCurrentPatternFromFile(gameController->getPatternList()[selectedPatternIndex], gameController->getGridWidth() / 2, gameController->getGridHeight() / 2);
                     }
                 }
             }
-
             ImGui::EndChild(); // Заканчиваем область с прокруткой
         }
     }
 
     ImGui::End();
-}
 
-void UIRenderer::UpdateUIState() {
-    // Это место для обновления состояния UI на основе изменений в игре или других событий
 }

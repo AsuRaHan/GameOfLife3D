@@ -112,15 +112,13 @@ void main() {
     if (useAdvancedRules == 1) {
         // Расширенный режим (B/S)
         if (currentState > 0) {
-            if (currentState > 0) {
             if (canSurvive(neighbors) && !isOverpopulated(neighbors)) nextState = currentState;
-                else nextState = 0;
-            } nextState = 0;
+            else nextState = 0;
         } else if (canBeBorn(neighbors)) {
             nextState = determineNewType(pos);
         }
     } else {
-        // Старый режим
+        // обычный режим
         if (currentState > 0) { // Живая клетка
             if (neighbors >= survivalMin && neighbors <= survivalMax && neighbors < overpopulation) {
                 nextState = currentState; // Сохраняем тип

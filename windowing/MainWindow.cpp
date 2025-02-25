@@ -61,17 +61,20 @@ void MainWindow::SetController(WindowController* controller) {
     pController = controller;
 }
 
+HWND MainWindow::GetHwnd() const { return hWnd; }
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+    MainWindow* pThis;
     if (message == WM_NCCREATE) {
         // Извлекаем указатель на MainWindow из lParam при создании окна
         CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
-        MainWindow* pThis = static_cast<MainWindow*>(pCreate->lpCreateParams);
+        pThis = static_cast<MainWindow*>(pCreate->lpCreateParams);
         SetWindowLongPtr(hWnd, 0, reinterpret_cast<LONG_PTR>(pThis));
     }
 
-    MainWindow* pThis = reinterpret_cast<MainWindow*>(GetWindowLongPtr(hWnd, 0));
+    pThis = reinterpret_cast<MainWindow*>(GetWindowLongPtr(hWnd, 0));
 
     if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
         return true;
@@ -86,6 +89,8 @@ LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
             pThis->pController->HandleEvent(message, wParam, lParam);
         }
     }
+
+
 
     // Обработка оставшихся сообщений
     switch (message) {
@@ -112,4 +117,3 @@ LRESULT CALLBACK MainWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
     return 0;
 }
 
-HWND MainWindow::GetHwnd() const { return hWnd; }

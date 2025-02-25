@@ -169,6 +169,7 @@
     <ClCompile Include="rendering\CellsRenderer.cpp" />
     <ClCompile Include="rendering\CellsViewportRenderer.cpp" />
     <ClCompile Include="rendering\GridRenderer.cpp" />
+    <ClCompile Include="rendering\PatternInserterRenderer.cpp" />
     <ClCompile Include="rendering\Renderer.cpp" />
     <ClCompile Include="rendering\SelectionRenderer.cpp" />
     <ClCompile Include="rendering\TextureFieldRenderer.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="rendering\CellsViewportRenderer.h" />
     <ClInclude Include="rendering\GridRenderer.h" />
     <ClInclude Include="rendering\IRendererProvider.h" />
+    <ClInclude Include="rendering\PatternInserterRenderer.h" />
     <ClInclude Include="rendering\Renderer.h" />
     <ClInclude Include="rendering\SelectionRenderer.h" />
     <ClInclude Include="rendering\TextureFieldRenderer.h" />
