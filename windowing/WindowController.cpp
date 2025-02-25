@@ -253,6 +253,11 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
                 pGameController->flipOrRotateInsertablePattern(5);
             }
             break;
+        case VK_END:
+            if (!pGameController->isSimulationRunning()) {
+                pGameController->flipOrRotateInsertablePattern(1);
+            }
+            break;
         }
         break;
     default:

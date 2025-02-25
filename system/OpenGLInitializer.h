@@ -1,7 +1,7 @@
 #pragma once
 #ifndef OPENGLINITIALIZER_H_
 #define OPENGLINITIALIZER_H_
-
+#include "GLFunctions.h"
 #include "OpenGLDebug.h"
 
 #include <Windows.h>

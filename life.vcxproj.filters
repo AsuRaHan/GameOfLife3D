@@ -86,9 +86,6 @@
     <ClCompile Include="system\OpenGLDebug.cpp">
       <Filter>system</Filter>
     </ClCompile>
-    <ClCompile Include="rendering\CellsRenderer.cpp">
-      <Filter>rendering</Filter>
-    </ClCompile>
     <ClCompile Include="rendering\GridRenderer.cpp">
       <Filter>rendering</Filter>
     </ClCompile>
@@ -192,9 +189,6 @@
     </ClInclude>
     <ClInclude Include="game\GameController.h">
       <Filter>game</Filter>
-    </ClInclude>
-    <ClInclude Include="rendering\CellsRenderer.h">
-      <Filter>rendering</Filter>
     </ClInclude>
     <ClInclude Include="rendering\GridRenderer.h">
       <Filter>rendering</Filter>

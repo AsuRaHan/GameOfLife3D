@@ -8,6 +8,25 @@ MainWindow::MainWindow(HINSTANCE hInstance, int width, int height, int xPos, int
 }
 
 HWND MainWindow::Create() {
+
+    // Проверка версии Windows
+    OSVERSIONINFOEX osvi;
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+    GetVersionEx((LPOSVERSIONINFO)&osvi);
+
+    // Windows 8.1 = Major 6, Minor 3
+    if (osvi.dwMajorVersion < 6 || (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion < 3)) {
+        int result = MessageBox(NULL,
+            L"Извините, но ваша версия Windows ниже 8.1. Это слишком мало для меня!\nХотите посетить сайт разработчика для поддержки?",
+            L"Ошибка версии Windows",
+            MB_YESNO | MB_ICONERROR);
+        if (result == IDYES) {
+            ShellExecute(NULL, L"open", L"https://yourwebsite.com", NULL, NULL, SW_SHOWNORMAL);
+        }
+        exit(1); // Завершаем создание окна
+    }
+
     WNDCLASSEX wc = { 0 };
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_HREDRAW | CS_VREDRAW;

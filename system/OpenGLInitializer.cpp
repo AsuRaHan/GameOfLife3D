@@ -1,5 +1,4 @@
 #include "OpenGLInitializer.h"
-#include "GLFunctions.h"
 
 OpenGLInitializer::OpenGLInitializer(HWND hWnd) : hRC(NULL), hDC(NULL),
 wglChoosePixelFormatARB(nullptr), wglCreateContextAttribsARB(nullptr)
@@ -144,6 +143,20 @@ bool OpenGLInitializer::Initialize(bool fullScreen, int width, int height) {
     versionStream >> major; // Основная версия
     versionStream.ignore(1); // Игнорируем точку
     versionStream >> minor; // Минорная версия
+
+    if (major < 4 || (major == 4 && minor < 3)) {
+        int result = MessageBox(NULL,
+            L"Ваша версия OpenGL ниже 4.3. Обновите драйверы видеокарты или обратитесь к разработчику.\nХотите посетить сайт разработчика для поддержки?",
+            L"Ошибка версии OpenGL",
+            MB_YESNO | MB_ICONERROR);
+        if (result == IDYES) {
+            ShellExecute(NULL, L"open", L"https://github.com/AsuRaHan/GameOfLife3D", NULL, NULL, SW_SHOWNORMAL);
+        }
+        wglDeleteContext(temporaryRC);
+        ReleaseDC(temporaryWindow, temporaryDC);
+        DestroyWindow(temporaryWindow);
+        exit(1);
+    }
 
     const int contextAttributes[] = {
         WGL_CONTEXT_MAJOR_VERSION_ARB, major,

@@ -166,7 +166,6 @@
     <ClCompile Include="rendering\BaseRenderer.cpp" />
     <ClCompile Include="rendering\Camera.cpp" />
     <ClCompile Include="rendering\CameraController.cpp" />
-    <ClCompile Include="rendering\CellsRenderer.cpp" />
     <ClCompile Include="rendering\CellsViewportRenderer.cpp" />
     <ClCompile Include="rendering\GridRenderer.cpp" />
     <ClCompile Include="rendering\PatternInserterRenderer.cpp" />
@@ -200,7 +199,6 @@
     <ClInclude Include="rendering\BaseRenderer.h" />
     <ClInclude Include="rendering\Camera.h" />
     <ClInclude Include="rendering\CameraController.h" />
-    <ClInclude Include="rendering\CellsRenderer.h" />
     <ClInclude Include="rendering\CellsViewportRenderer.h" />
     <ClInclude Include="rendering\GridRenderer.h" />
     <ClInclude Include="rendering\IRendererProvider.h" />
