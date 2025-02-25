@@ -4,15 +4,31 @@
 bool GameStateManager::SavePatternToCellsFile(const std::string& filename, const std::vector<std::vector<bool>>& pattern, const std::string& patternName) {
     if (pattern.empty() || pattern[0].empty()) return false;
 
-    std::ofstream file("./patterns/"+filename);
+    // Задаём путь к папке patterns
+    const std::string folderPath = "./patterns";
+
+    // Проверяем существование папки и создаём её, если отсутствует
+    if (!std::filesystem::exists(folderPath)) {
+        try {
+            std::filesystem::create_directory(folderPath);
+        }
+        catch (const std::filesystem::filesystem_error& e) {
+            std::cerr << "Failed to create directory 'patterns': " << e.what() << std::endl;
+            return false; // Возвращаем false, если не удалось создать папку
+        }
+    }
+
+    // Открываем файл для записи
+    std::ofstream file(folderPath + "/" + filename);
     if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << folderPath << "/" << filename << std::endl;
         return false; // Ошибка открытия файла
     }
 
     // Записываем метаданные
     file << "!Name: " << patternName << "\n";
     file << "!Created by Game of Life 3D\n";
-    file << "!Welcom to https://github.com/AsuRaHan/GameOfLife3D\n";
+    file << "!Welcome to https://github.com/AsuRaHan/GameOfLife3D\n";
 
     // Записываем паттерн
     for (size_t y = 0; y < pattern.size(); ++y) {

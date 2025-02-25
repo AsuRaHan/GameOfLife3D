@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iostream>
 #include <cstring> // для memcmp
+#include <filesystem>
 
 #pragma comment(lib, "Cabinet.lib")
 

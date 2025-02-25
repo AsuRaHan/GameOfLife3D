@@ -117,7 +117,7 @@ public:
 
     
     void clearGrid();
-    void update(float deltaTime);
+    void update(ULONGLONG deltaTime);
     void startSimulation();
     void stopSimulation();
     void stepSimulation();

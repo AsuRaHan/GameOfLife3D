@@ -78,7 +78,7 @@ void GameController::clearGrid() {
     gpuAutomaton.ClearGrid();
 }
 
-void GameController::update(float deltaTime) {
+void GameController::update(ULONGLONG deltaTime) {
     static auto lastUpdate = std::chrono::steady_clock::now();
     if (isRunning) {
         auto now = std::chrono::steady_clock::now();
