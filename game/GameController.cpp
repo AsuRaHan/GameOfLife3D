@@ -4,7 +4,7 @@ GameController::GameController(int width, int height, float cellSize)
     : grid(width, height), 
     gpuAutomaton(grid.getWidth(), grid.getHeight()),
     cellSize(cellSize), 
-    isRunning(false), showGrid(true), showUI(true), isWorldToroidal(true), isPatternPlacementMode(false),
+    isRunning(false), showGrid(true), showUI(true), isWorldToroidal(true), isPatternPlacementMode(false), isTurboBoost(false),
     currentPatternRotator(0), isSelectionActive(false),
     rendererProvider(nullptr)
 {
@@ -16,7 +16,6 @@ GameController::GameController(int width, int height, float cellSize)
 
     frameTimeAccumulator = GetTickCount64(); // Инициализация
     isRunning = false;
-    simulationSpeed = 0;
     
 }
 
@@ -82,7 +81,7 @@ void GameController::update() {
     static auto lastUpdate = std::chrono::steady_clock::now();
     if (isRunning) {
         auto now = std::chrono::steady_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastUpdate).count();
+        auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - lastUpdate).count();
 
         if (elapsed >= simulationSpeed) {
             gpuAutomaton.Update();

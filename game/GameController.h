@@ -32,6 +32,7 @@ private:
     bool showGrid;
     bool showUI;
     bool isWorldToroidal;
+    bool isTurboBoost;
     int simulationSpeed = 1; // Значение 1000 может соответствовать одной секунде реального времени
     float frameTimeAccumulator = 0.0f;
 
@@ -131,6 +132,9 @@ public:
     int getGridHeight() const { return grid.getHeight(); }
     bool getShowGrid() const {return showGrid;};
     void setShowGrid(bool isShow) {showGrid = isShow;};
+
+    void setTurboBoost(bool turboBoost) { isTurboBoost = turboBoost;};
+    bool getTurboBoost() const { return isTurboBoost; };
 
     bool getShowUI() const { return showUI; };
     void setShowUI(bool isShow) { showUI = isShow;};

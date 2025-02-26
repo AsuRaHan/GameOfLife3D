@@ -18,7 +18,7 @@ public:
     void recordSimulation();         // Для подсчета симуляций (вызов Update)
 
     // Получение текущих значений
-    float getFPS() const { return fps; }
+    float getFPS() const { return smoothedFPS; } // Возвращаем сглаженное значение
     float getSimulationsPerSecond() const { return simulationsPerSecond; }
 
     float getMinSimulationDelayMs() const; // Минимальная задержка симуляции
@@ -52,7 +52,9 @@ private:
     float avgFrameTimeMs = 0.0f;     // Среднее время кадра (мс)
     float avgSimulationTimeMs = 0.0f;// Среднее время симуляции (мс)
 
-
+    float fpsHistory[5] = { 75.0f, 75.0f, 75.0f, 75.0f, 75.0f }; // История FPS (5 значений)
+    int historyIndex = 0; // Индекс для записи
+    float smoothedFPS = 75.0f; // Сглаженное значение FPS
 
 };
 

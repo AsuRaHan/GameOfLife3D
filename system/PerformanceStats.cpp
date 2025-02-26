@@ -16,12 +16,12 @@ PerformanceStats::PerformanceStats()
 
 void PerformanceStats::recordFrame() {
     frameCount++;
-    updateStats();
+    //updateStats();
 }
 
 void PerformanceStats::recordSimulation() {
     simulationCount++;
-    updateStats();
+    //updateStats();
 }
 
 void PerformanceStats::updateStats() {
@@ -29,15 +29,24 @@ void PerformanceStats::updateStats() {
     LONGLONG elapsedTime = currentTime - lastUpdateTime;
 
     if (elapsedTime >= updateInterval) {
-        // Вычисляем FPS и симуляции в секунду
         fps = static_cast<float>(frameCount) * 1000.0f / elapsedTime;
         simulationsPerSecond = static_cast<float>(simulationCount) * 1000.0f / elapsedTime;
 
-        // Среднее время на кадр и симуляцию
+        // Считаем среднее время на кадр и симуляцию
         avgFrameTimeMs = (frameCount > 0) ? (1000.0f / fps) : 0.0f;
         avgSimulationTimeMs = (simulationCount > 0) ? (1000.0f / simulationsPerSecond) : 0.0f;
 
-        // Сбрасываем счетчики и время
+        // Обновляем историю FPS
+        fpsHistory[historyIndex] = fps;
+        historyIndex = (historyIndex + 1) % 5; // Циклический индекс
+
+        // Считаем сглаженное FPS
+        smoothedFPS = 0.0f;
+        for (int i = 0; i < 5; i++) {
+            smoothedFPS += fpsHistory[i];
+        }
+        smoothedFPS /= 5.0f;
+
         frameCount = 0;
         simulationCount = 0;
         lastUpdateTime = currentTime;

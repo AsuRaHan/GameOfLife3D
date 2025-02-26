@@ -167,6 +167,7 @@ int GetMonitorRefreshRate() {
     return 60; // Значение по умолчанию, если не удалось получить
 }
 
+
 int wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -251,7 +252,14 @@ int wWinMain(
         // ===================================================================================
         MSG msg;
         bool MainLoop = true;
-        
+        // так как у нас есть вертикальная синхронизация то колличество симуляций не сможет превысить частоту обновление монитора. поэтому мы обошли такие ограничения
+        int monitorHz = GetMonitorRefreshRate();
+        float frameIntervalMs = 1000.0f / monitorHz; // Например, 13.33 мс для 75 Гц
+        PerformanceStats::getInstance().setTargetRefreshRate(monitorHz);
+        auto lastFrameTime = std::chrono::steady_clock::now();
+        float targetFPS = static_cast<float>(monitorHz); // Целевая частота монитора
+        float simulationSteps = 1.0f; // Теперь float для плавности
+        int needSteps = 1;
         while (MainLoop) {
             while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) { 
                 TranslateMessage(&msg);
@@ -260,10 +268,46 @@ int wWinMain(
                     MainLoop = false; // Завершение приложения
                 }
             }
-            // Здесь вызываем update с deltaTime
-            gameController.update();
-            PerformanceStats::getInstance().recordFrame();
-            renderer.Draw();
+            if (gameController.getTurboBoost()) { // экстперементальный турбо режим. работает не стабильно может повесить ОС
+                auto now = std::chrono::steady_clock::now();
+                auto elapsedFrameNs = std::chrono::duration_cast<std::chrono::nanoseconds>(now - lastFrameTime).count();
+                float elapsedFrameMs = elapsedFrameNs / 1000000.0f;
+
+                // Обновляем статистику один раз за кадр
+                PerformanceStats::getInstance().updateStats();
+                float currentFPS = PerformanceStats::getInstance().getFPS();
+
+                // Плавная регулировка числа шагов симуляции
+                float fpsError = targetFPS - currentFPS;
+                float adjustment = fpsError * 0.05f; // Коэффициент сглаживания (можно настроить)
+                simulationSteps += adjustment;
+
+                // Ограничиваем simulationSteps
+                if (simulationSteps < 1.0f) simulationSteps = 1.0f;
+                if (simulationSteps > 20.0f) simulationSteps = 20.0f;
+                needSteps = static_cast<int>(simulationSteps + 0.5f);
+                //if (currentFPS < (monitorHz / 2)) {
+                //    needSteps = 1;
+                //}
+                if (elapsedFrameMs >= frameIntervalMs) {
+                    // Выполняем симуляцию перед рендерингом
+                    for (int i = 0; i < needSteps; i++) {
+                        gameController.update();
+                    }
+                    renderer.Draw();
+                    lastFrameTime = now;
+                    PerformanceStats::getInstance().recordFrame();
+                }
+            }
+            else {
+                needSteps = 1;
+                PerformanceStats::getInstance().updateStats();
+                gameController.update();
+                renderer.Draw();
+                PerformanceStats::getInstance().recordFrame();
+            }
+
+
         }
 
     }
