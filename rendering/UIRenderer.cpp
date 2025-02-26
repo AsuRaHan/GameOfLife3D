@@ -93,7 +93,7 @@ void UIRenderer::DrawSimulationWindow() {
     if (!simulationWindowVisible) return;
 
     ImGui::Begin("Симуляция", &simulationWindowVisible, ImGuiWindowFlags_NoResize);
-    ImGui::SetWindowSize(ImVec2(0, 350), ImGuiCond_Once);
+    ImGui::SetWindowSize(ImVec2(0, 360), ImGuiCond_Once);
     // Управление симуляцией
     if (gameController->isSimulationRunning()) {
         if (ImGui::Button("Остановить симуляцию", buttonSize)) {
@@ -134,33 +134,35 @@ void UIRenderer::DrawSimulationWindow() {
 
     static float simulateTime = 0;
     if (gameController->getTurboBoost()) {
+        float minSimulationSpeed = static_cast<int>(PerformanceStats::getInstance().getMinSimulationDelayMs());
 
-        ImGui::Text("Задержка симуляции");
-        ImGui::SetNextItemWidth(buttonSize.x);
-        if (ImGui::SliderFloat("##simulateTime", &simulateTime, 0.0f, 100.0f)) {
-            // Здесь код выполнится, если значение слайдера изменилось
-            gameController->setSimulationSpeed(simulateTime * 100);
-        }
         if (ImGui::Button("Выключить Turbo Mode", buttonSize)) {
             gameController->setTurboBoost(false);
         }
-        float minSimulationSpeed = static_cast<int>(PerformanceStats::getInstance().getMinSimulationDelayMs());
         
+        ImGui::Text("Задержка симуляции");
+        ImGui::SetNextItemWidth(buttonSize.x);
+        if (ImGui::SliderFloat("##simulateTime", &simulateTime, 0.0f, (minSimulationSpeed * 10) + 100.0f)) {
+            // Здесь код выполнится, если значение слайдера изменилось
+            gameController->setSimulationSpeed(simulateTime * 100);
+        }
+
         ImGui::Text("Необходимо: %.2f мс", minSimulationSpeed*10);
+        static bool speedAuto = false;
+        ImGui::Checkbox("Автомат", &speedAuto);
         if (PerformanceStats::getInstance().shouldUpdateSimulationSpeed()) {
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255)); // Красный (R=255, G=0, B=0, A=255)
             ImGui::Text("Увеличить !!!");
             // Возвращаем стандартный цвет текста
             ImGui::PopStyleColor();
+            if (speedAuto) {
+                simulateTime = (minSimulationSpeed * 10);
+                gameController->setSimulationSpeed(simulateTime * 100);
+            }
         }
     }
     else {
-        ImGui::Text("Задержка симуляции");
-        ImGui::SetNextItemWidth(buttonSize.x);
-        if (ImGui::SliderFloat("##simulateTime", &simulateTime, 0.0f, 5000.0f)) {
-            // Здесь код выполнится, если значение слайдера изменилось
-            gameController->setSimulationSpeed(simulateTime * 100000);
-        }
+
         ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(255, 0, 0, 255)); // Красный цвет кнопки
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(255, 50, 50, 255)); // Чуть светлее при наведении
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(200, 0, 0, 255)); // Темнее при нажатии
@@ -170,6 +172,13 @@ void UIRenderer::DrawSimulationWindow() {
             gameController->setSimulationSpeed(0);
         }
         ImGui::PopStyleColor(3); // Сбрасываем три изменения цвета
+
+        ImGui::Text("Задержка симуляции");
+        ImGui::SetNextItemWidth(buttonSize.x);
+        if (ImGui::SliderFloat("##simulateTime", &simulateTime, 0.0f, 5000.0f)) {
+            // Здесь код выполнится, если значение слайдера изменилось
+            gameController->setSimulationSpeed(simulateTime * 100000);
+        }
     }
 
     ImGui::End();

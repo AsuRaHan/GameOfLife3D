@@ -7,7 +7,7 @@ PerformanceStats::PerformanceStats()
       simulationCount(0),
       fps(0.0f),
       simulationsPerSecond(0.0f),
-      updateInterval(1000.0f) // 1 секунда по умолчанию
+      updateInterval(100.0f) // 1 секунда по умолчанию
     , targetFPS(75.0f)
     , avgFrameTimeMs(0.0f)
     , avgSimulationTimeMs(0.0f)

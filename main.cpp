@@ -253,13 +253,18 @@ int wWinMain(
         MSG msg;
         bool MainLoop = true;
         // так как у нас есть вертикальная синхронизация то колличество симуляций не сможет превысить частоту обновление монитора. поэтому мы обошли такие ограничения
+        PerformanceStats& stats = PerformanceStats::getInstance();
+
         int monitorHz = GetMonitorRefreshRate();
         float frameIntervalMs = 1000.0f / monitorHz; // Например, 13.33 мс для 75 Гц
-        PerformanceStats::getInstance().setTargetRefreshRate(monitorHz);
+        stats.setTargetRefreshRate(monitorHz);
         auto lastFrameTime = std::chrono::steady_clock::now();
         float targetFPS = static_cast<float>(monitorHz); // Целевая частота монитора
         float simulationSteps = 1.0f; // Теперь float для плавности
         int needSteps = 1;
+
+        static float smoothedSimulationSteps = 1.0f; // Добавляем для плавности, вне цикла
+
         while (MainLoop) {
             while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) { 
                 TranslateMessage(&msg);
@@ -274,29 +279,54 @@ int wWinMain(
                 float elapsedFrameMs = elapsedFrameNs / 1000000.0f;
 
                 // Обновляем статистику один раз за кадр
-                PerformanceStats::getInstance().updateStats();
-                float currentFPS = PerformanceStats::getInstance().getFPS();
+                stats.updateStats();
+                float currentFPS = stats.getFPS();
 
                 // Плавная регулировка числа шагов симуляции
-                float fpsError = targetFPS - currentFPS;
-                float adjustment = fpsError * 0.05f; // Коэффициент сглаживания (можно настроить)
-                simulationSteps += adjustment;
+                float fpsError = currentFPS - targetFPS; // Больше FPS -> больше шагов
 
-                // Ограничиваем simulationSteps
-                if (simulationSteps < 1.0f) simulationSteps = 1.0f;
-                if (simulationSteps > 20.0f) simulationSteps = 20.0f;
+                // Мёртвая зона: игнорируем мелкие отклонения (±5)
+                float deadZone = 9.0f;
+                float adjustment = 0.0f;
+                if (fpsError > deadZone) {
+                    adjustment = (fpsError - deadZone) * 0.1f; // Рост при высоком FPS
+                }
+                else if (fpsError < -deadZone) {
+                    adjustment = (fpsError + deadZone) * 0.1f; // Снижение при просадке
+                }
+                else if (fpsError >= 0.0f) {
+                    adjustment = 0.2f; // Минимальный прирост, если FPS не ниже целевого
+                }
+
+                // Плавное обновление через сглаживание
+                float smoothingFactor = 0.1f; // Плавность изменений
+                smoothedSimulationSteps = smoothedSimulationSteps + smoothingFactor * (simulationSteps + adjustment - smoothedSimulationSteps);
+                simulationSteps = smoothedSimulationSteps;
+
+                // Жёсткий сброс при сильной просадке
+                if (currentFPS < targetFPS * 0.5f) {
+                    simulationSteps -= 1.0f;
+                    smoothedSimulationSteps -= 1.0f;
+                }
+
+                // Ограничиваем диапазон без std::min и std::max
+                if (simulationSteps < 1.0f) {
+                    simulationSteps = 1.0f;
+                    smoothedSimulationSteps = 1.0f;
+                }
+                if (simulationSteps > 10.0f) {
+                    simulationSteps = 10.0f;
+                    smoothedSimulationSteps = 10.0f;
+                }
                 needSteps = static_cast<int>(simulationSteps + 0.5f);
-                //if (currentFPS < (monitorHz / 2)) {
-                //    needSteps = 1;
-                //}
+
                 if (elapsedFrameMs >= frameIntervalMs) {
-                    // Выполняем симуляцию перед рендерингом
                     for (int i = 0; i < needSteps; i++) {
                         gameController.update();
                     }
                     renderer.Draw();
+                    stats.recordFrame();
                     lastFrameTime = now;
-                    PerformanceStats::getInstance().recordFrame();
                 }
             }
             else {
