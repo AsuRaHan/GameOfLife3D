@@ -20,13 +20,18 @@ public:
     // Получение текущих значений
     float getFPS() const { return fps; }
     float getSimulationsPerSecond() const { return simulationsPerSecond; }
-    
+
+    float getMinSimulationDelayMs() const; // Минимальная задержка симуляции
+    bool shouldUpdateSimulationSpeed() const; // Нужно ли обновить скорость симуляции
+    void setTargetRefreshRate(float rate); // Установить частоту монитора
+
     // Получение строки со статистикой (для вывода)
     std::string getStatsString() const;
 
     // Сброс статистики (если нужно начать заново)
     void reset();
-
+    // Внутренний метод для пересчета статистики
+    void updateStats();
 private:
     PerformanceStats(); // Приватный конструктор для Singleton
 
@@ -42,8 +47,13 @@ private:
     float simulationsPerSecond;      // Текущие симуляции в секунду
     float updateInterval;            // Интервал обновления статистики (в мс)
 
-    // Внутренний метод для пересчета статистики
-    void updateStats();
+
+    float targetFPS = 75.0f;         // Целевое значение FPS
+    float avgFrameTimeMs = 0.0f;     // Среднее время кадра (мс)
+    float avgSimulationTimeMs = 0.0f;// Среднее время симуляции (мс)
+
+
+
 };
 
 #endif // PERFORMANCE_STATS_H

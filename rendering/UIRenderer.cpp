@@ -88,7 +88,7 @@ void UIRenderer::DrawSimulationWindow() {
     if (!simulationWindowVisible) return;
 
     ImGui::Begin("Симуляция", &simulationWindowVisible, ImGuiWindowFlags_NoResize);
-    ImGui::SetWindowSize(ImVec2(0, 250), ImGuiCond_Once);
+    ImGui::SetWindowSize(ImVec2(0, 300), ImGuiCond_Once);
     // Управление симуляцией
     if (gameController->isSimulationRunning()) {
         if (ImGui::Button("Остановить симуляцию", buttonSize)) {
@@ -126,14 +126,23 @@ void UIRenderer::DrawSimulationWindow() {
         gameController->randomizeGrid(0.1f);
     }
     ImGui::Text("Задержка симуляции");
-    static int simulateTime = 0.0f;
+    static float simulateTime = 1;
+    float minSimulationSpeed = static_cast<int>(PerformanceStats::getInstance().getMinSimulationDelayMs());
     ImGui::SetNextItemWidth(buttonSize.x);
-    if (ImGui::SliderInt("##simulateTime", &simulateTime, 0, 1000)) {
+    if (ImGui::SliderFloat("##simulateTime", &simulateTime, 1, 500)) {
         // Здесь код выполнится, если значение слайдера изменилось
         gameController->setSimulationSpeed(simulateTime);
     }
 
+    ImGui::Separator();
+    ImGui::Text("Необходимо: %.2f мс", minSimulationSpeed);
 
+    if (PerformanceStats::getInstance().shouldUpdateSimulationSpeed()) {
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255)); // Красный (R=255, G=0, B=0, A=255)
+        ImGui::Text("Необходимо увеличить");
+        // Возвращаем стандартный цвет текста
+        ImGui::PopStyleColor();
+    }
     ImGui::End();
 }
 

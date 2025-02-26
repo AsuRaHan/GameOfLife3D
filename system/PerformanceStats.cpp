@@ -8,6 +8,9 @@ PerformanceStats::PerformanceStats()
       fps(0.0f),
       simulationsPerSecond(0.0f),
       updateInterval(1000.0f) // 1 секунда по умолчанию
+    , targetFPS(75.0f)
+    , avgFrameTimeMs(0.0f)
+    , avgSimulationTimeMs(0.0f)
 {
 }
 
@@ -30,6 +33,10 @@ void PerformanceStats::updateStats() {
         fps = static_cast<float>(frameCount) * 1000.0f / elapsedTime;
         simulationsPerSecond = static_cast<float>(simulationCount) * 1000.0f / elapsedTime;
 
+        // Среднее время на кадр и симуляцию
+        avgFrameTimeMs = (frameCount > 0) ? (1000.0f / fps) : 0.0f;
+        avgSimulationTimeMs = (simulationCount > 0) ? (1000.0f / simulationsPerSecond) : 0.0f;
+
         // Сбрасываем счетчики и время
         frameCount = 0;
         simulationCount = 0;
@@ -50,4 +57,41 @@ void PerformanceStats::reset() {
     simulationCount = 0;
     fps = 0.0f;
     simulationsPerSecond = 0.0f;
+}
+
+float PerformanceStats::getMinSimulationDelayMs() const {
+    // Целевое время кадра для targetFPS (например, 13.33 мс для 75 FPS)
+    float targetFrameTimeMs = 1000.0f / targetFPS;
+
+    // Сколько времени остаётся на симуляцию после рендеринга
+    float availableTimeMs = targetFrameTimeMs - (avgFrameTimeMs - avgSimulationTimeMs);
+
+    // Если времени не хватает, увеличиваем задержку симуляции
+    if (availableTimeMs <= 0) {
+        return avgSimulationTimeMs + 1.0f; // Добавляем 1 мс для стабильности
+    }
+
+    // Если время есть, возвращаем минимальную задержку (1 мс или время симуляции)
+    float minDelay = avgSimulationTimeMs;
+    if (minDelay < 1.0f) {
+        minDelay = 1.0f;
+    }
+    return minDelay;
+}
+
+bool PerformanceStats::shouldUpdateSimulationSpeed() const {
+    // Целевое время кадра (например, 13.33 мс для 75 FPS)
+    float targetFrameTimeMs = 1000.0f / targetFPS;
+
+    // Если текущее время кадра сильно отличается от целевого
+    float frameTimeDiff = avgFrameTimeMs - targetFrameTimeMs;
+
+    // Проверяем, требуется ли корректировка (например, отклонение больше 10%)
+    return frameTimeDiff > (targetFrameTimeMs * 0.1f) || frameTimeDiff < -(targetFrameTimeMs * 0.3f);
+}
+
+void PerformanceStats::setTargetRefreshRate(float rate) {
+    if (rate > 0.0f) { // Проверка на корректность
+        targetFPS = rate;
+    }
 }

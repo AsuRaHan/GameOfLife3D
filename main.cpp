@@ -158,6 +158,15 @@ void initImgui(HWND hwnd) {
     ImGui_ImplOpenGL3_Init();
 }
 
+int GetMonitorRefreshRate() {
+    DEVMODE dm = { 0 };
+    dm.dmSize = sizeof(DEVMODE);
+    if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm)) {
+        return dm.dmDisplayFrequency; // Частота в Гц (например, 75)
+    }
+    return 60; // Значение по умолчанию, если не удалось получить
+}
+
 int wWinMain(
     _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -252,7 +261,7 @@ int wWinMain(
                 }
             }
             // Здесь вызываем update с deltaTime
-            gameController.update(GetTickCount64());
+            gameController.update();
             PerformanceStats::getInstance().recordFrame();
             renderer.Draw();
         }

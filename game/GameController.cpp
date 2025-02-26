@@ -78,21 +78,18 @@ void GameController::clearGrid() {
     gpuAutomaton.ClearGrid();
 }
 
-void GameController::update(ULONGLONG deltaTime) {
+void GameController::update() {
     static auto lastUpdate = std::chrono::steady_clock::now();
     if (isRunning) {
         auto now = std::chrono::steady_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastUpdate).count();
 
-        if (simulationSpeed != 0 && elapsed >= simulationSpeed) {
+        if (elapsed >= simulationSpeed) {
             gpuAutomaton.Update();
             lastUpdate = now;
             PerformanceStats::getInstance().recordSimulation();
         }
-        else if (simulationSpeed == 0) {
-            gpuAutomaton.Update();
-            PerformanceStats::getInstance().recordSimulation();
-        }
+
     }
 }
 

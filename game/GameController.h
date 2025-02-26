@@ -32,7 +32,7 @@ private:
     bool showGrid;
     bool showUI;
     bool isWorldToroidal;
-    int simulationSpeed = 0; // Значение 1000 может соответствовать одной секунде реального времени
+    int simulationSpeed = 1; // Значение 1000 может соответствовать одной секунде реального времени
     float frameTimeAccumulator = 0.0f;
 
     std::vector<std::string> patternList;
@@ -117,7 +117,7 @@ public:
 
     
     void clearGrid();
-    void update(ULONGLONG deltaTime);
+    void update();
     void startSimulation();
     void stopSimulation();
     void stepSimulation();

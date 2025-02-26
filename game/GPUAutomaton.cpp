@@ -400,6 +400,7 @@ void GPUAutomaton::Update() {
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
     SwapBuffers();
+    //glFlush();
 }
 
 /**
