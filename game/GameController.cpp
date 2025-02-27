@@ -381,7 +381,7 @@ void GameController::KillSelectedCells() {
     for (const auto& cell : selectedCells) {
         int x = static_cast<int>(cell.X());
         int y = static_cast<int>(cell.Y());
-        grid.SetCellType(x, y, 0);
+        grid.SetCellType(x, y, -1);
     }
     isSelectionActive = false;
 }

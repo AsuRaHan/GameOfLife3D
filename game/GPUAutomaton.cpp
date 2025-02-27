@@ -613,7 +613,7 @@ void GPUAutomaton::SetCellType(int x, int y, int type) {
         std::cerr << "SetCellType: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
         return;
     }
-    if (type < 0 || type > 3) {
+    if (type < -1 || type > 3) {
         std::cerr << "SetCellType: Invalid type value (" << type << "). Use 0 (dead), 1 (green), 2 (red), 3 (blue)." << std::endl;
         return;
     }
@@ -621,7 +621,14 @@ void GPUAutomaton::SetCellType(int x, int y, int type) {
     int index = y * gridWidth + x;
 
     // Устанавливаем тип в cellsBuffer
-    int stateData = type;
+    int stateData = 0;
+    if (type < 0) {
+        stateData = 0;
+    }
+    else
+    {
+       stateData = type;
+    }
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
     GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER, index * sizeof(int), sizeof(int), &stateData));
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
@@ -636,6 +643,9 @@ void GPUAutomaton::SetCellType(int x, int y, int type) {
     }
     else if (type == 3) { // Синий
         colorData[0] = 0.0f; colorData[1] = 0.0f; colorData[2] = 0.5f; colorData[3] = 1.0f;
+    }
+    else if (type == -1) { // пустая
+        colorData[0] = 0.0f; colorData[1] = 0.0f; colorData[2] = 0.0f; colorData[3] = 0.0f;
     }
     else { // Мёртвая
         colorData[0] = 0.05f; colorData[1] = 0.05f; colorData[2] = 0.08f; colorData[3] = 0.0f;
