@@ -14,11 +14,14 @@ layout(std430, binding = 2) buffer Colors {
 };
 
 uniform ivec2 gridSize;
+uniform int neighborhoodRadius;
 uniform bool isToroidal;
+
 uniform int birth;
 uniform int survivalMin;
 uniform int survivalMax;
 uniform int overpopulation;
+
 uniform int birthCounts[9];
 uniform int surviveCounts[9];
 uniform int useAdvancedRules; // 0 - стадартный режим, 1 - расширенный
@@ -38,8 +41,8 @@ bool isOverpopulated(int neighbors) {
 
 int countLiveNeighbors(ivec2 pos, int targetType) {
     int count = 0;
-    for(int dy = -1; dy <= 1; ++dy) {
-        for(int dx = -1; dx <= 1; ++dx) {
+    for(int dy = -2; dy <= 2; ++dy) {
+        for(int dx = -2; dx <= 2; ++dx) {
             if(dx == 0 && dy == 0) continue;
             ivec2 neighbor = pos + ivec2(dx, dy);
             if (isToroidal) {

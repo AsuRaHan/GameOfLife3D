@@ -238,7 +238,7 @@ int wWinMain(
                 simulationSteps = smoothedSimulationSteps;
 
                 // Жёсткий сброс при сильной просадке
-                if (currentFPS < targetFPS * 0.5f) {
+                if (currentFPS < targetFPS * 0.2f) {
                     simulationSteps -= 1.0f;
                     smoothedSimulationSteps -= 1.0f;
                 }
@@ -248,12 +248,12 @@ int wWinMain(
                     simulationSteps = 1.0f;
                     smoothedSimulationSteps = 1.0f;
                 }
-                if (simulationSteps > 10.0f) {
-                    simulationSteps = 10.0f;
-                    smoothedSimulationSteps = 10.0f;
+                if (simulationSteps > 25.0f) {
+                    simulationSteps = 25;
+                    smoothedSimulationSteps = 25.0f;
                 }
                 needSteps = static_cast<int>(simulationSteps + 0.5f);
-
+                //gameController.update();
                 if (elapsedFrameMs >= frameIntervalMs) {
                     for (int i = 0; i < needSteps; i++) {
                         gameController.update();

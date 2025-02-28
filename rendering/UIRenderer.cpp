@@ -199,13 +199,22 @@ void UIRenderer::DrawGameSettingsWindow() {
 
         // Чекбокс для расширенного режима
         static bool advancedRules = false;
-        if (ImGui::Checkbox("Расширенные правила (B/S)", &advancedRules)) {
+        if (ImGui::Checkbox("Расширенные правила (B/S/O)", &advancedRules)) {
             gpuAutomaton->setUseAdvancedRules(advancedRules);
         }
+
+
 
         // Если расширенный режим включен, отключаем старые комбобоксы
         if (advancedRules) {
             ImGui::BeginDisabled();
+        }
+        ImGui::Text("Радиус окрестности Мура");
+        int neighborhoodRadius = gpuAutomaton->neighborhoodRadius - 1;
+        const char* neighborhoodRadiusOptions[] = { "1", "2", "3", "4", "5", "6", "7", "8" };
+        ImGui::SetNextItemWidth(buttonSize.x);
+        if (ImGui::Combo("##neighborhoodRadius", &neighborhoodRadius, neighborhoodRadiusOptions, IM_ARRAYSIZE(neighborhoodRadiusOptions))) {
+            gpuAutomaton->neighborhoodRadius = neighborhoodRadius + 1;
         }
 
         // Старые настройки
@@ -216,16 +225,19 @@ void UIRenderer::DrawGameSettingsWindow() {
         if (ImGui::Combo("##birth", &selectedBirth, birthOptions, IM_ARRAYSIZE(birthOptions))) {
             gpuAutomaton->birth = selectedBirth + 1;
         }
+
         ImGui::Separator();
         ImGui::Text("Выживание (мин)");
         const char* survivalMinOptions[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8" };
         ImGui::SetNextItemWidth(buttonSize.x);
         ImGui::Combo("##survivalMin", &gpuAutomaton->survivalMin, survivalMinOptions, IM_ARRAYSIZE(survivalMinOptions));
+
         ImGui::Separator();
         ImGui::Text("Выживание (макс)");
         const char* survivalMaxOptions[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8" };
         ImGui::SetNextItemWidth(buttonSize.x);
         ImGui::Combo("##survivalMax", &gpuAutomaton->survivalMax, survivalMaxOptions, IM_ARRAYSIZE(survivalMaxOptions));
+
         ImGui::Separator();
         ImGui::Text("Перенаселение");
         int selectedOverPopulation = gpuAutomaton->overpopulation - 1;
@@ -245,7 +257,14 @@ void UIRenderer::DrawGameSettingsWindow() {
             ImGui::SetWindowSize(ImVec2(250, 0), ImGuiCond_Once);
             static bool birthRules[9] = { false };
             static bool surviveRules[9] = { false };
-
+            ImGui::Text("Радиус окрестности Мура");
+            int neighborhoodRadius = gpuAutomaton->neighborhoodRadius - 1;
+            const char* neighborhoodRadiusOptions[] = { "1", "2", "3", "4", "5", "6", "7", "8" };
+            ImGui::SetNextItemWidth(buttonSize.x);
+            if (ImGui::Combo("##neighborhoodRadius", &neighborhoodRadius, neighborhoodRadiusOptions, IM_ARRAYSIZE(neighborhoodRadiusOptions))) {
+                gpuAutomaton->neighborhoodRadius = neighborhoodRadius + 1;
+            }
+            ImGui::Separator();
             // Рождение
             ImGui::Text("Рождение (B):");
             ImGui::Separator();

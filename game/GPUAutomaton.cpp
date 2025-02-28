@@ -38,11 +38,14 @@ layout(std430, binding = 2) buffer Colors {
 };
 
 uniform ivec2 gridSize;
+uniform int neighborhoodRadius;
 uniform bool isToroidal;
+
 uniform int birth;
 uniform int survivalMin;
 uniform int survivalMax;
 uniform int overpopulation;
+
 uniform int birthCounts[9];
 uniform int surviveCounts[9];
 uniform int useAdvancedRules; // 0 - стадартный режим, 1 - расширенный
@@ -62,9 +65,9 @@ bool isOverpopulated(int neighbors) {
 
 int countLiveNeighbors(ivec2 pos, int targetType) {
     int count = 0;
-    for(int dy = -1; dy <= 1; ++dy) {
-        for(int dx = -1; dx <= 1; ++dx) {
-            if(dx == 0 && dy == 0) continue;
+    for (int dy = -neighborhoodRadius; dy <= neighborhoodRadius; ++dy) { // Изменили циклы
+        for (int dx = -neighborhoodRadius; dx <= neighborhoodRadius; ++dx) { // Изменили циклы
+            if (dx == 0 && dy == 0) continue;
             ivec2 neighbor = pos + ivec2(dx, dy);
             if (isToroidal) {
                 neighbor = (neighbor + gridSize) % gridSize;
@@ -366,6 +369,7 @@ void GPUAutomaton::Update() {
     glUniform1i(glGetUniformLocation(computeProgram, "survivalMin"), survivalMin);
     glUniform1i(glGetUniformLocation(computeProgram, "survivalMax"), survivalMax);
     glUniform1i(glGetUniformLocation(computeProgram, "overpopulation"), overpopulation);
+    glUniform1i(glGetUniformLocation(computeProgram, "neighborhoodRadius"), neighborhoodRadius);
     // переменные для расширенного режима правил
     glUniform1i(glGetUniformLocation(computeProgram, "useAdvancedRules"), useAdvancedRules);
     glUniform1iv(glGetUniformLocation(computeProgram, "birthCounts"), 9, birthRules);
@@ -585,9 +589,6 @@ void GPUAutomaton::CheckComputeLimits() {
 //101 - фиолетовый(type = 5)
 //110 - жёлтый(type = 6)
 //111 - белый(type = 7)
-//000 - черный(type = 8)
-//001 - синий(type = 9)
-//111 - белый(type > 9)
 void GPUAutomaton::SetCellType(int x, int y, int type) {
     if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
         std::cerr << "SetCellType: Invalid coordinates (" << x << ", " << y << ")" << std::endl;

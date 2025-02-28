@@ -34,11 +34,15 @@ public:
     int survivalMax = 3; // По умолчанию максимум 3 соседа для выживания
     int overpopulation = 4; // По умолчанию 4 или больше для смерти от перенаселения
     bool isToroidal = true;
+    int neighborhoodRadius = 1; // радиус окрестности Мура по умолчанию 1
     void SetBirth(int b) { birth = b; }
     void SetSurvivalMin(int smin) { survivalMin = smin; }
     void SetSurvivalMax(int smax) { survivalMax = smax; }
     void SetOverpopulation(int o) { overpopulation = o; }
     void SetToroidal(bool toroidal);
+    void SetNeighborhoodRadius(int radius) {
+        neighborhoodRadius = radius;
+    };
 
     void SetNewGridSize(int width, int height);
 
