@@ -7,8 +7,8 @@ GameController::GameController(int width, int height, float cellSize)
     isRunning(false), showGrid(true), showUI(true), isWorldToroidal(true),
     isPatternPlacementMode(false), isTurboBoost(false), currentPatternRotator(0),
     isSelectionActive(false), rendererProvider(nullptr) {
-    //gameAutomaton = new GPUAutomaton(grid.getWidth(), grid.getHeight()); // Пока используем GPUAutomaton
-    gameAutomaton = new EcosystemAutomaton(grid.getWidth(), grid.getHeight());
+    gameAutomaton = new GPUAutomaton(grid.getWidth(), grid.getHeight()); // Пока используем GPUAutomaton
+    //gameAutomaton = new EcosystemAutomaton(grid.getWidth(), grid.getHeight());
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     grid.SetGPUAutomaton(gameAutomaton);
@@ -42,7 +42,7 @@ void GameController::placePattern(int startX, int startY, const Pattern& pattern
                     grid.SetCellType(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), cellType);
                 }
                 else {
-                    grid.setCellState(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), 0);
+                    grid.SetCellType(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), -1);
                     grid.setCellColor(startX + (patternWidth - 1 - x), startY + (patternHeight - 1 - y), 0.1f, 0.1f, 0.2f);
                 }
             }

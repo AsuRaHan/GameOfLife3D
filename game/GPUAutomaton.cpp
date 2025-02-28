@@ -83,26 +83,72 @@ int countLiveNeighbors(ivec2 pos, int targetType) {
 }
 
 int determineNewType(ivec2 pos) {
-    int greenNeighbors = countLiveNeighbors(pos, 1); // Зелёные
-    int redNeighbors = countLiveNeighbors(pos, 2);   // Красные
-    int blueNeighbors = countLiveNeighbors(pos, 3);  // Синие
+    int neighborsCount[8];
+    for (int i = 1; i <= 7; i++) {
+        neighborsCount[i] = countLiveNeighbors(pos, i);
+    }
 
-    if (greenNeighbors > redNeighbors && greenNeighbors > blueNeighbors) {
-        return 1; // Зелёный
-    } else if (redNeighbors > greenNeighbors && redNeighbors > blueNeighbors) {
-        return 2; // Красный
-    } else if (blueNeighbors > greenNeighbors && blueNeighbors > redNeighbors) {
-        return 3; // Синий
-    } else if (greenNeighbors == redNeighbors && greenNeighbors > blueNeighbors) {
-        return 4; // Жёлтый (зелёный = красный)
-    } else if (greenNeighbors == blueNeighbors && greenNeighbors > redNeighbors) {
-        return 5; // Оранжевый (зелёный = синий)
-    } else if (redNeighbors == blueNeighbors && redNeighbors > greenNeighbors) {
-        return 6; // Фиолетовый (красный = синий)
-    } else { // Все три равны
-        return 7; // Белый (зелёный = красный = синий)
+    int maxCount = 0;
+    int equalTypes[8];
+    int equalCount = 0;
+    for (int i = 1; i <= 7; i++) {
+        if (neighborsCount[i] > maxCount) {
+            maxCount = neighborsCount[i];
+            equalCount = 0;
+            equalTypes[equalCount] = i; // Сохраняем новый макс. тип
+            equalCount++;
+        } else if (neighborsCount[i] == maxCount && maxCount != 0) {
+            equalTypes[equalCount] = i; // Сохраняем равный тип
+            equalCount++;
+        }
+    }
+    if(maxCount == 0) return 0; //если нет соседей, то умирает
+
+    if (equalCount > 1) {
+        int randomIndex = int(float(equalCount) * fract(sin(dot(pos, vec2(12.9898, 78.233))) * 43758.5453));
+        return equalTypes[randomIndex]; // Возвращаем случайный тип из равных
+    } else {
+        return equalTypes[0]; // Возвращаем единственный максимальный тип
     }
 }
+
+// Метод для генерации цвета на основе типа клетки.
+vec4 getColorByType(int type, int currentState) {
+    if (type == 0) {
+        return vec4(0.05, 0.05, 0.08, 0.0); // Мертвая клетка
+    }
+    if (type < 0) {
+        return vec4(0.0, 0.0, 0.0, 0.0); // Пустая клетка
+    }
+
+
+    vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+    float increase = 0.02;
+
+    int t = type;
+    int r = (t / 4) % 2;
+    int g = (t / 2) % 2;
+    int b = (t / 1) % 2;
+
+    color.r = float(r);
+    color.g = float(g);
+    color.b = float(b);
+
+    if(currentState > 0 && currentState == type){
+        vec4 currentColor = colors[gl_GlobalInvocationID.y * gridSize.x + gl_GlobalInvocationID.x];
+        color.r = min(currentColor.r + increase, color.r);
+        color.g = min(currentColor.g + increase, color.g);
+        color.b = min(currentColor.b + increase, color.b);
+    }
+    if (type > 7){
+        color = vec4(1.0,1.0,1.0,0.0);
+    }
+    if(type > 0){
+        color = clamp(color,vec4(0,0,0,0),vec4(1,1,1,0));
+    }
+    return color;
+}
+
 
 void main() {
     ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
@@ -129,7 +175,7 @@ void main() {
             } else {
                 nextState = 0; // Умирает
             }
-        } else if (currentState == 0) { // Мёртвая клетка
+        } else if (currentState <= 0) { // Мёртвая клетка
             if (neighbors == birth) {
                 nextState = determineNewType(pos); // Оживает с типом
             }
@@ -137,95 +183,7 @@ void main() {
     }
 
     next[index] = nextState;
-
-    // Обновляем цвета в зависимости от типа
-    if (nextState == 1) { // Зелёный
-        if (currentState == 1) {
-            vec4 currentColor = colors[index];
-            colors[index] = vec4(
-                min(currentColor.r + 0.02, 0.02),
-                min(currentColor.g + 0.02, 1.0),
-                min(currentColor.b + 0.02, 0.02),
-                1.0
-            );
-        } else {
-            colors[index] = vec4(0.0, 0.5, 0.0, 1.0); // Начальный зелёный
-        }
-    } else if (nextState == 2) { // Красный
-        if (currentState == 2) {
-            vec4 currentColor = colors[index];
-            colors[index] = vec4(
-                min(currentColor.r + 0.02, 1.0),
-                min(currentColor.g + 0.02, 0.02),
-                min(currentColor.b + 0.02, 0.02),
-                1.0
-            );
-        } else {
-            colors[index] = vec4(0.5, 0.0, 0.0, 1.0); // Начальный красный
-        }
-    } else if (nextState == 3) { // Синий
-        if (currentState == 3) {
-            vec4 currentColor = colors[index];
-            colors[index] = vec4(
-                min(currentColor.r + 0.02, 0.02),
-                min(currentColor.g + 0.02, 0.02),
-                min(currentColor.b + 0.02, 1.0),
-                1.0
-            );
-        } else {
-            colors[index] = vec4(0.0, 0.0, 0.5, 1.0); // Начальный синий
-        }
-    } else if (nextState == 4) { // Жёлтый (зелёный = красный)
-        if (currentState == 4) {
-            vec4 currentColor = colors[index];
-            colors[index] = vec4(
-                min(currentColor.r + 0.02, 1.0),
-                min(currentColor.g + 0.02, 1.0),
-                min(currentColor.b + 0.02, 0.02),
-                1.0
-            );
-        } else {
-            colors[index] = vec4(0.5, 0.5, 0.0, 1.0); // Начальный жёлтый
-        }
-    } else if (nextState == 5) { // Оранжевый (зелёный = синий)
-        if (currentState == 5) {
-            vec4 currentColor = colors[index];
-            colors[index] = vec4(
-                min(currentColor.r + 0.02, 1.0),
-                min(currentColor.g + 0.02, 0.02),
-                min(currentColor.b + 0.02, 1.0),
-                1.0
-            );
-        } else {
-            colors[index] = vec4(0.5, 0.0, 0.5, 1.0); // Начальный оранжевый
-        }
-    } else if (nextState == 6) { // Фиолетовый (красный = синий)
-        if (currentState == 6) {
-            vec4 currentColor = colors[index];
-            colors[index] = vec4(
-                min(currentColor.r + 0.02, 1.0),
-                min(currentColor.g + 0.02, 0.02),
-                min(currentColor.b + 0.02, 1.0),
-                1.0
-            );
-        } else {
-            colors[index] = vec4(0.0, 0.5, 0.5, 1.0); // Начальный фиолетовый
-        }
-    } else if (nextState == 7) { // Белый (зелёный = красный = синий)
-        if (currentState == 7) {
-            vec4 currentColor = colors[index];
-            colors[index] = vec4(
-                min(currentColor.r + 0.02, 1.0),
-                min(currentColor.g + 0.02, 1.0),
-                min(currentColor.b + 0.02, 1.0),
-                1.0
-            );
-        } else {
-            colors[index] = vec4(1.0, 1.0, 1.0, 1.0); // Начальный белый
-        }
-    } else if (currentState > 0) { // Клетка умерла
-        colors[index] = vec4(0.05, 0.05, 0.08, 0.0);
-    }
+    colors[index] = getColorByType(nextState, currentState);
 }
 
 )";
@@ -365,7 +323,7 @@ void main() {
             colors[index] = vec4(0.9, 0.9, 0.9, 1.0);
         }
     } else {
-        cells[index] = 0; // Мёртвая клетка
+        cells[index] = -1; // пустая клетка
         colors[index] = vec4(0.0, 0.0, 0.0, 0.0); // Чёрный
     }
 }
@@ -474,11 +432,6 @@ void GPUAutomaton::SetCellState(int x, int y, int state) {
         std::cerr << "SetCellState: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
         return;
     }
-    if (state != 0 && state != 1) {
-        std::cerr << "SetCellState: Invalid state value (" << state << "). Use 0 (dead) or 1 (alive)." << std::endl;
-        return;
-    }
-
     int index = y * gridWidth + x;
     int stateData = state;
     //glFinish();

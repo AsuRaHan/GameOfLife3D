@@ -65,14 +65,27 @@ int determineNewType(ivec2 pos) {
     }
 
     int maxCount = 0;
-    int maxType = 0;
+    int equalTypes[8];
+    int equalCount = 0;
     for (int i = 1; i <= 7; i++) {
         if (neighborsCount[i] > maxCount) {
             maxCount = neighborsCount[i];
-            maxType = i;
+            equalCount = 0;
+            equalTypes[equalCount] = i; // Сохраняем новый макс. тип
+            equalCount++;
+        } else if (neighborsCount[i] == maxCount && maxCount != 0) {
+            equalTypes[equalCount] = i; // Сохраняем равный тип
+            equalCount++;
         }
     }
-    return maxType;
+    if(maxCount == 0) return 0; //если нет соседей, то умирает
+
+    if (equalCount > 1) {
+        int randomIndex = int(float(equalCount) * fract(sin(dot(pos, vec2(12.9898, 78.233))) * 43758.5453));
+        return equalTypes[randomIndex]; // Возвращаем случайный тип из равных
+    } else {
+        return equalTypes[0]; // Возвращаем единственный максимальный тип
+    }
 }
 
 // Метод для генерации цвета на основе типа клетки.
@@ -138,7 +151,7 @@ void main() {
             } else {
                 nextState = 0; // Умирает
             }
-        } else if (currentState == 0) { // Мёртвая клетка
+        } else if (currentState <= 0) { // Мёртвая клетка
             if (neighbors == birth) {
                 nextState = determineNewType(pos); // Оживает с типом
             }

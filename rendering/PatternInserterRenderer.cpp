@@ -47,13 +47,17 @@ void PatternInserterRenderer::UpdateBuffers() {
 
     float cellSize = pGameController->getCellSize();
     float r, g, b;
-    if (cellType == 1) { r = 0.0f; g = 0.5f; b = 0.0f; } // Зелёный
-    else if (cellType == 2) { r = 0.5f; g = 0.0f; b = 0.0f; } // Красный
-    else if (cellType == 3) { r = 0.0f; g = 0.0f; b = 0.5f; } // Синий
-    else if (cellType == 4) { r = 0.5f; g = 0.5f; b = 0.0f; } // Жёлтый
-    else if (cellType == 5) { r = 0.5f; g = 0.0f; b = 0.5f; } // Оранжевый
-    else if (cellType == 6) { r = 0.0f; g = 0.5f; b = 0.5f; } // Фиолетовый
-    else { r = 1.0f; g = 1.0f; b = 1.0f; } // Белый (cellType == 7)
+    //if (cellType == 1) { r = 0.0f; g = 0.5f; b = 0.0f; } // Зелёный
+    //else if (cellType == 2) { r = 0.5f; g = 0.0f; b = 0.0f; } // Красный
+    //else if (cellType == 3) { r = 0.0f; g = 0.0f; b = 0.5f; } // Синий
+    //else if (cellType == 4) { r = 0.5f; g = 0.5f; b = 0.0f; } // Жёлтый
+    //else if (cellType == 5) { r = 0.5f; g = 0.0f; b = 0.5f; } // Оранжевый
+    //else if (cellType == 6) { r = 0.0f; g = 0.5f; b = 0.5f; } // Фиолетовый
+    //else { r = 1.0f; g = 1.0f; b = 1.0f; } // Белый (cellType == 7)
+    r = (float)((cellType / 4) % 2) / 2.0f; // Делим на 2.0f
+    g = (float)((cellType / 2) % 2) / 2.0f; // Делим на 2.0f
+    b = (float)((cellType / 1) % 2) / 2.0f; // Делим на 2.0f
+    
 
     float inset = 0.2f; // Отступ 0.2 от края клетки (на каждую сторону)
 
