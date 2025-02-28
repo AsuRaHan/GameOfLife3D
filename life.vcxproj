@@ -155,6 +155,7 @@
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="game\EcosystemAutomaton.cpp" />
     <ClCompile Include="game\GameController.cpp" />
     <ClCompile Include="game\GameStateManager.cpp" />
     <ClCompile Include="game\GPUAutomaton.cpp" />
@@ -173,6 +174,7 @@
     <ClCompile Include="rendering\SelectionRenderer.cpp" />
     <ClCompile Include="rendering\TextureFieldRenderer.cpp" />
     <ClCompile Include="rendering\UIRenderer.cpp" />
+    <ClCompile Include="system\CommandLineParser.cpp" />
     <ClCompile Include="system\GLFunctions.cpp" />
     <ClCompile Include="system\InputHandler.cpp" />
     <ClCompile Include="system\OpenGLDebug.cpp" />
@@ -189,6 +191,7 @@
     <ClInclude Include="external\imgui\backends\imgui_impl_win32.h" />
     <ClInclude Include="external\imgui\imgui.h" />
     <ClInclude Include="external\imgui\imgui_internal.h" />
+    <ClInclude Include="game\EcosystemAutomaton.h" />
     <ClInclude Include="game\GameController.h" />
     <ClInclude Include="game\GameStateManager.h" />
     <ClInclude Include="game\GPUAutomaton.h" />
@@ -208,6 +211,7 @@
     <ClInclude Include="rendering\TextureFieldRenderer.h" />
     <ClInclude Include="rendering\UIRenderer.h" />
     <ClInclude Include="res\resource.h" />
+    <ClInclude Include="system\CommandLineParser.h" />
     <ClInclude Include="system\GLFunctions.h" />
     <ClInclude Include="system\InputEvent.h" />
     <ClInclude Include="system\InputHandler.h" />

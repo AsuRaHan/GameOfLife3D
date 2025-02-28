@@ -2,10 +2,9 @@
 #ifndef GAMECONTROLLER_H_
 #define GAMECONTROLLER_H_
 
-//#include "GameSimulation.h"
-
 #include "Grid.h"
 #include "GPUAutomaton.h"
+#include "EcosystemAutomaton.h"
 #include "GameStateManager.h"
 #include "PatternManager.h"
 #include "../mathematics/Vector3d.h"
@@ -26,7 +25,9 @@ using Pattern = std::vector<std::vector<bool>>;
 class GameController {
 private:
     Grid grid;
-    GPUAutomaton gpuAutomaton; // член класса для вычислений на GPU
+    //GPUAutomaton gpuAutomaton; // член класса для вычислений на GPU
+    GPUAutomaton* gameAutomaton; // Переименовали и сделали указателем
+
     float cellSize; // Размер каждой клетки в пикселях
     bool isRunning; // Флаг, показывает, запущена ли симуляция
     bool showGrid;
@@ -110,6 +111,7 @@ private:
     Vector3d patternPreviewPosition; // Позиция предпросмотра паттерна
 public:
     GameController(int width, int height, float cellSize = 0.5f);
+    ~GameController(); // Добавляем деструктор
 
     void randomizeGrid(float density);
 
@@ -161,7 +163,7 @@ public:
     Pattern rotateOrFlip(const Pattern& pattern, Rotation rotation);
     void SetRendererProvider(IRendererProvider* provider);
 
-    GPUAutomaton& getGPUAutomaton() { return gpuAutomaton; }
+    GPUAutomaton& getGPUAutomaton() { return *gameAutomaton; }
 
     // Новый метод для загрузки списка паттернов
     void loadPatternList(const std::string& patternFolder = "patterns");

@@ -2,7 +2,11 @@
 
 UIRenderer::UIRenderer(GameController* gc) : gameController(gc), showExitDialog(false) {
     aboutText = LoadTextFromResource(GetModuleHandle(NULL), IDR_ABOUT_TEXT);
-    gpuAutomaton = &gc->getGPUAutomaton();
+
+    //gpuAutomaton = &gc->getGPUAutomaton();
+    if (gameController) {
+        gpuAutomaton = &gameController->getGPUAutomaton(); // Инициализируем только если gc валиден
+    }
     buttonSize = ImVec2(200, 30);
 }
 

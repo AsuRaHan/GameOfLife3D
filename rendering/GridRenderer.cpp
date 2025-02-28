@@ -60,6 +60,11 @@ void GridRenderer::Draw() {
     glBindVertexArray(0);
 }
 
+void GridRenderer::Rebuild()
+{
+    Initialize();
+}
+
 void GridRenderer::LoadGridShaders() {
     // ===================================================================================================================
 
@@ -137,7 +142,7 @@ void main() {
     
     uint baseIndexForVertical = x * 10; // Начало для вертикальных линий
     uint baseIndexForHorizontal = (gridWidth + 1) * 10 + y * 10; // Начало для горизонтальных линий после вертикальных, включая дополнительные линии
-
+    float zPos = 0.001;
     // Добавляем вертикальные линии
     if (x <= gridWidth) { // Мы используем <=, чтобы включить дополнительную линию справа
         float xPos = x * cellSize;
@@ -147,13 +152,13 @@ void main() {
         // Вертикальные линии
         vertices[baseIndexForVertical + 0] = xPos;
         vertices[baseIndexForVertical + 1] = 0.0;
-        vertices[baseIndexForVertical + 2] = 0.0;
+        vertices[baseIndexForVertical + 2] = zPos;
         vertices[baseIndexForVertical + 3] = majorLine;
         vertices[baseIndexForVertical + 4] = minorLine;
 
         vertices[baseIndexForVertical + 5] = xPos;
         vertices[baseIndexForVertical + 6] = gridHeight * cellSize;
-        vertices[baseIndexForVertical + 7] = 0.0;
+        vertices[baseIndexForVertical + 7] = zPos;
         vertices[baseIndexForVertical + 8] = majorLine;
         vertices[baseIndexForVertical + 9] = minorLine;
     }
@@ -167,13 +172,13 @@ void main() {
         // Горизонтальные линии
         vertices[baseIndexForHorizontal + 0] = 0.0;
         vertices[baseIndexForHorizontal + 1] = yPos;
-        vertices[baseIndexForHorizontal + 2] = 0.0;
+        vertices[baseIndexForHorizontal + 2] = zPos;
         vertices[baseIndexForHorizontal + 3] = majorLine;
         vertices[baseIndexForHorizontal + 4] = minorLine;
 
         vertices[baseIndexForHorizontal + 5] = (gridWidth) * cellSize;
         vertices[baseIndexForHorizontal + 6] = yPos;
-        vertices[baseIndexForHorizontal + 7] = 0.0;
+        vertices[baseIndexForHorizontal + 7] = zPos;
         vertices[baseIndexForHorizontal + 8] = majorLine;
         vertices[baseIndexForHorizontal + 9] = minorLine;
     }

@@ -10,11 +10,16 @@
 
 class GPUAutomaton {
 public:
-    GPUAutomaton(int width, int height);
-    GPUAutomaton(const GPUAutomaton&) = delete; // Удаляем конструктор копирования
-    GPUAutomaton& operator=(const GPUAutomaton&) = delete; // Удаляем оператор присваивания
+    //GPUAutomaton(int width, int height);
+    //GPUAutomaton(const GPUAutomaton&) = delete; // Удаляем конструктор копирования
+    //GPUAutomaton& operator=(const GPUAutomaton&) = delete; // Удаляем оператор присваивания
 
-    ~GPUAutomaton();
+    //~GPUAutomaton();
+    GPUAutomaton(int width, int height);
+    GPUAutomaton(const GPUAutomaton&) = delete;
+    GPUAutomaton& operator=(const GPUAutomaton&) = delete;
+
+    virtual ~GPUAutomaton(); // Добавляем virtual для корректного наследования
 
     void Update();
     void GetGridState(std::vector<int>& outState);
@@ -70,10 +75,10 @@ public:
         glUseProgram(computeProgram);
         glUniform1iv(glGetUniformLocation(computeProgram, "overpopulationCounts"), 9, overpopulationRules);
     }
-private:
-    void CreateComputeShader();
+protected:
+    virtual void CreateComputeShader();
     void SetupBuffers();
-    void SwapBuffers(); // метод для переключения буферов
+    void SwapGridBuffers(); // метод для переключения буферов
 
     ShaderManager shaderManager;
     GLuint computeProgram;

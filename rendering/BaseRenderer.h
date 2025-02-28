@@ -19,7 +19,7 @@ public:
     void SetGameController(GameController* gameController);
     virtual void Initialize() = 0; // Чисто виртуальный метод для инициализации
     virtual void Draw() = 0;       // Чисто виртуальный метод для отрисовки
-
+    virtual void Rebuild(){}
 protected:
     const Camera& camera;
     ShaderManager& shaderManager;

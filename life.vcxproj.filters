@@ -80,29 +80,35 @@
     <ClCompile Include="game\PatternManager.cpp">
       <Filter>game</Filter>
     </ClCompile>
-    <ClCompile Include="rendering\SelectionRenderer.cpp">
-      <Filter>rendering</Filter>
-    </ClCompile>
     <ClCompile Include="system\OpenGLDebug.cpp">
       <Filter>system</Filter>
-    </ClCompile>
-    <ClCompile Include="rendering\GridRenderer.cpp">
-      <Filter>rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="rendering\BaseRenderer.cpp">
-      <Filter>rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="rendering\TextureFieldRenderer.cpp">
-      <Filter>rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="rendering\CellsViewportRenderer.cpp">
-      <Filter>rendering</Filter>
     </ClCompile>
     <ClCompile Include="system\PerformanceStats.cpp">
       <Filter>system</Filter>
     </ClCompile>
+    <ClCompile Include="rendering\BaseRenderer.cpp">
+      <Filter>rendering\ExtRender</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\CellsViewportRenderer.cpp">
+      <Filter>rendering\ExtRender</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\GridRenderer.cpp">
+      <Filter>rendering\ExtRender</Filter>
+    </ClCompile>
     <ClCompile Include="rendering\PatternInserterRenderer.cpp">
-      <Filter>rendering</Filter>
+      <Filter>rendering\ExtRender</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\SelectionRenderer.cpp">
+      <Filter>rendering\ExtRender</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\TextureFieldRenderer.cpp">
+      <Filter>rendering\ExtRender</Filter>
+    </ClCompile>
+    <ClCompile Include="game\EcosystemAutomaton.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="system\CommandLineParser.cpp">
+      <Filter>system</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -181,32 +187,38 @@
     <ClInclude Include="game\PatternManager.h">
       <Filter>game</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\SelectionRenderer.h">
-      <Filter>rendering</Filter>
-    </ClInclude>
     <ClInclude Include="system\OpenGLDebug.h">
       <Filter>system</Filter>
     </ClInclude>
     <ClInclude Include="game\GameController.h">
       <Filter>game</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\GridRenderer.h">
-      <Filter>rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="rendering\BaseRenderer.h">
-      <Filter>rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="rendering\TextureFieldRenderer.h">
-      <Filter>rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="rendering\CellsViewportRenderer.h">
-      <Filter>rendering</Filter>
-    </ClInclude>
     <ClInclude Include="system\PerformanceStats.h">
       <Filter>system</Filter>
     </ClInclude>
+    <ClInclude Include="rendering\BaseRenderer.h">
+      <Filter>rendering\ExtRender</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\CellsViewportRenderer.h">
+      <Filter>rendering\ExtRender</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\GridRenderer.h">
+      <Filter>rendering\ExtRender</Filter>
+    </ClInclude>
     <ClInclude Include="rendering\PatternInserterRenderer.h">
-      <Filter>rendering</Filter>
+      <Filter>rendering\ExtRender</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\SelectionRenderer.h">
+      <Filter>rendering\ExtRender</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\TextureFieldRenderer.h">
+      <Filter>rendering\ExtRender</Filter>
+    </ClInclude>
+    <ClInclude Include="game\EcosystemAutomaton.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="system\CommandLineParser.h">
+      <Filter>system</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -230,6 +242,9 @@
     </Filter>
     <Filter Include="res">
       <UniqueIdentifier>{7466ef7d-e4b1-40da-b435-3c62dd938a45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rendering\ExtRender">
+      <UniqueIdentifier>{3c34ffbd-2dd0-4a3e-bdd1-33992325b814}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

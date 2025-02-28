@@ -167,6 +167,11 @@ void CellsViewportRenderer::Draw() {
     glBindVertexArray(0);
 }
 
+void CellsViewportRenderer::Rebuild()
+{
+    Initialize();
+}
+
 void CellsViewportRenderer::LoadShaders() {
     const char* vertexShaderSource = R"(
         #version 330 core

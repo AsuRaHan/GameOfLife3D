@@ -274,7 +274,7 @@ void GPUAutomaton::LoadClearShader() {
         if (pos.x >= gridSize.x || pos.y >= gridSize.y) return;
         
         uint index = pos.y * gridSize.x + pos.x;
-        cells[index] = 0; // Мертвая клетка
+        cells[index] = -1; // Мертвая клетка
         colors[index] = vec4(0.0, 0.0, 0.0, 0.0); // Черный цвет
     }
     )";
@@ -307,6 +307,31 @@ unsigned int pcg_hash(unsigned int input) {
     return (word >> 22u) ^ word;
 }
 
+
+vec4 getColorByType(int type) {
+    if (type == 0) {
+        return vec4(0.05, 0.05, 0.08, 0.0); // Мертвая клетка
+    }
+    if (type < 0) {
+        return vec4(0.0, 0.0, 0.0, 0.0); // Пустая клетка
+    }
+
+    vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+
+    int r = (type / 4) % 2;
+    int g = (type / 2) % 2;
+    int b = (type / 1) % 2;
+    color.r = float(r);
+    color.g = float(g);
+    color.b = float(b);
+
+    if (type > 9){
+        color = vec4(1.0,1.0,1.0,0.0);
+    }
+
+    return color;
+}
+
 void main() {
     ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
     if (pos.x >= gridSize.x || pos.y >= gridSize.y) return;
@@ -319,22 +344,22 @@ void main() {
         float typeFloat = randomFloat / density; // [0, 1)
         if (typeFloat < 0.142) { // 1/7
             cells[index] = 1; // Зелёный
-            colors[index] = vec4(0.0, 0.9, 0.0, 1.0);
+            colors[index] = getColorByType(1);
         } else if (typeFloat < 0.285) { // 2/7
             cells[index] = 2; // Красный
-            colors[index] = vec4(0.9, 0.0, 0.0, 1.0);
+            colors[index] = getColorByType(2);
         } else if (typeFloat < 0.428) { // 3/7
             cells[index] = 3; // Синий
-            colors[index] = vec4(0.0, 0.0, 0.9, 1.0);
+            colors[index] = getColorByType(3);
         } else if (typeFloat < 0.571) { // 4/7
             cells[index] = 4; // Жёлтый
-            colors[index] = vec4(0.9, 0.9, 0.0, 1.0);
+            colors[index] = getColorByType(4);
         } else if (typeFloat < 0.714) { // 5/7
             cells[index] = 5; // Оранжевый
-            colors[index] = vec4(0.9, 0.0, 0.9, 1.0);
+            colors[index] = getColorByType(5);
         } else if (typeFloat < 0.857) { // 6/7
             cells[index] = 6; // Фиолетовый
-            colors[index] = vec4(0.0, 0.9, 0.9, 1.0);
+            colors[index] = getColorByType(7);
         } else { // 7/7
             cells[index] = 7; // Белый
             colors[index] = vec4(0.9, 0.9, 0.9, 1.0);
@@ -399,19 +424,11 @@ void GPUAutomaton::Update() {
 
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-    SwapBuffers();
+    SwapGridBuffers();
     //glFlush();
 }
 
-/**
-* Как это работает
-* На каждом шаге Update() :
-*      cellsBuffer[currentBufferIndex] привязывается к binding = 0 как входной буфер(current).
-*      cellsBuffer[(currentBufferIndex + 1) % 2] привязывается к binding = 1 как выходной буфер(next).
-*      Шейдер выполняет вычисления, записывая новое состояние в next и цвета в colorsBuffer.
-*      После выполнения SwapBuffers() переключает currentBufferIndex, делая next новым current для следующего шага
-*/
-void GPUAutomaton::SwapBuffers() {
+void GPUAutomaton::SwapGridBuffers() {
     currentBufferIndex = (currentBufferIndex + 1) % 2;
 }
 
@@ -608,12 +625,22 @@ void GPUAutomaton::CheckComputeLimits() {
     std::cout << "Final group size: (" << groupSizeX << ", " << groupSizeY << ")" << std::endl;
 }
 
+//001 - синий(type = 1)
+//010 - зелёный(type = 2)
+//011 - голубой(type = 3)
+//100 - красный(type = 4)
+//101 - фиолетовый(type = 5)
+//110 - жёлтый(type = 6)
+//111 - белый(type = 7)
+//000 - черный(type = 8)
+//001 - синий(type = 9)
+//111 - белый(type > 9)
 void GPUAutomaton::SetCellType(int x, int y, int type) {
     if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
         std::cerr << "SetCellType: Invalid coordinates (" << x << ", " << y << ")" << std::endl;
         return;
     }
-    if (type < -1 || type > 3) {
+    if (type < -1 || type > 7) {
         std::cerr << "SetCellType: Invalid type value (" << type << "). Use 0 (dead), 1 (green), 2 (red), 3 (blue)." << std::endl;
         return;
     }
@@ -621,34 +648,25 @@ void GPUAutomaton::SetCellType(int x, int y, int type) {
     int index = y * gridWidth + x;
 
     // Устанавливаем тип в cellsBuffer
-    int stateData = 0;
-    if (type < 0) {
-        stateData = 0;
-    }
-    else
-    {
-       stateData = type;
-    }
+    int stateData = type;
+
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellsBuffer[currentBufferIndex]));
     GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER, index * sizeof(int), sizeof(int), &stateData));
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 
     // Устанавливаем цвет в colorsBuffer
     float colorData[4];
-    if (type == 1) { // Зелёный
-        colorData[0] = 0.0f; colorData[1] = 0.5f; colorData[2] = 0.0f; colorData[3] = 1.0f;
-    }
-    else if (type == 2) { // Красный
-        colorData[0] = 0.5f; colorData[1] = 0.0f; colorData[2] = 0.0f; colorData[3] = 1.0f;
-    }
-    else if (type == 3) { // Синий
-        colorData[0] = 0.0f; colorData[1] = 0.0f; colorData[2] = 0.5f; colorData[3] = 1.0f;
+
+    colorData[0] = (float)((type / 4) % 2) / 2.0f; // Делим на 2.0f
+    colorData[1] = (float)((type / 2) % 2) / 2.0f; // Делим на 2.0f
+    colorData[2] = (float)((type / 1) % 2) / 2.0f; // Делим на 2.0f
+    colorData[3] = 0.0f;
+
+    if (type == 0) { // Мёртвая
+        colorData[0] = 0.05f; colorData[1] = 0.05f; colorData[2] = 0.08f; colorData[3] = 0.0f;
     }
     else if (type == -1) { // пустая
         colorData[0] = 0.0f; colorData[1] = 0.0f; colorData[2] = 0.0f; colorData[3] = 0.0f;
-    }
-    else { // Мёртвая
-        colorData[0] = 0.05f; colorData[1] = 0.05f; colorData[2] = 0.08f; colorData[3] = 0.0f;
     }
 
     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, colorsBuffer));

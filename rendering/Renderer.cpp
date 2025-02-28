@@ -81,7 +81,7 @@ void Renderer::Draw() {
 
 void Renderer::RebuildGameField() {
     if (!pGameController) return;
-    gridRenderer.Initialize();
-    textureFieldRenderer.Initialize();
+    gridRenderer.Rebuild();
+    textureFieldRenderer.Rebuild();
     cellsViewportRenderer.Initialize();
 }

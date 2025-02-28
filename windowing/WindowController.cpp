@@ -163,15 +163,30 @@ void WindowController::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
         inputHandler.ProcessEvent(event);
         // Здесь может быть дополнительная обработка клавиш, не связанных с камерой
         if (!pGameController->isSimulationRunning()) {
-            if (wParam >= '1' && wParam <= '6') {
-                pGameController->setCurrentPattern(wParam - '0');
+            if (GetKeyState(VK_CONTROL) & 0x8000) {
+                if (wParam >= '1' && wParam <= '6') {
+                    pGameController->setCurrentPattern(wParam - '0');
+                }
             }
-            if (wParam >= '7' && wParam <= '9') {
-                pGameController->SetCellType((wParam - '0') - 6);
+            else {
+                if (wParam >= '1' && wParam <= '7') {
+                    pGameController->SetCellType((wParam - '0'));
+                }
             }
+
         }
 
         switch (wParam) {
+        case '0': // тип клетки 4
+            if (!pGameController->isSimulationRunning()) {
+                pGameController->SetCellType(4);
+            }
+            break;
+        case 0xBD: // тип клетки 4
+            if (!pGameController->isSimulationRunning()) {
+                pGameController->SetCellType(5);
+            }
+            break;
         case VK_DELETE:
             if (!pGameController->isSimulationRunning() && pGameController->IsSelectionActive()) {
                 pGameController->KillSelectedCells(); // Убиваем выделенные клетки

@@ -1,22 +1,25 @@
 #include "GameController.h"
 
-GameController::GameController(int width, int height, float cellSize)
-    : grid(width, height), 
-    gpuAutomaton(grid.getWidth(), grid.getHeight()),
-    cellSize(cellSize), 
-    isRunning(false), showGrid(true), showUI(true), isWorldToroidal(true), isPatternPlacementMode(false), isTurboBoost(false),
-    currentPatternRotator(0), isSelectionActive(false),
-    rendererProvider(nullptr)
-{
-    //currentPattern = glider;
-    //insertablePattern = currentPattern;
-    std::srand(static_cast<unsigned int>(std::time(nullptr))); // Инициализация генератора случайных чисел
-    grid.SetGPUAutomaton(&gpuAutomaton);
-    gpuAutomaton.SetToroidal(isWorldToroidal);
 
-    frameTimeAccumulator = GetTickCount64(); // Инициализация
+GameController::GameController(int width, int height, float cellSize)
+    : grid(width, height),
+    cellSize(cellSize),
+    isRunning(false), showGrid(true), showUI(true), isWorldToroidal(true),
+    isPatternPlacementMode(false), isTurboBoost(false), currentPatternRotator(0),
+    isSelectionActive(false), rendererProvider(nullptr) {
+    //gameAutomaton = new GPUAutomaton(grid.getWidth(), grid.getHeight()); // Пока используем GPUAutomaton
+    gameAutomaton = new EcosystemAutomaton(grid.getWidth(), grid.getHeight());
+
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+    grid.SetGPUAutomaton(gameAutomaton);
+    gameAutomaton->SetToroidal(isWorldToroidal);
+
+    frameTimeAccumulator = GetTickCount64();
     isRunning = false;
-    
+}
+
+GameController::~GameController() {
+    delete gameAutomaton; // Очищаем память
 }
 
 void GameController::placePattern(int startX, int startY, const Pattern& pattern) {
@@ -59,7 +62,7 @@ void GameController::PlacePattern(int startX, int startY) {
 void GameController::setWoldToroidal(bool wt)
 {
     isWorldToroidal = wt;
-    gpuAutomaton.SetToroidal(isWorldToroidal);
+    gameAutomaton->SetToroidal(isWorldToroidal);
 }
 
 void GameController::randomizeGrid(float density) {
@@ -69,12 +72,12 @@ void GameController::randomizeGrid(float density) {
     std::mt19937 gen(rd());
     unsigned int seed = gen(); // Генерируем случайное число для seed
     // Вызов метода RandomizeGrid с density и seed
-    gpuAutomaton.RandomizeGrid(density, seed);
+    gameAutomaton->RandomizeGrid(density, seed);
 }
 
 void GameController::clearGrid() {
     if (isRunning) return;
-    gpuAutomaton.ClearGrid();
+    gameAutomaton->ClearGrid();
 }
 
 void GameController::update() {
@@ -84,7 +87,7 @@ void GameController::update() {
         auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(now - lastUpdate).count();
 
         if (elapsed >= simulationSpeed) {
-            gpuAutomaton.Update();
+            gameAutomaton->Update();
             lastUpdate = now;
             PerformanceStats::getInstance().recordSimulation();
         }
@@ -102,7 +105,7 @@ void GameController::stopSimulation() {
 
 void GameController::stepSimulation() {
     if (isRunning) return;
-    gpuAutomaton.Update();
+    gameAutomaton->Update();
 }
 
 bool GameController::isSimulationRunning() const {
@@ -112,11 +115,11 @@ bool GameController::isSimulationRunning() const {
 void GameController::toggleCellState(int x, int y) {
     if (isRunning || isPatternPlacementMode) return;
     int currentState = grid.getCellState(x, y);
-    if (currentState == 0) {
+    if (currentState <= 0) {
         grid.SetCellType(x, y, cellType);
     }
     else {
-        grid.SetCellType(x, y, 0);
+        grid.SetCellType(x, y, -1);
     }
 
 }
@@ -142,7 +145,7 @@ void GameController::setFieldSize(int newWidth, int newHeight) {
     if (newWidth <= 0 || newHeight <= 0) return; // Проверка на положительный размер
 
     grid.setSize(newWidth, newHeight);
-    gpuAutomaton.SetNewGridSize(newWidth, newHeight);
+    gameAutomaton->SetNewGridSize(newWidth, newHeight);
     // Перед перестройкой буферов, уведомляем рендер о необходимости обновлений
     rendererProvider->RebuildGameField();
 }

@@ -10,7 +10,7 @@ public:
 
     void Initialize() override;
     void Draw() override;
-
+    virtual void Rebuild() override;
 private:
     GLuint VAO, VBO, textureID;
     GLuint textureShaderProgram;

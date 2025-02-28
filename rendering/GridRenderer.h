@@ -2,13 +2,7 @@
 #define GRID_RENDERER_H
 
 #include "BaseRenderer.h"
-//#include "Camera.h"
 
-//#include "../system/GLFunctions.h"
-//#include "../system/ShaderManager.h"
-
-//#include <vector>
-//#include <iostream>
 class GridRenderer : public BaseRenderer {
 public:
     GridRenderer(const Camera& camera, ShaderManager& shaderManager);
@@ -16,7 +10,7 @@ public:
 
     void Initialize();
     void Draw();
-
+    virtual void Rebuild() override;
 private:
     GLuint gridVAO, gridVBO;
     GLuint gridShaderProgram;

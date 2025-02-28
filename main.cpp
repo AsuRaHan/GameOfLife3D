@@ -5,6 +5,7 @@
 #include "system/OpenGLInitializer.h"
 #include "system/SettingsManager.h"
 #include "system/PerformanceStats.h"
+#include "system/CommandLineParser.h"
 
 #include <iostream>
 #include <chrono>
@@ -19,77 +20,6 @@
 #include "imgui_impl_win32.h" // Если вы работаете под Windows
 
 #pragma comment(lib, "opengl32.lib")
-
-
-// Функция для парсинга командной строки
-void ParseCommandLine(const std::wstring& cmdLine, int& gridWidth, int& gridHeight, int& screenWidth, int& screenHeight, bool& fullscreen) {
-    std::wistringstream iss(cmdLine);
-    std::wstring token;
-
-    // Устанавливаем значения по умолчанию
-    gridWidth = 400;      // Значение по умолчанию для ширины
-    gridHeight = 300;     // Значение по умолчанию для высоты
-    fullscreen = false; // Значение по умолчанию для полноэкранного режима
-
-    // Парсим командную строку
-    while (iss >> token) {
-        if (token == L"-gridWidth") {
-            if (iss >> token) {
-                try {
-                    gridWidth = std::stoi(token); // Преобразуем строку в целое число
-                    if (gridWidth <= 0) {
-                        throw std::invalid_argument("gridWidth must be positive.");
-                    }
-                }
-                catch (const std::exception& e) {
-                    std::wcerr << L"Invalid gridWidth value: " << token << L". Using default gridWidth." << std::endl;
-                    gridWidth = 400; // Возвращаем значение по умолчанию
-                }
-            }
-        }
-        else if (token == L"-gridHeight") {
-            if (iss >> token) {
-                try {
-                    gridHeight = std::stoi(token); // Преобразуем строку в целое число
-                    if (gridHeight <= 0) {
-                        throw std::invalid_argument("gridHeight must be positive.");
-                    }
-                }
-                catch (const std::exception& e) {
-                    std::wcerr << L"Invalid height value: " << token << L". Using default gridHeight." << std::endl;
-                    gridHeight = 300; // Возвращаем значение по умолчанию
-                }
-            }
-        }
-        else if (token == L"-fullscreen") {
-            fullscreen = true; // Если параметр указан, устанавливаем fullscreen в true
-        }
-
-        else if (token == L"-screenResolution") { // Новый параметр для разрешения экрана
-            if (iss >> token) {
-                size_t xPos = token.find(L'x'); // Находим позицию 'x'
-                if (xPos != std::wstring::npos) {
-                    try {
-                        screenWidth = std::stoi(token.substr(0, xPos)); // Получаем ширину
-                        screenHeight = std::stoi(token.substr(xPos + 1)); // Получаем высоту
-                        if (screenWidth <= 0 || screenHeight <= 0) {
-                            throw std::invalid_argument("Width and height must be positive.");
-                        }
-                    }
-                    catch (const std::exception& e) {
-                        std::wcerr << L"Invalid screen resolution value: " << token << L". Using default resolution." << std::endl;
-                        screenWidth = 1024; // Возвращаем значение по умолчанию
-                        screenHeight = 768; // Возвращаем значение по умолчанию
-                    }
-                }
-                else {
-                    std::wcerr << L"Invalid screen resolution format: " << token << L". Using default resolution." << std::endl;
-                }
-            }
-        }
-
-    }
-}
 
 void loadFontFromRes(ImGuiIO io) {
     HRSRC hRes = FindResource(NULL, MAKEINTRESOURCE(IDR_FONT_CUSTOM), RT_RCDATA);
@@ -190,21 +120,25 @@ int wWinMain(
 
     std::cout << "LOG! " << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S") << std::endl;
 
-    //const std::string& settingsFilename = "settings.ini";
     SettingsManager settings("game_settings.ini");
 
+    CommandLineParser parser(lpCmdLine);
+    CommandLineParser::Options cmdOptions = parser.parse();
+    // Use the parsed options
+    int gridWidth = cmdOptions.gridWidth;
+    int gridHeight = cmdOptions.gridHeight;
+    bool fullScreen = cmdOptions.fullscreen;
+    int screenWidth = cmdOptions.screenWidth;
+    int screenHeight = cmdOptions.screenHeight;
 
-    // Переменные для ширины и высоты и т.д.
-    int gridWidth, gridHeight, windowWidth, windowHeight, windowPosX, windowPosY, screenWidth = 0, screenHeight = 0;
-    bool Full;
     if (wcslen(lpCmdLine) != 0) {
-        ParseCommandLine(lpCmdLine, gridWidth, gridHeight, screenWidth, screenHeight, Full); // Получаем значения из командной строки
+
         settings.setSetting("Gameplay", "gridWidth", gridWidth);
         settings.setSetting("Gameplay", "gridHeight", gridHeight);
 
         settings.setSetting("Graphics", "screenWidth", screenWidth);
         settings.setSetting("Graphics", "screenHeight", screenHeight);
-        settings.setSetting("Graphics", "IsFullscreen", Full);
+        settings.setSetting("Graphics", "IsFullscreen", fullScreen);
     }
     else {
         gridWidth = settings.getIntSetting("Gameplay", "gridWidth", 400);
@@ -212,21 +146,21 @@ int wWinMain(
 
         screenWidth = settings.getIntSetting("Graphics", "screenWidth", 0);
         screenHeight = settings.getIntSetting("Graphics", "screenHeight", 0);
-        Full = settings.getBoolSetting("Graphics", "IsFullscreen", false);
+        fullScreen = settings.getBoolSetting("Graphics", "IsFullscreen", false);
     }
 
 
-    windowWidth = settings.getIntSetting("Graphics", "windowWidth", 800);
-    windowHeight = settings.getIntSetting("Graphics", "windowHeight", 600);
-    windowPosX = settings.getIntSetting("Graphics", "windowPosX", 0);
-    windowPosY = settings.getIntSetting("Graphics", "windowPosY", 0);
+    int windowWidth = settings.getIntSetting("Graphics", "windowWidth", 1024);
+    int windowHeight = settings.getIntSetting("Graphics", "windowHeight", 768);
+    int windowPosX = settings.getIntSetting("Graphics", "windowPosX", 0);
+    int windowPosY = settings.getIntSetting("Graphics", "windowPosY", 0);
     
 
     MainWindow mainWindow(hInstance, windowWidth, windowHeight, windowPosX, windowPosY);
     HWND mHnd = mainWindow.Create();
     if (mHnd) {
         OpenGLInitializer glInit(mHnd);
-        if (!glInit.Initialize(Full, screenWidth, screenHeight)) {
+        if (!glInit.Initialize(fullScreen, screenWidth, screenHeight)) {
             MessageBox(NULL, L"OpenGL Initialization Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
             return 1;
         }

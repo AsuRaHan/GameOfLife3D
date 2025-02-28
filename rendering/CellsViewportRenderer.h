@@ -12,7 +12,7 @@ public:
 
     void Initialize() override;
     void Draw() override;
-
+    virtual void Rebuild() override;
 private:
     struct CellInstance {
         float x, y;

@@ -56,6 +56,11 @@ void TextureFieldRenderer::Draw() {
     glBindTexture(GL_TEXTURE_BUFFER, 0);
 }
 
+void TextureFieldRenderer::Rebuild()
+{
+    Initialize();
+}
+
 void TextureFieldRenderer::LoadTextureShaders() {
     // ===================================================================================================================
     const char* vertexShaderSource = R"(
