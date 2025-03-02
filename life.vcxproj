@@ -159,8 +159,10 @@
     <ClCompile Include="game\GameStateManager.cpp" />
     <ClCompile Include="game\GPUAutomaton.cpp" />
     <ClCompile Include="game\Grid.cpp" />
+    <ClCompile Include="game\ModManager.cpp" />
     <ClCompile Include="game\ModSystemAutomaton.cpp" />
     <ClCompile Include="game\PatternManager.cpp" />
+    <ClCompile Include="game\UIBuilder.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathematics\Matrix4x4.cpp" />
     <ClCompile Include="mathematics\Vector3d.cpp" />
@@ -195,8 +197,10 @@
     <ClInclude Include="game\GameStateManager.h" />
     <ClInclude Include="game\GPUAutomaton.h" />
     <ClInclude Include="game\Grid.h" />
+    <ClInclude Include="game\ModManager.h" />
     <ClInclude Include="game\ModSystemAutomaton.h" />
     <ClInclude Include="game\PatternManager.h" />
+    <ClInclude Include="game\UIBuilder.h" />
     <ClInclude Include="mathematics\Matrix4x4.h" />
     <ClInclude Include="mathematics\Vector3d.h" />
     <ClInclude Include="rendering\BaseRenderer.h" />

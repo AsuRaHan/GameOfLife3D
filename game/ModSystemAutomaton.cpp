@@ -1,8 +1,5 @@
 #include "ModSystemAutomaton.h"
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
+
 
 ModSystemAutomaton::ModSystemAutomaton(int width, int height)
     : GPUAutomaton(width, height) {
@@ -23,15 +20,19 @@ ModSystemAutomaton::ModSystemAutomaton(int width, int height)
 void ModSystemAutomaton::CreateComputeShader() {
     CheckComputeLimits(); // Проверяем лимиты, как в базовом классе
 
-    std::string shaderSource = loadShaderSourceWithIncludes("./shader/geminimod.glsl");
-    shaderSource = processShaderMacros(shaderSource);
-    
-    shaderManager.loadComputeShader("ecosystemShader", shaderSource.c_str());
-    shaderManager.linkComputeProgram("ecosystemProgram", "ecosystemShader");
-    computeProgram = shaderManager.getProgram("ecosystemProgram");
+    LoadSelectedMod();
 }
 
 std::string ModSystemAutomaton::loadShaderSourceWithIncludes(const std::string& filename) {
+    // Проверяем, был ли этот файл уже подключен
+    if (includedFiles.find(filename) != includedFiles.end()) {
+        std::cout << "Skipping already included file: " << filename << std::endl;
+        return ""; // Пропускаем повторное подключение
+    }
+
+    // Добавляем имя файла в список подключенных
+    includedFiles.insert(filename);
+
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Error: Could not open shader file: " << filename << std::endl;
@@ -47,10 +48,16 @@ std::string ModSystemAutomaton::loadShaderSourceWithIncludes(const std::string& 
             size_t endQuote = line.find('\"', startQuote + 1);
             if (startQuote != std::string::npos && endQuote != std::string::npos) {
                 std::string includeFilename = line.substr(startQuote + 1, endQuote - startQuote - 1);
-                std::string includePath = "./shader/" + includeFilename; // Assuming includes are in the "shader" directory
+                std::string includePath = "./mods/libs/" + includeFilename; // Assuming includes are in the "shader" directory
+                // Изменено
+                if (!std::filesystem::exists(includePath)) {
+                    //попробуем найти в папке mods
+                    includePath = ModManager::getModFilePath(includeFilename);
+                }
                 buffer << loadShaderSourceWithIncludes(includePath); // Recursive call for nested includes
             }
-        } else {
+        }
+        else {
             buffer << line << "\n";
         }
     }
@@ -71,4 +78,35 @@ std::string ModSystemAutomaton::replaceMacros(std::string source, const std::str
         pos += value.length();
     }
     return source;
+}
+
+void ModSystemAutomaton::LoadSelectedMod() {
+    // Очищаем список
+    includedFiles.clear();
+
+    // Получаем имя текущего мода из ModManager
+    std::string currentModName = ModManager::getCurrentModName();
+
+    // Формируем путь к файлу main.glsl в папке текущего мода
+    std::string mainShaderPath = ModManager::getModsFolderPath() + "/" + currentModName + "/main.glsl";
+
+    // Если currentModName пустая, то используем базовый шейдер
+    if (currentModName.empty()) {
+        currentModName = "modystemshader";
+        mainShaderPath = "./mods/modystemshader/main.glsl";
+        std::cerr << "Warning: mod name is empty! Loading base shader" << std::endl;
+    }
+
+    // Загружаем шейдер
+    std::string shaderSource = loadShaderSourceWithIncludes(mainShaderPath);
+    shaderSource = processShaderMacros(shaderSource);
+
+    // Формируем имя программы на основе имени мода
+    std::string programName = currentModName + "Program";
+    std::string shaderName = currentModName + "Shader";
+
+    // Загружаем и линкуем шейдер с динамическим именем
+    shaderManager.loadComputeShader(shaderName, shaderSource.c_str());
+    shaderManager.linkComputeProgram(programName, shaderName);
+    computeProgram = shaderManager.getProgram(programName);
 }

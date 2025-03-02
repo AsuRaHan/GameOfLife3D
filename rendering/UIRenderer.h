@@ -23,6 +23,7 @@ private:
     bool gameSettingsWindowVisible = false;
     bool saveSettingsWindowVisible = false;
     bool fieldSettingsWindowVisible = false;
+    bool modsWindowVisible = false;
 
     bool aboutWindowVisible = false;
     bool exitDialogVisible = false;
@@ -56,7 +57,8 @@ private:
     void DrawAboutWindow();
     void DrawExitDialog();
     void DrawPatternWindow();
-
+    void DrawModsWindow();
+    
 public:
     UIRenderer(GameController* gc);
     void SetGPUAutomaton(GPUAutomaton* ga) { gpuAutomaton = ga; } // Добавляем сеттер

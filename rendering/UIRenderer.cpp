@@ -45,6 +45,7 @@ void UIRenderer::DrawUI() {
     DrawAboutWindow();
     DrawExitDialog();
     DrawPatternWindow(); 
+    DrawModsWindow();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -59,6 +60,9 @@ void UIRenderer::DrawMenuBar() {
             ImGui::MenuItem("Сохранения и загрузка", NULL, &saveSettingsWindowVisible);
             ImGui::MenuItem("Настройки поля", NULL, &fieldSettingsWindowVisible);
             ImGui::MenuItem("Паттерны", NULL, &patternWindowVisible);
+
+            if(ModManager::checkMods()) ImGui::MenuItem("Моды", NULL, &modsWindowVisible);
+
             ImGui::MenuItem("О программе", NULL, &aboutWindowVisible);
             ImGui::EndMenu();
         }
@@ -470,4 +474,54 @@ void UIRenderer::DrawPatternWindow() {
 
     ImGui::End();
 
+}
+
+void UIRenderer::DrawModsWindow() {
+    if (!modsWindowVisible) return;
+    // Чекбокс для отображения UI мода
+    static bool showModUI = false;
+    // Если включен, то рисуем UI мода
+    if (showModUI) {
+        ModManager::drawCurrentModUI();
+        //ImGui::Separator();
+    }
+
+    ImGui::Begin("Моды", &modsWindowVisible, ImGuiWindowFlags_NoResize);
+    ImGui::SetWindowSize(ImVec2(300, 0), ImGuiCond_Once); // Устанавливаем начальный размер окна
+
+    ImGui::Checkbox("Показать настройки мода", &showModUI);
+    ImGui::Separator();
+
+
+    // Получаем список доступных модов
+    const std::vector<std::string>& availableMods = ModManager::getAvailableMods();
+
+    // Если список пуст, выводим соответствующее сообщение
+    if (availableMods.empty()) {
+        ImGui::Text("Доступные моды не найдены.");
+        ImGui::Text("Пожалуйста, проверьте папку 'mods' и файл 'mod_list.gmod'");
+    }
+    else {
+        // Выводим текущий мод
+        ImGui::Text("Текущий мод: %s", ModManager::getCurrentModName().c_str());
+        ImGui::Separator();
+
+        // Выводим список доступных модов
+        ImGui::Text("Доступные моды:");
+        for (const std::string& modName : availableMods) {
+            if (ImGui::Selectable(modName.c_str(), ModManager::getCurrentModName() == modName)) {
+                // Устанавливаем текущий мод при выборе
+                ModManager::setCurrentModName(modName);
+                // Пересоздаем шейдеры
+                if (gameController) {
+                    ModSystemAutomaton* modAutomaton = dynamic_cast<ModSystemAutomaton*>(&gameController->getGPUAutomaton());
+                    if (modAutomaton) {
+                        modAutomaton->LoadSelectedMod();
+                    }
+                }
+            }
+        }
+    }
+
+    ImGui::End();
 }

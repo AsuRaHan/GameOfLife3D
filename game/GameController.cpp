@@ -7,8 +7,16 @@ GameController::GameController(int width, int height, float cellSize)
     isRunning(false), showGrid(true), showUI(true), isWorldToroidal(true),
     isPatternPlacementMode(false), isTurboBoost(false), currentPatternRotator(0),
     isSelectionActive(false), rendererProvider(nullptr) {
-    gameAutomaton = new GPUAutomaton(grid.getWidth(), grid.getHeight()); // Пока используем GPUAutomaton
-    //gameAutomaton = new ModSystemAutomaton(grid.getWidth(), grid.getHeight());
+    //gameAutomaton = new GPUAutomaton(grid.getWidth(), grid.getHeight()); // Пока используем GPUAutomaton
+    // gameAutomaton = new ModSystemAutomaton(grid.getWidth(), grid.getHeight());
+    
+    if (!ModManager::checkMods()) {
+        std::cerr << "Error: Mods check failed. Using default." << std::endl;
+        gameAutomaton = new GPUAutomaton(grid.getWidth(), grid.getHeight());
+    }
+    else {
+        gameAutomaton = new ModSystemAutomaton(grid.getWidth(), grid.getHeight());
+    }
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     grid.SetGPUAutomaton(gameAutomaton);

@@ -7,6 +7,8 @@
 #include "ModSystemAutomaton.h"
 #include "GameStateManager.h"
 #include "PatternManager.h"
+#include "ModManager.h"
+
 #include "../mathematics/Vector3d.h"
 #include "../rendering/IRendererProvider.h"
 #include "../system/PerformanceStats.h"

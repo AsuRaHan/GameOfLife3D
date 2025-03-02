@@ -110,6 +110,12 @@
     <ClCompile Include="game\ModSystemAutomaton.cpp">
       <Filter>game</Filter>
     </ClCompile>
+    <ClCompile Include="game\ModManager.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\UIBuilder.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rendering\Camera.h">
@@ -218,6 +224,12 @@
       <Filter>system</Filter>
     </ClInclude>
     <ClInclude Include="game\ModSystemAutomaton.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\ModManager.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\UIBuilder.h">
       <Filter>game</Filter>
     </ClInclude>
   </ItemGroup>
