@@ -13,7 +13,8 @@ layout(std430, binding = 2) buffer Colors {
     vec4 colors[];
 };
 
-uniform ivec2 gridSize;
+uniform ivec2 gridSize; // важная переменная лучше её импользовать по назначению... задает размер игрового поля
+
 uniform int neighborhoodRadius;
 uniform bool isToroidal;
 
@@ -26,6 +27,8 @@ uniform int birthCounts[9];
 uniform int surviveCounts[9];
 uniform int useAdvancedRules; // 0 - стадартный режим, 1 - расширенный
 uniform int overpopulationCounts[9];
+
+// С этой строки и далее вы можите создавать свой шейдер и сотворить все что вам захочится
 
 bool canBeBorn(int neighbors) {
     return neighbors >= 0 && neighbors <= 8 && birthCounts[neighbors] == 1;
@@ -41,8 +44,8 @@ bool isOverpopulated(int neighbors) {
 
 int countLiveNeighbors(ivec2 pos, int targetType) {
     int count = 0;
-    for(int dy = -2; dy <= 2; ++dy) {
-        for(int dx = -2; dx <= 2; ++dx) {
+    for(int dy = -neighborhoodRadius; dy <= neighborhoodRadius; ++dy) {
+        for(int dx = -neighborhoodRadius; dx <= neighborhoodRadius; ++dx) {
             if(dx == 0 && dy == 0) continue;
             ivec2 neighbor = pos + ivec2(dx, dy);
             if (isToroidal) {

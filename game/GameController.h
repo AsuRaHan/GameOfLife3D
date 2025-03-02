@@ -4,7 +4,7 @@
 
 #include "Grid.h"
 #include "GPUAutomaton.h"
-#include "EcosystemAutomaton.h"
+#include "ModSystemAutomaton.h"
 #include "GameStateManager.h"
 #include "PatternManager.h"
 #include "../mathematics/Vector3d.h"

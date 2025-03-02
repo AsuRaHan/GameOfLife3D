@@ -1,10 +1,10 @@
-#include "EcosystemAutomaton.h"
+#include "ModSystemAutomaton.h"
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
-EcosystemAutomaton::EcosystemAutomaton(int width, int height)
+ModSystemAutomaton::ModSystemAutomaton(int width, int height)
     : GPUAutomaton(width, height) {
     // Вызываем новый шейдер с правилами экосистемы
     CreateComputeShader();
@@ -20,10 +20,10 @@ EcosystemAutomaton::EcosystemAutomaton(int width, int height)
     setOverpopulationRules(overpopRules);
 }
 
-void EcosystemAutomaton::CreateComputeShader() {
+void ModSystemAutomaton::CreateComputeShader() {
     CheckComputeLimits(); // Проверяем лимиты, как в базовом классе
 
-    std::string shaderSource = loadShaderSourceWithIncludes("./shader/ecosystemShader.hlsl");
+    std::string shaderSource = loadShaderSourceWithIncludes("./shader/geminimod.glsl");
     shaderSource = processShaderMacros(shaderSource);
     
     shaderManager.loadComputeShader("ecosystemShader", shaderSource.c_str());
@@ -31,7 +31,7 @@ void EcosystemAutomaton::CreateComputeShader() {
     computeProgram = shaderManager.getProgram("ecosystemProgram");
 }
 
-std::string EcosystemAutomaton::loadShaderSourceWithIncludes(const std::string& filename) {
+std::string ModSystemAutomaton::loadShaderSourceWithIncludes(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Error: Could not open shader file: " << filename << std::endl;
@@ -58,13 +58,13 @@ std::string EcosystemAutomaton::loadShaderSourceWithIncludes(const std::string& 
     return buffer.str();
 }
 
-std::string EcosystemAutomaton::processShaderMacros(std::string shaderSource) {
+std::string ModSystemAutomaton::processShaderMacros(std::string shaderSource) {
     shaderSource = replaceMacros(shaderSource, "{{groupSizeX}}", std::to_string(groupSizeX));
     shaderSource = replaceMacros(shaderSource, "{{groupSizeY}}", std::to_string(groupSizeY));
     return shaderSource;
 }
 
-std::string EcosystemAutomaton::replaceMacros(std::string source, const std::string& macro, const std::string& value) {
+std::string ModSystemAutomaton::replaceMacros(std::string source, const std::string& macro, const std::string& value) {
     size_t pos = 0;
     while ((pos = source.find(macro, pos)) != std::string::npos) {
         source.replace(pos, macro.length(), value);

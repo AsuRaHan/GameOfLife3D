@@ -1,13 +1,13 @@
 #pragma once
-#ifndef ECOSYSTEM_AUTOMATON_H
-#define ECOSYSTEM_AUTOMATON_H
+#ifndef MODSYSTEM_AUTOMATON_H
+#define MODSYSTEM_AUTOMATON_H
 
 #include "GPUAutomaton.h"
 
-class EcosystemAutomaton : public GPUAutomaton {
+class ModSystemAutomaton : public GPUAutomaton {
 public:
-    EcosystemAutomaton(int width, int height);
-    ~EcosystemAutomaton() override = default;
+    ModSystemAutomaton(int width, int height);
+    ~ModSystemAutomaton() override = default;
 
 protected:
     void CreateComputeShader() override; // Переопределяем шейдер для новых правил

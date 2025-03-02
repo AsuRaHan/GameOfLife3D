@@ -589,6 +589,7 @@ void GPUAutomaton::CheckComputeLimits() {
 //101 - фиолетовый(type = 5)
 //110 - жёлтый(type = 6)
 //111 - белый(type = 7)
+// так же есть типы 0 для мертвых клеток имеет цвет почти черный и есть тип -1 для пустых клеток цвет полностью черный
 void GPUAutomaton::SetCellType(int x, int y, int type) {
     if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight) {
         std::cerr << "SetCellType: Invalid coordinates (" << x << ", " << y << ")" << std::endl;

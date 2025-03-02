@@ -104,11 +104,11 @@
     <ClCompile Include="rendering\TextureFieldRenderer.cpp">
       <Filter>rendering\ExtRender</Filter>
     </ClCompile>
-    <ClCompile Include="game\EcosystemAutomaton.cpp">
-      <Filter>game</Filter>
-    </ClCompile>
     <ClCompile Include="system\CommandLineParser.cpp">
       <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="game\ModSystemAutomaton.cpp">
+      <Filter>game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -214,11 +214,11 @@
     <ClInclude Include="rendering\TextureFieldRenderer.h">
       <Filter>rendering\ExtRender</Filter>
     </ClInclude>
-    <ClInclude Include="game\EcosystemAutomaton.h">
-      <Filter>game</Filter>
-    </ClInclude>
     <ClInclude Include="system\CommandLineParser.h">
       <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="game\ModSystemAutomaton.h">
+      <Filter>game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

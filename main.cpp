@@ -262,6 +262,7 @@ int wWinMain(
                     stats.recordFrame();
                     lastFrameTime = now;
                 }
+               
             }
             else {
                 needSteps = 1;

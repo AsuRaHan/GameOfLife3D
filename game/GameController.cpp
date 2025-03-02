@@ -8,7 +8,7 @@ GameController::GameController(int width, int height, float cellSize)
     isPatternPlacementMode(false), isTurboBoost(false), currentPatternRotator(0),
     isSelectionActive(false), rendererProvider(nullptr) {
     gameAutomaton = new GPUAutomaton(grid.getWidth(), grid.getHeight()); // Пока используем GPUAutomaton
-    //gameAutomaton = new EcosystemAutomaton(grid.getWidth(), grid.getHeight());
+    //gameAutomaton = new ModSystemAutomaton(grid.getWidth(), grid.getHeight());
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     grid.SetGPUAutomaton(gameAutomaton);
