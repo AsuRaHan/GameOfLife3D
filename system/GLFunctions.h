@@ -395,7 +395,49 @@
 #define GL_BUFFER_READ_BARRIER_BIT 0x00000002
 #endif
 
+#ifndef GL_UNIFORM
+#define GL_UNIFORM 0x92E1
+#endif
+#ifndef GL_ACTIVE_RESOURCES
+#define GL_ACTIVE_RESOURCES 0x92F5
+#endif
+#ifndef GL_NAME_LENGTH
+#define GL_NAME_LENGTH 0x92F9
+#endif
+#ifndef GL_TYPE
+#define GL_TYPE 0x92FA
+#endif
+#ifndef GL_LOCATION
+#define GL_LOCATION 0x930E
+#endif
+#ifndef GL_ARRAY_SIZE
+#define GL_ARRAY_SIZE 0x92FB
+#endif
+#ifndef GL_SAMPLER_2D
+#define GL_SAMPLER_2D 0x8B5E
+#endif
 
+#ifndef GL_BOOL
+#define GL_BOOL 0x8B56
+#endif
+#ifndef GL_FLOAT_VEC3
+#define GL_FLOAT_VEC3 0x8B51
+#endif
+#ifndef GL_INT_VEC3
+#define GL_INT_VEC3 0x8B54
+#endif
+#ifndef GL_INT_VEC4
+#define GL_INT_VEC4 0x8B55
+#endif
+#ifndef GL_FLOAT_VEC2
+#define GL_FLOAT_VEC2 0x8B50
+#endif
+#ifndef GL_FLOAT_VEC4
+#define GL_FLOAT_VEC4 0x8B52
+#endif
+#ifndef GL_INT_VEC2
+#define GL_INT_VEC2 0x8B53
+#endif
 
 
 
@@ -473,6 +515,10 @@ typedef void (APIENTRY* PFNGLUNIFORM1UIPROC)(GLint location, GLuint v0);
 
 typedef void (APIENTRY* PFNGLUNIFORM1IVPROC)(GLint location, GLsizei count, const GLint* value);
 
+typedef void (APIENTRY* PFNGLGETPROGRAMINTERFACEIVPROC)(GLuint program, GLenum programInterface, GLenum pname, GLint* params);
+typedef void (APIENTRY* PFNGLGETPROGRAMRESOURCEIVPROC)(GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum* props, GLsizei count, GLsizei* length, GLint* params);
+typedef void (APIENTRY* PFNGLGETPROGRAMRESOURCENAMEPROC)(GLuint program, GLenum programInterface, GLuint index, GLsizei bufSize, GLsizei* length, GLchar* name);
+
 // Объявление указателей на функции
 extern PFNGLGENBUFFERSPROC glGenBuffers;
 extern PFNGLBINDBUFFERPROC glBindBuffer;
@@ -532,6 +578,10 @@ extern PFNGLISBUFFERPROC glIsBuffer;
 
 extern PFNGLUNIFORM1UIPROC glUniform1ui;
 extern PFNGLUNIFORM1IVPROC glUniform1iv;
+
+extern PFNGLGETPROGRAMINTERFACEIVPROC glGetProgramInterfaceiv;
+extern PFNGLGETPROGRAMRESOURCEIVPROC glGetProgramResourceiv;
+extern PFNGLGETPROGRAMRESOURCENAMEPROC glGetProgramResourceName;
 
 // Функции для работы с OpenGL
 void LoadOpenGLFunctions();

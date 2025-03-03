@@ -485,14 +485,17 @@ void UIRenderer::DrawModsWindow() {
         ModManager::drawCurrentModUI();
         //ImGui::Separator();
     }
+    ModSystemAutomaton* modAutomaton = dynamic_cast<ModSystemAutomaton*>(&gameController->getGPUAutomaton());
 
     ImGui::Begin("Моды", &modsWindowVisible, ImGuiWindowFlags_NoResize);
     ImGui::SetWindowSize(ImVec2(300, 0), ImGuiCond_Once); // Устанавливаем начальный размер окна
 
     ImGui::Checkbox("Показать настройки мода", &showModUI);
     ImGui::Separator();
-
-
+    if (ImGui::Button("Применить", buttonSize)) {
+        modAutomaton->updateShaderUniforms();
+    }
+    ImGui::Separator();
     // Получаем список доступных модов
     const std::vector<std::string>& availableMods = ModManager::getAvailableMods();
 
@@ -514,7 +517,7 @@ void UIRenderer::DrawModsWindow() {
                 ModManager::setCurrentModName(modName);
                 // Пересоздаем шейдеры
                 if (gameController) {
-                    ModSystemAutomaton* modAutomaton = dynamic_cast<ModSystemAutomaton*>(&gameController->getGPUAutomaton());
+                    
                     if (modAutomaton) {
                         modAutomaton->LoadSelectedMod();
                     }

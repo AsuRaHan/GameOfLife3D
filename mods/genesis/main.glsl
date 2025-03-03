@@ -1,6 +1,6 @@
 #version 430 core
 layout(local_size_x = {{groupSizeX}}, local_size_y = {{groupSizeY}}) in;
-
+// modName=genesis
 layout(std430, binding = 0) buffer CurrentCells {
     int current[]; // Массив текущих состояний клеток
 };
@@ -35,7 +35,7 @@ uniform float energyCostPerTick = 0.001; // Стоимость жизни за �
 uniform float reproduceEnergyCost = 0.4; // Цена размножения
 uniform float energyPerPrey  = 0.2; // Сколько энергии получает хищник за жертву
 uniform float energyAbsorbed = 0.005; // Поглощения энергии клетками за тик
-uniform float startEnergy = 0.5;//Стартовое значение энергии для клетки
+uniform float startEnergy = 1.0;//Стартовое значение энергии для клетки
 uniform float energyFromDead = 0.15;// Сколько энергии получает падальщик за мертвую клетку.
 
 // Зелёные: Жертвы.
@@ -397,7 +397,7 @@ void main() {
         //---------------------------------------------------------
         // --- ПОВЕДЕНИЕ МИНЫ ---
         //---------------------------------------------------------
-        if(currentState > 7){
+        if(currentState > 6){
             for (int dy = -neighborhoodRadius; dy <= neighborhoodRadius; ++dy) {
                 for (int dx = -neighborhoodRadius; dx <= neighborhoodRadius; ++dx) {
                     if(dx == 0 && dy == 0) continue;
@@ -473,28 +473,28 @@ void main() {
         }
     }
 
-    if (useAdvancedRules == 1) {
-        // Расширенный режим (B/S)
-        if (currentState > 0 && currentState <= 7) {
-            if (canSurvive(neighbors) && !isOverpopulated(neighbors)) nextState = currentState;
-            else nextState = 0;
-        } else if (canBeBorn(neighbors)) {
-             nextState = determineNewType(pos);
-        }
-    } else {
-        // обычный режим
-        if (currentState > 0 && currentState <= 7) { // Живая клетка
-            if (neighbors >= survivalMin && neighbors <= survivalMax && neighbors < overpopulation) {
-                nextState = currentState; // Сохраняем тип
-            } else {
-                nextState = 0; // Умирает
-            }
-        } else if (currentState <= 0) { // Мёртвая клетка
-            if (neighbors == birth) {
-                nextState = determineNewType(pos); // Оживает с типом
-            }
-        }
-    }
+    // if (useAdvancedRules == 1) {
+    //     // Расширенный режим (B/S)
+    //     if (currentState > 0 && currentState <= 7) {
+    //         if (canSurvive(neighbors) && !isOverpopulated(neighbors)) nextState = currentState;
+    //         else nextState = 0;
+    //     } else if (canBeBorn(neighbors)) {
+    //          nextState = determineNewType(pos);
+    //     }
+    // } else {
+    //     // обычный режим
+    //     if (currentState > 0 && currentState <= 7) { // Живая клетка
+    //         if (neighbors >= survivalMin && neighbors <= survivalMax && neighbors < overpopulation) {
+    //             nextState = currentState; // Сохраняем тип
+    //         } else {
+    //             nextState = 0; // Умирает
+    //         }
+    //     } else if (currentState <= 0) { // Мёртвая клетка
+    //         if (neighbors == birth) {
+    //             nextState = determineNewType(pos); // Оживает с типом
+    //         }
+    //     }
+    // }
     if(nextState > 0){
         if(currentState <= 0){
             nextEnergy = startEnergy;

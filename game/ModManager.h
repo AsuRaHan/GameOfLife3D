@@ -24,7 +24,6 @@ public:
         int minWorldSizeZ;
         std::vector<std::string> cellTypeNames; // Массив имен типов клеток
     };
-
     // Список файлов, которые должны быть в папке "mods" (базовые)
     static const std::vector<std::string> requiredModFiles;
 
@@ -62,6 +61,9 @@ public:
 
     // Отрисовка UI для текущего мода
     static void drawCurrentModUI();
+
+    static const std::vector<UIElement>& getCurrentModUIElements();
+
 private:
     // Имя текущего мода
     static std::string currentModName;

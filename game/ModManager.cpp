@@ -13,6 +13,10 @@ std::map<std::string, ModManager::ModConfig> ModManager::modConfigs;
 std::string ModManager::currentModName = "modystemshader";
 UIBuilder ModManager::modUIBuilder; // Инициализация modUIBuilder
 
+const std::vector<UIElement>& ModManager::getCurrentModUIElements() { // Сделали статическим
+    return modUIBuilder.getElements();
+}
+
 bool ModManager::checkMods() {
     const std::string modsFolderPath = getModsFolderPath();
 

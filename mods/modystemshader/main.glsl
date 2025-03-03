@@ -1,14 +1,12 @@
 #version 430 core
 layout(local_size_x = {{groupSizeX}}, local_size_y = {{groupSizeY}}) in;
-
+// modName=modystemshader
 layout(std430, binding = 0) buffer CurrentCells {
     int current[];
 };
-
 layout(std430, binding = 1) buffer NextCells {
     int next[];
 };
-
 layout(std430, binding = 2) buffer Colors {
     vec4 colors[];
 };
@@ -17,15 +15,15 @@ uniform ivec2 gridSize; // важная переменная лучше её и�
 
 uniform int neighborhoodRadius;
 uniform bool isToroidal;
-
+uniform int useAdvancedRules; // 0 - стадартный режим, 1 - расширенный
+// стадартный режим
 uniform int birth;
 uniform int survivalMin;
 uniform int survivalMax;
 uniform int overpopulation;
-
+// расширенный режим
 uniform int birthCounts[9];
 uniform int surviveCounts[9];
-uniform int useAdvancedRules; // 0 - стадартный режим, 1 - расширенный
 uniform int overpopulationCounts[9];
 
 // С этой строки и далее вы можите создавать свой шейдер и сотворить все что вам захочится
@@ -131,6 +129,35 @@ vec4 getColorByType(int type, int currentState) {
     return color;
 }
 
+int calculateNextStateStandard(int currentState, int neighbors, ivec2 pos) {
+    int nextState = currentState;
+    if (currentState > 0) { // Живая клетка
+        if (neighbors >= survivalMin && neighbors <= survivalMax && neighbors < overpopulation) {
+            nextState = currentState; // Сохраняем тип
+        } else {
+            nextState = 0; // Умирает
+        }
+    } else if (currentState <= 0) { // Мёртвая клетка
+        if (neighbors == birth) {
+            nextState = determineNewType(pos); // Оживает с типом
+        }
+    }
+    return nextState;
+}
+
+int calculateNextStateAdvanced(int currentState, int neighbors, ivec2 pos) {
+    int nextState = currentState;
+    if (currentState > 0) { // Живая клетка
+        if (canSurvive(neighbors) && !isOverpopulated(neighbors)) {
+            nextState = currentState; // Сохраняем тип
+        } else {
+            nextState = 0; // Умирает
+        }
+    } else if (canBeBorn(neighbors)) { // Мертвая клетка может возродиться
+        nextState = determineNewType(pos); // Оживает с типом
+    }
+    return nextState;
+}
 
 void main() {
     ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
@@ -143,25 +170,10 @@ void main() {
 
     if (useAdvancedRules == 1) {
         // Расширенный режим (B/S)
-        if (currentState > 0) {
-            if (canSurvive(neighbors) && !isOverpopulated(neighbors)) nextState = currentState;
-            else nextState = 0;
-        } else if (canBeBorn(neighbors)) {
-            nextState = determineNewType(pos);
-        }
+        nextState = calculateNextStateAdvanced(currentState, neighbors, pos);
     } else {
         // обычный режим
-        if (currentState > 0) { // Живая клетка
-            if (neighbors >= survivalMin && neighbors <= survivalMax && neighbors < overpopulation) {
-                nextState = currentState; // Сохраняем тип
-            } else {
-                nextState = 0; // Умирает
-            }
-        } else if (currentState <= 0) { // Мёртвая клетка
-            if (neighbors == birth) {
-                nextState = determineNewType(pos); // Оживает с типом
-            }
-        }
+        nextState = calculateNextStateStandard(currentState, neighbors, pos);
     }
 
     next[index] = nextState;
