@@ -232,6 +232,9 @@
     <ClInclude Include="game\UIBuilder.h">
       <Filter>game</Filter>
     </ClInclude>
+    <ClInclude Include="game\UIElement.h">
+      <Filter>game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="game">

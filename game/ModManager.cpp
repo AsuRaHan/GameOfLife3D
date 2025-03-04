@@ -17,6 +17,12 @@ const std::vector<UIElement>& ModManager::getCurrentModUIElements() { // Сде�
     return modUIBuilder.getElements();
 }
 
+void ModManager::createModUIFromElements(const std::vector<UIElement>& elements) {
+    modUIBuilder.setConfig(elements);
+    std::cout << "UI created from elements for mod: " << currentModName << std::endl;
+    modUIBuilder.setWindowName(currentModName);
+}
+
 bool ModManager::checkMods() {
     const std::string modsFolderPath = getModsFolderPath();
 
@@ -161,31 +167,11 @@ const std::string& ModManager::getCurrentModName() {
 // Setter для имени текущего мода
 void ModManager::setCurrentModName(const std::string& modName) {
     currentModName = modName;
-    setupCurrentModUI(); // Настройка UI для текущего мода
 }
 
 // Getter для получения списка доступных модов
 const std::vector<std::string>& ModManager::getAvailableMods() {
     return availableMods;
-}
-
-void ModManager::setupCurrentModUI() {
-    // Формируем путь к файлу ui.cfg текущего мода
-    std::string uiConfigPath;
-    if (!currentModName.empty()) {
-        uiConfigPath = getModsFolderPath() + "/" + currentModName + "/ui.cfg";
-    }
-
-    if (std::filesystem::exists(uiConfigPath)) {
-        // Загружаем конфигурацию UI
-        modUIBuilder.loadConfigFromFile(uiConfigPath);
-        std::cout << "UI loaded for mod: " << currentModName << std::endl;
-        modUIBuilder.setWindowName(currentModName);
-    } else {
-        // Если файла ui.cfg нет, сбрасываем UI
-        std::cout << "No ui.cfg found for mod: " << currentModName << ". Using default UI." << std::endl;
-        modUIBuilder.setConfig({}); // Устанавливаем пустую конфигурацию
-    }
 }
 
 void ModManager::drawCurrentModUI() {

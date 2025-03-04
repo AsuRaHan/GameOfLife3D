@@ -56,13 +56,12 @@ public:
 
     // Getter для получения списка доступных модов
     static const std::vector<std::string>& getAvailableMods();
-    // Установка UI для текущего мода
-    static void setupCurrentModUI();
 
     // Отрисовка UI для текущего мода
     static void drawCurrentModUI();
 
     static const std::vector<UIElement>& getCurrentModUIElements();
+    static void createModUIFromElements(const std::vector<UIElement>& elements);
 
 private:
     // Имя текущего мода

@@ -9,26 +9,27 @@
 #include <fstream>
 #include <sstream>
 #include "imgui.h"
+#include "UIElement.h"
 
 // Перечисление для типов элементов
-enum UIElementType {
-    Separator,
-    InputText,
-    InputInt,
-    InputFloat,
-    Text
-};
-
-// Структура для элемента интерфейса
-struct UIElement {
-    int id;                // Уникальный ID элемента
-    UIElementType type;    // Тип элемента
-    std::string varName;   // Имя переменной, с которой связан элемент
-    std::string text;      // Текст, отображаемый рядом с элементом
-    std::string value;     // Текущее значение элемента (для InputText)
-    int intValue = 0;        // Текущее значение элемента (для InputInt)
-    float floatValue = 0.0f; // Текущее значение элемента (для InputFloat)
-};
+//enum UIElementType {
+//    Separator,
+//    InputText,
+//    InputInt,
+//    InputFloat,
+//    Text
+//};
+//
+//// Структура для элемента интерфейса
+//struct UIElement {
+//    int id;                // Уникальный ID элемента
+//    UIElementType type;    // Тип элемента
+//    std::string varName;   // Имя переменной, с которой связан элемент
+//    std::string text;      // Текст, отображаемый рядом с элементом
+//    std::string value;     // Текущее значение элемента (для InputText)
+//    int intValue = 0;        // Текущее значение элемента (для InputInt)
+//    float floatValue = 0.0f; // Текущее значение элемента (для InputFloat)
+//};
 
 class UIBuilder {
 public:

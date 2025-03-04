@@ -359,6 +359,10 @@ void GPUAutomaton::SetNewGridSize(int width, int height) {
     ClearGrid();
 }
 
+void GPUAutomaton::beforeUpdate() {
+    // Пустая реализация по умолчанию
+    //std::cout << "GPUAutomaton::beforeUpdate() called" << std::endl;
+}
 
 void GPUAutomaton::Update() {
     glUseProgram(computeProgram);
@@ -372,9 +376,12 @@ void GPUAutomaton::Update() {
     glUniform1i(glGetUniformLocation(computeProgram, "neighborhoodRadius"), neighborhoodRadius);
     // переменные для расширенного режима правил
     glUniform1i(glGetUniformLocation(computeProgram, "useAdvancedRules"), useAdvancedRules);
+
     glUniform1iv(glGetUniformLocation(computeProgram, "birthCounts"), 9, birthRules);
     glUniform1iv(glGetUniformLocation(computeProgram, "surviveCounts"), 9, surviveRules);
     glUniform1iv(glGetUniformLocation(computeProgram, "overpopulationCounts"), 9, overpopulationRules);
+
+    beforeUpdate(); // Вызываем хук перед обновлением
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cellsBuffer[currentBufferIndex]);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, cellsBuffer[(currentBufferIndex + 1) % 2]);
@@ -388,6 +395,12 @@ void GPUAutomaton::Update() {
 
     SwapGridBuffers();
     //glFlush();
+    afterUpdate(); // Вызываем хук после обновления
+}
+
+void GPUAutomaton::afterUpdate() {
+    // Пустая реализация по умолчанию
+    //std::cout << "GPUAutomaton::afterUpdate() called" << std::endl;
 }
 
 void GPUAutomaton::SwapGridBuffers() {

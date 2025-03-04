@@ -201,6 +201,7 @@
     <ClInclude Include="game\ModSystemAutomaton.h" />
     <ClInclude Include="game\PatternManager.h" />
     <ClInclude Include="game\UIBuilder.h" />
+    <ClInclude Include="game\UIElement.h" />
     <ClInclude Include="mathematics\Matrix4x4.h" />
     <ClInclude Include="mathematics\Vector3d.h" />
     <ClInclude Include="rendering\BaseRenderer.h" />

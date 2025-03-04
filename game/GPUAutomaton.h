@@ -80,6 +80,10 @@ public:
         glUniform1iv(glGetUniformLocation(computeProgram, "overpopulationCounts"), 9, overpopulationRules);
     }
 protected:
+    // Виртуальные методы-хуки
+    virtual void beforeUpdate(); // Хук перед обновлением (с базовой реализацией)
+    virtual void afterUpdate();  // Хук после обновления (с базовой реализацией)
+
     virtual void CreateComputeShader();
     void SetupBuffers();
     void SwapGridBuffers(); // метод для переключения буферов

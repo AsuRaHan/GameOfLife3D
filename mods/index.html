@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Reader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        #reader {
+            max-width: 65vw;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #content {
+            margin-bottom: 20px;
+        }
+        .page {
+            width: 100vw;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #fff;
+            overflow-y: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #pagination {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #fileInput {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="reader">
+        <input type="file" id="fileInput" accept=".md" />
+		<div id="pagination">
+            <button id="prevPage">Предыдущая</button>
+            <span id="pageInfo">Страница 1 из 1</span>
+            <button id="nextPage">Следующая</button>
+        </div>
+        <div id="content"></div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        let pages = [];
+        let currentPage = 0;
+
+        // Функция для отображения текущей страницы
+        function renderPage() {
+            const contentElement = document.getElementById('content');
+            contentElement.innerHTML = marked.parse(pages[currentPage] || "Нет данных для отображения.");
+
+            // Обновляем информацию о странице
+            const pageInfoElement = document.getElementById('pageInfo');
+            pageInfoElement.textContent = `Страница ${currentPage + 1} из ${pages.length}`;
+        }
+
+        // Обработчик выбора файла
+        document.getElementById('fileInput').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target.result;
+                    // Разделяем текст по заголовкам первого уровня (# Заголовок)
+                    pages = text.split(/(?=^#\s.+$)/gm);
+                    currentPage = 0;
+                    renderPage();
+                };
+                reader.readAsText(file);
+            } else {
+                alert("Пожалуйста, выберите .md файл.");
+            }
+        });
+
+        // Обработчики кнопок
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 0) {
+                currentPage--;
+                renderPage();
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            if (currentPage < pages.length - 1) {
+                currentPage++;
+                renderPage();
+            }
+        });
+
+        // Инициализация
+        renderPage();
+    </script>
+</body>
+</html>
