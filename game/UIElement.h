@@ -33,21 +33,15 @@ struct ShaderVariableInfo {
     std::string name;
     GLint location;
     GLenum type;
-    GLint arraySize;
-    std::function<void(const ShaderVariableInfo&, std::string)> callback; // Callback function
-    // Убираем glm::vec4 и glm::ivec2
-    union {
+    GLsizei arraySize;
+    union Value {
         int i;
         float f;
         bool b;
+        Value() : i(0) {} // Конструктор по умолчанию
     } value;
-    std::string valueStr = ""; // value in str
-    // Add max min value
-    float min = 0.0f;
-    float max = 0.0f;
-    
-    // Добавляем массив для хранения значений, если это массив
-    std::vector<float> values; 
+    std::vector<float> values; // Для массивов
+    std::string valueStr; // Для текста
 };
 
 #endif // UI_ELEMENT_H

@@ -519,6 +519,9 @@ typedef void (APIENTRY* PFNGLGETPROGRAMINTERFACEIVPROC)(GLuint program, GLenum p
 typedef void (APIENTRY* PFNGLGETPROGRAMRESOURCEIVPROC)(GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum* props, GLsizei count, GLsizei* length, GLint* params);
 typedef void (APIENTRY* PFNGLGETPROGRAMRESOURCENAMEPROC)(GLuint program, GLenum programInterface, GLuint index, GLsizei bufSize, GLsizei* length, GLchar* name);
 
+typedef void (APIENTRY* PFNGLGETUNIFORMIVPROC)(GLuint program, GLint location, GLint* params);
+typedef void (APIENTRY* PFNGLGETUNIFORMFVPROC)(GLuint program, GLint location, GLfloat* params);
+
 // Объявление указателей на функции
 extern PFNGLGENBUFFERSPROC glGenBuffers;
 extern PFNGLBINDBUFFERPROC glBindBuffer;
@@ -582,6 +585,9 @@ extern PFNGLUNIFORM1IVPROC glUniform1iv;
 extern PFNGLGETPROGRAMINTERFACEIVPROC glGetProgramInterfaceiv;
 extern PFNGLGETPROGRAMRESOURCEIVPROC glGetProgramResourceiv;
 extern PFNGLGETPROGRAMRESOURCENAMEPROC glGetProgramResourceName;
+
+extern PFNGLGETUNIFORMIVPROC glGetUniformiv;
+extern PFNGLGETUNIFORMFVPROC glGetUniformfv;
 
 // Функции для работы с OpenGL
 void LoadOpenGLFunctions();

@@ -11,26 +11,6 @@
 #include "imgui.h"
 #include "UIElement.h"
 
-// Перечисление для типов элементов
-//enum UIElementType {
-//    Separator,
-//    InputText,
-//    InputInt,
-//    InputFloat,
-//    Text
-//};
-//
-//// Структура для элемента интерфейса
-//struct UIElement {
-//    int id;                // Уникальный ID элемента
-//    UIElementType type;    // Тип элемента
-//    std::string varName;   // Имя переменной, с которой связан элемент
-//    std::string text;      // Текст, отображаемый рядом с элементом
-//    std::string value;     // Текущее значение элемента (для InputText)
-//    int intValue = 0;        // Текущее значение элемента (для InputInt)
-//    float floatValue = 0.0f; // Текущее значение элемента (для InputFloat)
-//};
-
 class UIBuilder {
 public:
     // Конструктор
@@ -72,6 +52,7 @@ private:
     
     std::map<std::string, std::string> stringVariables; // Карта для хранения строковых значений переменных
     std::map<std::string, int> intVariables;             // Карта для хранения целочисленных значений переменных
+    std::map<std::string, bool> boolVariables;             // Карта для хранения bool значений переменных
     std::map<std::string, float> floatVariables;         // Карта для хранения вещественных значений переменных
 
 

@@ -11,6 +11,7 @@ void UIBuilder::setConfig(const std::vector<UIElement>& config) {
     stringVariables.clear(); // Очищаем карту переменных
     intVariables.clear();
     floatVariables.clear();
+    boolVariables.clear();
     // Инициализируем переменные значениями по умолчанию
     for (const auto& element : elements) {
         if (element.type == InputText) {
@@ -21,6 +22,9 @@ void UIBuilder::setConfig(const std::vector<UIElement>& config) {
         }
         else if (element.type == InputFloat) {
             floatVariables[element.varName] = element.floatValue;
+        }
+        else if (element.type == InputBool) {
+            boolVariables[element.varName] = element.intValue;
         }
     }
 }
@@ -173,6 +177,12 @@ void UIBuilder::drawUI(bool* p_open) {
             ImGui::Text("%s", element.text.c_str());
             if (floatVariables.count(element.varName) > 0) {
                 ImGui::InputFloat(("##" + element.varName).c_str(), &floatVariables[element.varName]);
+            }
+        }
+        else if (element.type == UIElementType::InputBool) {
+            ImGui::Text("%s", element.text.c_str());
+            if (boolVariables.count(element.varName) > 0) {
+                ImGui::Checkbox(("##" + element.varName).c_str(), &boolVariables[element.varName]);
             }
         }
         else if (element.type == UIElementType::Text){
