@@ -122,7 +122,7 @@ void ModSystemAutomaton::LoadSelectedMod() {
 void ModSystemAutomaton::beforeUpdate() {
     // Здесь ваш код, который должен выполняться перед обновлением
     // Например, обновление uniform-ов из UI
-    updateShaderUniforms();
+    //updateShaderUniforms();
     //std::cout << "ModSystemAutomaton::beforeUpdate() called" << std::endl;
 }
 
@@ -133,8 +133,8 @@ void ModSystemAutomaton::getModShaderVariables() {
     }
 
     variablesMap.clear();
-
     std::vector<UIElement> uiElements;
+
     GLint numUniforms;
 
     glGetProgramInterfaceiv(computeProgram, GL_UNIFORM, GL_ACTIVE_RESOURCES, &numUniforms);
@@ -149,93 +149,56 @@ void ModSystemAutomaton::getModShaderVariables() {
         GLint nameLength = values[0];
         GLchar* name = new GLchar[nameLength];
         glGetProgramResourceName(computeProgram, GL_UNIFORM, i, nameLength, NULL, name);
+        std::string varName = std::string(name);
 
-        ShaderVariableInfo varInfo;
-        varInfo.name = std::string(name);
-        varInfo.location = values[2];
-        varInfo.type = values[1];
-        varInfo.arraySize = values[3];
+        if (nameLength > 1 && varName.rfind("gl_", 0) != 0) {
+            ShaderVariableInfo varInfo;
+            varInfo.name = varName;
+            varInfo.type = values[1];
+            varInfo.location = values[2];            
+            varInfo.arraySize = values[3];
 
-        if (varInfo.arraySize > 0) {
-            varInfo.values.resize(varInfo.arraySize, 0.0f);
-        }
+            //Skip not supported
+            //if (varInfo.arraySize > 0) continue;
+            if (varInfo.type != GL_INT && varInfo.type != GL_FLOAT && varInfo.type != GL_BOOL) continue;
 
-        // Фильтруем переменные
-        if (nameLength > 1 && varInfo.name.rfind("gl_", 0) != 0) {
-            // Получаем значение переменной
+            //if (varInfo.arraySize > 0) {
+            //    varInfo.values.resize(varInfo.arraySize, 0.0f);
+            //}
+            UIElement uiElement;
+            uiElement.varName = varInfo.name;
+            uiElement.text = varInfo.name;
+
             switch (varInfo.type) {
             case GL_INT:
-            case GL_SAMPLER_2D:
+            //case GL_SAMPLER_2D:
                 glGetUniformiv(computeProgram, varInfo.location, &varInfo.value.i);
+                variablesMap[varName] = new ShaderVariableInfo(varInfo);
+                uiElement.type = UIElementType::InputInt;
+                uiElement.intValue = varInfo.value.i;
+
                 break;
             case GL_FLOAT:
                 glGetUniformfv(computeProgram, varInfo.location, &varInfo.value.f);
+                variablesMap[varName] = new ShaderVariableInfo(varInfo);
+                uiElement.type = UIElementType::InputFloat;
+                uiElement.floatValue = varInfo.value.f;                
                 break;
             case GL_BOOL:
                 GLint tempBool;
                 glGetUniformiv(computeProgram, varInfo.location, &tempBool);
-                varInfo.value.b = (tempBool != 0); // Преобразуем int в bool
-                break;
-            case GL_FLOAT_VEC4:
-            case GL_INT_VEC2:
-                continue;
-                //if (varInfo.arraySize > 0) {
-                //    //переделать под float массив
-                //    glGetUniformiv(computeProgram, varInfo.location, (GLint*)varInfo.values.data());
-                //}
+                varInfo.value.b = (tempBool != 0);
+                variablesMap[varName] = new ShaderVariableInfo(varInfo);
+                uiElement.type = UIElementType::InputBool;
+                uiElement.intValue = varInfo.value.b;
                 break;
             default:
                 std::cerr << "Warning: Unsupported uniform type for reading: " << varInfo.type << std::endl;
                 break;
             }
-
-            variablesMap[varInfo.name] = &varInfo;
-
-            UIElement uiElement;
-            uiElement.varName = varInfo.name;
-            uiElement.text = varInfo.name;
-            uiElement.type = UIElementType::Separator;
             uiElements.push_back(uiElement);
-
-            switch (varInfo.type) {
-            case GL_INT:
-            case GL_SAMPLER_2D:
-                uiElement.type = UIElementType::InputInt;
-                uiElement.intValue = varInfo.value.i;
-                break;
-            case GL_FLOAT:
-                uiElement.type = UIElementType::InputFloat;
-                uiElement.floatValue = varInfo.value.f;
-                break;
-            case GL_BOOL:
-                uiElement.type = UIElementType::InputBool; // Добавьте InputBool, если нужно
-                uiElement.intValue = varInfo.value.b;
-                break;
-            case GL_FLOAT_VEC4:
-            case GL_INT_VEC2:
-                //if (varInfo.arraySize > 0) {
-                //    uiElement.type = UIElementType::Text;
-                //    std::string arrayStr = varInfo.name + "[";
-                //    for (int i = 0; i < varInfo.arraySize; i++) {
-                //        arrayStr += std::to_string((int)varInfo.values[i]);
-                //        if (i < varInfo.arraySize - 1) {
-                //            arrayStr += ", ";
-                //        }
-                //    }
-                //    arrayStr += "]";
-                //    uiElement.text = arrayStr;
-                //}
-                break;
-            default:
-                std::cerr << "Error: Unknown uniform type: " << varInfo.type << std::endl;
-                break;
-            }
-
-            if (uiElement.type != UIElementType::Text) {
-                uiElements.push_back(uiElement);
-                variablesMap[varInfo.name] = &varInfo;
-            }
         }
+        
         delete[] name;
     }
 
@@ -250,81 +213,23 @@ void ModSystemAutomaton::updateShaderUniforms() {
         return;
     }
 
-    //glUseProgram(computeProgram);
-    //getModShaderVariables();
-    //addUIElementsToVariablesMap();
     for (const auto& pair : variablesMap) {
         const ShaderVariableInfo* var = pair.second;
         if(var->location < 0) continue;
         switch (var->type) {
-        case GL_INT:
-        case GL_SAMPLER_2D://добавляем int
-            glUniform1i(var->location, var->value.i);
+        case GL_INT://добавляем int
+        //case GL_SAMPLER_2D:
+            glUniform1i(glGetUniformLocation(computeProgram, var->name.c_str()), var->value.i);
             break;
         case GL_FLOAT:
-            glUniform1f(var->location, var->value.f);
+            glUniform1f(glGetUniformLocation(computeProgram, var->name.c_str()), var->value.f);
             break;
         case GL_BOOL:
-            glUniform1i(var->location, var->value.b);
-            break;
-        case GL_FLOAT_VEC4: //не будет vec4
-        case GL_INT_VEC2: //не будет vec2i
-         // Check if it's an array
-            //if (var->arraySize > 0) {
-            //     if (var->type == GL_FLOAT_VEC4) {
-            //        //переделать под float массив
-            //    } else {
-            //         //отправляем как int[]
-            //        glUniform1iv(var->location, var->arraySize, (GLint*)var->values.data());
-
-            //     }
-            //}
-            break;
-        case GL_FLOAT_VEC3:
-         case GL_INT_VEC3:
-         case GL_INT_VEC4:
-        case GL_FLOAT_VEC2:
-            std::cerr << "Error: Not support vec3, vec2, vec4i uniform type: " << var->type << std::endl;
+            glUniform1i(glGetUniformLocation(computeProgram, var->name.c_str()), var->value.b);
             break;
         default:
             std::cerr << "Error: Unknown uniform type: " << var->type << std::endl;
             break;
-        }
-    }
-}
-
-void ModSystemAutomaton::addUIElementsToVariablesMap() {
-    // Получаем список элементов UI из ModManager
-    const std::vector<UIElement>& uiElements = ModManager::getCurrentModUIElements();
-    // Создаем ShaderVariableInfo
-    ShaderVariableInfo varInfo;
-
-    // Проходим по списку элементов UI
-    for (const auto& uiElement : uiElements) {
-        // Игнорируем разделители и просто текст.
-        if (uiElement.type == UIElementType::Separator || uiElement.type == UIElementType::Text) continue;
-        // Проверяем, есть ли уже такая переменная в variablesMap
-        if (variablesMap.find(uiElement.varName) != variablesMap.end()) {
-            varInfo.name = uiElement.varName;
-            //if (varInfo.location > 0) {
-            //    varInfo.location = varInfo.location;
-            //}
-            // Определяем тип переменной и присваиваем значение по умолчанию
-            if (uiElement.type == UIElementType::InputInt) {
-                varInfo.type = GL_INT;
-                varInfo.value.i = uiElement.intValue;
-                varInfo.valueStr = std::to_string(uiElement.intValue);
-            }
-            else if (uiElement.type == UIElementType::InputFloat) {
-                varInfo.type = GL_FLOAT;
-                varInfo.value.f = uiElement.floatValue;
-                varInfo.valueStr = std::to_string(uiElement.floatValue);
-            }
-            else if (uiElement.type == UIElementType::InputText) {
-                varInfo.type = GL_NONE; // или другой тип для текстового поля
-                varInfo.valueStr = uiElement.value;
-            }
-            variablesMap[varInfo.name] = &varInfo;
         }
     }
 }

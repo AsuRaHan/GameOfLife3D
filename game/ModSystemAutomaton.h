@@ -41,7 +41,6 @@ public:
 
     void getModShaderVariables();
     void updateShaderUniforms();
-    void addUIElementsToVariablesMap();
 
     void beforeUpdate() override;
 protected:
