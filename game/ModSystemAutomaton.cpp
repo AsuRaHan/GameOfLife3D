@@ -106,6 +106,8 @@ void ModSystemAutomaton::LoadSelectedMod() {
     std::string shaderSource = loadShaderSourceWithIncludes(mainShaderPath);
     shaderSource = processShaderMacros(shaderSource);
 
+    std::cout << "Shader source before compilation:\n" << shaderSource << std::endl;
+
     // Формируем имя программы на основе имени мода
     std::string programName = currentModName + "Program";
     std::string shaderName = currentModName + "Shader";
@@ -136,99 +138,102 @@ void ModSystemAutomaton::getModShaderVariables() {
     std::vector<UIElement> uiElements;
 
     GLint numUniforms;
-
-    glGetProgramInterfaceiv(computeProgram, GL_UNIFORM, GL_ACTIVE_RESOURCES, &numUniforms);
-
-    GLenum properties[] = { GL_NAME_LENGTH, GL_TYPE, GL_LOCATION, GL_ARRAY_SIZE };
-    const GLsizei numProps = sizeof(properties) / sizeof(properties[0]);
+    glGetProgramiv(computeProgram, GL_ACTIVE_UNIFORMS, &numUniforms); // Альтернативный способ
+    std::cout << "Number of active uniforms: " << numUniforms << std::endl;
 
     for (int i = 0; i < numUniforms; ++i) {
-        GLint values[numProps];
-        glGetProgramResourceiv(computeProgram, GL_UNIFORM, i, numProps, properties, numProps, NULL, values);
+        GLchar name[256];
+        GLint size;
+        GLenum type;
+        glGetActiveUniform(computeProgram, i, 256, NULL, &size, &type, name);
+        GLint location = glGetUniformLocation(computeProgram, name);
 
-        GLint nameLength = values[0];
-        GLchar* name = new GLchar[nameLength];
-        glGetProgramResourceName(computeProgram, GL_UNIFORM, i, nameLength, NULL, name);
         std::string varName = std::string(name);
+        std::cout << "Uniform: " << name << " Type (hex): 0x" << std::hex << type
+            << " Type (dec): " << std::dec << (int)type << " Location: " << location << " Size: " << size << std::endl;
 
-        if (nameLength > 1 && varName.rfind("gl_", 0) != 0) {
-            ShaderVariableInfo varInfo;
-            varInfo.name = varName;
-            varInfo.type = values[1];
-            varInfo.location = values[2];            
-            varInfo.arraySize = values[3];
+        if (varName.rfind("gl_", 0) == 0) continue;
 
-            //Skip not supported
-            //if (varInfo.arraySize > 0) continue;
-            if (varInfo.type != GL_INT && varInfo.type != GL_FLOAT && varInfo.type != GL_BOOL) continue;
+        ShaderVariableInfo varInfo;
+        varInfo.name = varName;
+        varInfo.type = type;
+        varInfo.location = location;
+        varInfo.arraySize = size;
 
-            //if (varInfo.arraySize > 0) {
-            //    varInfo.values.resize(varInfo.arraySize, 0.0f);
-            //}
-            UIElement uiElement;
-            uiElement.varName = varInfo.name;
-            uiElement.text = varInfo.name;
-
-            switch (varInfo.type) {
-            case GL_INT:
-            //case GL_SAMPLER_2D:
-                glGetUniformiv(computeProgram, varInfo.location, &varInfo.value.i);
-                variablesMap[varName] = new ShaderVariableInfo(varInfo);
-                uiElement.type = UIElementType::InputInt;
-                uiElement.intValue = varInfo.value.i;
-
-                break;
-            case GL_FLOAT:
-                glGetUniformfv(computeProgram, varInfo.location, &varInfo.value.f);
-                variablesMap[varName] = new ShaderVariableInfo(varInfo);
-                uiElement.type = UIElementType::InputFloat;
-                uiElement.floatValue = varInfo.value.f;                
-                break;
-            case GL_BOOL:
-                GLint tempBool;
-                glGetUniformiv(computeProgram, varInfo.location, &tempBool);
-                varInfo.value.b = (tempBool != 0);
-                variablesMap[varName] = new ShaderVariableInfo(varInfo);
-                uiElement.type = UIElementType::InputBool;
-                uiElement.intValue = varInfo.value.b;
-                break;
-            default:
-                std::cerr << "Warning: Unsupported uniform type for reading: " << varInfo.type << std::endl;
-                break;
-            }
-            uiElements.push_back(uiElement);
+        switch (varInfo.type) {
+        case GL_INT:
+            glGetUniformiv(computeProgram, varInfo.location, &varInfo.value.i);
+            variablesMap[varName] = varInfo;
+            break;
+        case GL_FLOAT:
+            glGetUniformfv(computeProgram, varInfo.location, &varInfo.value.f);
+            variablesMap[varName] = varInfo;
+            break;
+        case GL_BOOL:
+            GLint tempBool;
+            glGetUniformiv(computeProgram, varInfo.location, &tempBool);
+            varInfo.value.b = (tempBool != 0);
+            variablesMap[varName] = varInfo;
+            break;
+        case GL_INT_VEC2:
+            GLint ivec2[2];
+            glGetUniformiv(computeProgram, varInfo.location, ivec2);
+            varInfo.value.i = ivec2[0]; // Временно первое значение
+            variablesMap[varName] = varInfo;
+            break;
+        default:
+            std::cerr << "Warning: Unsupported uniform type: " << varInfo.type << std::endl;
+            continue;
         }
-        
-        delete[] name;
+
+        UIElement uiElement;
+        uiElement.varName = varInfo.name;
+        uiElement.text = varInfo.name;
+        uiElement.type = (varInfo.type == GL_INT) ? UIElementType::InputInt :
+            (varInfo.type == GL_FLOAT) ? UIElementType::InputFloat :
+            (varInfo.type == GL_BOOL) ? UIElementType::InputBool :
+            (varInfo.type == GL_INT_VEC2) ? UIElementType::InputInt : UIElementType::InputInt;
+        uiElement.intValue = (varInfo.type == GL_INT) ? varInfo.value.i :
+            (varInfo.type == GL_FLOAT) ? static_cast<int>(varInfo.value.f) :
+            (varInfo.type == GL_BOOL) ? varInfo.value.b : varInfo.value.i;
+        uiElements.push_back(uiElement);
     }
 
     ModManager::createModUIFromElements(uiElements);
 }
 
 
-
 void ModSystemAutomaton::updateShaderUniforms() {
     if (computeProgram == 0) {
-        std::cerr << "Error: Shader program not found: " << computeProgram << std::endl;
+        std::cerr << "Ошибка: Шейдерная программа не найдена: " << computeProgram << std::endl;
         return;
     }
 
+    glUseProgram(computeProgram);
+
     for (const auto& pair : variablesMap) {
-        const ShaderVariableInfo* var = pair.second;
-        if(var->location < 0) continue;
-        switch (var->type) {
-        case GL_INT://добавляем int
-        //case GL_SAMPLER_2D:
-            glUniform1i(glGetUniformLocation(computeProgram, var->name.c_str()), var->value.i);
+        const ShaderVariableInfo& var = pair.second;
+        if (var.location < 0) continue;
+
+        std::cout << "Обновление униформа: " << var.name << " Тип (hex): 0x" << std::hex << var.type
+            << " Тип (dec): " << std::dec << (int)var.type << " Местоположение: " << var.location
+            << " Значение: " << var.value.i << std::endl;
+
+        switch (var.type) {
+        case GL_INT:
+            glUniform1i(var.location, var.value.i);
             break;
         case GL_FLOAT:
-            glUniform1f(glGetUniformLocation(computeProgram, var->name.c_str()), var->value.f);
+            glUniform1f(var.location, var.value.f);
             break;
         case GL_BOOL:
-            glUniform1i(glGetUniformLocation(computeProgram, var->name.c_str()), var->value.b);
+            glUniform1i(var.location, var.value.b);
+            break;
+        case GL_INT_VEC2:
+            glUniform2i(var.location, var.value.i, 0); // Только для gridSize
             break;
         default:
-            std::cerr << "Error: Unknown uniform type: " << var->type << std::endl;
+            std::cerr << "Ошибка: Неизвестный тип униформа: " << var.type << std::endl;
             break;
         }
     }

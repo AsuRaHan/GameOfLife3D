@@ -65,6 +65,7 @@ PFNGLGETPROGRAMRESOURCENAMEPROC glGetProgramResourceName = nullptr;
 
 PFNGLGETUNIFORMIVPROC glGetUniformiv = nullptr;
 PFNGLGETUNIFORMFVPROC glGetUniformfv = nullptr;
+PFNGLGETACTIVEUNIFORMPROC glGetActiveUniform = nullptr;
 
 void LoadOpenGLFunctions() {
         // Загрузка функций для работы с буферами
@@ -194,7 +195,9 @@ void LoadOpenGLFunctions() {
     glGetUniformiv = (PFNGLGETUNIFORMIVPROC)wglGetProcAddress("glGetUniformiv");
     CHECK_LOAD_FUNCTION(glGetUniformiv);    
     glGetUniformfv = (PFNGLGETUNIFORMFVPROC)wglGetProcAddress("glGetUniformfv");
-    CHECK_LOAD_FUNCTION(glGetUniformfv);
+    CHECK_LOAD_FUNCTION(glGetUniformfv);    
+    glGetActiveUniform = (PFNGLGETACTIVEUNIFORMPROC)wglGetProcAddress("glGetActiveUniform");
+    CHECK_LOAD_FUNCTION(glGetActiveUniform);
 
 
 

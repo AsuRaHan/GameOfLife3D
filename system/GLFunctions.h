@@ -417,6 +417,7 @@
 #define GL_SAMPLER_2D 0x8B5E
 #endif
 
+
 #ifndef GL_BOOL
 #define GL_BOOL 0x8B56
 #endif
@@ -437,6 +438,9 @@
 #endif
 #ifndef GL_INT_VEC2
 #define GL_INT_VEC2 0x8B53
+#endif
+#ifndef GL_ACTIVE_UNIFORMS
+#define GL_ACTIVE_UNIFORMS 0x8B86
 #endif
 
 
@@ -522,6 +526,8 @@ typedef void (APIENTRY* PFNGLGETPROGRAMRESOURCENAMEPROC)(GLuint program, GLenum 
 typedef void (APIENTRY* PFNGLGETUNIFORMIVPROC)(GLuint program, GLint location, GLint* params);
 typedef void (APIENTRY* PFNGLGETUNIFORMFVPROC)(GLuint program, GLint location, GLfloat* params);
 
+typedef void (APIENTRY* PFNGLGETACTIVEUNIFORMPROC)(GLuint program, GLuint index, GLsizei bufSize, GLsizei* length, GLint* size, GLenum* type, GLchar* name);
+
 // Объявление указателей на функции
 extern PFNGLGENBUFFERSPROC glGenBuffers;
 extern PFNGLBINDBUFFERPROC glBindBuffer;
@@ -588,6 +594,7 @@ extern PFNGLGETPROGRAMRESOURCENAMEPROC glGetProgramResourceName;
 
 extern PFNGLGETUNIFORMIVPROC glGetUniformiv;
 extern PFNGLGETUNIFORMFVPROC glGetUniformfv;
+extern PFNGLGETACTIVEUNIFORMPROC glGetActiveUniform;
 
 // Функции для работы с OpenGL
 void LoadOpenGLFunctions();

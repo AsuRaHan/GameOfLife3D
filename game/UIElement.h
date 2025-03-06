@@ -29,6 +29,20 @@ struct UIElement {
 };
 
 // Структура для информации о переменной шейдера
+//struct ShaderVariableInfo {
+//    std::string name;
+//    GLint location;
+//    GLenum type;
+//    GLsizei arraySize;
+//    union Value {
+//        int i;
+//        float f;
+//        bool b;
+//        Value() : i(0) {} // Конструктор по умолчанию
+//    } value;
+//    std::vector<float> values; // Для массивов
+//    std::string valueStr; // Для текста
+//};
 struct ShaderVariableInfo {
     std::string name;
     GLint location;
@@ -42,6 +56,7 @@ struct ShaderVariableInfo {
     } value;
     std::vector<float> values; // Для массивов
     std::string valueStr; // Для текста
-};
 
+    ShaderVariableInfo() : name(""), location(0), type(0), arraySize(0), value(), values(), valueStr("") {}
+};
 #endif // UI_ELEMENT_H

@@ -53,10 +53,18 @@ void ShaderManager::loadTessEvaluationShader(const std::string& name, const char
 
 void ShaderManager::loadComputeShader(const std::string& name, const char* source) {
     std::cout << "Начинаю загрузку вычислительного шейдера " << name << std::endl;
+    // Удаляем старый шейдер, если он есть
+    if (shaders.find(name) != shaders.end()) {
+        GL_CHECK(glDeleteShader(shaders[name]));
+        shaders.erase(name);
+    }
+
     GLuint shader;
     compileShader(source, GL_COMPUTE_SHADER, shader);
     shaders[name] = shader;
 }
+
+
 
 void ShaderManager::linkProgram(const std::string& programName, const std::string& vertexShaderName, const std::string& fragmentShaderName) {
     std::cout << "[ShaderManager::linkProgram] Начинаю компиляцию шейдерной программы programName=" << programName 
@@ -112,6 +120,12 @@ void ShaderManager::linkTessellationProgram(const std::string& programName, cons
 void ShaderManager::linkComputeProgram(const std::string& programName, const std::string& computeShaderName) {
     std::cout << "[ShaderManager::linkComputeProgram] Начинаю компиляцию шейдерной программы programName=" << programName
         << " computeShaderName=" << computeShaderName << std::endl;
+    // Удаляем старую программу, если она есть
+    if (programs.find(programName) != programs.end()) {
+        GL_CHECK(glDeleteProgram(programs[programName]));
+        programs.erase(programName);
+    }
+
     GLuint program = glCreateProgram();
     glAttachShader(program, shaders[computeShaderName]);
     glLinkProgram(program);
