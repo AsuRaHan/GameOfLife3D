@@ -138,7 +138,7 @@ void ModSystemAutomaton::getModShaderVariables() {
     std::vector<UIElement> uiElements;
 
     GLint numUniforms;
-    glGetProgramiv(computeProgram, GL_ACTIVE_UNIFORMS, &numUniforms); // Альтернативный способ
+    glGetProgramiv(computeProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
     std::cout << "Number of active uniforms: " << numUniforms << std::endl;
 
     for (int i = 0; i < numUniforms; ++i) {
@@ -148,10 +148,13 @@ void ModSystemAutomaton::getModShaderVariables() {
         glGetActiveUniform(computeProgram, i, 256, NULL, &size, &type, name);
         GLint location = glGetUniformLocation(computeProgram, name);
 
-        std::string varName = std::string(name);
+        std::cout << "Raw type value for " << name << ": " << type << " (hex: 0x" << std::hex << type << ")" << std::dec << std::endl;
         std::cout << "Uniform: " << name << " Type (hex): 0x" << std::hex << type
-            << " Type (dec): " << std::dec << (int)type << " Location: " << location << " Size: " << size << std::endl;
+            << " Type (dec): " << std::dec << (int)type
+            << " [DEBUG: GL_INT=" << (int)GL_INT << ", GL_INT_VEC2=" << (int)GL_INT_VEC2 << ", GL_BOOL=" << (int)GL_BOOL << "]"
+            << " Location: " << location << " Size: " << size << std::endl;
 
+        std::string varName = std::string(name);
         if (varName.rfind("gl_", 0) == 0) continue;
 
         ShaderVariableInfo varInfo;
@@ -178,7 +181,7 @@ void ModSystemAutomaton::getModShaderVariables() {
         case GL_INT_VEC2:
             GLint ivec2[2];
             glGetUniformiv(computeProgram, varInfo.location, ivec2);
-            varInfo.value.i = ivec2[0]; // Временно первое значение
+            varInfo.value.i = ivec2[0];
             variablesMap[varName] = varInfo;
             break;
         default:
@@ -230,7 +233,7 @@ void ModSystemAutomaton::updateShaderUniforms() {
             glUniform1i(var.location, var.value.b);
             break;
         case GL_INT_VEC2:
-            glUniform2i(var.location, var.value.i, 0); // Только для gridSize
+            glUniform2i(var.location, var.value.i, 0);
             break;
         default:
             std::cerr << "Ошибка: Неизвестный тип униформа: " << var.type << std::endl;
