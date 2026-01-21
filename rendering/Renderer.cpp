@@ -7,6 +7,7 @@ Renderer::Renderer(int width, int height)
     gridRenderer(camera, shaderManager),
     textureFieldRenderer(camera, shaderManager)
     , cellsViewportRenderer(camera, shaderManager)
+    , cellsRenderer(camera, shaderManager)
     , patternInserterRenderer(camera, shaderManager)
 {
     SetupOpenGL();
@@ -40,6 +41,7 @@ void Renderer::SetGameController(GameController* gameController) {
     gridRenderer.SetGameController(gameController);
     textureFieldRenderer.SetGameController(gameController);
     cellsViewportRenderer.SetGameController(gameController);
+    cellsRenderer.SetGameController(gameController);
     patternInserterRenderer.SetGameController(gameController);
 
     // Инициализируем буферы после установки GameController
@@ -47,6 +49,7 @@ void Renderer::SetGameController(GameController* gameController) {
     gridRenderer.Initialize();
     textureFieldRenderer.Initialize();
     cellsViewportRenderer.Initialize();
+    cellsRenderer.Initialize();
     patternInserterRenderer.Initialize();
 }
 
@@ -61,11 +64,14 @@ void Renderer::Draw() {
         patternInserterRenderer.Draw();
     }
     
-    if (cameraDistance < 300.0f) {
+    if (cameraDistance < 20.0f) {
         // Камера ближе 300: рисуем ячейки
+        cellsRenderer.Draw();
+    }
+    else if (cameraDistance < 300.0f) {
         cellsViewportRenderer.Draw();
     }
-    else {
+    else{
         // Камера дальше 300: рисуем поле как текстуру
         textureFieldRenderer.Draw();
     }
@@ -84,4 +90,5 @@ void Renderer::RebuildGameField() {
     gridRenderer.Rebuild();
     textureFieldRenderer.Rebuild();
     cellsViewportRenderer.Initialize();
+    cellsRenderer.Initialize();
 }

@@ -139,6 +139,21 @@ void ModSystemAutomaton::getModShaderVariables() {
     glGetProgramiv(computeProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
     std::cout << "Number of active uniforms: " << numUniforms << std::endl;
 
+    // Список системных переменных, которые нужно пропускать
+    std::unordered_set<std::string> systemVariables = {
+        "gridSize",
+        "isToroidal",
+        "neighborhoodRadius",
+        "birth",
+        "survivalMin",
+        "survivalMax",
+        "overpopulation",
+        "birthCounts",
+        "surviveCounts",
+        "overpopulationCounts",
+        "useAdvancedRules"
+    };
+
     for (int i = 0; i < numUniforms; ++i) {
         GLchar name[256];
         GLint size;
@@ -147,7 +162,13 @@ void ModSystemAutomaton::getModShaderVariables() {
         GLint location = glGetUniformLocation(computeProgram, name);
 
         std::string varName = std::string(name);
+        
+        // Пропускаем системные переменные
         if (varName.rfind("gl_", 0) == 0) continue;
+        if (systemVariables.find(varName) != systemVariables.end()) {
+            std::cout << "Skipping system variable: " << varName << std::endl;
+            continue;
+        }
 
         ShaderVariableInfo varInfo;
         varInfo.name = varName;
@@ -184,29 +205,32 @@ void ModSystemAutomaton::getModShaderVariables() {
             varInfo.value.b = (boolValue != 0);
 
             uiElement.type = UIElementType::InputBool;
-            uiElement.intValue = (boolValue != 0) ? 1 : 0; // UIBuilder использует int для bool
+            uiElement.intValue = (boolValue != 0) ? 1 : 0;
             break;
         }
         case GL_INT_VEC2: {
+            // Проверяем, не системная ли это переменная (например, gridSize)
+            if (varName == "gridSize") {
+                std::cout << "Skipping gridSize (handled by system)" << std::endl;
+                continue;
+            }
+            
             GLint vec2[2];
             glGetUniformiv(computeProgram, location, vec2);
 
-            // Сохраняем оба значения
             varInfo.values.push_back((float)vec2[0]);
             varInfo.values.push_back((float)vec2[1]);
-            varInfo.value.i = vec2[0]; // Первое значение как основной
+            varInfo.value.i = vec2[0];
 
-            // Создаём ДВА UI элемента для x и y
-            uiElement.type = UIElementType::InputInt; // X компонент
+            uiElement.type = UIElementType::InputInt;
             uiElement.intValue = vec2[0];
 
-            UIElement uiElementY; // Y компонент
+            UIElement uiElementY;
             uiElementY.varName = varName + "_y";
             uiElementY.text = varName + " Y";
             uiElementY.type = UIElementType::InputInt;
             uiElementY.intValue = vec2[1];
             uiElements.push_back(uiElementY);
-
             break;
         }
         case GL_FLOAT_VEC2: {
@@ -217,7 +241,6 @@ void ModSystemAutomaton::getModShaderVariables() {
             varInfo.values.push_back(vec2[1]);
             varInfo.value.f = vec2[0];
 
-            // Два float элемента
             uiElement.type = UIElementType::InputFloat;
             uiElement.floatValue = vec2[0];
 
@@ -227,14 +250,12 @@ void ModSystemAutomaton::getModShaderVariables() {
             uiElementY.type = UIElementType::InputFloat;
             uiElementY.floatValue = vec2[1];
             uiElements.push_back(uiElementY);
-
             break;
         }
         case GL_INT_VEC3:
         case GL_INT_VEC4:
         case GL_FLOAT_VEC3:
         case GL_FLOAT_VEC4: {
-            // Аналогично для других векторов
             std::cerr << "Vector uniforms not fully supported yet: " << varName << std::endl;
             continue;
         }
@@ -246,20 +267,50 @@ void ModSystemAutomaton::getModShaderVariables() {
 
         variablesMap[varName] = varInfo;
         uiElements.push_back(uiElement);
+        
+        // Отладочный вывод
+        std::cout << "Added mod variable: " << varName 
+                  << " type: 0x" << std::hex << type << std::dec
+                  << " location: " << location << std::endl;
     }
+
+    // Сохраняем системные uniform location для быстрого доступа
+    cacheSystemUniformLocations();
 
     ModManager::createModUIFromElements(uiElements);
 }
 
+void ModSystemAutomaton::cacheSystemUniformLocations() {
+    // Кэшируем location системных uniform-ов для updateShaderUniforms
+    systemUniforms.clear();
+
+    systemUniforms["gridSize"] = glGetUniformLocation(computeProgram, "gridSize");
+    systemUniforms["isToroidal"] = glGetUniformLocation(computeProgram, "isToroidal");
+    systemUniforms["neighborhoodRadius"] = glGetUniformLocation(computeProgram, "neighborhoodRadius");
+    systemUniforms["birth"] = glGetUniformLocation(computeProgram, "birth");
+    systemUniforms["survivalMin"] = glGetUniformLocation(computeProgram, "survivalMin");
+    systemUniforms["survivalMax"] = glGetUniformLocation(computeProgram, "survivalMax");
+    systemUniforms["overpopulation"] = glGetUniformLocation(computeProgram, "overpopulation");
+    systemUniforms["useAdvancedRules"] = glGetUniformLocation(computeProgram, "useAdvancedRules");
+
+    // Для массивов
+    systemUniforms["birthCounts"] = glGetUniformLocation(computeProgram, "birthCounts");
+    systemUniforms["surviveCounts"] = glGetUniformLocation(computeProgram, "surviveCounts");
+    systemUniforms["overpopulationCounts"] = glGetUniformLocation(computeProgram, "overpopulationCounts");
+}
 
 void ModSystemAutomaton::updateShaderUniforms() {
     if (computeProgram == 0) {
-        std::cerr << "Ошибка: Шейдерная программа не найдена" << std::endl;
+        std::cerr << "Error: Shader program not found" << std::endl;
         return;
     }
 
     glUseProgram(computeProgram);
 
+    // 1. Сначала обновляем СИСТЕМНЫЕ uniform-ы
+    updateSystemUniforms();
+
+    // 2. Затем обновляем uniform-ы МОДА из UI
     for (const auto& pair : variablesMap) {
         const ShaderVariableInfo& var = pair.second;
         if (var.location < 0) continue;
@@ -268,50 +319,83 @@ void ModSystemAutomaton::updateShaderUniforms() {
         case GL_INT: {
             int v = ModManager::getModIntValue(var.name);
             glUniform1i(var.location, v);
-            std::cout << "Set " << var.name << " = " << v << std::endl;
             break;
         }
         case GL_FLOAT: {
             float f = ModManager::getModFloatValue(var.name);
             glUniform1f(var.location, f);
-            std::cout << "Set " << var.name << " = " << f << std::endl;
             break;
         }
         case GL_BOOL: {
             bool b = ModManager::getModBoolValue(var.name);
             glUniform1i(var.location, b ? 1 : 0);
-            std::cout << "Set " << var.name << " = " << b << std::endl;
             break;
         }
         case GL_INT_VEC2: {
-            int v0 = ModManager::getModIntValue(var.name);        // X компонент
-            int v1 = ModManager::getModIntValue(var.name + "_y"); // Y компонент
+            int v0 = ModManager::getModIntValue(var.name);
+            int v1 = ModManager::getModIntValue(var.name + "_y");
             glUniform2i(var.location, v0, v1);
-            std::cout << "Set " << var.name << " = [" << v0 << ", " << v1 << "]" << std::endl;
             break;
         }
         case GL_FLOAT_VEC2: {
             float v0 = ModManager::getModFloatValue(var.name);
             float v1 = ModManager::getModFloatValue(var.name + "_y");
             glUniform2f(var.location, v0, v1);
-            std::cout << "Set " << var.name << " = [" << v0 << ", " << v1 << "]" << std::endl;
             break;
         }
         default:
-            std::cerr << "Ошибка: Неизвестный тип униформа: " << var.type
+            std::cerr << "Error: Unknown uniform type: " << var.type
                 << " for " << var.name << std::endl;
             break;
         }
     }
+}
 
-    // Также обновляем системные uniform-ы
-    GLint gridSizeLoc = glGetUniformLocation(computeProgram, "gridSize");
-    if (gridSizeLoc != -1) {
-        glUniform2i(gridSizeLoc, gridWidth, gridHeight);
+void ModSystemAutomaton::updateSystemUniforms() {
+    // Обновляем стандартные системные параметры
+
+    if (systemUniforms["gridSize"] != -1) {
+        glUniform2i(systemUniforms["gridSize"], gridWidth, gridHeight);
     }
 
-    GLint toroidalLoc = glGetUniformLocation(computeProgram, "isToroidal");
-    if (toroidalLoc != -1) {
-        glUniform1i(toroidalLoc, isToroidal ? 1 : 0);
+    if (systemUniforms["isToroidal"] != -1) {
+        glUniform1i(systemUniforms["isToroidal"], isToroidal ? 1 : 0);
+    }
+
+    if (systemUniforms["neighborhoodRadius"] != -1) {
+        glUniform1i(systemUniforms["neighborhoodRadius"], neighborhoodRadius);
+    }
+
+    if (systemUniforms["birth"] != -1) {
+        glUniform1i(systemUniforms["birth"], birth);
+    }
+
+    if (systemUniforms["survivalMin"] != -1) {
+        glUniform1i(systemUniforms["survivalMin"], survivalMin);
+    }
+
+    if (systemUniforms["survivalMax"] != -1) {
+        glUniform1i(systemUniforms["survivalMax"], survivalMax);
+    }
+
+    if (systemUniforms["overpopulation"] != -1) {
+        glUniform1i(systemUniforms["overpopulation"], overpopulation);
+    }
+
+    if (systemUniforms["useAdvancedRules"] != -1) {
+        glUniform1i(systemUniforms["useAdvancedRules"], useAdvancedRules ? 1 : 0);
+    }
+
+    // Обновляем массивы правил
+    if (systemUniforms["birthCounts"] != -1) {
+        glUniform1iv(systemUniforms["birthCounts"], 9, birthRules);
+    }
+
+    if (systemUniforms["surviveCounts"] != -1) {
+        glUniform1iv(systemUniforms["surviveCounts"], 9, surviveRules);
+    }
+
+    if (systemUniforms["overpopulationCounts"] != -1) {
+        glUniform1iv(systemUniforms["overpopulationCounts"], 9, overpopulationRules);
     }
 }

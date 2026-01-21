@@ -116,6 +116,9 @@
     <ClCompile Include="game\UIBuilder.cpp">
       <Filter>game</Filter>
     </ClCompile>
+    <ClCompile Include="rendering\CellsRenderer.cpp">
+      <Filter>rendering\ExtRender</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rendering\Camera.h">
@@ -234,6 +237,9 @@
     </ClInclude>
     <ClInclude Include="game\UIElement.h">
       <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\CellsRenderer.h">
+      <Filter>rendering\ExtRender</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

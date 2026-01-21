@@ -36,18 +36,6 @@ WindowController::WindowController(IRendererProvider* renderer, GameController* 
             pCameraController.HandleInput(event);
         }
         });
-
-    //inputHandler.RegisterHandler(InputEvent::InputType::MouseButtonDown, [this](const InputEvent& event) {
-    //    if (event.button == InputEvent::MouseButton::Middle) {
-    //        pCameraController.HandleInput(event);
-    //    }
-    //    });
-
-    //inputHandler.RegisterHandler(InputEvent::InputType::MouseButtonUp, [this](const InputEvent& event) {
-    //    if (event.button == InputEvent::MouseButton::Middle) {
-    //        pCameraController.HandleInput(event);
-    //    }
-    //    });
     ResetCamera();
 }
 
