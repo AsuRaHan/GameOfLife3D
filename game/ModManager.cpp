@@ -1,6 +1,6 @@
 // ModManager.cpp
 #include "ModManager.h"
-#include <algorithm> // Для std::transform
+
 
 // Инициализация статических членов класса
 const std::vector<std::string> ModManager::requiredModFiles = {

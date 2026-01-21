@@ -11,6 +11,7 @@
 #include <filesystem> // Для работы с файловой системой
 #include <cstring>    // для memcmp
 #include <map>        // для хранения параметров мода
+#include <algorithm> // Для std::transform
 
 #include "UIBuilder.h"
 

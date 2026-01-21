@@ -1,6 +1,6 @@
 // UIBuilder.cpp
 #include "UIBuilder.h"
-#include <iostream>
+
 
 UIBuilder::UIBuilder() {
     // Инициализация, если нужно

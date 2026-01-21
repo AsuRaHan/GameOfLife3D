@@ -106,7 +106,7 @@ void ModSystemAutomaton::LoadSelectedMod() {
     std::string shaderSource = loadShaderSourceWithIncludes(mainShaderPath);
     shaderSource = processShaderMacros(shaderSource);
 
-    std::cout << "Shader source before compilation:\n" << shaderSource << std::endl;
+    //std::cout << "Shader source before compilation:\n" << shaderSource << std::endl;
 
     // Формируем имя программы на основе имени мода
     std::string programName = currentModName + "Program";
