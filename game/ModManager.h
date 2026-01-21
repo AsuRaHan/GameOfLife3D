@@ -17,22 +17,12 @@
 
 class ModManager {
 public:
-    // Структура для хранения параметров мода
-    struct ModConfig {
-        std::string modName;
-        int minWorldSizeX;
-        int minWorldSizeY;
-        int minWorldSizeZ;
-        std::vector<std::string> cellTypeNames; // Массив имен типов клеток
-    };
+
     // Список файлов, которые должны быть в папке "mods" (базовые)
     static const std::vector<std::string> requiredModFiles;
 
     // Список доступных модов (названия папок)
     static std::vector<std::string> availableMods;
-
-    // Карта для хранения конфигураций модов
-    static std::map<std::string, ModConfig> modConfigs;
 
     // Метод для проверки наличия папки "mods" и необходимых файлов в ней
     static bool checkMods();
@@ -47,7 +37,7 @@ public:
     static void loadAvailableMods();
 
     // Метод для загрузки конфигурации мода из mod.cfg
-    static ModConfig loadModConfig(const std::string& modFolderName);
+    //static ModConfig loadModConfig(const std::string& modFolderName);
 
     // Getter для имени текущего мода
     static const std::string& getCurrentModName();

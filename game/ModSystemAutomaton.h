@@ -25,7 +25,6 @@ public:
 protected:
     void CreateComputeShader() override; // Переопределяем шейдер для новых правил
 private:
-    //std::map<std::string, ShaderVariableInfo*> variablesMap; // Мапа для быстрого доступа к переменным
     std::map<std::string, ShaderVariableInfo> variablesMap; // Объявление переменной variablesMap
 
     std::unordered_set<std::string> includedFiles; // Список уже подключенных файлов

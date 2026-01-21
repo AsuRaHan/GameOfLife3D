@@ -24,8 +24,6 @@ ModSystemAutomaton::ModSystemAutomaton(int width, int height)
 
 void ModSystemAutomaton::CreateComputeShader() {
     CheckComputeLimits(); // Проверяем лимиты, как в базовом классе
-
-    //LoadSelectedMod();
 }
 
 std::string ModSystemAutomaton::loadShaderSourceWithIncludes(const std::string& filename) {
@@ -130,7 +128,7 @@ void ModSystemAutomaton::beforeUpdate() {
 
 void ModSystemAutomaton::getModShaderVariables() {
     if (computeProgram == 0) {
-        std::cerr << "Error: Shader program not found: " << computeProgram << std::endl;
+        std::cerr << "Error: Shader program not found" << std::endl;
         return;
     }
 
@@ -148,12 +146,6 @@ void ModSystemAutomaton::getModShaderVariables() {
         glGetActiveUniform(computeProgram, i, 256, NULL, &size, &type, name);
         GLint location = glGetUniformLocation(computeProgram, name);
 
-        std::cout << "Raw type value for " << name << ": " << type << " (hex: 0x" << std::hex << type << ")" << std::dec << std::endl;
-        std::cout << "Uniform: " << name << " Type (hex): 0x" << std::hex << type
-            << " Type (dec): " << std::dec << (int)type
-            << " [DEBUG: GL_INT=" << (int)GL_INT << ", GL_INT_VEC2=" << (int)GL_INT_VEC2 << ", GL_BOOL=" << (int)GL_BOOL << "]"
-            << " Location: " << location << " Size: " << size << std::endl;
-
         std::string varName = std::string(name);
         if (varName.rfind("gl_", 0) == 0) continue;
 
@@ -163,42 +155,96 @@ void ModSystemAutomaton::getModShaderVariables() {
         varInfo.location = location;
         varInfo.arraySize = size;
 
-        switch (varInfo.type) {
-        case GL_INT:
-            glGetUniformiv(computeProgram, varInfo.location, &varInfo.value.i);
-            variablesMap[varName] = varInfo;
+        UIElement uiElement;
+        uiElement.varName = varName;
+        uiElement.text = varName;
+
+        switch (type) {
+        case GL_INT: {
+            GLint intValue;
+            glGetUniformiv(computeProgram, location, &intValue);
+            varInfo.value.i = intValue;
+
+            uiElement.type = UIElementType::InputInt;
+            uiElement.intValue = intValue;
             break;
-        case GL_FLOAT:
-            glGetUniformfv(computeProgram, varInfo.location, &varInfo.value.f);
-            variablesMap[varName] = varInfo;
+        }
+        case GL_FLOAT: {
+            GLfloat floatValue;
+            glGetUniformfv(computeProgram, location, &floatValue);
+            varInfo.value.f = floatValue;
+
+            uiElement.type = UIElementType::InputFloat;
+            uiElement.floatValue = floatValue;
             break;
-        case GL_BOOL:
-            GLint tempBool;
-            glGetUniformiv(computeProgram, varInfo.location, &tempBool);
-            varInfo.value.b = (tempBool != 0);
-            variablesMap[varName] = varInfo;
+        }
+        case GL_BOOL: {
+            GLint boolValue;
+            glGetUniformiv(computeProgram, location, &boolValue);
+            varInfo.value.b = (boolValue != 0);
+
+            uiElement.type = UIElementType::InputBool;
+            uiElement.intValue = (boolValue != 0) ? 1 : 0; // UIBuilder использует int для bool
             break;
-        case GL_INT_VEC2:
-            GLint ivec2[2];
-            glGetUniformiv(computeProgram, varInfo.location, ivec2);
-            varInfo.value.i = ivec2[0];
-            variablesMap[varName] = varInfo;
+        }
+        case GL_INT_VEC2: {
+            GLint vec2[2];
+            glGetUniformiv(computeProgram, location, vec2);
+
+            // Сохраняем оба значения
+            varInfo.values.push_back((float)vec2[0]);
+            varInfo.values.push_back((float)vec2[1]);
+            varInfo.value.i = vec2[0]; // Первое значение как основной
+
+            // Создаём ДВА UI элемента для x и y
+            uiElement.type = UIElementType::InputInt; // X компонент
+            uiElement.intValue = vec2[0];
+
+            UIElement uiElementY; // Y компонент
+            uiElementY.varName = varName + "_y";
+            uiElementY.text = varName + " Y";
+            uiElementY.type = UIElementType::InputInt;
+            uiElementY.intValue = vec2[1];
+            uiElements.push_back(uiElementY);
+
             break;
+        }
+        case GL_FLOAT_VEC2: {
+            GLfloat vec2[2];
+            glGetUniformfv(computeProgram, location, vec2);
+
+            varInfo.values.push_back(vec2[0]);
+            varInfo.values.push_back(vec2[1]);
+            varInfo.value.f = vec2[0];
+
+            // Два float элемента
+            uiElement.type = UIElementType::InputFloat;
+            uiElement.floatValue = vec2[0];
+
+            UIElement uiElementY;
+            uiElementY.varName = varName + "_y";
+            uiElementY.text = varName + " Y";
+            uiElementY.type = UIElementType::InputFloat;
+            uiElementY.floatValue = vec2[1];
+            uiElements.push_back(uiElementY);
+
+            break;
+        }
+        case GL_INT_VEC3:
+        case GL_INT_VEC4:
+        case GL_FLOAT_VEC3:
+        case GL_FLOAT_VEC4: {
+            // Аналогично для других векторов
+            std::cerr << "Vector uniforms not fully supported yet: " << varName << std::endl;
+            continue;
+        }
         default:
-            std::cerr << "Warning: Unsupported uniform type: " << varInfo.type << std::endl;
+            std::cerr << "Warning: Unsupported uniform type: " << type
+                << " for " << varName << std::endl;
             continue;
         }
 
-        UIElement uiElement;
-        uiElement.varName = varInfo.name;
-        uiElement.text = varInfo.name;
-        uiElement.type = (varInfo.type == GL_INT) ? UIElementType::InputInt :
-            (varInfo.type == GL_FLOAT) ? UIElementType::InputFloat :
-            (varInfo.type == GL_BOOL) ? UIElementType::InputBool :
-            (varInfo.type == GL_INT_VEC2) ? UIElementType::InputInt : UIElementType::InputInt;
-        uiElement.intValue = (varInfo.type == GL_INT) ? varInfo.value.i :
-            (varInfo.type == GL_FLOAT) ? static_cast<int>(varInfo.value.f) :
-            (varInfo.type == GL_BOOL) ? varInfo.value.b : varInfo.value.i;
+        variablesMap[varName] = varInfo;
         uiElements.push_back(uiElement);
     }
 
@@ -208,44 +254,64 @@ void ModSystemAutomaton::getModShaderVariables() {
 
 void ModSystemAutomaton::updateShaderUniforms() {
     if (computeProgram == 0) {
-        std::cerr << "Ошибка: Шейдерная программа не найдена: " << computeProgram << std::endl;
+        std::cerr << "Ошибка: Шейдерная программа не найдена" << std::endl;
         return;
     }
 
     glUseProgram(computeProgram);
-    // Обновляем униформы значениями из UI (ModManager -> UIBuilder)
+
     for (const auto& pair : variablesMap) {
         const ShaderVariableInfo& var = pair.second;
         if (var.location < 0) continue;
 
-        std::cout << "Обновление униформа: " << var.name << " Тип (hex): 0x" << std::hex << var.type
-            << " Тип (dec): " << std::dec << (int)var.type << " Местоположение: " << var.location << std::endl;
-
-        // Получаем значения из UI вместо использования сохранённого var.value
         switch (var.type) {
         case GL_INT: {
             int v = ModManager::getModIntValue(var.name);
             glUniform1i(var.location, v);
+            std::cout << "Set " << var.name << " = " << v << std::endl;
             break;
         }
         case GL_FLOAT: {
             float f = ModManager::getModFloatValue(var.name);
             glUniform1f(var.location, f);
+            std::cout << "Set " << var.name << " = " << f << std::endl;
             break;
         }
         case GL_BOOL: {
             bool b = ModManager::getModBoolValue(var.name);
             glUniform1i(var.location, b ? 1 : 0);
+            std::cout << "Set " << var.name << " = " << b << std::endl;
             break;
         }
         case GL_INT_VEC2: {
-            int v0 = ModManager::getModIntValue(var.name);
-            glUniform2i(var.location, v0, 0);
+            int v0 = ModManager::getModIntValue(var.name);        // X компонент
+            int v1 = ModManager::getModIntValue(var.name + "_y"); // Y компонент
+            glUniform2i(var.location, v0, v1);
+            std::cout << "Set " << var.name << " = [" << v0 << ", " << v1 << "]" << std::endl;
+            break;
+        }
+        case GL_FLOAT_VEC2: {
+            float v0 = ModManager::getModFloatValue(var.name);
+            float v1 = ModManager::getModFloatValue(var.name + "_y");
+            glUniform2f(var.location, v0, v1);
+            std::cout << "Set " << var.name << " = [" << v0 << ", " << v1 << "]" << std::endl;
             break;
         }
         default:
-            std::cerr << "Ошибка: Неизвестный тип униформа: " << var.type << std::endl;
+            std::cerr << "Ошибка: Неизвестный тип униформа: " << var.type
+                << " for " << var.name << std::endl;
             break;
         }
+    }
+
+    // Также обновляем системные uniform-ы
+    GLint gridSizeLoc = glGetUniformLocation(computeProgram, "gridSize");
+    if (gridSizeLoc != -1) {
+        glUniform2i(gridSizeLoc, gridWidth, gridHeight);
+    }
+
+    GLint toroidalLoc = glGetUniformLocation(computeProgram, "isToroidal");
+    if (toroidalLoc != -1) {
+        glUniform1i(toroidalLoc, isToroidal ? 1 : 0);
     }
 }

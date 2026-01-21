@@ -610,5 +610,5 @@ void CheckOpenGLError(const char* stmt, const char* fname, int line);
 #endif
 
 #define CHECK_LOAD_FUNCTION(func) \
-    std::cout << ((func) ? "            Успешно загружена функция " #func : "   Не удалось загрузить функцию " #func) << std::endl;
+    //std::cout << ((func) ? "            Успешно загружена функция " #func : "   Не удалось загрузить функцию " #func) << std::endl;
 #endif //GLFUNC_H
