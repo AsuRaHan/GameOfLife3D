@@ -213,28 +213,36 @@ void ModSystemAutomaton::updateShaderUniforms() {
     }
 
     glUseProgram(computeProgram);
-
+    // Обновляем униформы значениями из UI (ModManager -> UIBuilder)
     for (const auto& pair : variablesMap) {
         const ShaderVariableInfo& var = pair.second;
         if (var.location < 0) continue;
 
         std::cout << "Обновление униформа: " << var.name << " Тип (hex): 0x" << std::hex << var.type
-            << " Тип (dec): " << std::dec << (int)var.type << " Местоположение: " << var.location
-            << " Значение: " << var.value.i << std::endl;
+            << " Тип (dec): " << std::dec << (int)var.type << " Местоположение: " << var.location << std::endl;
 
+        // Получаем значения из UI вместо использования сохранённого var.value
         switch (var.type) {
-        case GL_INT:
-            glUniform1i(var.location, var.value.i);
+        case GL_INT: {
+            int v = ModManager::getModIntValue(var.name);
+            glUniform1i(var.location, v);
             break;
-        case GL_FLOAT:
-            glUniform1f(var.location, var.value.f);
+        }
+        case GL_FLOAT: {
+            float f = ModManager::getModFloatValue(var.name);
+            glUniform1f(var.location, f);
             break;
-        case GL_BOOL:
-            glUniform1i(var.location, var.value.b);
+        }
+        case GL_BOOL: {
+            bool b = ModManager::getModBoolValue(var.name);
+            glUniform1i(var.location, b ? 1 : 0);
             break;
-        case GL_INT_VEC2:
-            glUniform2i(var.location, var.value.i, 0);
+        }
+        case GL_INT_VEC2: {
+            int v0 = ModManager::getModIntValue(var.name);
+            glUniform2i(var.location, v0, 0);
             break;
+        }
         default:
             std::cerr << "Ошибка: Неизвестный тип униформа: " << var.type << std::endl;
             break;

@@ -218,6 +218,13 @@ float UIBuilder::getFloatElementValue(const std::string& varName) const {
     return 0.0f; // Возвращаем значение по умолчанию
 }
 
+bool UIBuilder::getBoolElementValue(const std::string& varName) const {
+    if (boolVariables.count(varName) > 0) {
+        return boolVariables.at(varName);
+    }
+    return false;
+}
+
 void UIBuilder::setStringElementValue(const std::string& varName, const std::string& value) {
     stringVariables[varName] = value;
 }

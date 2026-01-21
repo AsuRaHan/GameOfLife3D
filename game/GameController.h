@@ -20,6 +20,7 @@
 #include <vector>
 #include <array>
 #include <filesystem>
+#include <memory>
 
 // Определим тип фигуры как двумерный массив
 using Pattern = std::vector<std::vector<bool>>;
@@ -27,8 +28,7 @@ using Pattern = std::vector<std::vector<bool>>;
 class GameController {
 private:
     Grid grid;
-    //GPUAutomaton gpuAutomaton; // член класса для вычислений на GPU
-    GPUAutomaton* gameAutomaton; // Переименовали и сделали указателем
+    std::unique_ptr<GPUAutomaton> gameAutomaton; // Переименовали и сделали указателем
 
     float cellSize; // Размер каждой клетки в пикселях
     bool isRunning; // Флаг, показывает, запущена ли симуляция
@@ -113,7 +113,6 @@ private:
     Vector3d patternPreviewPosition; // Позиция предпросмотра паттерна
 public:
     GameController(int width, int height, float cellSize = 0.5f);
-    ~GameController(); // Добавляем деструктор
 
     void randomizeGrid(float density);
 

@@ -38,6 +38,7 @@ public:
     const std::string& getStringElementValue(const std::string& varName) const;
     int getIntElementValue(const std::string& varName) const;
     float getFloatElementValue(const std::string& varName) const;
+    bool getBoolElementValue(const std::string& varName) const;
 
     // Методы для установки значения элемента
     void setStringElementValue(const std::string& varName, const std::string& value);

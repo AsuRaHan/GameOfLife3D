@@ -63,6 +63,12 @@ public:
     static const std::vector<UIElement>& getCurrentModUIElements();
     static void createModUIFromElements(const std::vector<UIElement>& elements);
 
+    // Helpers to get current values from mod UI
+    static const std::string& getModStringValue(const std::string& varName);
+    static int getModIntValue(const std::string& varName);
+    static float getModFloatValue(const std::string& varName);
+    static bool getModBoolValue(const std::string& varName);
+
 private:
     // Имя текущего мода
     static std::string currentModName;

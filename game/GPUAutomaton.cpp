@@ -116,40 +116,24 @@ int determineNewType(ivec2 pos) {
 }
 
 // Метод для генерации цвета на основе типа клетки.
-vec4 getColorByType(int type, int currentState) {
-    if (type == 0) {
-        return vec4(0.05, 0.05, 0.08, 0.0); // Мертвая клетка
+vec4 getColorByType(int type) {
+    if (type <= 0) {
+        return vec4(0.05, 0.05, 0.08, 0.0); // Мертвая или пустая клетка
     }
-    if (type < 0) {
-        return vec4(0.0, 0.0, 0.0, 0.0); // Пустая клетка
+    if (type > 7){
+        return vec4(1.0,1.0,1.0,0.0);
     }
-
 
     vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
-    float increase = 0.02;
-
-    int t = type;
-    int r = (t / 4) % 2;
-    int g = (t / 2) % 2;
-    int b = (t / 1) % 2;
+    int r = (type / 4) % 2;
+    int g = (type / 2) % 2;
+    int b = (type / 1) % 2;
 
     color.r = float(r);
     color.g = float(g);
     color.b = float(b);
-
-    if(currentState > 0 && currentState == type){
-        vec4 currentColor = colors[gl_GlobalInvocationID.y * gridSize.x + gl_GlobalInvocationID.x];
-        color.r = min(currentColor.r + increase, color.r);
-        color.g = min(currentColor.g + increase, color.g);
-        color.b = min(currentColor.b + increase, color.b);
-    }
-    if (type > 7){
-        color = vec4(1.0,1.0,1.0,0.0);
-    }
-    if(type > 0){
-        color = clamp(color,vec4(0,0,0,0),vec4(1,1,1,0));
-    }
-    return color;
+    
+    return clamp(color,vec4(0,0,0,0),vec4(1,1,1,0));
 }
 
 
@@ -186,7 +170,16 @@ void main() {
     }
 
     next[index] = nextState;
-    colors[index] = getColorByType(nextState, currentState);
+    
+    vec4 newColor = getColorByType(nextState);
+    if (currentState > 0 && currentState == nextState) {
+        // Клетка того же типа, "старим" ее цвет
+        float decrease = 0.02;
+        vec4 currentColor = colors[index];
+        newColor.rgb = max(currentColor.rgb - vec3(decrease), newColor.rgb);
+    }
+    
+    colors[index] = newColor;
 }
 
 )";

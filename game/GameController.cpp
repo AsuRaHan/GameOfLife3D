@@ -12,23 +12,21 @@ GameController::GameController(int width, int height, float cellSize)
     
     if (!ModManager::checkMods()) {
         std::cerr << "Error: Mods check failed. Using default." << std::endl;
-        gameAutomaton = new GPUAutomaton(grid.getWidth(), grid.getHeight());
+        gameAutomaton = std::make_unique<GPUAutomaton>(grid.getWidth(), grid.getHeight());
     }
     else {
-        gameAutomaton = new ModSystemAutomaton(grid.getWidth(), grid.getHeight());
+        gameAutomaton = std::make_unique<ModSystemAutomaton>(grid.getWidth(), grid.getHeight());
     }
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
-    grid.SetGPUAutomaton(gameAutomaton);
+    grid.SetGPUAutomaton(gameAutomaton.get());
     gameAutomaton->SetToroidal(isWorldToroidal);
 
     frameTimeAccumulator = GetTickCount64();
     isRunning = false;
 }
 
-GameController::~GameController() {
-    delete gameAutomaton; // Очищаем память
-}
+
 
 void GameController::placePattern(int startX, int startY, const Pattern& pattern) {
     if (isRunning) return;

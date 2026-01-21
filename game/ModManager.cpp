@@ -17,6 +17,22 @@ const std::vector<UIElement>& ModManager::getCurrentModUIElements() { // Сде�
     return modUIBuilder.getElements();
 }
 
+const std::string& ModManager::getModStringValue(const std::string& varName) {
+    return modUIBuilder.getStringElementValue(varName);
+}
+
+int ModManager::getModIntValue(const std::string& varName) {
+    return modUIBuilder.getIntElementValue(varName);
+}
+
+float ModManager::getModFloatValue(const std::string& varName) {
+    return modUIBuilder.getFloatElementValue(varName);
+}
+
+bool ModManager::getModBoolValue(const std::string& varName) {
+    return modUIBuilder.getBoolElementValue(varName);
+}
+
 void ModManager::createModUIFromElements(const std::vector<UIElement>& elements) {
     modUIBuilder.setConfig(elements);
     std::cout << "UI created from elements for mod: " << currentModName << std::endl;

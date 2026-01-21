@@ -1,6 +1,5 @@
 #include "BaseRenderer.h"
 
-#include "BaseRenderer.h"
 #include <iostream>
 
 BaseRenderer::BaseRenderer(const Camera& camera, ShaderManager& shaderManager)
